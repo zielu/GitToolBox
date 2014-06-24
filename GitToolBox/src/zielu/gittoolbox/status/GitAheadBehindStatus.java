@@ -19,6 +19,6 @@ public class GitAheadBehindStatus {
     
     @Override
     public String toString() {
-        return "\u2191"+ahead+" \u2193"+behind;    
+        return ahead+"\u2191 "+behind+" \u2193";    
     }
 }
