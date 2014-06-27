@@ -19,12 +19,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 
 public class GitStatusCalculator {
-    private final Project project;
-    private final ProgressIndicator indicator;
+    private final Project myProject;
+    private final ProgressIndicator myIndicator;
 
-    private GitStatusCalculator(Project _project, ProgressIndicator _indicator) {
-        project = Preconditions.checkNotNull(_project);
-        indicator = Preconditions.checkNotNull(_indicator);
+    private GitStatusCalculator(Project project, ProgressIndicator indicator) {
+        myProject = Preconditions.checkNotNull(project);
+        myIndicator = Preconditions.checkNotNull(indicator);
     }
 
     public static GitStatusCalculator create(@NotNull Project project, @NotNull ProgressIndicator indicator) {
@@ -92,12 +92,12 @@ public class GitStatusCalculator {
     }
 
     private int doRevListCount(String branches, GitRepository repository) {
-        final GitLineHandler handler = new GitLineHandler(project, repository.getRoot(), GitCommand.REV_LIST);
+        final GitLineHandler handler = new GitLineHandler(myProject, repository.getRoot(), GitCommand.REV_LIST);
         handler.addParameters(branches, "--count");
         final GitRevListCounter counter = new GitRevListCounter();
         handler.addLineListener(counter);
-        GitTask task = new GitTask(project, handler, branches);
-        task.setProgressIndicator(indicator);
+        GitTask task = new GitTask(myProject, handler, branches);
+        task.setProgressIndicator(myIndicator);
         final AtomicReference<Integer> result = new AtomicReference<Integer>();
         task.execute(true, false, new GitTaskResultHandlerAdapter() {
             @Override

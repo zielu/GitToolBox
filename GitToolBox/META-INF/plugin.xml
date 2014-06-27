@@ -19,7 +19,7 @@
   <idea-version since-build="135"/>
 
   <depends>Git4Idea</depends>
-  
+
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
        on how to target different products -->
   <!-- uncomment to enable plugin in all products
@@ -39,9 +39,13 @@
   </project-components>
 
   <actions>
-    <action class="zielu.gittoolbox.actions.GitFetchAndShowStatusAction" id="GitToolBox.FetchAndStatus" 
+    <action class="zielu.gittoolbox.actions.GitFetchAndShowStatusAction" id="GitToolBox.FetchAndStatus"
             text="Fetch and show status">
       <add-to-group group-id="GitRepositoryActions" anchor="after" relative-to-action="Git.Fetch"/>
+    </action>
+    <action class="zielu.gittoolbox.actions.GitPushTagsAction" id="GitToolBox.PushTags"
+            text="Push tags...">
+      <add-to-group group-id="GitRepositoryActions" anchor="after" relative-to-action="Git.Push"/>
     </action>
   </actions>
 

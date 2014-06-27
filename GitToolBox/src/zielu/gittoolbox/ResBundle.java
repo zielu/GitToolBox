@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
 
 public class ResBundle {
-    private static Reference<ResourceBundle> ourBundle;
+    private static Reference<ResourceBundle> myBundle;
 
     @NonNls
     private static final String BUNDLE = "zielu.gittoolbox.ResourceBundle";
@@ -26,12 +26,12 @@ public class ResBundle {
 
     private static java.util.ResourceBundle getBundle() {
         ResourceBundle bundle = null;
-        if (ourBundle != null) {
-            bundle = ourBundle.get();
+        if (myBundle != null) {
+            bundle = myBundle.get();
         }
         if (bundle == null) {
             bundle = ResourceBundle.getBundle(BUNDLE);
-            ourBundle = new SoftReference<ResourceBundle>(bundle);
+            myBundle = new SoftReference<ResourceBundle>(bundle);
         }
         return bundle;
     }

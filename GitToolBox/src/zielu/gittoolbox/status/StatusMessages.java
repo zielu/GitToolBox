@@ -24,10 +24,17 @@ public enum StatusMessages {
     }
 
     public static String prepareBehindMessage(Collection<GitRepository> repositories, List<Integer> statuses) {
-        StringBuilder message = new StringBuilder(ResBundle.getString("message.fetch.success")+":");
+        StringBuilder message = new StringBuilder(ResBundle.getString("message.fetch.success"));
         if (statuses.size() == 1) {
-            message.append(" ").append(statuses.get(0)).append(UtfSeq.ArrowDown);
+            message.append(": ");
+            Integer singleStatus = statuses.get(0);
+            if (singleStatus > 0) {
+                message.append(singleStatus).append(UtfSeq.ArrowDown);
+            } else {
+                message.append(ResBundle.getString("message.up.to.date"));
+            }
         } else {
+            message.append(":");
             int index = 0;
             for (GitRepository repository : repositories) {
                 message.append("\n").append(repository.getGitDir().getName()).append(statuses.get(index));
