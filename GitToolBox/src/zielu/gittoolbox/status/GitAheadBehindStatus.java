@@ -1,5 +1,7 @@
 package zielu.gittoolbox.status;
 
+import zielu.gittoolbox.UtfSeq;
+
 public class GitAheadBehindStatus {
     public final int ahead;
     public final int behind;
@@ -19,6 +21,6 @@ public class GitAheadBehindStatus {
 
     @Override
     public String toString() {
-        return ahead+"\u2191 "+behind+"\u2193";
+        return ahead + UtfSeq.ArrowUp+" "+behind+UtfSeq.ArrowDown;
     }
 }
