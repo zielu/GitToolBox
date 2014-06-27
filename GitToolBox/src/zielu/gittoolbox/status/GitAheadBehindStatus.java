@@ -8,17 +8,17 @@ public class GitAheadBehindStatus {
         ahead = _ahead;
         behind = _behind;
     }
-    
+
     public static GitAheadBehindStatus create(int ahead, int behind) {
         return new GitAheadBehindStatus(ahead, behind);
     }
-    
+
     public static GitAheadBehindStatus empty() {
         return create(0, 0);
     }
-    
+
     @Override
     public String toString() {
-        return ahead+"\u2191 "+behind+" \u2193";    
+        return ahead+"\u2191 "+behind+"\u2193";
     }
 }

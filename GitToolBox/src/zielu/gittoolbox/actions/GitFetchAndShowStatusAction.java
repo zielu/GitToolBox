@@ -17,8 +17,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.status.GitAheadBehindStatus;
 import zielu.gittoolbox.status.GitStatusCalculator;
+import zielu.gittoolbox.status.StatusMessages;
 
 public class GitFetchAndShowStatusAction extends GitRepositoryAction {
     @NotNull
@@ -28,37 +28,24 @@ public class GitFetchAndShowStatusAction extends GitRepositoryAction {
     }
 
     @Override
-    protected void perform(@NotNull Project project, @NotNull final List<VirtualFile> gitRoots, 
-                           @NotNull VirtualFile defaultRoot, final Set<VirtualFile> affectedRoots, 
+    protected void perform(@NotNull Project project, @NotNull final List<VirtualFile> gitRoots,
+                           @NotNull VirtualFile defaultRoot, final Set<VirtualFile> affectedRoots,
                            List<VcsException> exceptions) throws VcsException {
         GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project), "Fetching...", false) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(getProject());
-                Collection<GitRepository> repositories = GitUtil.getRepositoriesFromRoots(repositoryManager, 
+                Collection<GitRepository> repositories = GitUtil.getRepositoriesFromRoots(repositoryManager,
                     Preconditions.checkNotNull(gitRoots));
                 new GitFetcher(getProject(), indicator, true)
                     .fetchRootsAndNotify(GitUtil.getRepositoriesFromRoots(repositoryManager, gitRoots), null, false);
                 GitStatusCalculator calc = GitStatusCalculator.create(getProject(), indicator);
-                List<GitAheadBehindStatus> statuses = calc.aheadBehindStatus(repositories);
+                List<Integer> statuses = calc.behindStatus(repositories);
                 if (!statuses.isEmpty()) {
-                    VcsNotifier.getInstance(getProject()).notifySuccess(prepareMessage(repositories, statuses));
+                    VcsNotifier.getInstance(getProject()).notifySuccess(StatusMessages.prepareBehindMessage(repositories, statuses));
                 }
             }
         });
     }
-    
-    private String prepareMessage(Collection<GitRepository> repositories, List<GitAheadBehindStatus> statuses) {
-        StringBuilder message = new StringBuilder("Fetched:");
-        if (statuses.size() == 1) {
-            message.append(" ").append(statuses.get(0));    
-        } else {
-            int index = 0;
-            for (GitRepository repository : repositories) {
-                message.append("\n").append(repository.getGitDir().getName()).append(statuses.get(index));
-                index++;
-            }
-        }
-        return message.toString();
-    }
+
 }
