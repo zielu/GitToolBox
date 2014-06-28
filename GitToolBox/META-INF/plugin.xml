@@ -44,7 +44,7 @@
       <add-to-group group-id="GitRepositoryActions" anchor="after" relative-to-action="Git.Fetch"/>
     </action>
     <action class="zielu.gittoolbox.actions.GitPushTagsAction" id="GitToolBox.PushTags"
-            text="Push tags...">
+            text="Push tags on branch...">
       <add-to-group group-id="GitRepositoryActions" anchor="after" relative-to-action="Git.Push"/>
     </action>
   </actions>
