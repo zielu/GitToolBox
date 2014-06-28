@@ -1,30 +1,38 @@
-<idea-plugin version="2">
+<idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
   <version>13.0.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+    <h2>Enriches Git integration</h2>
+    Following functionality was added:
+    <ul>
+      <li><b>Additional VCS -> Git menu actions:</b>
+        <ul>
+          <li>'Push tags on branch' - pushes selected tags for current branch</li>
+          <li>'Fetch and show behind' - fetches from remote and displays number of commits that current branch is behind</li>
+        </ul>
+      </li>
+    </ul>
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
-    ]]>
+      <h3>Changes is 13.0.0</h3>
+      <ul>
+        <li>Initial release</li>
+      </ul>
+      ]]>
   </change-notes>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
   <idea-version since-build="135"/>
 
-  <depends>Git4Idea</depends>
-
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
        on how to target different products -->
-  <!-- uncomment to enable plugin in all products
+  <!-- uncomment to enable plugin in all products -->
   <depends>com.intellij.modules.lang</depends>
-  -->
+  <depends>Git4Idea</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
