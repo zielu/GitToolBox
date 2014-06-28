@@ -4,7 +4,6 @@ import com.google.common.base.Functions;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -18,19 +17,17 @@ import com.intellij.ui.CheckBoxListListener;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.components.JBRadioButton;
 import com.intellij.ui.components.labels.LinkLabel;
 import com.intellij.ui.components.labels.LinkListener;
-import com.intellij.util.ui.RadioButtonEnumModel;
+import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
+import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -47,7 +44,6 @@ public class GitPushTagsDialog extends DialogWrapper {
     private JLabel myCurrentBranch;
     private CheckBoxList<String> myTagsList;
     private JLabel mySelectedCountLabel;
-    private RadioButtonEnumModel<VisibleTags> myFilterModel;
     private JBCheckBox myForceCheckbox;
 
     private final LinkedList<String> myExistingTags = Lists.newLinkedList();
@@ -60,8 +56,8 @@ public class GitPushTagsDialog extends DialogWrapper {
         myProject = project;
         myTagCalculator = GitTagCalculator.create(myProject);
         initGui();
-        GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRootComboBox, myCurrentBranch);
-        updateTags();
+        GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRootComboBox, null);
+        updateRepositoryState();
         init();
     }
 
@@ -73,7 +69,7 @@ public class GitPushTagsDialog extends DialogWrapper {
         myGitRootComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateTags();
+                updateRepositoryState();
             }
         });
         myPanel.add(new JBLabel(ResBundle.getString("git.root")));
@@ -84,24 +80,6 @@ public class GitPushTagsDialog extends DialogWrapper {
         myPanel.add(new JBLabel(ResBundle.getString("force.tags.push.label")));
         myForceCheckbox = new JBCheckBox(ResBundle.getString("force.tags.push.text"));
         myPanel.add(myForceCheckbox, "spanx, wrap");
-        myPanel.add(new JBLabel(ResBundle.getString("show.tags")));
-        JPanel filterPanel = new JPanel(new MigLayout("insets 0"));
-        myPanel.add(filterPanel, "spanx, growx, pushx, wrap");
-        JBRadioButton showOnBranch = new JBRadioButton(ResBundle.getString("show.tags.on.branch"));
-        JBRadioButton showAll = new JBRadioButton(ResBundle.getString("show.tags.all"));
-        filterPanel.add(showOnBranch);
-        filterPanel.add(showAll);
-        ButtonGroup filterGroup = new ButtonGroup();
-        filterGroup.add(showOnBranch);
-        filterGroup.add(showAll);
-        myFilterModel = RadioButtonEnumModel.bindEnum(VisibleTags.class, filterGroup);
-        myFilterModel.setSelected(VisibleTags.onBranch);
-        myFilterModel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateTags();
-            }
-        });
         myTagsList = new CheckBoxList<String>(new CheckBoxListListener() {
             @Override
             public void checkBoxSelectionChanged(int index, boolean value) {
@@ -178,45 +156,56 @@ public class GitPushTagsDialog extends DialogWrapper {
         getOKAction().setEnabled(mySelectedCount > 0);
     }
 
-    private boolean hasCurrentBranch() {
-        String name = myCurrentBranch.getText();
-        return !Strings.isNullOrEmpty(name) && !GitUIUtil.NO_CURRENT_BRANCH.equals(name);
-    }
-
     private void fetchTags() {
         myExistingTags.clear();
-        if (hasCurrentBranch()) {
-            List<String> newTags;
-            switch (myFilterModel.getSelected()) {
-                case all: {
-                    newTags = myTagCalculator.allTags(getGitRoot());
-                    break;
-                }
-                case onBranch: {
-                    newTags = myTagCalculator.tagsForBranch(getGitRoot(), myCurrentBranch.getText());
-                    break;
-                }
-                default: {
-                    newTags = Collections.emptyList();
-                }
-            }
+        Optional<GitLocalBranch> current = currentBranch();
+        if (current.isPresent()) {
+            List<String> newTags = myTagCalculator.tagsForBranch(getGitRoot(), current.get().getName());
             myExistingTags.addAll(newTags);
         }
     }
 
-    private void updateTags() {
+    private void updateRepositoryState() {
         fetchTags();
         myTagsList.setStringItems(Maps.toMap(myExistingTags, Functions.constant(true)));
         mySelectedCount = myExistingTags.size();
+        updateCurrentBranch();
         updateSelectedCount();
         validatePushAvailable();
     }
 
+    private void updateCurrentBranch() {
+        Optional<GitLocalBranch> current = currentBranch();
+        if (current.isPresent()) {
+            Optional<GitBranchTrackInfo> remote = remoteForCurrentBranch();
+            if (remote.isPresent()) {
+                myCurrentBranch.setText(remote.get().toString());
+            } else {
+                myCurrentBranch.setText(current.get().getName());
+            }
+        } else {
+            myCurrentBranch.setText(GitUIUtil.NO_CURRENT_BRANCH);
+        }
+    }
+
+    private Optional<GitLocalBranch> currentBranch() {
+        GitRepository repository = getRepository();
+        return Optional.fromNullable(repository.getCurrentBranch());
+    }
+
+    private GitRepository getRepository() {
+        return Preconditions.checkNotNull(GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(getGitRoot()));
+    }
+
+    private Optional<GitBranchTrackInfo> remoteForCurrentBranch() {
+        GitRepository repository = getRepository();
+        return Optional.fromNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
+    }
+
     private void validatePushAvailable() {
-        GitRepository repository = Preconditions.checkNotNull(GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(getGitRoot()));
-        boolean remoteBranchSet = GitUtil.getTrackInfoForCurrentBranch(repository) != null;
-        getOKAction().setEnabled(remoteBranchSet);
-        if (remoteBranchSet) {
+        Optional<GitBranchTrackInfo> tracking = remoteForCurrentBranch();
+        getOKAction().setEnabled(tracking.isPresent());
+        if (tracking.isPresent()) {
             setErrorText(null);
         } else {
             setErrorText(ResBundle.getString("message.cannot.push.without.tracking"));
@@ -238,17 +227,8 @@ public class GitPushTagsDialog extends DialogWrapper {
 
     private Builder pushSpecBuilder() {
         Builder builder = TagsPushSpec.builder();
-        switch (myFilterModel.getSelected()) {
-            case all: {
-                if (mySelectedCount != myExistingTags.size()) {
-                    builder.tags(getSelectedTags());
-                }
-                break;
-            }
-            case onBranch: {
-                builder.tags(getSelectedTags());
-                break;
-            }
+        if (mySelectedCount != myExistingTags.size()) {
+            builder.tags(getSelectedTags());
         }
         if (myForceCheckbox.isSelected()) {
             builder.force();
@@ -262,10 +242,5 @@ public class GitPushTagsDialog extends DialogWrapper {
         } else {
             return Optional.absent();
         }
-    }
-
-    private enum VisibleTags {
-        onBranch,
-        all
     }
 }
