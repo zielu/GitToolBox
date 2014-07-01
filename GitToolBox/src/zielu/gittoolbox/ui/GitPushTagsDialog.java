@@ -153,7 +153,6 @@ public class GitPushTagsDialog extends DialogWrapper {
     private void updateSelectedCount() {
         String message = makeSelectedCountMessage();
         mySelectedCountLabel.setText(message);
-        getOKAction().setEnabled(mySelectedCount > 0);
     }
 
     private void fetchTags() {
@@ -204,12 +203,16 @@ public class GitPushTagsDialog extends DialogWrapper {
 
     private void validatePushAvailable() {
         Optional<GitBranchTrackInfo> tracking = remoteForCurrentBranch();
-        getOKAction().setEnabled(tracking.isPresent());
+        calculateOkActionState(tracking);
         if (tracking.isPresent()) {
             setErrorText(null);
         } else {
             setErrorText(ResBundle.getString("message.cannot.push.without.tracking"));
         }
+    }
+
+    private void calculateOkActionState(Optional<GitBranchTrackInfo> tracking) {
+        getOKAction().setEnabled(tracking.isPresent() && mySelectedCount > 0);
     }
 
     private ImmutableList<String> getSelectedTags() {
