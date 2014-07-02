@@ -21,6 +21,7 @@
       <h3>Changes is 13.0.1</h3>
       <ul>
         <li>Fixed 'Push tags' dialog ok button state calculation</li>
+        <li>Improved 'Fetch and show behind' message for multiple repos</li>
       </ul>
       ]]>
   </change-notes>
