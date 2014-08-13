@@ -5,20 +5,21 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.actions.GitRepositoryAction;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-import git4idea.update.GitFetcher;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.compat.Notifier;
+import zielu.gittoolbox.fetch.GtFetcher;
 import zielu.gittoolbox.status.GitStatusCalculator;
+import zielu.gittoolbox.status.RevListCount;
 import zielu.gittoolbox.status.StatusMessages;
 
 public class GitFetchAndShowStatusAction extends GitRepositoryAction {
@@ -38,12 +39,13 @@ public class GitFetchAndShowStatusAction extends GitRepositoryAction {
                 GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(getProject());
                 Collection<GitRepository> repositories = GitUtil.getRepositoriesFromRoots(repositoryManager,
                     Preconditions.checkNotNull(gitRoots));
-                new GitFetcher(getProject(), indicator, true)
-                    .fetchRootsAndNotify(GitUtil.getRepositoriesFromRoots(repositoryManager, gitRoots), null, false);
+
+                Collection<GitRepository> fetched =
+                    GtFetcher.builder().fetchAll().build(getProject(), indicator).fetchRoots(repositories);
                 GitStatusCalculator calc = GitStatusCalculator.create(getProject(), indicator);
-                List<Integer> statuses = calc.behindStatus(repositories);
+                List<RevListCount> statuses = calc.behindStatus(fetched);
                 if (!statuses.isEmpty()) {
-                    VcsNotifier.getInstance(getProject()).notifySuccess(StatusMessages.prepareBehindMessage(repositories, statuses));
+                    Notifier.getInstance(getProject()).notifySuccess(StatusMessages.prepareBehindMessage(repositories, statuses));
                 }
             }
         });

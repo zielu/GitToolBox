@@ -31,28 +31,20 @@ public class GitStatusCalculator {
         return new GitStatusCalculator(project, indicator);
     }
 
-    public List<GitAheadBehindStatus> aheadBehindStatus(Collection<GitRepository> repositories) {
-        List<GitAheadBehindStatus> result = Lists.newArrayListWithCapacity(repositories.size());
-        for (GitRepository repository : repositories){
-            result.add(aheadBehindStatus(repository));
-        }
-        return result;
-    }
-
-    public List<Integer> behindStatus(Collection<GitRepository> repositories){
-        List<Integer> result = Lists.newArrayListWithCapacity(repositories.size());
+    public List<RevListCount> behindStatus(Collection<GitRepository> repositories){
+        List<RevListCount> result = Lists.newArrayListWithCapacity(repositories.size());
         for (GitRepository repository : repositories){
             result.add(behindStatus(repository));
         }
         return result;
     }
 
-    private int behindStatus(GitRepository repository) {
+    private RevListCount behindStatus(GitRepository repository) {
         Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
         if (trackInfo.isPresent()) {
             return behindStatus(repository.getCurrentBranch(), trackInfo.get(), repository);
         }
-        return 0;
+        return RevListCount.noRemote();
     }
 
     private GitAheadBehindStatus aheadBehindStatus(GitRepository repository) {
@@ -60,10 +52,10 @@ public class GitStatusCalculator {
         if (trackInfo.isPresent()) {
             return aheadBehindStatus(repository.getCurrentBranch(), trackInfo.get(), repository);
         }
-        return GitAheadBehindStatus.empty();
+        return GitAheadBehindStatus.noRemote();
     }
 
-    private int behindStatus(GitLocalBranch currentBranch, GitBranchTrackInfo trackInfo, GitRepository repository) {
+    private RevListCount behindStatus(GitLocalBranch currentBranch, GitBranchTrackInfo trackInfo, GitRepository repository) {
         String localName = currentBranch.getName();
         String remoteName = trackInfo.getRemoteBranch().getNameForLocalOperations();
         return behindCount(localName, remoteName, repository);
@@ -78,43 +70,43 @@ public class GitStatusCalculator {
         GitLocalBranch localBranch, GitBranchTrackInfo trackInfo, GitRepository repository) {
         String localName = localBranch.getName();
         String remoteName = trackInfo.getRemoteBranch().getNameForLocalOperations();
-        int behind = behindCount(localName, remoteName, repository);
-        int ahead = aheadCount(localName, remoteName, repository);
+        RevListCount behind = behindCount(localName, remoteName, repository);
+        RevListCount ahead = aheadCount(localName, remoteName, repository);
         return GitAheadBehindStatus.create(ahead, behind);
     }
 
-    private int behindCount(String localName, String remoteName, GitRepository repository) {
+    private RevListCount behindCount(String localName, String remoteName, GitRepository repository) {
         return doRevListCount(localName+".."+remoteName, repository);
     }
 
-    private int aheadCount(String localName, String remoteName, GitRepository repository) {
+    private RevListCount aheadCount(String localName, String remoteName, GitRepository repository) {
         return doRevListCount(remoteName+".."+localName, repository);
     }
 
-    private int doRevListCount(String branches, GitRepository repository) {
+    private RevListCount doRevListCount(String branches, GitRepository repository) {
         final GitLineHandler handler = new GitLineHandler(myProject, repository.getRoot(), GitCommand.REV_LIST);
         handler.addParameters(branches, "--count");
         final GitRevListCounter counter = new GitRevListCounter();
         handler.addLineListener(counter);
         GitTask task = new GitTask(myProject, handler, branches);
         task.setProgressIndicator(myIndicator);
-        final AtomicReference<Integer> result = new AtomicReference<Integer>();
+        final AtomicReference<RevListCount> result = new AtomicReference<RevListCount>();
         task.execute(true, false, new GitTaskResultHandlerAdapter() {
             @Override
             protected void onSuccess() {
-                result.set(counter.count());
+                result.set(RevListCount.success(counter.count()));
             }
 
             @Override
             protected void onCancel() {
-                result.set(-1);
+                result.set(RevListCount.cancel());
             }
 
             @Override
             protected void onFailure() {
-                result.set(-1);
+                result.set(RevListCount.failure());
             }
         });
-        return result.get();
+        return Preconditions.checkNotNull(result.get(), "Null rev list count");
     }
 }

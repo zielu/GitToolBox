@@ -3,24 +3,24 @@ package zielu.gittoolbox.status;
 import zielu.gittoolbox.UtfSeq;
 
 public class GitAheadBehindStatus {
-    public final int ahead;
-    public final int behind;
+    public final RevListCount ahead;
+    public final RevListCount behind;
 
-    private GitAheadBehindStatus(int _ahead, int _behind) {
+    private GitAheadBehindStatus(RevListCount _ahead, RevListCount _behind) {
         ahead = _ahead;
         behind = _behind;
     }
 
-    public static GitAheadBehindStatus create(int ahead, int behind) {
+    public static GitAheadBehindStatus create(RevListCount ahead, RevListCount behind) {
         return new GitAheadBehindStatus(ahead, behind);
-    }
-
-    public static GitAheadBehindStatus empty() {
-        return create(0, 0);
     }
 
     @Override
     public String toString() {
-        return ahead + UtfSeq.ArrowUp+" "+behind+UtfSeq.ArrowDown;
+        return ahead + UtfSeq.arrowUp +" "+behind+UtfSeq.arrowDown;
+    }
+
+    public static GitAheadBehindStatus noRemote() {
+        return create(RevListCount.noRemote(), RevListCount.noRemote());
     }
 }
