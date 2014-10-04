@@ -12,15 +12,14 @@ import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLineHandlerListener;
-import git4idea.commands.GitLineHandlerPasswordRequestAware;
 import git4idea.commands.GitStandardProgressAnalyzer;
-import git4idea.push.GitSimplePushResult;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.push.GitPushRejectedDetector;
+import zielu.gittoolbox.push.GtPushResult;
 
 public class GitTagsPusher {
     private final Project myProject;
@@ -38,7 +37,7 @@ public class GitTagsPusher {
     }
 
     @NotNull
-    public GitSimplePushResult push(@NotNull TagsPushSpec pushSpec) {
+    public GtPushResult push(@NotNull TagsPushSpec pushSpec) {
         Preconditions.checkNotNull(pushSpec);
         GitRepository repository = GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(pushSpec.gitRoot());
         Optional<GitBranchTrackInfo> trackInfo = Optional.fromNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
@@ -48,22 +47,22 @@ public class GitTagsPusher {
             if (url.isPresent()) {
                 return push(pushSpec, repository, remote, url.get());
             } else {
-                return GitSimplePushResult.error(ResBundle.message("message.no.remote.url", remote.getName()));
+                return GtPushResult.error(ResBundle.message("message.no.remote.url", remote.getName()));
             }
         } else {
-            return GitSimplePushResult.error(ResBundle.getString("message.cannot.push.without.tracking"));
+            return GtPushResult.error(ResBundle.getString("message.cannot.push.without.tracking"));
         }
     }
 
-    private GitSimplePushResult push(final TagsPushSpec pushSpec, final GitRepository repository,
+    private GtPushResult push(final TagsPushSpec pushSpec, final GitRepository repository,
                                      final GitRemote remote, final String url) {
         final GitLineHandlerListener progressListener = GitStandardProgressAnalyzer.createListener(myProgress);
         final GitPushRejectedDetector rejectedDetector = new GitPushRejectedDetector();
-        GitCommandResult result = myGit.runRemoteCommand(new Computable<GitLineHandler>() {
+        GitCommandResult result = myGit.runCommand(new Computable<GitLineHandler>() {
             @Override
             public GitLineHandler compute() {
-                final GitLineHandlerPasswordRequestAware h = new GitLineHandlerPasswordRequestAware(repository.getProject(), repository.getRoot(),
-                                                                                                       GitCommand.PUSH);
+                final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(),
+                                                                   GitCommand.PUSH);
                 h.setUrl(url);
                 h.setSilent(false);
                 h.setStdoutSuppressed(false);
@@ -76,19 +75,19 @@ public class GitTagsPusher {
             }
         });
         if (rejectedDetector.rejected()) {
-            return GitSimplePushResult.reject(rejectedDetector.getRejectedBranches());
+            return GtPushResult.reject(rejectedDetector.getRejectedBranches());
         } else {
             return translate(result);
         }
     }
 
-    private GitSimplePushResult translate(GitCommandResult result) {
+    private GtPushResult translate(GitCommandResult result) {
         if (result.success()) {
-            return GitSimplePushResult.success();
+            return GtPushResult.success();
         } else if (result.cancelled()) {
-            return GitSimplePushResult.cancel();
+            return GtPushResult.cancel();
         } else {
-            return GitSimplePushResult.error(result.getErrorOutputAsJoinedString());
+            return GtPushResult.error(result.getErrorOutputAsJoinedString());
         }
     }
 }
