@@ -16,7 +16,7 @@ public enum StatusMessages {
         switch (behindCount.status()) {
             case Success: {
                 if (behindCount.value() > 0) {
-                    return behindCount + UtfSeq.arrowDown;
+                    return behindCount.value() + UtfSeq.arrowDown;
                 } else {
                     return ResBundle.getString("message.up.to.date");
                 }
