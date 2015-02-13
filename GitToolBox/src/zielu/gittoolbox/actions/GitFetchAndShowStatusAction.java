@@ -13,6 +13,7 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
@@ -43,7 +44,7 @@ public class GitFetchAndShowStatusAction extends GitRepositoryAction {
                 Collection<GitRepository> fetched =
                     GtFetcher.builder().fetchAll().build(getProject(), indicator).fetchRoots(repositories);
                 GitStatusCalculator calc = GitStatusCalculator.create(getProject(), indicator);
-                List<RevListCount> statuses = calc.behindStatus(fetched);
+                Map<GitRepository, RevListCount> statuses = calc.behindStatus(fetched);
                 if (!statuses.isEmpty()) {
                     Notifier.getInstance(getProject()).notifySuccess(StatusMessages.prepareBehindMessage(repositories, statuses));
                 }

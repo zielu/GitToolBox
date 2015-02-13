@@ -1,9 +1,11 @@
 package zielu.gittoolbox.status;
 
+import com.google.common.collect.Iterables;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.UtfSeq;
 import zielu.gittoolbox.util.GtUtil;
@@ -36,22 +38,27 @@ public enum StatusMessages {
         }
     }
 
-    public static String prepareBehindMessage(Collection<GitRepository> repositories, List<RevListCount> statuses) {
-        StringBuilder message = new StringBuilder(ResBundle.getString("message.fetch.success"));
+    private static String prepareSingleLineMessage(RevListCount status) {
+        return ": " + behindStatus(status);
+    }
+
+    private static String prepareMultiLineMessage(Map<GitRepository, RevListCount> statuses) {
+        StringBuilder result = new StringBuilder(":");
+        for (Entry<GitRepository, RevListCount> status : statuses.entrySet()) {
+            result.append(Html.br)
+                  .append(GitUIUtil.bold(GtUtil.name(status.getKey())))
+                  .append(": ")
+                  .append(behindStatus(status.getValue()));
+        }
+        return result.toString();
+    }
+
+    public static String prepareBehindMessage(Collection<GitRepository> repositories, Map<GitRepository, RevListCount> statuses) {
+        StringBuilder message = new StringBuilder(ResBundle.getString("message.fetch.done"));
         if (statuses.size() == 1) {
-            message.append(": ");
-            RevListCount singleStatus = statuses.get(0);
-            message.append(behindStatus(singleStatus));
+            message.append(prepareSingleLineMessage(Iterables.getOnlyElement(statuses.values())));
         } else {
-            message.append(":");
-            int index = 0;
-            for (GitRepository repository : repositories) {
-                message.append(Html.br)
-                    .append(GitUIUtil.bold(GtUtil.name(repository)))
-                    .append(": ")
-                    .append(behindStatus(statuses.get(index)));
-                index++;
-            }
+            message.append(prepareMultiLineMessage(statuses));
         }
         return message.toString();
     }
