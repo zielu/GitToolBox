@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>13.1.2</version>
+  <version>13.2.2</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -18,7 +18,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 13.1.2</h3>
+      <h3>Changes is 13.2.2</h3>
       <ul>
         <li>Status message takes into account operation result</li>
         <li>Status message shows by default only behind</li>
