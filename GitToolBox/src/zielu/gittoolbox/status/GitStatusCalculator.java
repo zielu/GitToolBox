@@ -3,6 +3,7 @@ package zielu.gittoolbox.status;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import git4idea.GitLocalBranch;
@@ -31,6 +32,10 @@ public class GitStatusCalculator {
         return new GitStatusCalculator(project, indicator);
     }
 
+    public static GitStatusCalculator create(@NotNull Project project) {
+        return create(project, new EmptyProgressIndicator());
+    }
+
     public Map<GitRepository, RevListCount> behindStatus(Collection<GitRepository> repositories){
         Map<GitRepository, RevListCount> result = Maps.newLinkedHashMap();
         for (GitRepository repository : repositories){
@@ -39,7 +44,7 @@ public class GitStatusCalculator {
         return result;
     }
 
-    private RevListCount behindStatus(GitRepository repository) {
+    public RevListCount behindStatus(GitRepository repository) {
         Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
         if (trackInfo.isPresent()) {
             return behindStatus(repository.getCurrentBranch(), trackInfo.get(), repository);

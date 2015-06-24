@@ -31,7 +31,7 @@ public class GitFetchAndShowStatusAction extends GitRepositoryAction {
     }
 
     @Override
-    protected void perform(@NotNull Project project, @NotNull final List<VirtualFile> gitRoots,
+    protected void perform(@NotNull final Project project, @NotNull final List<VirtualFile> gitRoots,
                            @NotNull VirtualFile defaultRoot, final Set<VirtualFile> affectedRoots,
                            List<VcsException> exceptions) throws VcsException {
         GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project), ResBundle.getString("message.fetching"), false) {
@@ -46,7 +46,7 @@ public class GitFetchAndShowStatusAction extends GitRepositoryAction {
                 GitStatusCalculator calc = GitStatusCalculator.create(getProject(), indicator);
                 Map<GitRepository, RevListCount> statuses = calc.behindStatus(fetched);
                 if (!statuses.isEmpty()) {
-                    Notifier.getInstance(getProject()).notifySuccess(StatusMessages.prepareBehindMessage(repositories, statuses));
+                    Notifier.getInstance(getProject()).notifySuccess(StatusMessages.prepareBehindMessage(statuses));
                 }
             }
         });

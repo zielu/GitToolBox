@@ -3,7 +3,6 @@ package zielu.gittoolbox.status;
 import com.google.common.collect.Iterables;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import zielu.gittoolbox.ResBundle;
@@ -14,7 +13,7 @@ import zielu.gittoolbox.util.Html;
 public enum StatusMessages {
     ;
 
-    private static String behindStatus(RevListCount behindCount) {
+    public static String behindStatus(RevListCount behindCount) {
         switch (behindCount.status()) {
             case Success: {
                 if (behindCount.value() > 0) {
@@ -53,7 +52,7 @@ public enum StatusMessages {
         return result.toString();
     }
 
-    public static String prepareBehindMessage(Collection<GitRepository> repositories, Map<GitRepository, RevListCount> statuses) {
+    public static String prepareBehindMessage(Map<GitRepository, RevListCount> statuses) {
         StringBuilder message = new StringBuilder(ResBundle.getString("message.fetch.done"));
         if (statuses.size() == 1) {
             message.append(prepareSingleLineMessage(Iterables.getOnlyElement(statuses.values())));
