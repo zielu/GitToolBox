@@ -52,7 +52,6 @@ public class PerRepoStatusCache implements GitRepositoryChangeListener, Disposab
     @Override
     public void repositoryChanged(@NotNull GitRepository gitRepository) {
         final GitRepository repo = gitRepository;
-        behindStatuses.remove(repo);
         ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
             @Override
             public void run() {

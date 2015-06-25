@@ -22,6 +22,7 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoStatusCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.status.RevListCount;
+import zielu.gittoolbox.status.RevListCount.Status;
 import zielu.gittoolbox.status.StatusMessages;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
@@ -123,7 +124,14 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     }
 
     private void updateData(GitRepository repository, RevListCount behindStatus) {
-        myText = ResBundle.getString("status.prefix") + " " + StatusMessages.behindStatus(behindStatus);
+        String statusText = StatusMessages.behindStatus(behindStatus);
+        if (behindStatus.status() == Status.Success) {
+            myText = ResBundle.getString("status.prefix") + " " + statusText;
+            myToolTipText = "";
+        } else {
+            myText = ResBundle.getString("status.prefix") + " " + ResBundle.getString("git.na");
+            myToolTipText = statusText;
+        }
     }
 
     private void runUpdate() {
@@ -143,8 +151,10 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 } else {
                     empty();
                 }
-                updateStatusBar();
+            } else {
+                empty();
             }
+            updateStatusBar();
         }
     }
 
