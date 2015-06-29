@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
@@ -16,6 +17,8 @@ import zielu.gittoolbox.status.RevListCount;
 
 public class PerRepoStatusCache implements GitRepositoryChangeListener, Disposable {
     public static Topic<PerRepoStatusCacheListener> CACHE_CHANGE = Topic.create("Status cache change", PerRepoStatusCacheListener.class);
+
+    private final Logger LOG = Logger.getInstance(getClass());
 
     private final ConcurrentMap<GitRepository, CachedStatus> behindStatuses = Maps.newConcurrentMap();
     private final Project myProject;
@@ -52,10 +55,16 @@ public class PerRepoStatusCache implements GitRepositoryChangeListener, Disposab
     @Override
     public void repositoryChanged(@NotNull GitRepository gitRepository) {
         final GitRepository repo = gitRepository;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Got repo changed event: " + repo);
+        }
         ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
             @Override
             public void run() {
                 myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(repo);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Published cache changed event: " + repo);
+                }
             }
         });
     }

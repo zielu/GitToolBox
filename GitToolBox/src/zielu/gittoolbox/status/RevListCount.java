@@ -66,4 +66,12 @@ public class RevListCount {
     public int hashCode() {
         return Objects.hash(myValue, myStatus);
     }
+
+    @Override
+    public String toString() {
+        return com.google.common.base.Objects.toStringHelper(this)
+            .add("value", myValue)
+            .add("status", myStatus)
+            .toString();
+    }
 }
