@@ -44,6 +44,7 @@ public class GitStatusCalculator {
         return result;
     }
 
+    @NotNull
     public RevListCount behindStatus(GitRepository repository) {
         Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
         if (trackInfo.isPresent()) {
@@ -52,12 +53,13 @@ public class GitStatusCalculator {
         return RevListCount.noRemote();
     }
 
-    private GitAheadBehindStatus aheadBehindStatus(GitRepository repository) {
+    @NotNull
+    public GitAheadBehindCount aheadBehindStatus(GitRepository repository) {
         Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
         if (trackInfo.isPresent()) {
             return aheadBehindStatus(repository.getCurrentBranch(), trackInfo.get(), repository);
         }
-        return GitAheadBehindStatus.noRemote();
+        return GitAheadBehindCount.noRemote();
     }
 
     private RevListCount behindStatus(GitLocalBranch currentBranch, GitBranchTrackInfo trackInfo, GitRepository repository) {
@@ -71,13 +73,40 @@ public class GitStatusCalculator {
         return Optional.fromNullable(trackInfo);
     }
 
-    private GitAheadBehindStatus aheadBehindStatus(
+    private GitAheadBehindCount aheadBehindStatus(
         GitLocalBranch localBranch, GitBranchTrackInfo trackInfo, GitRepository repository) {
         String localName = localBranch.getName();
         String remoteName = trackInfo.getRemoteBranch().getNameForLocalOperations();
-        RevListCount behind = behindCount(localName, remoteName, repository);
-        RevListCount ahead = aheadCount(localName, remoteName, repository);
-        return GitAheadBehindStatus.create(ahead, behind);
+        return doRevListLeftRight(localName, remoteName, repository);
+    }
+
+    @NotNull
+    private GitAheadBehindCount doRevListLeftRight(String localName, String remoteName, GitRepository repository) {
+        String branches = localName + "..." + remoteName;
+        final GitLineHandler handler = new GitLineHandler(myProject, repository.getRoot(), GitCommand.REV_LIST);
+        handler.addParameters(branches, "--left-right");
+        final GitRevListLeftRightCounter counter = new GitRevListLeftRightCounter();
+        handler.addLineListener(counter);
+        GitTask task = new GitTask(myProject, handler, branches);
+        task.setProgressIndicator(myIndicator);
+        final AtomicReference<GitAheadBehindCount> result = new AtomicReference<GitAheadBehindCount>();
+        task.execute(true, false, new GitTaskResultHandlerAdapter() {
+            @Override
+            protected void onSuccess() {
+                result.set(GitAheadBehindCount.success(counter.ahead(), counter.behind()));
+            }
+
+            @Override
+            protected void onCancel() {
+                result.set(GitAheadBehindCount.cancel());
+            }
+
+            @Override
+            protected void onFailure() {
+                result.set(GitAheadBehindCount.failure());
+            }
+        });
+        return Preconditions.checkNotNull(result.get(), "Null rev list left right");
     }
 
     private RevListCount behindCount(String localName, String remoteName, GitRepository repository) {

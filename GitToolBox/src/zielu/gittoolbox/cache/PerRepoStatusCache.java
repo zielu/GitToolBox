@@ -3,6 +3,8 @@ package zielu.gittoolbox.cache;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.AccessToken;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -12,8 +14,8 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import java.util.concurrent.ConcurrentMap;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
-import zielu.gittoolbox.status.RevListCount;
 
 public class PerRepoStatusCache implements GitRepositoryChangeListener, Disposable {
     public static Topic<PerRepoStatusCacheListener> CACHE_CHANGE = Topic.create("Status cache change", PerRepoStatusCacheListener.class);
@@ -36,7 +38,7 @@ public class PerRepoStatusCache implements GitRepositoryChangeListener, Disposab
         return new PerRepoStatusCache(project);
     }
 
-    public Optional<RevListCount> get(GitRepository repo) {
+    public Optional<GitAheadBehindCount> get(GitRepository repo) {
         CachedStatus cachedStatus = behindStatuses.get(repo);
         if (cachedStatus == null) {
             CachedStatus newStatus = CachedStatus.create();
@@ -58,9 +60,13 @@ public class PerRepoStatusCache implements GitRepositoryChangeListener, Disposab
         if (LOG.isDebugEnabled()) {
             LOG.debug("Got repo changed event: " + repo);
         }
-        ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
+        final Application application = ApplicationManager.getApplication();
+        application.executeOnPooledThread(new Runnable() {
             @Override
             public void run() {
+                AccessToken read = application.acquireReadActionLock();
+                get(repo);
+                read.finish();
                 myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(repo);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Published cache changed event: " + repo);

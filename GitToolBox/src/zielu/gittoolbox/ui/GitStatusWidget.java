@@ -21,8 +21,8 @@ import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoStatusCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
-import zielu.gittoolbox.status.RevListCount;
-import zielu.gittoolbox.status.RevListCount.Status;
+import zielu.gittoolbox.status.GitAheadBehindCount;
+import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.status.StatusMessages;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
@@ -123,9 +123,9 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         myToolTipText = "";
     }
 
-    private void updateData(GitRepository repository, RevListCount behindStatus) {
-        String statusText = StatusMessages.behindStatus(behindStatus);
-        if (behindStatus.status() == Status.Success) {
+    private void updateData(GitRepository repository, GitAheadBehindCount aheadBehind) {
+        String statusText = StatusMessages.aheadBehindStatus(aheadBehind);
+        if (aheadBehind.status() == Status.Success) {
             myText = ResBundle.getString("status.prefix") + " " + statusText;
             myToolTipText = "";
         } else {
@@ -142,7 +142,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 GitRepository repository = GitUtil.getRepositoryManager(myProject).getRepositoryForFile(currentFile);
                 if (repository != null) {
                     GitToolBoxProject toolBox = GitToolBoxProject.getInstance(myProject);
-                    Optional<RevListCount> behindStatus = toolBox.perRepoStatusCache().get(repository);
+                    Optional<GitAheadBehindCount> behindStatus = toolBox.perRepoStatusCache().get(repository);
                     if (behindStatus.isPresent()) {
                         updateData(repository, behindStatus.get());
                     } else {

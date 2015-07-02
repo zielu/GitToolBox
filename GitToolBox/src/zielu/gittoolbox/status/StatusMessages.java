@@ -22,6 +22,29 @@ public enum StatusMessages {
                     return ResBundle.getString("message.up.to.date");
                 }
             }
+            default: {
+                return commonStatus(behindCount.status());
+            }
+        }
+    }
+
+    public static String aheadBehindStatus(GitAheadBehindCount count) {
+        switch (count.status()) {
+            case Success: {
+                if (count.isNotZero()) {
+                    return count.ahead.value() + UtfSeq.arrowUp + " " + count.behind.value() + UtfSeq.arrowDown;
+                } else {
+                    return ResBundle.getString("message.up.to.date");
+                }
+            }
+            default: {
+                return commonStatus(count.status());
+            }
+        }
+    }
+
+    private static String commonStatus(Status status) {
+        switch (status) {
             case Cancel: {
                 return ResBundle.getString("message.cancelled");
             }

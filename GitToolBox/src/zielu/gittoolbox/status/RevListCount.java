@@ -5,12 +5,6 @@ import com.google.common.base.Preconditions;
 import java.util.Objects;
 
 public class RevListCount {
-    public enum Status {
-        Success,
-        Cancel,
-        Failure,
-        NoRemote
-    }
 
     private static final RevListCount cancel = new RevListCount(Status.Cancel, Optional.<Integer>absent());
     private static final RevListCount failure = new RevListCount(Status.Failure, Optional.<Integer>absent());
