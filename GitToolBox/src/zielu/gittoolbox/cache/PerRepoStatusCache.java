@@ -65,9 +65,9 @@ public class PerRepoStatusCache implements GitRepositoryChangeListener, Disposab
             @Override
             public void run() {
                 AccessToken read = application.acquireReadActionLock();
-                get(repo);
+                Optional<GitAheadBehindCount> aheadBehind = get(repo);
                 read.finish();
-                myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(repo);
+                myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(aheadBehind, repo);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Published cache changed event: " + repo);
                 }

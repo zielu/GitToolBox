@@ -10,8 +10,8 @@ import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
-import git4idea.GitUtil;
 import git4idea.GitVcs;
+import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
@@ -35,11 +35,11 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         myCacheConnection = myProject.getMessageBus().connect(this);
         myCacheConnection.subscribe(PerRepoStatusCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
             @Override
-            public void stateChanged(@NotNull GitRepository repository) {
+            public void stateChanged(@NotNull final Optional<GitAheadBehindCount> aheadBehind, @NotNull final GitRepository repository) {
                 UIUtil.invokeLaterIfNeeded(new Runnable() {
                     @Override
                     public void run() {
-                        runUpdate();
+                        update(repository, aheadBehind);
                     }
                 });
             }
@@ -123,7 +123,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         myToolTipText = "";
     }
 
-    private void updateData(GitRepository repository, GitAheadBehindCount aheadBehind) {
+    private void updateData(GitAheadBehindCount aheadBehind) {
         String statusText = StatusMessages.aheadBehindStatus(aheadBehind);
         if (aheadBehind.status() == Status.Success) {
             myText = ResBundle.getString("status.prefix") + " " + statusText;
@@ -137,25 +137,28 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     private void runUpdate() {
         GitVcs git = GitVcs.getInstance(myProject);
         if (git != null) {
-            VirtualFile currentFile = getSelectedFile();
-            if (currentFile != null) {
-                GitRepository repository = GitUtil.getRepositoryManager(myProject).getRepositoryForFile(currentFile);
-                if (repository != null) {
-                    GitToolBoxProject toolBox = GitToolBoxProject.getInstance(myProject);
-                    Optional<GitAheadBehindCount> behindStatus = toolBox.perRepoStatusCache().get(repository);
-                    if (behindStatus.isPresent()) {
-                        updateData(repository, behindStatus.get());
-                    } else {
-                        empty();
-                    }
-                } else {
-                    empty();
-                }
+            GitRepository repository = GitBranchUtil.getCurrentRepository(myProject);
+            Optional<GitAheadBehindCount> aheadBehind = Optional.absent();
+            if (repository != null) {
+                GitToolBoxProject toolBox = GitToolBoxProject.getInstance(myProject);
+                aheadBehind = toolBox.perRepoStatusCache().get(repository);
+
+            }
+            update(repository, aheadBehind);
+        }
+    }
+
+    private void update(@Nullable GitRepository repository, Optional<GitAheadBehindCount> aheadBehind) {
+        if (repository != null) {
+            if (aheadBehind.isPresent()) {
+                updateData(aheadBehind.get());
             } else {
                 empty();
             }
-            updateStatusBar();
+        } else {
+            empty();
         }
+        updateStatusBar();
     }
 
     @Nullable
