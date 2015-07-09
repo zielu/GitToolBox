@@ -36,12 +36,14 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         myCacheConnection.subscribe(PerRepoStatusCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
             @Override
             public void stateChanged(@NotNull final Optional<GitAheadBehindCount> aheadBehind, @NotNull final GitRepository repository) {
-                UIUtil.invokeLaterIfNeeded(new Runnable() {
-                    @Override
-                    public void run() {
-                        update(repository, aheadBehind);
-                    }
-                });
+                if (repository.equals(GitBranchUtil.getCurrentRepository(myProject))) {
+                    UIUtil.invokeLaterIfNeeded(new Runnable() {
+                        @Override
+                        public void run() {
+                            update(repository, aheadBehind);
+                        }
+                    });
+                }
             }
         });
     }
