@@ -16,7 +16,7 @@
       </li>
       <li><b>Status bar component:</b>
         <ul>
-          <li>'Behind status' - shows number of commits that current branch of active file is behind remote</li>
+          <li>'Git Stat' - shows number of commits that current branch is ahead / behind remote</li>
         </ul>
     </ul>
     ]]></description>
