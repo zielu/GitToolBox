@@ -49,6 +49,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
+    <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxConfig"/>
   </extensions>
 
   <application-components>

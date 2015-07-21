@@ -1,7 +1,5 @@
 package zielu.gittoolbox.status;
 
-import zielu.gittoolbox.UtfSeq;
-
 public class GitAheadBehindCount {
     public final RevListCount ahead;
     public final RevListCount behind;
@@ -41,7 +39,7 @@ public class GitAheadBehindCount {
 
     @Override
     public String toString() {
-        return ahead + UtfSeq.arrowUp +" "+behind+UtfSeq.arrowDown;
+        return ahead + "^ " + behind + " v";
     }
 
     public static GitAheadBehindCount noRemote() {

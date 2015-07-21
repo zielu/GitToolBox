@@ -6,7 +6,7 @@ import git4idea.util.GitUIUtil;
 import java.util.Map;
 import java.util.Map.Entry;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.UtfSeq;
+import zielu.gittoolbox.ui.GitUi;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
@@ -17,7 +17,7 @@ public enum StatusMessages {
         switch (behindCount.status()) {
             case Success: {
                 if (behindCount.value() > 0) {
-                    return behindCount.value() + UtfSeq.arrowDown;
+                    return behindCount.value() + GitUi.downArrow();
                 } else {
                     return ResBundle.getString("message.up.to.date");
                 }
@@ -32,7 +32,7 @@ public enum StatusMessages {
         switch (count.status()) {
             case Success: {
                 if (count.isNotZero()) {
-                    return count.ahead.value() + UtfSeq.arrowUp + " " + count.behind.value() + UtfSeq.arrowDown;
+                    return count.ahead.value() + GitUi.upArrow() + " " + count.behind.value() + GitUi.downArrow();
                 } else {
                     return ResBundle.getString("message.up.to.date");
                 }

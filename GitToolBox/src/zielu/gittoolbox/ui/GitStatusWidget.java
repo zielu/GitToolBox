@@ -1,6 +1,8 @@
 package zielu.gittoolbox.ui;
 
 import com.google.common.base.Optional;
+import com.intellij.ide.ui.UISettings;
+import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.Project;
@@ -8,7 +10,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
-import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.UIUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchUtil;
@@ -27,12 +28,10 @@ import zielu.gittoolbox.status.Status;
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
     private String myText = "";
     private String myToolTipText = "";
-    private MessageBusConnection myCacheConnection;
 
     private GitStatusWidget(@NotNull Project project) {
         super(project);
-        myCacheConnection = myProject.getMessageBus().connect(this);
-        myCacheConnection.subscribe(PerRepoStatusCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+        myConnection.subscribe(PerRepoStatusCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
             @Override
             public void stateChanged(@NotNull final Optional<GitAheadBehindCount> aheadBehind, @NotNull final GitRepository repository) {
                 UIUtil.invokeLaterIfNeeded(new Runnable() {
@@ -45,13 +44,17 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 });
             }
         });
-    }
-
-    @Override
-    public void dispose() {
-        myCacheConnection.disconnect();
-        myCacheConnection = null;
-        super.dispose();
+        myConnection.subscribe(UISettingsListener.TOPIC, new UISettingsListener() {
+            @Override
+            public void uiSettingsChanged(UISettings uiSettings) {
+                UIUtil.invokeLaterIfNeeded(new Runnable() {
+                    @Override
+                    public void run() {
+                        runUpdate();
+                    }
+                });
+            }
+        });
     }
 
     public static StatusBarWidget create(@NotNull Project project) {
