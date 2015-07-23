@@ -1,9 +1,9 @@
 package zielu.gittoolbox.cache;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.intellij.openapi.diagnostic.Logger;
 import git4idea.repo.GitRepository;
-import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
@@ -28,7 +28,7 @@ public class CachedStatus {
             LOG.debug("Current state: " + currentState);
         }
 
-        if (!Objects.equals(state, currentState)) {
+        if (!Objects.equal(state, currentState)) {
             Optional<GitAheadBehindCount> oldBehindStatus = status;
             status = Optional.of(calculator.aheadBehindStatus(repo));
             if (debug) {

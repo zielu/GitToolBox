@@ -1,10 +1,10 @@
 package zielu.gittoolbox.cache;
 
+import com.google.common.base.Objects;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRepository;
-import java.util.Objects;
 
 public class RepoStatus {
     private final GitLocalBranch branch;
@@ -45,15 +45,15 @@ public class RepoStatus {
             return false;
         }
         RepoStatus that = (RepoStatus) o;
-        return Objects.equals(branch, that.branch) &&
-            Objects.equals(localHash, that.localHash) &&
-            Objects.equals(remote, that.remote) &&
-            Objects.equals(remoteHash, that.remoteHash);
+        return Objects.equal(branch, that.branch) &&
+            Objects.equal(localHash, that.localHash) &&
+            Objects.equal(remote, that.remote) &&
+            Objects.equal(remoteHash, that.remoteHash);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(branch, localHash, remote, remoteHash);
+        return Objects.hashCode(branch, localHash, remote, remoteHash);
     }
 
     @Override

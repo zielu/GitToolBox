@@ -1,8 +1,9 @@
 package zielu.gittoolbox.status;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import java.util.Objects;
+
 
 public class RevListCount {
 
@@ -52,18 +53,18 @@ public class RevListCount {
             return false;
         }
         RevListCount that = (RevListCount) o;
-        return Objects.equals(myValue, that.myValue) &&
+        return Objects.equal(myValue, that.myValue) &&
             myStatus != that.myStatus;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(myValue, myStatus);
+        return Objects.hashCode(myValue, myStatus);
     }
 
     @Override
     public String toString() {
-        return com.google.common.base.Objects.toStringHelper(this)
+        return Objects.toStringHelper(this)
             .add("value", myValue)
             .add("status", myStatus)
             .toString();
