@@ -50,6 +50,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxConfig"/>
+    <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
   </extensions>
 
   <application-components>

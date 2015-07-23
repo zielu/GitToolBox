@@ -21,7 +21,7 @@ import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.fetch.GtFetcher;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.status.RevListCount;
-import zielu.gittoolbox.status.StatusMessages;
+import zielu.gittoolbox.ui.StatusMessages;
 
 public class GitFetchAndShowStatusAction extends GitRepositoryAction {
     @NotNull
@@ -46,7 +46,7 @@ public class GitFetchAndShowStatusAction extends GitRepositoryAction {
                 GitStatusCalculator calc = GitStatusCalculator.create(getProject(), indicator);
                 Map<GitRepository, RevListCount> statuses = calc.behindStatus(fetched);
                 if (!statuses.isEmpty()) {
-                    Notifier.getInstance(getProject()).notifySuccess(StatusMessages.prepareBehindMessage(statuses));
+                    Notifier.getInstance(getProject()).notifySuccess(StatusMessages.getInstance().prepareBehindMessage(statuses));
                 }
             }
         });

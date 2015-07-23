@@ -1,19 +1,25 @@
-package zielu.gittoolbox.status;
+package zielu.gittoolbox.ui;
 
 import com.google.common.collect.Iterables;
+import com.intellij.openapi.components.ServiceManager;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Map;
 import java.util.Map.Entry;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.ui.GitUi;
+import zielu.gittoolbox.status.GitAheadBehindCount;
+import zielu.gittoolbox.status.RevListCount;
+import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
-public enum StatusMessages {
-    ;
+public class StatusMessages {
 
-    public static String behindStatus(RevListCount behindCount) {
+    public static StatusMessages getInstance() {
+        return ServiceManager.getService(StatusMessages.class);
+    }
+
+    public String behindStatus(RevListCount behindCount) {
         switch (behindCount.status()) {
             case Success: {
                 if (behindCount.value() > 0) {
@@ -28,7 +34,7 @@ public enum StatusMessages {
         }
     }
 
-    public static String aheadBehindStatus(GitAheadBehindCount count) {
+    public String aheadBehindStatus(GitAheadBehindCount count) {
         switch (count.status()) {
             case Success: {
                 if (count.isNotZero()) {
@@ -43,7 +49,7 @@ public enum StatusMessages {
         }
     }
 
-    private static String commonStatus(Status status) {
+    private String commonStatus(Status status) {
         switch (status) {
             case Cancel: {
                 return ResBundle.getString("message.cancelled");
@@ -60,11 +66,11 @@ public enum StatusMessages {
         }
     }
 
-    private static String prepareSingleLineMessage(RevListCount status) {
+    private String prepareSingleLineMessage(RevListCount status) {
         return ": " + behindStatus(status);
     }
 
-    private static String prepareMultiLineMessage(Map<GitRepository, RevListCount> statuses) {
+    private String prepareMultiLineMessage(Map<GitRepository, RevListCount> statuses) {
         StringBuilder result = new StringBuilder(":");
         for (Entry<GitRepository, RevListCount> status : statuses.entrySet()) {
             result.append(Html.br)
@@ -75,7 +81,7 @@ public enum StatusMessages {
         return result.toString();
     }
 
-    public static String prepareBehindMessage(Map<GitRepository, RevListCount> statuses) {
+    public String prepareBehindMessage(Map<GitRepository, RevListCount> statuses) {
         StringBuilder message = new StringBuilder(ResBundle.getString("message.fetch.done"));
         if (statuses.size() == 1) {
             message.append(prepareSingleLineMessage(Iterables.getOnlyElement(statuses.values())));
