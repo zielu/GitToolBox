@@ -1,11 +1,16 @@
 package zielu.gittoolbox;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
+import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.Transient;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.ui.StatusPresenter;
+import zielu.gittoolbox.ui.StatusPresenters;
 
 @State(
     name = "GitToolBoxAppSettings",
@@ -16,15 +21,35 @@ import org.jetbrains.annotations.Nullable;
     }
 )
 public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConfig> {
+    public String presentationMode = StatusPresenters.arrows.key();
+
+    @Transient
+    public StatusPresenter getPresenter() {
+        return StatusPresenters.forKey(presentationMode);
+    }
+
+    public void setPresenter(StatusPresenter presenter) {
+        presentationMode = presenter.key();
+    }
+
+    public boolean isPresenterChanged(StatusPresenter presenter) {
+        return !presentationMode.equals(presenter.key());
+    }
+
     @Nullable
     @Override
     public GitToolBoxConfig getState() {
-        throw new Error("Not yet implemented");
+        return this;
+    }
+
+    public void fireChanged() {
+        ApplicationManager.getApplication().getMessageBus().
+            syncPublisher(GitToolBoxConfigNotifier.CONFIG_TOPIC).configChanged(this);
     }
 
     @Override
-    public void loadState(GitToolBoxConfig gitToolBoxConfig) {
-        throw new Error("Not yet implemented");
+    public void loadState(GitToolBoxConfig state) {
+        XmlSerializerUtil.copyBean(state, this);
     }
 
     public static GitToolBoxConfig getInstance() {

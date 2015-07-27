@@ -6,6 +6,7 @@ import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Map;
 import java.util.Map.Entry;
+import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.RevListCount;
@@ -19,11 +20,15 @@ public class StatusMessages {
         return ServiceManager.getService(StatusMessages.class);
     }
 
+    private StatusPresenter presenter() {
+        return GitToolBoxConfig.getInstance().getPresenter();
+    }
+
     public String behindStatus(RevListCount behindCount) {
         switch (behindCount.status()) {
             case Success: {
                 if (behindCount.value() > 0) {
-                    return behindCount.value() + GitUi.downArrow();
+                    return presenter().behindStatus(behindCount.value());
                 } else {
                     return ResBundle.getString("message.up.to.date");
                 }
@@ -38,7 +43,7 @@ public class StatusMessages {
         switch (count.status()) {
             case Success: {
                 if (count.isNotZero()) {
-                    return count.ahead.value() + GitUi.upArrow() + " " + count.behind.value() + GitUi.downArrow();
+                    return presenter().aheadBehindStatus(count.ahead.value(), count.behind.value());
                 } else {
                     return ResBundle.getString("message.up.to.date");
                 }

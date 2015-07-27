@@ -51,6 +51,7 @@
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxConfig"/>
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
+    <applicationConfigurable instance="zielu.gittoolbox.ui.config.GitToolBoxConfigurable" id="zielu.svntoolbox.app.config" />
   </extensions>
 
   <application-components>

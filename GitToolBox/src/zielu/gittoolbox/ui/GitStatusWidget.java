@@ -18,6 +18,8 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.GitToolBoxConfigNotifier;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoStatusCache;
@@ -47,12 +49,22 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         myConnection.subscribe(UISettingsListener.TOPIC, new UISettingsListener() {
             @Override
             public void uiSettingsChanged(UISettings uiSettings) {
-                UIUtil.invokeLaterIfNeeded(new Runnable() {
-                    @Override
-                    public void run() {
-                        runUpdate();
-                    }
-                });
+                runUpdateLater();
+            }
+        });
+        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier() {
+            @Override
+            public void configChanged(GitToolBoxConfig config) {
+                runUpdateLater();
+            }
+        });
+    }
+
+    private void runUpdateLater() {
+        UIUtil.invokeLaterIfNeeded(new Runnable() {
+            @Override
+            public void run() {
+                runUpdate();
             }
         });
     }
