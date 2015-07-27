@@ -1,21 +1,16 @@
 package zielu.gittoolbox;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.StatusBar;
-import com.intellij.openapi.wm.StatusBarWidget;
-import com.intellij.openapi.wm.WindowManager;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.PerRepoStatusCache;
-import zielu.gittoolbox.ui.GitStatusWidget;
+import zielu.gittoolbox.ui.StatusBarManager;
 
 public class GitToolBoxProject extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
     private PerRepoStatusCache perRepoStatusCache;
-
-    private StatusBarWidget myStatusWidget;
+    private StatusBarManager myStatusBarManager;
 
     public GitToolBoxProject(@NotNull Project project) {
         super(project);
@@ -28,6 +23,7 @@ public class GitToolBoxProject extends AbstractProjectComponent {
     @Override
     public void initComponent() {
         perRepoStatusCache = PerRepoStatusCache.create(myProject);
+        myStatusBarManager = StatusBarManager.create(myProject);
     }
 
     @Override
@@ -41,25 +37,12 @@ public class GitToolBoxProject extends AbstractProjectComponent {
 
     @Override
     public void projectOpened() {
-        if (!ApplicationManager.getApplication().isHeadlessEnvironment()) {
-            myStatusWidget = GitStatusWidget.create(myProject);
-            StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
-            if (statusBar != null) {
-                statusBar.addWidget(myStatusWidget, myProject);
-            }
-        }
+        myStatusBarManager.opened();
         LOG.debug("Project opened");
     }
 
     @Override
     public void projectClosed() {
-        if (!ApplicationManager.getApplication().isHeadlessEnvironment()) {
-            if (myStatusWidget != null) {
-                StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
-                if (statusBar != null) {
-                    statusBar.removeWidget(myStatusWidget.ID());
-                }
-            }
-        }
+        myStatusBarManager.dispose();
     }
 }

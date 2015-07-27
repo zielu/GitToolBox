@@ -2,6 +2,7 @@ package zielu.gittoolbox.ui.config;
 
 import com.intellij.ui.ListCellRendererWrapper;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -12,6 +13,7 @@ import zielu.gittoolbox.ui.StatusPresenters;
 public class GitToolBoxForm {
     private JComboBox presentationMode;
     private JPanel content;
+    private JCheckBox showGitStatCheckBox;
 
     public void init() {
         presentationMode.setRenderer(new ListCellRendererWrapper<StatusPresenter>() {
@@ -34,5 +36,13 @@ public class GitToolBoxForm {
 
     public StatusPresenter getPresenter() {
         return (StatusPresenter) presentationMode.getSelectedItem();
+    }
+
+    public void setShowGitStatus(boolean showGitStatus) {
+        showGitStatCheckBox.setSelected(showGitStatus);
+    }
+
+    public boolean getShowGitStatus() {
+        return showGitStatCheckBox.isSelected();
     }
 }

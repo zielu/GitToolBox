@@ -28,8 +28,11 @@ import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.Status;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
+    public static final String id = GitStatusWidget.class.getName();
+
     private String myText = "";
     private String myToolTipText = "";
+    private boolean myVisible = true;
 
     private GitStatusWidget(@NotNull Project project) {
         super(project);
@@ -41,6 +44,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                     public void run() {
                         if (repository.equals(GitBranchUtil.getCurrentRepository(myProject))) {
                             update(repository, aheadBehind);
+                            updateStatusBar();
                         }
                     }
                 });
@@ -69,8 +73,13 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         });
     }
 
-    public static StatusBarWidget create(@NotNull Project project) {
+    public static GitStatusWidget create(@NotNull Project project) {
         return new GitStatusWidget(project);
+    }
+
+    public void setVisible(boolean visible) {
+        myVisible = visible;
+        runUpdateLater();
     }
 
     @Override
@@ -81,7 +90,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     @NotNull
     @Override
     public String ID() {
-        return getClass().getName();
+        return id;
     }
 
     @Nullable
@@ -139,6 +148,11 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         myToolTipText = "";
     }
 
+    private void hidden() {
+        myText = "";
+        myToolTipText = "";
+    }
+
     private void updateData(GitAheadBehindCount aheadBehind) {
         String statusText = StatusText.format(aheadBehind);
         if (aheadBehind.status() == Status.Success) {
@@ -160,20 +174,26 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 aheadBehind = toolBox.perRepoStatusCache().get(repository);
             }
             update(repository, aheadBehind);
+        } else {
+            hidden();
         }
+        updateStatusBar();
     }
 
     private void update(@Nullable GitRepository repository, Optional<GitAheadBehindCount> aheadBehind) {
-        if (repository != null) {
-            if (aheadBehind.isPresent()) {
-                updateData(aheadBehind.get());
+        if (myVisible) {
+            if (repository != null) {
+                if (aheadBehind.isPresent()) {
+                    updateData(aheadBehind.get());
+                } else {
+                    empty();
+                }
             } else {
                 empty();
             }
         } else {
-            empty();
+            hidden();
         }
-        updateStatusBar();
     }
 
     @Nullable
