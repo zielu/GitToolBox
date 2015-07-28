@@ -143,12 +143,12 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         }
     }
 
-    private void empty() {
+    private void na() {
         myText = ResBundle.getString("status.prefix") + " " + ResBundle.getString("git.na");
         myToolTipText = "";
     }
 
-    private void hidden() {
+    private void empty() {
         myText = "";
         myToolTipText = "";
     }
@@ -175,7 +175,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
             }
             update(repository, aheadBehind);
         } else {
-            hidden();
+            empty();
         }
         updateStatusBar();
     }
@@ -186,13 +186,13 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 if (aheadBehind.isPresent()) {
                     updateData(aheadBehind.get());
                 } else {
-                    empty();
+                    na();
                 }
             } else {
                 empty();
             }
         } else {
-            hidden();
+            empty();
         }
     }
 
