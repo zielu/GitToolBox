@@ -25,7 +25,6 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoStatusCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.status.GitAheadBehindCount;
-import zielu.gittoolbox.status.Status;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
     public static final String id = GitStatusWidget.class.getName();
@@ -155,13 +154,8 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
 
     private void updateData(GitAheadBehindCount aheadBehind) {
         String statusText = StatusText.format(aheadBehind);
-        if (aheadBehind.status() == Status.Success) {
-            myText = ResBundle.getString("status.prefix") + " " + statusText;
-            myToolTipText = "";
-        } else {
-            myText = ResBundle.getString("status.prefix") + " " + statusText;
-            myToolTipText = statusText;
-        }
+        myText = ResBundle.getString("status.prefix") + " " + statusText;
+        myToolTipText = StatusText.formatToolTip(aheadBehind);
     }
 
     private void runUpdate() {

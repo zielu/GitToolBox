@@ -1,8 +1,19 @@
 package zielu.gittoolbox.status;
 
 public enum Status {
-    Success,
-    Cancel,
-    Failure,
-    NoRemote
+    Success(true),
+    NoRemote(true),
+    Cancel(false),
+    Failure(false)
+    ;
+
+    private final boolean valid;
+
+    Status(boolean _valid) {
+        valid = _valid;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
 }
