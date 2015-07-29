@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>13.3.1</version>
+  <version>13.3.2</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -28,6 +28,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <h3>Changes is 13.3.2</h3>
+      <ul>
+        <li>Fixed status bar display for no remote state</li>
+      </ul>
       <h3>Changes is 13.3.1</h3>
       <ul>
         <li>Added plugin configuration: Settings / Git ToolBox</li>
