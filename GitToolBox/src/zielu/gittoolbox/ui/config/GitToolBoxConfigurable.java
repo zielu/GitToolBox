@@ -37,6 +37,7 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
         GitToolBoxConfig config = GitToolBoxConfig.getInstance();
         form.setPresenter(config.getPresenter());
         form.setShowGitStatus(config.showStatusWidget);
+        form.setShowProjectViewStatus(config.showProjectViewStatus);
         return form.getContent();
     }
 
@@ -45,6 +46,7 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
         GitToolBoxConfig config = GitToolBoxConfig.getInstance();
         boolean modified = config.isPresenterChanged(form.getPresenter());
         modified = modified || config.isShowStatusWidget(form.getShowGitStatus());
+        modified = modified || config.isShowProjectViewStatus(form.getShowProjectViewStatus());
         setModified(modified);
         return super.isModified();
     }
@@ -55,6 +57,7 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
         GitToolBoxConfig config = GitToolBoxConfig.getInstance();
         config.setPresenter(form.getPresenter());
         config.showStatusWidget = form.getShowGitStatus();
+        config.showProjectViewStatus = form.getShowProjectViewStatus();
         config.fireChanged();
     }
 

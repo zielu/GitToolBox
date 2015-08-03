@@ -14,6 +14,7 @@ public class GitToolBoxForm {
     private JComboBox presentationMode;
     private JPanel content;
     private JCheckBox showGitStatCheckBox;
+    private JCheckBox showProjectViewStatusCheckBox;
 
     public void init() {
         presentationMode.setRenderer(new ListCellRendererWrapper<StatusPresenter>() {
@@ -44,5 +45,13 @@ public class GitToolBoxForm {
 
     public boolean getShowGitStatus() {
         return showGitStatCheckBox.isSelected();
+    }
+
+    public void setShowProjectViewStatus(boolean showProjectViewStatus) {
+        showProjectViewStatusCheckBox.setSelected(showProjectViewStatus);
+    }
+
+    public boolean getShowProjectViewStatus() {
+        return showProjectViewStatusCheckBox.isSelected();
     }
 }

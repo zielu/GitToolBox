@@ -23,6 +23,7 @@ import zielu.gittoolbox.ui.StatusPresenters;
 public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConfig> {
     public String presentationMode = StatusPresenters.arrows.key();
     public boolean showStatusWidget = true;
+    public boolean showProjectViewStatus = true;
 
     @Transient
     public StatusPresenter getPresenter() {
@@ -39,6 +40,10 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
 
     public boolean isShowStatusWidget(boolean showStatusWidget) {
         return this.showStatusWidget != showStatusWidget;
+    }
+
+    public boolean isShowProjectViewStatus(boolean showProjectViewStatus) {
+        return  this.showProjectViewStatus != showProjectViewStatus;
     }
 
     @Nullable

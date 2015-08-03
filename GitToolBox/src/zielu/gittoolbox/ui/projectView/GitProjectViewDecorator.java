@@ -29,31 +29,33 @@ public class GitProjectViewDecorator implements ProjectViewNodeDecorator {
 
     @Override
     public void decorate(ProjectViewNode projectViewNode, PresentationData presentation) {
-        if (isModuleNode(projectViewNode)) {
-            GitRepositoryManager repoManager = GitUtil.getRepositoryManager(projectViewNode.getProject());
-            GitRepository repo = repoManager.getRepositoryForFile(projectViewNode.getVirtualFile());
-            if (repo != null) {
-                PerRepoStatusCache cache = GitToolBoxProject.getInstance(projectViewNode.getProject()).perRepoStatusCache();
-                StringBuilder location = new StringBuilder();
-                String existingLocation = presentation.getLocationString();
-                if (StringUtils.isNotBlank(existingLocation)) {
-                    location.append(existingLocation).append(" - ");
-                }
-                location.append(GitBranchUtil.getDisplayableBranchText(repo));
-                Optional<GitAheadBehindCount> countOptional = cache.get(repo);
-                if (countOptional.isPresent()) {
-                    GitAheadBehindCount count = countOptional.get();
-                    if (count.status() == Status.Success) {
-                        StatusPresenter presenter = GitToolBoxConfig.getInstance().getPresenter();
-                        String text = presenter.nonZeroAheadBehindStatus(count.ahead.value(), count.behind.value());
-                        if (StringUtils.isNotBlank(text)) {
-                            location.append(" ");
-                        }
-                        location.append(text);
+        if (GitToolBoxConfig.getInstance().showProjectViewStatus) {
+            if (isModuleNode(projectViewNode)) {
+                GitRepositoryManager repoManager = GitUtil.getRepositoryManager(projectViewNode.getProject());
+                GitRepository repo = repoManager.getRepositoryForFile(projectViewNode.getVirtualFile());
+                if (repo != null) {
+                    PerRepoStatusCache cache = GitToolBoxProject.getInstance(projectViewNode.getProject()).perRepoStatusCache();
+                    StringBuilder location = new StringBuilder();
+                    String existingLocation = presentation.getLocationString();
+                    if (StringUtils.isNotBlank(existingLocation)) {
+                        location.append(existingLocation).append(" - ");
                     }
+                    location.append(GitBranchUtil.getDisplayableBranchText(repo));
+                    Optional<GitAheadBehindCount> countOptional = cache.get(repo);
+                    if (countOptional.isPresent()) {
+                        GitAheadBehindCount count = countOptional.get();
+                        if (count.status() == Status.Success) {
+                            StatusPresenter presenter = GitToolBoxConfig.getInstance().getPresenter();
+                            String text = presenter.nonZeroAheadBehindStatus(count.ahead.value(), count.behind.value());
+                            if (StringUtils.isNotBlank(text)) {
+                                location.append(" ");
+                            }
+                            location.append(text);
+                        }
+                    }
+                    presentation.setLocationString(location.toString());
+                    presentation.setChanged(true);
                 }
-                presentation.setLocationString(location.toString());
-                presentation.setChanged(true);
             }
         }
     }
