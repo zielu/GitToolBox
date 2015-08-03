@@ -6,11 +6,13 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.PerRepoStatusCache;
 import zielu.gittoolbox.ui.StatusBarManager;
+import zielu.gittoolbox.ui.projectView.ProjectViewManager;
 
 public class GitToolBoxProject extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
     private PerRepoStatusCache perRepoStatusCache;
     private StatusBarManager myStatusBarManager;
+    private ProjectViewManager myProjectViewManager;
 
     public GitToolBoxProject(@NotNull Project project) {
         super(project);
@@ -24,6 +26,7 @@ public class GitToolBoxProject extends AbstractProjectComponent {
     public void initComponent() {
         perRepoStatusCache = PerRepoStatusCache.create(myProject);
         myStatusBarManager = StatusBarManager.create(myProject);
+        myProjectViewManager = ProjectViewManager.create(myProject);
     }
 
     @Override
@@ -38,11 +41,13 @@ public class GitToolBoxProject extends AbstractProjectComponent {
     @Override
     public void projectOpened() {
         myStatusBarManager.opened();
+        myProjectViewManager.opened();
         LOG.debug("Project opened");
     }
 
     @Override
     public void projectClosed() {
         myStatusBarManager.dispose();
+        myProjectViewManager.dispose();
     }
 }

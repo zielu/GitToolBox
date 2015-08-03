@@ -17,6 +17,19 @@ public enum StatusPresenters implements StatusPresenter {
         }
 
         @Override
+        public String nonZeroAheadBehindStatus(int ahead, int behind) {
+            String aheadText = "";
+            if (ahead > 0) {
+                aheadText = ahead + UtfSeq.arrowUp;
+            }
+            String behindText = "";
+            if (behind > 0) {
+                behindText = behind + UtfSeq.arrowDown;
+            }
+            return format(aheadText, behindText);
+        }
+
+        @Override
         public String key() {
             return "arrows";
         }
@@ -38,6 +51,19 @@ public enum StatusPresenters implements StatusPresenter {
         }
 
         @Override
+        public String nonZeroAheadBehindStatus(int ahead, int behind) {
+            String aheadText = "";
+            if (ahead > 0) {
+                aheadText = ahead + UtfSeq.arrowHeadUp;
+            }
+            String behindText = "";
+            if (behind > 0) {
+                behindText = behind + UtfSeq.arrowHeadDown;
+            }
+            return format(aheadText, behindText);
+        }
+
+        @Override
         public String key() {
             return "arrowHeads";
         }
@@ -56,6 +82,19 @@ public enum StatusPresenters implements StatusPresenter {
         @Override
         public String aheadBehindStatus(int ahead, int behind) {
             return ahead + " // " + behind;
+        }
+
+        @Override
+        public String nonZeroAheadBehindStatus(int ahead, int behind) {
+            if (ahead > 0 && behind > 0) {
+                return aheadBehindStatus(ahead, behind);
+            } else if (ahead > 0) {
+                return ahead + " " + ResBundle.getString("git.ahead");
+            } else if (behind > 0) {
+                return behind + " " + ResBundle.getString("git.behind");
+            } else {
+                return "";
+            }
         }
 
         @Override
@@ -81,5 +120,19 @@ public enum StatusPresenters implements StatusPresenter {
 
     public static StatusPresenter forKey(String key) {
         return presenters.get(key);
+    }
+
+    private static String format(String aheadText, String behindText) {
+        if (aheadText.length() > 0 && behindText.length() > 0) {
+            return aheadText + " " + behindText;
+        } else if (aheadText.length() == 0 && behindText.length() == 0) {
+            return "";
+        } else {
+            if (aheadText.length() > 0) {
+                return aheadText;
+            } else {
+                return behindText;
+            }
+        }
     }
 }
