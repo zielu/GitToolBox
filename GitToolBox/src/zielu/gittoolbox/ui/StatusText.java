@@ -9,8 +9,13 @@ public enum StatusText {
     ;
 
     public static String format(@NotNull GitAheadBehindCount aheadBehind) {
-        if (aheadBehind.status() == Status.Success) {
-            return StatusMessages.getInstance().aheadBehindStatus(aheadBehind);
+        Status status = aheadBehind.status();
+        if (status.isValid()) {
+            if (status == Status.NoRemote) {
+                return ResBundle.getString("git.no.remote");
+            } else {
+                return StatusMessages.getInstance().aheadBehindStatus(aheadBehind);
+            }
         } else {
             return ResBundle.getString("git.na");
         }
