@@ -58,7 +58,7 @@ public class RepoStatus {
 
     @Override
     public String toString() {
-        return com.google.common.base.Objects.toStringHelper(this)
+        return Objects.toStringHelper(this)
             .add("branch", branch)
             .add("localHash", localHash)
             .add("remote", remote)

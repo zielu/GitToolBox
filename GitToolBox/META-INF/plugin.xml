@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>13.4.0</version>
+  <version>13.4.1</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -17,6 +17,11 @@
       <li><b>Status bar component:</b>
         <ul>
           <li>'Git Stat' - shows number of commits that current branch is ahead / behind remote</li>
+        </ul>
+      </li>
+      <li><b>Project View decoration:</b>
+        <ul>
+          <li>shows number of commits that current branch is ahead / behind remote</li>
         </ul>
       </li>
       <li><b>Configuration:</b>
