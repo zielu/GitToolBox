@@ -33,17 +33,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 13.4.0</h3>
+      <h3>Changes is 13.4.1</h3>
       <ul>
-        <li>Fixed status bar display for no remote state</li>
-        <li>Display status in Project View. Configurable in Settings / Git ToolBox</li>
-      </ul>
-      <h3>Changes is 13.3.1</h3>
-      <ul>
-        <li>Added plugin configuration: Settings / Git ToolBox</li>
-        <li>Configurable status presentation modes (<a href="https://github.com/zielu/GitToolBox/issues/6">#6</a>)</li>
-        <li>Configurable status bar widget visibility (<a href="https://github.com/zielu/GitToolBox/issues/4">#4</a>)</li>
-        <li>Runs on JDK 1.6 (<a href="https://github.com/zielu/GitToolBox/issues/7">#7</a>)</li>
+        <li>Fixed project lifecycle handling</li>
       </ul>
       <h3>Changes is 13.1.1</h3>
       <ul>
