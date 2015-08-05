@@ -6,12 +6,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.util.messages.MessageBusConnection;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxConfigNotifier;
 
 public class StatusBarManager implements Disposable {
+    private final AtomicBoolean opened = new AtomicBoolean();
     private final Project myProject;
     private final MessageBusConnection myConnection;
     private GitStatusWidget myStatusWidget;
@@ -26,7 +28,9 @@ public class StatusBarManager implements Disposable {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        myStatusWidget.setVisible(showStatusWidget);
+                        if (opened.get()) {
+                            myStatusWidget.setVisible(showStatusWidget);
+                        }
                     }
                 });
             }
@@ -41,6 +45,7 @@ public class StatusBarManager implements Disposable {
         StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
         if (statusBar != null) {
             statusBar.addWidget(myStatusWidget, myProject);
+            myStatusWidget.installed();
         }
     }
 
@@ -48,15 +53,22 @@ public class StatusBarManager implements Disposable {
         StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
         if (statusBar != null) {
             statusBar.removeWidget(myStatusWidget.ID());
+            myStatusWidget.uninstalled();
         }
     }
 
     public void opened() {
-        if (!ApplicationManager.getApplication().isHeadlessEnvironment()) {
-            myStatusWidget = GitStatusWidget.create(myProject);
-            install();
-            myStatusWidget.setVisible(GitToolBoxConfig.getInstance().showStatusWidget);
+        if (opened.compareAndSet(false, true)) {
+            if (!ApplicationManager.getApplication().isHeadlessEnvironment()) {
+                myStatusWidget = GitStatusWidget.create(myProject);
+                install();
+                myStatusWidget.setVisible(GitToolBoxConfig.getInstance().showStatusWidget);
+            }
         }
+    }
+
+    public void closed() {
+        opened.compareAndSet(true, false);
     }
 
     @Override

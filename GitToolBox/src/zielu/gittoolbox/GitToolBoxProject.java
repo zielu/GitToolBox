@@ -32,6 +32,8 @@ public class GitToolBoxProject extends AbstractProjectComponent {
     @Override
     public void disposeComponent() {
         perRepoStatusCache.dispose();
+        myStatusBarManager.dispose();
+        myProjectViewManager.dispose();
     }
 
     public PerRepoStatusCache perRepoStatusCache() {
@@ -47,7 +49,7 @@ public class GitToolBoxProject extends AbstractProjectComponent {
 
     @Override
     public void projectClosed() {
-        myStatusBarManager.dispose();
-        myProjectViewManager.dispose();
+        myStatusBarManager.closed();
+        myProjectViewManager.closed();
     }
 }

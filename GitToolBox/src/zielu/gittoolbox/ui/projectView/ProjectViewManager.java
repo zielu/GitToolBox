@@ -5,8 +5,9 @@ import com.intellij.ide.projectView.ProjectView;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
+import com.intellij.util.ui.UIUtil;
 import git4idea.repo.GitRepository;
-import javax.swing.SwingUtilities;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxConfigNotifier;
@@ -15,6 +16,7 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
 public class ProjectViewManager implements Disposable {
+    private final AtomicBoolean opened = new AtomicBoolean();
     private final Project myProject;
     private final MessageBusConnection myConnection;
 
@@ -37,12 +39,16 @@ public class ProjectViewManager implements Disposable {
     }
 
     private void refreshProjectView() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                ProjectView.getInstance(myProject).refresh();
-            }
-        });
+        if (opened.get()) {
+            UIUtil.invokeLaterIfNeeded(new Runnable() {
+                @Override
+                public void run() {
+                    if (opened.get()) {
+                        ProjectView.getInstance(myProject).refresh();
+                    }
+                }
+            });
+        }
     }
 
     public static ProjectViewManager create(Project project) {
@@ -50,7 +56,11 @@ public class ProjectViewManager implements Disposable {
     }
 
     public void opened() {
+        opened.compareAndSet(false, true);
+    }
 
+    public void closed() {
+        opened.compareAndSet(true, false);
     }
 
     @Override

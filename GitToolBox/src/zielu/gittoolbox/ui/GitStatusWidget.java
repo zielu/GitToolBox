@@ -16,6 +16,7 @@ import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
@@ -28,7 +29,7 @@ import zielu.gittoolbox.status.GitAheadBehindCount;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
     public static final String id = GitStatusWidget.class.getName();
-
+    private final AtomicBoolean opened = new AtomicBoolean();
     private String myText = "";
     private String myToolTipText = "";
     private boolean myVisible = true;
@@ -41,9 +42,11 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 UIUtil.invokeLaterIfNeeded(new Runnable() {
                     @Override
                     public void run() {
-                        if (repository.equals(GitBranchUtil.getCurrentRepository(myProject))) {
-                            update(repository, aheadBehind);
-                            updateStatusBar();
+                        if (opened.get()) {
+                            if (repository.equals(GitBranchUtil.getCurrentRepository(myProject))) {
+                                update(repository, aheadBehind);
+                                updateStatusBar();
+                            }
                         }
                     }
                 });
@@ -67,7 +70,9 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         UIUtil.invokeLaterIfNeeded(new Runnable() {
             @Override
             public void run() {
-                runUpdate();
+                if (opened.get()) {
+                    runUpdate();
+                }
             }
         });
     }
@@ -199,5 +204,13 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 runUpdate();
             }
         };
+    }
+
+    public void installed() {
+        opened.compareAndSet(false, true);
+    }
+
+    public void uninstalled() {
+        opened.compareAndSet(true, false);
     }
 }
