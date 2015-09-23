@@ -32,6 +32,7 @@ public class GitToolBoxForm {
         });
         presentationMode.setModel(new DefaultComboBoxModel(StatusPresenters.values()));
         autoFetchIntervalSpinner.setModel(new SpinnerNumberModel(15, 10, 180, 1));
+        autoFetchIntervalSpinner.setEnabled(false);
         autoFetchEnabledCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
