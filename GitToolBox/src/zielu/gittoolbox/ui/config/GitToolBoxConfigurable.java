@@ -38,6 +38,8 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
         form.setPresenter(config.getPresenter());
         form.setShowGitStatus(config.showStatusWidget);
         form.setShowProjectViewStatus(config.showProjectViewStatus);
+        form.setAutoFetchEnabled(config.autoFetch);
+        form.setAutoFetchInterval(config.autoFetchIntervalMinutes);
         return form.getContent();
     }
 
@@ -45,8 +47,10 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
     public boolean isModified() {
         GitToolBoxConfig config = GitToolBoxConfig.getInstance();
         boolean modified = config.isPresenterChanged(form.getPresenter());
-        modified = modified || config.isShowStatusWidget(form.getShowGitStatus());
-        modified = modified || config.isShowProjectViewStatus(form.getShowProjectViewStatus());
+        modified = modified || config.isShowStatusWidgetChanged(form.getShowGitStatus());
+        modified = modified || config.isShowProjectViewStatusChanged(form.getShowProjectViewStatus());
+        modified = modified || config.isAutoFetchChanged(form.getAutoFetchEnabled());
+        modified = modified || config.isAutoFetchIntervalMinutesChanged(form.getAutoFetchInterval());
         setModified(modified);
         return super.isModified();
     }
@@ -58,6 +62,8 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
         config.setPresenter(form.getPresenter());
         config.showStatusWidget = form.getShowGitStatus();
         config.showProjectViewStatus = form.getShowProjectViewStatus();
+        config.autoFetch = form.getAutoFetchEnabled();
+        config.autoFetchIntervalMinutes = form.getAutoFetchInterval();
         config.fireChanged();
     }
 

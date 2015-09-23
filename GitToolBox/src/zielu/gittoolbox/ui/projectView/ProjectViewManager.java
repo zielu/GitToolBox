@@ -11,11 +11,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxConfigNotifier;
+import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.cache.PerRepoStatusCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
-public class ProjectViewManager implements Disposable {
+public class ProjectViewManager implements Disposable, ProjectAware {
     private final AtomicBoolean opened = new AtomicBoolean();
     private final Project myProject;
     private final MessageBusConnection myConnection;
@@ -55,10 +56,12 @@ public class ProjectViewManager implements Disposable {
         return new ProjectViewManager(project);
     }
 
+    @Override
     public void opened() {
         opened.compareAndSet(false, true);
     }
 
+    @Override
     public void closed() {
         opened.compareAndSet(true, false);
     }

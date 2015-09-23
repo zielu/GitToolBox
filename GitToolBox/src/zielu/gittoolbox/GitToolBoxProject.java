@@ -5,14 +5,18 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.PerRepoStatusCache;
+import zielu.gittoolbox.fetch.AutoFetch;
 import zielu.gittoolbox.ui.StatusBarManager;
 import zielu.gittoolbox.ui.projectView.ProjectViewManager;
+import zielu.gittoolbox.util.ProjectAwares;
 
 public class GitToolBoxProject extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
     private PerRepoStatusCache perRepoStatusCache;
     private StatusBarManager myStatusBarManager;
     private ProjectViewManager myProjectViewManager;
+    private AutoFetch myAutoFetch;
+    private ProjectAwares myAwares;
 
     public GitToolBoxProject(@NotNull Project project) {
         super(project);
@@ -27,6 +31,8 @@ public class GitToolBoxProject extends AbstractProjectComponent {
         perRepoStatusCache = PerRepoStatusCache.create(myProject);
         myStatusBarManager = StatusBarManager.create(myProject);
         myProjectViewManager = ProjectViewManager.create(myProject);
+        myAutoFetch = AutoFetch.create(myProject);
+        myAwares = ProjectAwares.create(myStatusBarManager, myProjectViewManager, myAutoFetch);
     }
 
     @Override
@@ -34,6 +40,8 @@ public class GitToolBoxProject extends AbstractProjectComponent {
         perRepoStatusCache.dispose();
         myStatusBarManager.dispose();
         myProjectViewManager.dispose();
+        myAutoFetch.dispose();
+        myAwares.dispose();
     }
 
     public PerRepoStatusCache perRepoStatusCache() {
@@ -42,14 +50,13 @@ public class GitToolBoxProject extends AbstractProjectComponent {
 
     @Override
     public void projectOpened() {
-        myStatusBarManager.opened();
-        myProjectViewManager.opened();
+        myAwares.opened();
         LOG.debug("Project opened");
     }
 
     @Override
     public void projectClosed() {
-        myStatusBarManager.closed();
-        myProjectViewManager.closed();
+        myAwares.closed();
+        LOG.debug("Project closed");
     }
 }

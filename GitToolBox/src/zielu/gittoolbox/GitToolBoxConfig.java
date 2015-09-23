@@ -24,6 +24,8 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
     public String presentationMode = StatusPresenters.arrows.key();
     public boolean showStatusWidget = true;
     public boolean showProjectViewStatus = true;
+    public boolean autoFetch = false;
+    public int autoFetchIntervalMinutes = 15;
 
     @Transient
     public StatusPresenter getPresenter() {
@@ -38,12 +40,20 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
         return !presentationMode.equals(presenter.key());
     }
 
-    public boolean isShowStatusWidget(boolean showStatusWidget) {
+    public boolean isShowStatusWidgetChanged(boolean showStatusWidget) {
         return this.showStatusWidget != showStatusWidget;
     }
 
-    public boolean isShowProjectViewStatus(boolean showProjectViewStatus) {
+    public boolean isShowProjectViewStatusChanged(boolean showProjectViewStatus) {
         return  this.showProjectViewStatus != showProjectViewStatus;
+    }
+
+    public boolean isAutoFetchChanged(boolean autoFetch) {
+        return this.autoFetch != autoFetch;
+    }
+
+    public boolean isAutoFetchIntervalMinutesChanged(int autoFetchIntervalMinutes) {
+        return this.autoFetchIntervalMinutes != autoFetchIntervalMinutes;
     }
 
     @Nullable

@@ -11,8 +11,9 @@ import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxConfigNotifier;
+import zielu.gittoolbox.ProjectAware;
 
-public class StatusBarManager implements Disposable {
+public class StatusBarManager implements Disposable, ProjectAware {
     private final AtomicBoolean opened = new AtomicBoolean();
     private final Project myProject;
     private final MessageBusConnection myConnection;
@@ -57,6 +58,7 @@ public class StatusBarManager implements Disposable {
         }
     }
 
+    @Override
     public void opened() {
         if (opened.compareAndSet(false, true)) {
             if (!ApplicationManager.getApplication().isHeadlessEnvironment()) {
@@ -67,6 +69,7 @@ public class StatusBarManager implements Disposable {
         }
     }
 
+    @Override
     public void closed() {
         opened.compareAndSet(true, false);
     }
