@@ -5,35 +5,39 @@
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
-    <h2>Enriches Git integration</h2>
+    <h2>Enriches Git Integration with additional features</h2>
     <div>
       <a href="https://plugins.jetbrains.com/plugin/7499?pr=idea_ce">[Home]</a>
-      <a href="https://github.com/zielu/GitToolBox/issues">[Bug Tracker]</a>
+      <a href="https://github.com/zielu/GitToolBox/issues">[Issues]</a>
     </div><br/>
-    Following functionality was added:
+    <h2>Features</h2>
     <ul>
-      <li><b>Additional VCS -> Git menu actions:</b>
+      <li><b>Git status display</b>
+        shows number of ahead / behind commits for current branch as status bar widget
+        and Project View decoration on modules.
+      </li>
+      <li><b>Auto-fetch</b>
+        runs git fetch at fixed intervals
+      </li>
+      <li><b>Push tags on current branch</b>
+        available in VCS / Git
+      </li>
+      <li><b>Fetch and show behind</b>
+        performs 'git fetch' and shows number of behind commits for current branch
+      </li>
+    </ul>
+    <h2>Configuration</h2>
+    Settings / Other Settings / Git ToolBox
+    <ul>
+      <li><b>Git status display</b>
         <ul>
-          <li>'Push tags on branch' - pushes selected tags for current branch</li>
-          <li>'Fetch and show behind' - fetches from remote and displays number of commits that current branch is behind remote</li>
+          <li>status bar and Project View can be toggled independently</li>
+          <li>3 presentation modes: arrows, arrow-heads, text</li>
         </ul>
       </li>
-      <li><b>Status bar component:</b>
+      <li><b>Auto-fetch</b>
         <ul>
-          <li>'Git Stat' - shows number of commits that current branch is ahead / behind remote</li>
-          <li>can be disabled in Settings / Git ToolBox</li>
-        </ul>
-      </li>
-      <li><b>Project View decoration:</b>
-        <ul>
-          <li>shows number of commits that current branch is ahead / behind remote</li>
-          <li>can be disabled in Settings / Git ToolBox</li>
-        </ul>
-      </li>
-      <li><b>Auto-fetch:</b>
-        <ul>
-          <li>performs 'git fetch' after project is opened and later at fixed intervals</li>
-          <li>can be enabled in Settings / Git ToolBox</li>
+          <li>toggle and interval (in minutes)</li>
         </ul>
       </li>
     </ul>
