@@ -65,7 +65,8 @@ public class GitStatusCalculator {
     private RevListCount behindStatus(GitLocalBranch currentBranch, GitBranchTrackInfo trackInfo, GitRepository repository) {
         String localName = currentBranch.getName();
         String remoteName = trackInfo.getRemoteBranch().getNameForLocalOperations();
-        return behindCount(localName, remoteName, repository);
+        GitAheadBehindCount count = doRevListLeftRight(localName, remoteName, repository);
+        return count.behind;
     }
 
     private Optional<GitBranchTrackInfo> trackInfoForCurrentBranch(GitRepository repository) {
@@ -107,40 +108,5 @@ public class GitStatusCalculator {
             }
         });
         return Preconditions.checkNotNull(result.get(), "Null rev list left right");
-    }
-
-    private RevListCount behindCount(String localName, String remoteName, GitRepository repository) {
-        return doRevListCount(localName+".."+remoteName, repository);
-    }
-
-    private RevListCount aheadCount(String localName, String remoteName, GitRepository repository) {
-        return doRevListCount(remoteName+".."+localName, repository);
-    }
-
-    private RevListCount doRevListCount(String branches, GitRepository repository) {
-        final GitLineHandler handler = new GitLineHandler(myProject, repository.getRoot(), GitCommand.REV_LIST);
-        handler.addParameters(branches, "--count");
-        final GitRevListCounter counter = new GitRevListCounter();
-        handler.addLineListener(counter);
-        GitTask task = new GitTask(myProject, handler, branches);
-        task.setProgressIndicator(myIndicator);
-        final AtomicReference<RevListCount> result = new AtomicReference<RevListCount>();
-        task.execute(true, false, new GitTaskResultHandlerAdapter() {
-            @Override
-            protected void onSuccess() {
-                result.set(RevListCount.success(counter.count()));
-            }
-
-            @Override
-            protected void onCancel() {
-                result.set(RevListCount.cancel());
-            }
-
-            @Override
-            protected void onFailure() {
-                result.set(RevListCount.failure());
-            }
-        });
-        return Preconditions.checkNotNull(result.get(), "Null rev list count");
     }
 }
