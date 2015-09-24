@@ -12,17 +12,17 @@
     </div><br/>
     <h2>Features</h2>
     <ul>
-      <li><b>Git status display</b>
+      <li><b>Git status display</b> -
         shows number of ahead / behind commits for current branch as status bar widget
         and Project View decoration on modules.
       </li>
-      <li><b>Auto-fetch</b>
+      <li><b>Auto-fetch</b> -
         runs git fetch at fixed intervals
       </li>
-      <li><b>Push tags on current branch</b>
+      <li><b>Push tags on current branch</b> -
         available in VCS / Git
       </li>
-      <li><b>Fetch and show behind</b>
+      <li><b>Fetch and show behind</b> -
         performs 'git fetch' and shows number of behind commits for current branch
       </li>
     </ul>
