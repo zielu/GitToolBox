@@ -12,13 +12,18 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
+import zielu.gittoolbox.util.GtUtil;
 
 public class AutoFetchTask implements Runnable {
     private final Logger LOG = Logger.getInstance(getClass());
     private final Project myProject;
+
+    private final AtomicReference<NotificationHandle> lastNotification = new AtomicReference<NotificationHandle>();
 
     private AutoFetchTask(Project project) {
         myProject = project;
@@ -28,32 +33,68 @@ public class AutoFetchTask implements Runnable {
         return new AutoFetchTask(project);
     }
 
+    private void finishedNotification() {
+        NotificationHandle toCancel = lastNotification.get();
+        if (toCancel != null) {
+            toCancel.expire();
+        }
+        NotificationHandle notification = Notifier.getInstance(myProject).notifyLogWithPopup(
+            ResBundle.getString("message.autoFetch"),
+            ResBundle.getString("message.finished"));
+        lastNotification.set(notification);
+    }
+
+    private void finishedWithoutFetch() {
+        NotificationHandle toCancel = lastNotification.get();
+        if (toCancel != null) {
+            toCancel.expire();
+        }
+        lastNotification.set(null);
+    }
+
+    private boolean shouldFetch(List<GitRepository> repos) {
+        boolean fetch = false;
+        for (GitRepository repo : repos) {
+            if (GtUtil.isFetchable(repo)) {
+                fetch = true;
+                break;
+            }
+        }
+        return fetch;
+    }
+
     @Override
     public void run() {
-        UIUtil.invokeLaterIfNeeded(new Runnable() {
-            @Override
-            public void run() {
-                GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(myProject),
-                    ResBundle.getString("message.autoFetching"), false) {
-                    @Override
-                    public void run(@NotNull ProgressIndicator indicator) {
-                        LOG.debug("Starting auto-fetch...");
-                        indicator.setText(getTitle());
-                        indicator.setIndeterminate(true);
-                        indicator.startNonCancelableSection();
-                        GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
-                        List<GitRepository> repos = repositoryManager.getRepositories();
-                        Collection<GitRepository> fetched =
-                            GtFetcher.builder().fetchAll().build(getProject(), indicator).fetchRoots(repos);
-                        indicator.finishNonCancelableSection();
-                        LOG.debug("Finished auto-fetch");
-                        Notifier.getInstance(myProject).notifyMinorInfo(
-                            ResBundle.getString("message.autoFetch"),
-                            ResBundle.getString("message.finished"));
-                    }
-                });
-
-            }
-        });
+        GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
+        final List<GitRepository> repos = repositoryManager.getRepositories();
+        if (shouldFetch(repos)) {
+            UIUtil.invokeLaterIfNeeded(new Runnable() {
+                @Override
+                public void run() {
+                    GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(myProject),
+                        ResBundle.getString("message.autoFetching"), false) {
+                        @Override
+                        public void run(@NotNull ProgressIndicator indicator) {
+                            LOG.debug("Starting auto-fetch...");
+                            indicator.setText(getTitle());
+                            indicator.setIndeterminate(true);
+                            indicator.startNonCancelableSection();
+                            Collection<GitRepository> fetched =
+                                GtFetcher.builder().fetchAll().build(getProject(), indicator).fetchRoots(repos);
+                            indicator.finishNonCancelableSection();
+                            LOG.debug("Finished auto-fetch");
+                            finishedNotification();
+                        }
+                    });
+                }
+            });
+        } else {
+            UIUtil.invokeLaterIfNeeded(new Runnable() {
+                @Override
+                public void run() {
+                    finishedWithoutFetch();
+                }
+            });
+        }
     }
 }

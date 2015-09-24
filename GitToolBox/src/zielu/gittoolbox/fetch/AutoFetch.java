@@ -31,40 +31,49 @@ public class AutoFetch implements Disposable, ProjectAware {
         myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier() {
             @Override
             public void configChanged(GitToolBoxConfig config) {
-                if (config.autoFetch) {
-                    LOG.debug("Auto-fetch enabled");
-                    synchronized (AutoFetch.this) {
-                        if (currentInterval != config.autoFetchIntervalMinutes) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Auto-fetch interval or state changed: enabled="
-                                    +config.autoFetch+", interval="+config.autoFetchIntervalMinutes);
-                            }
+                onConfigChange(config);
+            }
+        });
+    }
 
-                            if (myScheduledTask != null) {
-                                LOG.debug("Existing task cancelled on auto-fetch change");
-                                myScheduledTask.cancel(false);
-                            }
-                            currentInterval = config.autoFetchIntervalMinutes;
-                            myScheduledTask = scheduleTask(config.autoFetchIntervalMinutes);
-                        } else {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Auto-fetch interval and state did not change: enabled="
-                                    +config.autoFetch+", interval="+config.autoFetchIntervalMinutes);
-                            }
-                        }
+    private void onConfigChange(GitToolBoxConfig config) {
+        if (config.autoFetch) {
+            LOG.debug("Auto-fetch enabled");
+            synchronized (this) {
+                if (currentInterval != config.autoFetchIntervalMinutes) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Auto-fetch interval or state changed: enabled="
+                            + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
                     }
+
+                    if (myScheduledTask != null) {
+                        LOG.debug("Existing task cancelled on auto-fetch change");
+                        myScheduledTask.cancel(false);
+                    }
+                    if (currentInterval == 0) {
+                        //first enable after start
+                        myScheduledTask = scheduleFirstTask(config.autoFetchIntervalMinutes);
+                    } else {
+                        myScheduledTask = scheduleTask(config.autoFetchIntervalMinutes);
+                    }
+                    currentInterval = config.autoFetchIntervalMinutes;
                 } else {
-                    LOG.debug("Auto-fetch disabled");
-                    synchronized (AutoFetch.this) {
-                        if (myScheduledTask != null) {
-                            LOG.debug("Existing task cancelled on auto-fetch disable");
-                            myScheduledTask.cancel(false);
-                            myScheduledTask = null;
-                        }
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Auto-fetch interval and state did not change: enabled="
+                            + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
                     }
                 }
             }
-        });
+        } else {
+            LOG.debug("Auto-fetch disabled");
+            synchronized (this) {
+                if (myScheduledTask != null) {
+                    LOG.debug("Existing task cancelled on auto-fetch disable");
+                    myScheduledTask.cancel(false);
+                    myScheduledTask = null;
+                }
+            }
+        }
     }
 
     private ScheduledFuture<?> scheduleFirstTask(long intervalMinutes) {

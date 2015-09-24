@@ -1,7 +1,11 @@
 package zielu.gittoolbox.compat;
 
 import com.google.common.base.Preconditions;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsNotifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,23 +20,34 @@ public class Notifier {
         return new Notifier(Preconditions.checkNotNull(project));
     }
 
-    public void notifySuccess(@NotNull String message) {
-        VcsNotifier.getInstance(myProject).notifySuccess(message);
+    public NotificationHandle notifySuccess(@NotNull String message) {
+        return NotificationHandleImpl.create(VcsNotifier.getInstance(myProject).notifySuccess(message));
     }
 
-    public void notifyError(@NotNull String title, @NotNull String message) {
-        VcsNotifier.getInstance(myProject).notifyError(title, message);
+    public NotificationHandle notifyError(@NotNull String title, @NotNull String message) {
+        return NotificationHandleImpl.create(VcsNotifier.getInstance(myProject).notifyError(title, message));
     }
 
-    public void notifyWeakError(@NotNull String message) {
-        VcsNotifier.getInstance(myProject).notifyWeakError(message);
+    public NotificationHandle notifyWeakError(@NotNull String message) {
+        return NotificationHandleImpl.create(VcsNotifier.getInstance(myProject).notifyWeakError(message));
     }
 
-    public void notifyMinorInfo(@NotNull String title, @NotNull String message) {
-        VcsNotifier.getInstance(myProject).notifyMinorInfo(title, message);
+    public NotificationHandle notifyMinorInfo(@NotNull String title, @NotNull String message) {
+        return NotificationHandleImpl.create(VcsNotifier.getInstance(myProject).notifyMinorInfo(title, message));
     }
 
-    public void notifyMinorWarning(@NotNull String title, @NotNull String message) {
-        VcsNotifier.getInstance(myProject).notifyMinorWarning(title, message);
+    public NotificationHandle notifyMinorWarning(@NotNull String title, @NotNull String message) {
+        return NotificationHandleImpl.create(VcsNotifier.getInstance(myProject).notifyMinorWarning(title, message));
+    }
+
+    public NotificationHandle notifyLogWithPopup(@NotNull String title, @NotNull String message) {
+        if(StringUtil.isEmptyOrSpaces(message)) {
+            message = title;
+            title = "";
+        }
+        NotificationGroup group = VcsNotifier.NOTIFICATION_GROUP_ID;
+        Notification notification = group.createNotification(title, message, NotificationType.INFORMATION, null);
+        notification.notify(myProject);
+        return NotificationHandleImpl.create(notification);
     }
 }
