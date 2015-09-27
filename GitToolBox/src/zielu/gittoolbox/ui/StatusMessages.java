@@ -72,14 +72,19 @@ public class StatusMessages {
     }
 
     private String prepareSingleLineMessage(RevListCount status) {
-        return ": " + behindStatus(status);
+        return behindStatus(status);
     }
 
     private String prepareMultiLineMessage(Map<GitRepository, RevListCount> statuses) {
-        StringBuilder result = new StringBuilder(":");
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
         for (Entry<GitRepository, RevListCount> status : statuses.entrySet()) {
-            result.append(Html.br)
-                  .append(GitUIUtil.bold(GtUtil.name(status.getKey())))
+            if (!first) {
+                result.append(Html.br);
+            } else {
+                first = false;
+            }
+            result.append(GitUIUtil.bold(GtUtil.name(status.getKey())))
                   .append(": ")
                   .append(behindStatus(status.getValue()));
         }
@@ -87,7 +92,7 @@ public class StatusMessages {
     }
 
     public String prepareBehindMessage(Map<GitRepository, RevListCount> statuses) {
-        StringBuilder message = new StringBuilder(ResBundle.getString("message.fetch.done"));
+        StringBuilder message = new StringBuilder();
         if (statuses.size() == 1) {
             message.append(prepareSingleLineMessage(Iterables.getOnlyElement(statuses.values())));
         } else {

@@ -1,5 +1,6 @@
 package zielu.gittoolbox.status;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.components.AbstractProjectComponent;
@@ -17,11 +18,12 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.ui.StatusMessages;
+import zielu.gittoolbox.util.GtUtil;
 
 public class BehindWatcher extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
     private final AtomicBoolean myActive = new AtomicBoolean();
-    private final AtomicBoolean myShowNotification = new AtomicBoolean();
+    private final AtomicBoolean myInitialized = new AtomicBoolean();
     private final Map<GitRepository, RepoInfo> myState = new ConcurrentHashMap<GitRepository, RepoInfo>();
 
     private MessageBusConnection myConnection;
@@ -41,39 +43,48 @@ public class BehindWatcher extends AbstractProjectComponent {
             @Override
             public void initialized(ImmutableMap<GitRepository, RepoInfo> info) {
                 myState.putAll(info);
-                myShowNotification.set(true);
-                LOG.debug("Initialized");
+                myInitialized.compareAndSet(false, true);
+
+                LOG.debug("Initialized: ", info);
             }
 
             @Override
             public void stateChanged(@NotNull RepoInfo info,
                                      @NotNull GitRepository repository) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("State changed: " + info + ", " + GtUtil.name(repository));
+                }
                 onStateChange(repository, info);
             }
         });
     }
 
-    private String prepareMessage() {
+    private Optional<String> prepareMessage() {
         Map<GitRepository, RevListCount> statuses = Maps.newHashMap();
         for (Entry<GitRepository, RepoInfo> entry : myState.entrySet()) {
             RepoInfo value = entry.getValue();
-            if (value.count.isPresent()) {
-                statuses.put(entry.getKey(), value.count.get().behind);
+            Optional<GitAheadBehindCount> count = value.count;
+            if (count.isPresent() && count.get().status() == Status.Success) {
+                statuses.put(entry.getKey(), count.get().behind);
             }
         }
-        return StatusMessages.getInstance().prepareBehindMessage(statuses);
+        if (!statuses.isEmpty()) {
+            return Optional.of(StatusMessages.getInstance().prepareBehindMessage(statuses));
+        } else {
+            return Optional.absent();
+        }
     }
 
     private void showNotification() {
-        String message = prepareMessage();
-        Notifier.getInstance(myProject).notifySuccess(message);
+        Optional<String> message = prepareMessage();
+        if (message.isPresent()) {
+            Notifier.getInstance(myProject).notifySuccess(message.get());
+        }
     }
 
     private void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
-        RepoInfo previousInfo = myState.put(repository, info);
-        if (myShowNotification.compareAndSet(true, false)) {
-            showNotification();
-        } else {
+        if (myInitialized.get()) {
+            RepoInfo previousInfo = myState.put(repository, info);
             if (previousInfo != null) {
                 if (!previousInfo.status.sameRemoteHash(info.status)) {
                     showNotification();
@@ -98,6 +109,5 @@ public class BehindWatcher extends AbstractProjectComponent {
     @Override
     public void projectClosed() {
         myActive.compareAndSet(true, false);
-        myShowNotification.set(false);
     }
 }

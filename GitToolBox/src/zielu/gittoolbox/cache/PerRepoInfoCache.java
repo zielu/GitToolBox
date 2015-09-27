@@ -16,6 +16,8 @@ import git4idea.repo.GitRepositoryChangeListener;
 import git4idea.repo.GitRepositoryManager;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.status.GitStatusCalculator;
@@ -25,6 +27,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     private final Logger LOG = Logger.getInstance(getClass());
 
+    private final ReadWriteLock myLock = new ReentrantReadWriteLock();
     private final ConcurrentMap<GitRepository, CachedStatus> behindStatuses = Maps.newConcurrentMap();
     private final Project myProject;
     private final GitStatusCalculator myCalculator;
@@ -42,6 +45,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     }
 
     private CachedStatus get(GitRepository repository) {
+        myLock.writeLock().lock();
         Application application = ApplicationManager.getApplication();
         AccessToken read = application.acquireReadActionLock();
         CachedStatus cachedStatus = behindStatuses.get(repository);
@@ -52,6 +56,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         }
         cachedStatus.update(repository, myCalculator);
         read.finish();
+        myLock.writeLock().unlock();
         return cachedStatus;
     }
 
@@ -91,18 +96,20 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     @Override
     public void opened() {
-        GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
-        List<GitRepository> repos = repositoryManager.getRepositories();
-        ImmutableMap.Builder<GitRepository, RepoInfo> statuses = ImmutableMap.builder();
-        for (GitRepository repo : repos) {
-            statuses.put(repo, getInfo(repo));
-        }
-
-        final ImmutableMap<GitRepository, RepoInfo> initialState = statuses.build();
         Application application = ApplicationManager.getApplication();
         application.executeOnPooledThread(new Runnable() {
             @Override
             public void run() {
+                myLock.writeLock().lock();
+                GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
+                repositoryManager.waitUntilInitialized();
+                List<GitRepository> repos = repositoryManager.getRepositories();
+                ImmutableMap.Builder<GitRepository, RepoInfo> statuses = ImmutableMap.builder();
+                for (GitRepository repo : repos) {
+                    statuses.put(repo, getInfo(repo));
+                }
+                myLock.writeLock().unlock();
+                ImmutableMap<GitRepository, RepoInfo> initialState = statuses.build();
                 myProject.getMessageBus().syncPublisher(CACHE_CHANGE).initialized(initialState);
             }
         });
