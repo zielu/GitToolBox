@@ -22,8 +22,8 @@
       <li><b>Push tags on current branch</b> -
         available in VCS / Git
       </li>
-      <li><b>Fetch and show behind</b> -
-        performs 'git fetch' and shows number of behind commits for current branch
+      <li><b>Behind watcher</b> -
+        shows notification when behind count of project repository changes
       </li>
     </ul>
     <h2>Configuration</h2>
@@ -47,6 +47,8 @@
       <h3>Changes is 13.5.0</h3>
       <ul>
         <li>Added auto-fetch (<a href="https://github.com/zielu/GitToolBox/issues/5">#5</a>)</li>
+        <li>Removed 'Fetch and show behind' action</li>
+        <li>Added 'behind watcher'</li>
       </ul>
       <h3>Changes is 13.1.1</h3>
       <ul>

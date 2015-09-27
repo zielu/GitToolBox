@@ -36,6 +36,10 @@ public class RepoStatus {
         return new RepoStatus(branch, localHash, remote, remoteHash);
     }
 
+    public boolean sameRemoteHash(RepoStatus other) {
+        return Objects.equal(remoteHash, other.remoteHash);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
