@@ -38,7 +38,7 @@ public class AutoFetchTask implements Runnable {
         if (toCancel != null) {
             toCancel.expire();
         }
-        NotificationHandle notification = Notifier.getInstance(myProject).notifyLogWithPopup(
+        NotificationHandle notification = Notifier.getInstance(myProject).notifyLogOnly(
             ResBundle.getString("message.autoFetch"),
             ResBundle.getString("message.finished"));
         lastNotification.set(notification);

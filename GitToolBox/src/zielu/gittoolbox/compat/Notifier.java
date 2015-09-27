@@ -50,4 +50,8 @@ public class Notifier {
         notification.notify(myProject);
         return NotificationHandleImpl.create(notification);
     }
+
+    public NotificationHandle notifyLogOnly(@NotNull String title, @NotNull String message) {
+        return NotificationHandleImpl.create(VcsNotifier.getInstance(myProject).logInfo(title, message));
+    }
 }
