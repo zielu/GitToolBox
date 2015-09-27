@@ -15,7 +15,7 @@ import git4idea.repo.GitRepositoryManager;
 import org.apache.commons.lang.StringUtils;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxProject;
-import zielu.gittoolbox.cache.PerRepoStatusCache;
+import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.ui.StatusPresenter;
@@ -43,7 +43,7 @@ public class GitProjectViewDecorator implements ProjectViewNodeDecorator {
                 GitRepository repo = repoManager.getRepositoryForFile(projectViewNode.getVirtualFile());
                 decorateWatch.elapsed("Repo find");
                 if (repo != null) {
-                    PerRepoStatusCache cache = GitToolBoxProject.getInstance(projectViewNode.getProject()).perRepoStatusCache();
+                    PerRepoInfoCache cache = GitToolBoxProject.getInstance(projectViewNode.getProject()).perRepoStatusCache();
                     StringBuilder location = new StringBuilder();
                     String existingLocation = presentation.getLocationString();
                     if (StringUtils.isNotBlank(existingLocation)) {
@@ -53,7 +53,7 @@ public class GitProjectViewDecorator implements ProjectViewNodeDecorator {
                     branchWatch.start();
                     location.append(GitBranchUtil.getDisplayableBranchText(repo));
                     branchWatch.finish();
-                    Optional<GitAheadBehindCount> countOptional = cache.get(repo);
+                    Optional<GitAheadBehindCount> countOptional = cache.getInfo(repo).count;
                     if (countOptional.isPresent()) {
                         GitAheadBehindCount count = countOptional.get();
                         if (count.status() == Status.Success) {

@@ -1,6 +1,7 @@
 package zielu.gittoolbox.ui;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -23,8 +24,9 @@ import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxConfigNotifier;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.cache.PerRepoStatusCache;
+import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
+import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
@@ -36,15 +38,18 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
 
     private GitStatusWidget(@NotNull Project project) {
         super(project);
-        myConnection.subscribe(PerRepoStatusCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+        myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
             @Override
-            public void stateChanged(@NotNull final Optional<GitAheadBehindCount> aheadBehind, @NotNull final GitRepository repository) {
+            public void initialized(ImmutableMap<GitRepository, RepoInfo> info) {}
+
+            @Override
+            public void stateChanged(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
                 UIUtil.invokeLaterIfNeeded(new Runnable() {
                     @Override
                     public void run() {
                         if (opened.get()) {
                             if (repository.equals(GitBranchUtil.getCurrentRepository(myProject))) {
-                                update(repository, aheadBehind);
+                                update(repository, info.count);
                                 updateStatusBar();
                             }
                         }
@@ -170,7 +175,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
             Optional<GitAheadBehindCount> aheadBehind = Optional.absent();
             if (repository != null) {
                 GitToolBoxProject toolBox = GitToolBoxProject.getInstance(myProject);
-                aheadBehind = toolBox.perRepoStatusCache().get(repository);
+                aheadBehind = toolBox.perRepoStatusCache().getInfo(repository).count;
             }
             update(repository, aheadBehind);
         } else {

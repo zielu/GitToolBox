@@ -1,10 +1,10 @@
 package zielu.gittoolbox.cache;
 
-import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.status.GitAheadBehindCount;
 
 public interface PerRepoStatusCacheListener {
-    void stateChanged(@NotNull Optional<GitAheadBehindCount> aheadBehind,  @NotNull GitRepository repository);
+    void initialized(ImmutableMap<GitRepository, RepoInfo> info);
+    void stateChanged(@NotNull RepoInfo info,  @NotNull GitRepository repository);
 }

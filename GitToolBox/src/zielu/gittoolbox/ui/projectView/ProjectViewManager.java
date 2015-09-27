@@ -1,6 +1,6 @@
 package zielu.gittoolbox.ui.projectView;
 
-import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
@@ -12,9 +12,9 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxConfigNotifier;
 import zielu.gittoolbox.ProjectAware;
-import zielu.gittoolbox.cache.PerRepoStatusCache;
+import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
-import zielu.gittoolbox.status.GitAheadBehindCount;
+import zielu.gittoolbox.cache.RepoInfo;
 
 public class ProjectViewManager implements Disposable, ProjectAware {
     private final AtomicBoolean opened = new AtomicBoolean();
@@ -30,9 +30,12 @@ public class ProjectViewManager implements Disposable, ProjectAware {
                 refreshProjectView();
             }
         });
-        myConnection.subscribe(PerRepoStatusCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+        myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
             @Override
-            public void stateChanged(@NotNull final Optional<GitAheadBehindCount> aheadBehind,
+            public void initialized(ImmutableMap<GitRepository, RepoInfo> info) {}
+
+            @Override
+            public void stateChanged(@NotNull final RepoInfo info,
                                      @NotNull final GitRepository repository) {
                 refreshProjectView();
             }

@@ -4,18 +4,22 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.intellij.openapi.diagnostic.Logger;
 import git4idea.repo.GitRepository;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.util.LogWatch;
 
-public class CachedStatus {
+class CachedStatus {
     private final Logger LOG = Logger.getInstance(getClass());
     private final LogWatch statusUpdateWatch = LogWatch.create(LOG, "Status update");
     private final LogWatch repoStatusCreateWatch = LogWatch.create(LOG, "Repo status create");
+    private final ReadWriteLock myLock = new ReentrantReadWriteLock();
 
-    private Optional<GitAheadBehindCount> status = Optional.absent();
-    private RepoStatus state;
+    private Optional<GitAheadBehindCount> myCount = Optional.absent();
+    private RepoStatus myStatus;
+    private RepoInfo myInfo;
 
     private CachedStatus() {}
 
@@ -23,29 +27,41 @@ public class CachedStatus {
         return new CachedStatus();
     }
 
-    public synchronized Optional<GitAheadBehindCount> update(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator) {
-        final boolean debug = LOG.isDebugEnabled();
-        repoStatusCreateWatch.start();
-        RepoStatus currentState = RepoStatus.create(repo);
-        repoStatusCreateWatch.finish();
-        if (debug) {
-            LOG.debug("Current state: " + currentState);
-        }
+    public void update(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator) {
+        myLock.writeLock().lock();
+        try {
+            final boolean debug = LOG.isDebugEnabled();
+            repoStatusCreateWatch.start();
+            RepoStatus currentStatus = RepoStatus.create(repo);
+            repoStatusCreateWatch.finish();
+            if (debug) {
+                LOG.debug("Current state: " + currentStatus);
+            }
 
-        if (!Objects.equal(state, currentState)) {
-            Optional<GitAheadBehindCount> oldBehindStatus = status;
-            statusUpdateWatch.start();
-            status = Optional.of(calculator.aheadBehindStatus(repo));
-            statusUpdateWatch.finish();
-            if (debug) {
-                LOG.debug("Updated stale behind status: " + oldBehindStatus + " > " + status);
+            if (!Objects.equal(myStatus, currentStatus)) {
+                Optional<GitAheadBehindCount> oldCount = myCount;
+                statusUpdateWatch.start();
+                myCount = Optional.of(calculator.aheadBehindStatus(repo));
+                statusUpdateWatch.finish();
+                if (debug) {
+                    LOG.debug("Updated stale status: " + oldCount + " > " + myCount);
+                }
+                myStatus = currentStatus;
+                myInfo = RepoInfo.create(myStatus, myCount);
+            } else {
+                if (debug) {
+                    LOG.debug("Status did not change: " + myCount);
+                }
             }
-            state = currentState;
-        } else {
-            if (debug) {
-                LOG.debug("Behind status did not change: " + status);
-            }
+        } finally {
+            myLock.writeLock().unlock();
         }
-        return status;
+    }
+
+    public RepoInfo get() {
+        myLock.readLock().lock();
+        RepoInfo result = this.myInfo;
+        myLock.readLock().unlock();
+        return result;
     }
 }
