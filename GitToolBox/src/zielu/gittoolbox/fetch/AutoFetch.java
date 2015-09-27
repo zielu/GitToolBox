@@ -36,6 +36,16 @@ public class AutoFetch implements Disposable, ProjectAware {
         });
     }
 
+    private void cancelCurrentTask() {
+        synchronized (this) {
+            if (myScheduledTask != null) {
+                LOG.debug("Existing task cancelled");
+                myScheduledTask.cancel(false);
+                myScheduledTask = null;
+            }
+        }
+    }
+
     private void onConfigChange(GitToolBoxConfig config) {
         if (config.autoFetch) {
             LOG.debug("Auto-fetch enabled");
@@ -46,10 +56,8 @@ public class AutoFetch implements Disposable, ProjectAware {
                             + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
                     }
 
-                    if (myScheduledTask != null) {
-                        LOG.debug("Existing task cancelled on auto-fetch change");
-                        myScheduledTask.cancel(false);
-                    }
+                    cancelCurrentTask();
+                    LOG.debug("Existing task cancelled on auto-fetch change");
                     if (currentInterval == 0) {
                         //first enable after start
                         myScheduledTask = scheduleFirstTask(config.autoFetchIntervalMinutes);
@@ -67,11 +75,8 @@ public class AutoFetch implements Disposable, ProjectAware {
         } else {
             LOG.debug("Auto-fetch disabled");
             synchronized (this) {
-                if (myScheduledTask != null) {
-                    LOG.debug("Existing task cancelled on auto-fetch disable");
-                    myScheduledTask.cancel(false);
-                    myScheduledTask = null;
-                }
+                cancelCurrentTask();
+                LOG.debug("Existing task cancelled on auto-fetch disable");
             }
         }
     }
