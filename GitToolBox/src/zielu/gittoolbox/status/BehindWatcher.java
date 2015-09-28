@@ -86,7 +86,8 @@ public class BehindWatcher extends AbstractProjectComponent {
         if (myInitialized.get()) {
             RepoInfo previousInfo = myState.put(repository, info);
             if (previousInfo != null) {
-                if (!previousInfo.status.sameRemoteHash(info.status)) {
+                if (previousInfo.status.sameRemoteBranch(info.status) &&
+                    !previousInfo.status.sameRemoteHash(info.status)) {
                     showNotification();
                 }
             } else {

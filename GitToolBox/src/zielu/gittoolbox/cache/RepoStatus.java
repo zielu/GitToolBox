@@ -9,13 +9,13 @@ import git4idea.repo.GitRepository;
 public class RepoStatus {
     private final GitLocalBranch branch;
     private final Hash localHash;
-    private final GitRemoteBranch remote;
+    private final GitRemoteBranch remoteBranch;
     private final Hash remoteHash;
 
-    private RepoStatus(GitLocalBranch branch, Hash localHash, GitRemoteBranch remote, Hash remoteHash) {
+    private RepoStatus(GitLocalBranch branch, Hash localHash, GitRemoteBranch remoteBranch, Hash remoteHash) {
         this.branch = branch;
         this.localHash = localHash;
-        this.remote = remote;
+        this.remoteBranch = remoteBranch;
         this.remoteHash = remoteHash;
     }
 
@@ -40,6 +40,10 @@ public class RepoStatus {
         return Objects.equal(remoteHash, other.remoteHash);
     }
 
+    public boolean sameRemoteBranch(RepoStatus other) {
+        return Objects.equal(remoteBranch, other.remoteBranch);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -51,13 +55,13 @@ public class RepoStatus {
         RepoStatus that = (RepoStatus) o;
         return Objects.equal(branch, that.branch) &&
             Objects.equal(localHash, that.localHash) &&
-            Objects.equal(remote, that.remote) &&
+            Objects.equal(remoteBranch, that.remoteBranch) &&
             Objects.equal(remoteHash, that.remoteHash);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(branch, localHash, remote, remoteHash);
+        return Objects.hashCode(branch, localHash, remoteBranch, remoteHash);
     }
 
     @Override
@@ -65,7 +69,7 @@ public class RepoStatus {
         return Objects.toStringHelper(this)
             .add("branch", branch)
             .add("localHash", localHash)
-            .add("remote", remote)
+            .add("remote", remoteBranch)
             .add("remoteHash", remoteHash)
             .toString();
     }
