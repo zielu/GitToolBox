@@ -1,14 +1,14 @@
 package zielu.gittoolbox.fetch;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxConfigNotifier;
 import zielu.gittoolbox.ProjectAware;
@@ -16,12 +16,10 @@ import zielu.gittoolbox.ProjectAware;
 public class AutoFetch implements Disposable, ProjectAware {
     private final Logger LOG = Logger.getInstance(getClass());
 
+    private final AtomicBoolean myActive = new AtomicBoolean();
     private final Project myProject;
     private final MessageBusConnection myConnection;
-    private final ScheduledExecutorService myExecutor = Executors.newSingleThreadScheduledExecutor(
-        new ThreadFactoryBuilder().setDaemon(true).setNameFormat("AutoFetch-%s").build()
-    );
-
+    private ScheduledExecutorService myExecutor;
     private ScheduledFuture<?> myScheduledTask;
     private int currentInterval;
 
@@ -82,14 +80,14 @@ public class AutoFetch implements Disposable, ProjectAware {
     }
 
     private ScheduledFuture<?> scheduleFirstTask(long intervalMinutes) {
-        return myExecutor.scheduleWithFixedDelay(AutoFetchTask.create(myProject),
+        return myExecutor.scheduleWithFixedDelay(AutoFetchTask.create(this),
             30,
             TimeUnit.MINUTES.toSeconds(intervalMinutes),
             TimeUnit.SECONDS);
     }
 
     private ScheduledFuture<?> scheduleTask(long intervalMinutes) {
-        return myExecutor.scheduleWithFixedDelay(AutoFetchTask.create(myProject),
+        return myExecutor.scheduleWithFixedDelay(AutoFetchTask.create(this),
             intervalMinutes,
             intervalMinutes,
             TimeUnit.MINUTES);
@@ -99,13 +97,22 @@ public class AutoFetch implements Disposable, ProjectAware {
         return new AutoFetch(project);
     }
 
+    public Project project() {
+        return myProject;
+    }
+
+    public boolean isActive() {
+        return myActive.get();
+    }
+
     @Override
     public void dispose() {
-        myConnection.disconnect();
     }
 
     @Override
     public void opened() {
+        myActive.compareAndSet(false, true);
+        myExecutor = GitToolBoxApp.getInstance().autoFetchExecutor();
         GitToolBoxConfig config = GitToolBoxConfig.getInstance();
         if (config.autoFetch) {
             LOG.debug("Scheduling auto-fetch on project open");
@@ -118,9 +125,8 @@ public class AutoFetch implements Disposable, ProjectAware {
 
     @Override
     public void closed() {
-        myExecutor.shutdownNow();
-        synchronized (this) {
-            myScheduledTask = null;
-        }
+        myActive.compareAndSet(true, false);
+        myConnection.disconnect();
+        cancelCurrentTask();
     }
 }

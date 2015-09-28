@@ -1,7 +1,6 @@
 package zielu.gittoolbox.ui;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -39,9 +38,6 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     private GitStatusWidget(@NotNull Project project) {
         super(project);
         myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
-            @Override
-            public void initialized(ImmutableMap<GitRepository, RepoInfo> info) {}
-
             @Override
             public void stateChanged(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
                 UIUtil.invokeLaterIfNeeded(new Runnable() {

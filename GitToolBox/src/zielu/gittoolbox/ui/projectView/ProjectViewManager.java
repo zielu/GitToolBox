@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.projectView;
 
-import com.google.common.collect.ImmutableMap;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
@@ -31,9 +30,6 @@ public class ProjectViewManager implements Disposable, ProjectAware {
             }
         });
         myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
-            @Override
-            public void initialized(ImmutableMap<GitRepository, RepoInfo> info) {}
-
             @Override
             public void stateChanged(@NotNull final RepoInfo info,
                                      @NotNull final GitRepository repository) {

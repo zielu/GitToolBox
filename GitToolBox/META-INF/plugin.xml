@@ -80,7 +80,9 @@
   </extensions>
 
   <application-components>
-    <!-- Add your application components here -->
+    <component>
+      <implementation-class>zielu.gittoolbox.GitToolBoxApp</implementation-class>
+    </component>
   </application-components>
 
   <project-components>
@@ -89,7 +91,7 @@
       <implementation-class>zielu.gittoolbox.GitToolBoxProject</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.status.BehindWatcher</implementation-class>
+      <implementation-class>zielu.gittoolbox.status.BehindTracker</implementation-class>
     </component>
   </project-components>
 

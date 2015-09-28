@@ -21,32 +21,36 @@ import zielu.gittoolbox.util.GtUtil;
 
 public class AutoFetchTask implements Runnable {
     private final Logger LOG = Logger.getInstance(getClass());
+    private final AutoFetch myParent;
     private final Project myProject;
 
     private final AtomicReference<NotificationHandle> lastNotification = new AtomicReference<NotificationHandle>();
 
-    private AutoFetchTask(Project project) {
-        myProject = project;
+    private AutoFetchTask(AutoFetch parent) {
+        myParent = parent;
+        myProject = myParent.project();
     }
 
-    public static AutoFetchTask create(Project project) {
-        return new AutoFetchTask(project);
+    public static AutoFetchTask create(AutoFetch parent) {
+        return new AutoFetchTask(parent);
     }
 
     private void finishedNotification() {
         NotificationHandle toCancel = lastNotification.get();
-        if (toCancel != null) {
+        if (toCancel != null && myParent.isActive()) {
             toCancel.expire();
         }
-        NotificationHandle notification = Notifier.getInstance(myProject).notifyLogOnly(
-            ResBundle.getString("message.autoFetch"),
-            ResBundle.getString("message.finished"));
-        lastNotification.set(notification);
+        if (myParent.isActive()) {
+            NotificationHandle notification = Notifier.getInstance(myProject).notifyLogOnly(
+                ResBundle.getString("message.autoFetch"),
+                ResBundle.getString("message.finished"));
+            lastNotification.set(notification);
+        }
     }
 
     private void finishedWithoutFetch() {
         NotificationHandle toCancel = lastNotification.get();
-        if (toCancel != null) {
+        if (toCancel != null && myParent.isActive()) {
             toCancel.expire();
         }
         lastNotification.set(null);
@@ -67,7 +71,7 @@ public class AutoFetchTask implements Runnable {
     public void run() {
         GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
         final List<GitRepository> repos = repositoryManager.getRepositories();
-        if (shouldFetch(repos)) {
+        if (shouldFetch(repos) && myParent.isActive()) {
             UIUtil.invokeLaterIfNeeded(new Runnable() {
                 @Override
                 public void run() {
@@ -79,11 +83,13 @@ public class AutoFetchTask implements Runnable {
                             indicator.setText(getTitle());
                             indicator.setIndeterminate(true);
                             indicator.startNonCancelableSection();
-                            Collection<GitRepository> fetched =
-                                GtFetcher.builder().fetchAll().build(getProject(), indicator).fetchRoots(repos);
-                            indicator.finishNonCancelableSection();
-                            LOG.debug("Finished auto-fetch");
-                            finishedNotification();
+                            if (myParent.isActive()) {
+                                Collection<GitRepository> fetched =
+                                    GtFetcher.builder().fetchAll().build(getProject(), indicator).fetchRoots(repos);
+                                indicator.finishNonCancelableSection();
+                                LOG.debug("Finished auto-fetch");
+                                finishedNotification();
+                            }
                         }
                     });
                 }

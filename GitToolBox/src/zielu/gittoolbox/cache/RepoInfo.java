@@ -1,5 +1,6 @@
 package zielu.gittoolbox.cache;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
@@ -14,5 +15,13 @@ public class RepoInfo {
 
     public static RepoInfo create(RepoStatus status, Optional<GitAheadBehindCount> count) {
         return new RepoInfo(status, count);
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+            .add("status", status)
+            .add("count", count)
+            .toString();
     }
 }

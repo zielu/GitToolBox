@@ -39,7 +39,7 @@ public class GitAheadBehindCount {
 
     @Override
     public String toString() {
-        return ahead + "^ " + behind + " v";
+        return ahead + " ahead, " + behind + " behind, status="+status();
     }
 
     public static GitAheadBehindCount noRemote() {

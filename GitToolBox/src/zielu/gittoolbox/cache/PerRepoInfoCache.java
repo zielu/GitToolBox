@@ -1,6 +1,5 @@
 package zielu.gittoolbox.cache;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.AccessToken;
@@ -10,11 +9,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
-import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import git4idea.repo.GitRepositoryManager;
-import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -96,23 +92,6 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     @Override
     public void opened() {
-        Application application = ApplicationManager.getApplication();
-        application.executeOnPooledThread(new Runnable() {
-            @Override
-            public void run() {
-                myLock.writeLock().lock();
-                GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
-                repositoryManager.waitUntilInitialized();
-                List<GitRepository> repos = repositoryManager.getRepositories();
-                ImmutableMap.Builder<GitRepository, RepoInfo> statuses = ImmutableMap.builder();
-                for (GitRepository repo : repos) {
-                    statuses.put(repo, getInfo(repo));
-                }
-                myLock.writeLock().unlock();
-                ImmutableMap<GitRepository, RepoInfo> initialState = statuses.build();
-                myProject.getMessageBus().syncPublisher(CACHE_CHANGE).initialized(initialState);
-            }
-        });
     }
 
     @Override
