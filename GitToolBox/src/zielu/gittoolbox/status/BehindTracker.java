@@ -12,12 +12,14 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.ui.StatusMessages;
 import zielu.gittoolbox.util.GtUtil;
+import zielu.gittoolbox.util.Html;
 
 public class BehindTracker extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
@@ -67,10 +69,21 @@ public class BehindTracker extends AbstractProjectComponent {
         }
     }
 
+    private boolean manyRepos() {
+        return myState.size() > 1;
+    }
+
     private void showNotification() {
         Optional<String> message = prepareMessage();
         if (message.isPresent() && myActive.get()) {
-            Notifier.getInstance(myProject).notifySuccess(message.get());
+            StringBuilder finalMessage = new StringBuilder(ResBundle.getString("message.autoFetch"));
+            if (manyRepos()) {
+                finalMessage.append(Html.br);
+            } else {
+                finalMessage.append(": ");
+            }
+            finalMessage.append(message.get());
+            Notifier.getInstance(myProject).notifySuccess(finalMessage.toString());
         }
     }
 

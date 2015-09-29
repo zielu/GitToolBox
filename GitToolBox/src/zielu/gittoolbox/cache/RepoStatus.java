@@ -7,6 +7,8 @@ import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRepository;
 
 public class RepoStatus {
+    private static final RepoStatus empty = new RepoStatus(null, null, null, null);
+
     private final GitLocalBranch branch;
     private final Hash localHash;
     private final GitRemoteBranch remoteBranch;
@@ -34,6 +36,10 @@ public class RepoStatus {
             }
         }
         return new RepoStatus(branch, localHash, remote, remoteHash);
+    }
+
+    public static RepoStatus empty() {
+        return empty;
     }
 
     public boolean sameRemoteHash(RepoStatus other) {

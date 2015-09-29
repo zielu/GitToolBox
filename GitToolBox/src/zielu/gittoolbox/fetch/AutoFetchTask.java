@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import git4idea.GitUtil;
@@ -20,6 +21,8 @@ import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.util.GtUtil;
 
 public class AutoFetchTask implements Runnable {
+    private static final boolean showNotifications = false;
+
     private final Logger LOG = Logger.getInstance(getClass());
     private final AutoFetch myParent;
     private final Project myProject;
@@ -36,7 +39,7 @@ public class AutoFetchTask implements Runnable {
     }
 
     private void finishedNotification() {
-        NotificationHandle toCancel = lastNotification.get();
+        NotificationHandle toCancel = lastNotification.getAndSet(null);
         if (toCancel != null && myParent.isActive()) {
             toCancel.expire();
         }
@@ -49,11 +52,10 @@ public class AutoFetchTask implements Runnable {
     }
 
     private void finishedWithoutFetch() {
-        NotificationHandle toCancel = lastNotification.get();
+        NotificationHandle toCancel = lastNotification.getAndSet(null);
         if (toCancel != null && myParent.isActive()) {
             toCancel.expire();
         }
-        lastNotification.set(null);
     }
 
     private boolean shouldFetch(List<GitRepository> repos) {
@@ -67,11 +69,21 @@ public class AutoFetchTask implements Runnable {
         return fetch;
     }
 
+    private boolean isSmartMode() {
+        return !DumbService.isDumb(myProject);
+    }
+
+    private boolean isEnabled() {
+        return myParent.isActive() && isSmartMode();
+    }
+
     @Override
     public void run() {
         GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
         final List<GitRepository> repos = repositoryManager.getRepositories();
-        if (shouldFetch(repos) && myParent.isActive()) {
+        boolean shouldFetch = shouldFetch(repos);
+        boolean enabled = isEnabled();
+        if (shouldFetch && enabled) {
             UIUtil.invokeLaterIfNeeded(new Runnable() {
                 @Override
                 public void run() {
@@ -83,24 +95,33 @@ public class AutoFetchTask implements Runnable {
                             indicator.setText(getTitle());
                             indicator.setIndeterminate(true);
                             indicator.startNonCancelableSection();
-                            if (myParent.isActive()) {
+                            if (isEnabled()) {
                                 Collection<GitRepository> fetched =
                                     GtFetcher.builder().fetchAll().build(getProject(), indicator).fetchRoots(repos);
                                 indicator.finishNonCancelableSection();
                                 LOG.debug("Finished auto-fetch");
-                                finishedNotification();
+                                if (showNotifications) {
+                                    finishedNotification();
+                                }
+                            } else {
+                                LOG.debug("Skipped auto-fetch");
                             }
                         }
                     });
                 }
             });
         } else {
-            UIUtil.invokeLaterIfNeeded(new Runnable() {
-                @Override
-                public void run() {
-                    finishedWithoutFetch();
-                }
-            });
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Fetched skipped: shouldFetch="+shouldFetch+", enabled="+enabled);
+            }
+            if (showNotifications) {
+                UIUtil.invokeLaterIfNeeded(new Runnable() {
+                    @Override
+                    public void run() {
+                        finishedWithoutFetch();
+                    }
+                });
+            }
         }
     }
 }

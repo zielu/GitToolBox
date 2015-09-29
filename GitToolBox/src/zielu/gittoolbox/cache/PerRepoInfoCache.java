@@ -24,6 +24,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     private final Logger LOG = Logger.getInstance(getClass());
 
     private final ReadWriteLock myLock = new ReentrantReadWriteLock();
+    private volatile boolean myActive;
     private final ConcurrentMap<GitRepository, CachedStatus> behindStatuses = Maps.newConcurrentMap();
     private final Project myProject;
     private final GitStatusCalculator myCalculator;
@@ -42,20 +43,28 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     private CachedStatus get(GitRepository repository) {
         myLock.writeLock().lock();
-        Application application = ApplicationManager.getApplication();
-        AccessToken read = application.acquireReadActionLock();
-        CachedStatus cachedStatus = behindStatuses.get(repository);
-        if (cachedStatus == null) {
-            CachedStatus newStatus = CachedStatus.create();
-            CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
-            cachedStatus = foundStatus != null ? foundStatus : newStatus;
+        try {
+            if (myActive) {
+                Application application = ApplicationManager.getApplication();
+                AccessToken read = application.acquireReadActionLock();
+                CachedStatus cachedStatus = behindStatuses.get(repository);
+                if (cachedStatus == null) {
+                    CachedStatus newStatus = CachedStatus.create();
+                    CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
+                    cachedStatus = foundStatus != null ? foundStatus : newStatus;
+                }
+                cachedStatus.update(repository, myCalculator);
+                read.finish();
+                return cachedStatus;
+            } else {
+                return CachedStatus.create();
+            }
+        } finally {
+            myLock.writeLock().unlock();
         }
-        cachedStatus.update(repository, myCalculator);
-        read.finish();
-        myLock.writeLock().unlock();
-        return cachedStatus;
     }
 
+    @NotNull
     public RepoInfo getInfo(GitRepository repository) {
         CachedStatus cachedStatus = get(repository);
         return cachedStatus.get();
@@ -73,28 +82,38 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         if (LOG.isDebugEnabled()) {
             LOG.debug("Got repo changed event: " + repo);
         }
-        Application application = ApplicationManager.getApplication();
-        application.executeOnPooledThread(new Runnable() {
-            @Override
-            public void run() {
-                onRepoChanged(repo);
-            }
-        });
+        if (myActive) {
+            Application application = ApplicationManager.getApplication();
+            application.executeOnPooledThread(new Runnable() {
+                @Override
+                public void run() {
+                    onRepoChanged(repo);
+                }
+            });
+        }
     }
 
     private void onRepoChanged(GitRepository repo) {
-        RepoInfo info = getInfo(repo);
-        myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Published cache changed event: " + repo);
+        if (myActive) {
+            RepoInfo info = getInfo(repo);
+            myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Published cache changed event: " + repo);
+            }
         }
     }
 
     @Override
     public void opened() {
+        myLock.writeLock().lock();
+        myActive = true;
+        myLock.writeLock().unlock();
     }
 
     @Override
     public void closed() {
+        myLock.writeLock().lock();
+        myActive = false;
+        myLock.writeLock().unlock();
     }
 }

@@ -2,6 +2,8 @@ package zielu.gittoolbox.fetch;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.DumbService;
+import com.intellij.openapi.project.DumbService.DumbModeListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,6 +18,7 @@ import zielu.gittoolbox.ProjectAware;
 public class AutoFetch implements Disposable, ProjectAware {
     private final Logger LOG = Logger.getInstance(getClass());
 
+    private final AtomicBoolean myInitialized = new AtomicBoolean();
     private final AtomicBoolean myActive = new AtomicBoolean();
     private final Project myProject;
     private final MessageBusConnection myConnection;
@@ -32,6 +35,30 @@ public class AutoFetch implements Disposable, ProjectAware {
                 onConfigChange(config);
             }
         });
+        myConnection.subscribe(DumbService.DUMB_MODE, new DumbModeListener() {
+            @Override
+            public void enteredDumbMode() {
+                LOG.debug("Enter dumb mode");
+                cancelCurrentTask();
+            }
+
+            @Override
+            public void exitDumbMode() {
+                LOG.debug("Exit dumb mode");
+                init();
+            }
+        });
+    }
+
+    private void init() {
+        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
+        if (config.autoFetch) {
+            LOG.debug("Scheduling first auto-fetch");
+            synchronized (this) {
+                currentInterval = config.autoFetchIntervalMinutes;
+                myScheduledTask = scheduleFirstTask(config.autoFetchIntervalMinutes);
+            }
+        }
     }
 
     private void cancelCurrentTask() {
@@ -57,7 +84,7 @@ public class AutoFetch implements Disposable, ProjectAware {
                     cancelCurrentTask();
                     LOG.debug("Existing task cancelled on auto-fetch change");
                     if (currentInterval == 0) {
-                        //first enable after start
+                        //enable
                         myScheduledTask = scheduleFirstTask(config.autoFetchIntervalMinutes);
                     } else {
                         myScheduledTask = scheduleTask(config.autoFetchIntervalMinutes);
@@ -74,6 +101,7 @@ public class AutoFetch implements Disposable, ProjectAware {
             LOG.debug("Auto-fetch disabled");
             synchronized (this) {
                 cancelCurrentTask();
+                currentInterval = 0;
                 LOG.debug("Existing task cancelled on auto-fetch disable");
             }
         }
@@ -113,19 +141,10 @@ public class AutoFetch implements Disposable, ProjectAware {
     public void opened() {
         myActive.compareAndSet(false, true);
         myExecutor = GitToolBoxApp.getInstance().autoFetchExecutor();
-        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
-        if (config.autoFetch) {
-            LOG.debug("Scheduling auto-fetch on project open");
-            synchronized (this) {
-                currentInterval = config.autoFetchIntervalMinutes;
-                myScheduledTask = scheduleFirstTask(config.autoFetchIntervalMinutes);
-            }
-        }
     }
 
     @Override
     public void closed() {
-        myActive.compareAndSet(true, false);
         myConnection.disconnect();
         cancelCurrentTask();
     }

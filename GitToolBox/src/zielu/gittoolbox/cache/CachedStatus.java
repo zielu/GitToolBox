@@ -19,7 +19,7 @@ class CachedStatus {
 
     private Optional<GitAheadBehindCount> myCount = Optional.absent();
     private RepoStatus myStatus;
-    private RepoInfo myInfo;
+    private RepoInfo myInfo = RepoInfo.empty();
 
     private CachedStatus() {}
 
@@ -58,6 +58,7 @@ class CachedStatus {
         }
     }
 
+    @NotNull
     public RepoInfo get() {
         myLock.readLock().lock();
         RepoInfo result = this.myInfo;
