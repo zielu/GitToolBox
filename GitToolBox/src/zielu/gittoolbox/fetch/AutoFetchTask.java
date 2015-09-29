@@ -106,6 +106,7 @@ public class AutoFetchTask implements Runnable {
                             } else {
                                 LOG.debug("Skipped auto-fetch");
                             }
+                            myParent.updateLastAutoFetchDate();
                         }
                     });
                 }

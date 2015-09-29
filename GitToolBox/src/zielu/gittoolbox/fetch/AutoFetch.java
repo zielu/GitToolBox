@@ -10,6 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxConfigNotifier;
@@ -18,6 +19,7 @@ import zielu.gittoolbox.ProjectAware;
 public class AutoFetch implements Disposable, ProjectAware {
     private final Logger LOG = Logger.getInstance(getClass());
 
+    private final AtomicLong myLastAutoFetch = new AtomicLong();
     private final AtomicBoolean myInitialized = new AtomicBoolean();
     private final AtomicBoolean myActive = new AtomicBoolean();
     private final Project myProject;
@@ -53,10 +55,9 @@ public class AutoFetch implements Disposable, ProjectAware {
     private void init() {
         GitToolBoxConfig config = GitToolBoxConfig.getInstance();
         if (config.autoFetch) {
-            LOG.debug("Scheduling first auto-fetch");
             synchronized (this) {
                 currentInterval = config.autoFetchIntervalMinutes;
-                myScheduledTask = scheduleFirstTask(config.autoFetchIntervalMinutes);
+                myScheduledTask = scheduleFastTask(config.autoFetchIntervalMinutes);
             }
         }
     }
@@ -85,7 +86,7 @@ public class AutoFetch implements Disposable, ProjectAware {
                     LOG.debug("Existing task cancelled on auto-fetch change");
                     if (currentInterval == 0) {
                         //enable
-                        myScheduledTask = scheduleFirstTask(config.autoFetchIntervalMinutes);
+                        myScheduledTask = scheduleFastTask(config.autoFetchIntervalMinutes);
                     } else {
                         myScheduledTask = scheduleTask(config.autoFetchIntervalMinutes);
                     }
@@ -107,7 +108,8 @@ public class AutoFetch implements Disposable, ProjectAware {
         }
     }
 
-    private ScheduledFuture<?> scheduleFirstTask(long intervalMinutes) {
+    private ScheduledFuture<?> scheduleFastTask(long intervalMinutes) {
+        LOG.debug("Scheduling fast auto-fetch");
         return myExecutor.scheduleWithFixedDelay(AutoFetchTask.create(this),
             30,
             TimeUnit.MINUTES.toSeconds(intervalMinutes),
@@ -115,6 +117,7 @@ public class AutoFetch implements Disposable, ProjectAware {
     }
 
     private ScheduledFuture<?> scheduleTask(long intervalMinutes) {
+         LOG.debug("Scheduling regular auto-fetch");
         return myExecutor.scheduleWithFixedDelay(AutoFetchTask.create(this),
             intervalMinutes,
             intervalMinutes,
@@ -131,6 +134,14 @@ public class AutoFetch implements Disposable, ProjectAware {
 
     public boolean isActive() {
         return myActive.get();
+    }
+
+    public void updateLastAutoFetchDate() {
+        myLastAutoFetch.set(System.currentTimeMillis());
+    }
+
+    public long lastAutoFetch() {
+        return myLastAutoFetch.get();
     }
 
     @Override

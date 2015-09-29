@@ -10,13 +10,16 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
+import com.intellij.util.text.DateFormatUtil;
 import com.intellij.util.ui.UIUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
+import git4idea.util.GitUIUtil;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
@@ -27,10 +30,12 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.status.GitAheadBehindCount;
+import zielu.gittoolbox.util.Html;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
     public static final String id = GitStatusWidget.class.getName();
     private final AtomicBoolean opened = new AtomicBoolean();
+    private final AtomicReference<Optional<GitAheadBehindCount>> myCurrentAheadBehind = new AtomicReference<Optional<GitAheadBehindCount>>();
     private String myText = "";
     private String myToolTipText = "";
     private boolean myVisible = true;
@@ -148,20 +153,50 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         }
     }
 
-    private void na() {
-        myText = ResBundle.getString("status.prefix") + " " + ResBundle.getString("git.na");
-        myToolTipText = "";
-    }
-
     private void empty() {
+        myCurrentAheadBehind.set(null);
         myText = "";
         myToolTipText = "";
     }
 
-    private void updateData(GitAheadBehindCount aheadBehind) {
-        String statusText = StatusText.format(aheadBehind);
-        myText = ResBundle.getString("status.prefix") + " " + statusText;
-        myToolTipText = StatusText.formatToolTip(aheadBehind);
+    private void updateToolTip() {
+        Optional<GitAheadBehindCount> aheadBehind = myCurrentAheadBehind.get();
+        if (aheadBehind.isPresent()) {
+            String infoPart = prepareInfoToolTipPart();
+            if (infoPart.length() > 0) {
+                infoPart += Html.br;
+            }
+            myToolTipText = infoPart + StatusText.formatToolTip(aheadBehind.get());
+        } else {
+            myToolTipText = prepareInfoToolTipPart();
+        }
+    }
+
+    private String prepareInfoToolTipPart() {
+        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
+        StringBuilder result = new StringBuilder();
+        if (config.autoFetch) {
+            result.append(GitUIUtil.bold(ResBundle.getString("message.autoFetch") + ": "));
+            long lastAutoFetch = GitToolBoxProject.getInstance(myProject).autoFetch().lastAutoFetch();
+            if (lastAutoFetch != 0) {
+                result.append(DateFormatUtil.formatBetweenDates(lastAutoFetch, System.currentTimeMillis()));
+            } else {
+                result.append(ResBundle.getString("common.on"));
+            }
+        }
+
+        return result.toString();
+    }
+
+    private void updateData(Optional<GitAheadBehindCount> aheadBehind) {
+        myCurrentAheadBehind.set(aheadBehind);
+        if (aheadBehind.isPresent()) {
+            String statusText = StatusText.format(aheadBehind.get());
+            myText = ResBundle.getString("status.prefix") + " " + statusText;
+        } else {
+            myText = ResBundle.getString("status.prefix") + " " + ResBundle.getString("git.na");
+        }
+        updateToolTip();
     }
 
     private void runUpdate() {
@@ -183,11 +218,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     private void update(@Nullable GitRepository repository, Optional<GitAheadBehindCount> aheadBehind) {
         if (myVisible) {
             if (repository != null) {
-                if (aheadBehind.isPresent()) {
-                    updateData(aheadBehind.get());
-                } else {
-                    na();
-                }
+                updateData(aheadBehind);
             } else {
                 empty();
             }

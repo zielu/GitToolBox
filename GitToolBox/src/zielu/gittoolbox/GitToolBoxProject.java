@@ -53,6 +53,10 @@ public class GitToolBoxProject extends AbstractProjectComponent {
         return perRepoInfoCache;
     }
 
+    public AutoFetch autoFetch() {
+        return myAutoFetch;
+    }
+
     @Override
     public void projectOpened() {
         myAwares.opened();
