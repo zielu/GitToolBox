@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
@@ -76,7 +77,7 @@ public class BehindTracker extends AbstractProjectComponent {
     private void showNotification() {
         Optional<String> message = prepareMessage();
         if (message.isPresent() && myActive.get()) {
-            StringBuilder finalMessage = new StringBuilder(ResBundle.getString("message.autoFetch"));
+            StringBuilder finalMessage = new StringBuilder(ResBundle.getString("message.fetch.done"));
             if (manyRepos()) {
                 finalMessage.append(Html.br);
             } else {
@@ -87,16 +88,23 @@ public class BehindTracker extends AbstractProjectComponent {
         }
     }
 
+    private boolean isNotificationEnabled() {
+        return GitToolBoxConfig.getInstance().behindTracker;
+    }
+
+    private boolean isBehindChangedForBranch(RepoInfo previous, RepoInfo current) {
+        return previous != null &&
+                previous.status.sameRemoteBranch(current.status) &&
+                !previous.status.sameRemoteHash(current.status);
+    }
+
     private void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
         RepoInfo previousInfo = myState.put(repository, info);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Info update ["+GtUtil.name(repository)+"]: " + previousInfo + " > " + info);
         }
-        if (previousInfo != null) {
-            if (previousInfo.status.sameRemoteBranch(info.status) &&
-                !previousInfo.status.sameRemoteHash(info.status)) {
-                showNotification();
-            }
+        if (isBehindChangedForBranch(previousInfo, info) && isNotificationEnabled()) {
+            showNotification();
         }
     }
 

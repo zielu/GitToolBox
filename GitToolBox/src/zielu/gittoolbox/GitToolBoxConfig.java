@@ -24,7 +24,8 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
     public String presentationMode = StatusPresenters.arrows.key();
     public boolean showStatusWidget = true;
     public boolean showProjectViewStatus = true;
-    public boolean autoFetch = false;
+    public boolean autoFetch = true;
+    public boolean behindTracker = true;
     public int autoFetchIntervalMinutes = 15;
 
     @Transient
@@ -54,6 +55,10 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
 
     public boolean isAutoFetchIntervalMinutesChanged(int autoFetchIntervalMinutes) {
         return this.autoFetchIntervalMinutes != autoFetchIntervalMinutes;
+    }
+
+    public boolean isBehindTrackerChanged(boolean behindTracker) {
+        return this.behindTracker != behindTracker;
     }
 
     @Nullable

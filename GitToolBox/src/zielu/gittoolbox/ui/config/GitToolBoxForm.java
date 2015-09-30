@@ -21,6 +21,7 @@ public class GitToolBoxForm {
     private JCheckBox showProjectViewStatusCheckBox;
     private JCheckBox autoFetchEnabledCheckBox;
     private JSpinner autoFetchIntervalSpinner;
+    private JCheckBox behindTrackerEnabledCheckBox;
 
     public void init() {
         presentationMode.setRenderer(new ListCellRendererWrapper<StatusPresenter>() {
@@ -83,5 +84,13 @@ public class GitToolBoxForm {
 
     public void setAutoFetchInterval(int autoFetchInterval) {
         autoFetchIntervalSpinner.setValue(autoFetchInterval);
+    }
+
+    public boolean getBehindTrackerEnabled() {
+        return behindTrackerEnabledCheckBox.isSelected();
+    }
+
+    public void setBehindTrackerEnabled(boolean behindTrackerEnabled) {
+        behindTrackerEnabledCheckBox.setSelected(behindTrackerEnabled);
     }
 }
