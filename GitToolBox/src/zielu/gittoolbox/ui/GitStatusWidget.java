@@ -37,7 +37,6 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     private final AtomicBoolean opened = new AtomicBoolean();
     private final AtomicReference<Optional<GitAheadBehindCount>> myCurrentAheadBehind = new AtomicReference<Optional<GitAheadBehindCount>>();
     private String myText = "";
-    private String myToolTipText = "";
     private boolean myVisible = true;
 
     private GitStatusWidget(@NotNull Project project) {
@@ -129,7 +128,21 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     @Nullable
     @Override
     public String getTooltipText() {
-        return myToolTipText;
+        Optional<GitAheadBehindCount> currentAheadBehind = myCurrentAheadBehind.get();
+        if (currentAheadBehind == null) {
+            return "";
+        } else {
+            Optional<GitAheadBehindCount> aheadBehind = currentAheadBehind;
+            if (aheadBehind.isPresent()) {
+                String infoPart = prepareInfoToolTipPart();
+                if (infoPart.length() > 0) {
+                    infoPart += Html.br;
+                }
+                return infoPart + StatusText.formatToolTip(aheadBehind.get());
+            } else {
+                return prepareInfoToolTipPart();
+            }
+        }
     }
 
     @Override
@@ -156,20 +169,6 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     private void empty() {
         myCurrentAheadBehind.set(null);
         myText = "";
-        myToolTipText = "";
-    }
-
-    private void updateToolTip() {
-        Optional<GitAheadBehindCount> aheadBehind = myCurrentAheadBehind.get();
-        if (aheadBehind.isPresent()) {
-            String infoPart = prepareInfoToolTipPart();
-            if (infoPart.length() > 0) {
-                infoPart += Html.br;
-            }
-            myToolTipText = infoPart + StatusText.formatToolTip(aheadBehind.get());
-        } else {
-            myToolTipText = prepareInfoToolTipPart();
-        }
     }
 
     private String prepareInfoToolTipPart() {
@@ -196,7 +195,6 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         } else {
             myText = ResBundle.getString("status.prefix") + " " + ResBundle.getString("git.na");
         }
-        updateToolTip();
     }
 
     private void runUpdate() {
