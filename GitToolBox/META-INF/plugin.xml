@@ -16,14 +16,14 @@
         shows number of ahead / behind commits for current branch as status bar widget
         and Project View decoration on modules.
       </li>
-      <li><b>Auto-fetch</b> -
+      <li><b>Auto fetch</b> -
         runs git fetch at fixed intervals
       </li>
       <li><b>Push tags on current branch</b> -
         available in VCS / Git
       </li>
-      <li><b>Behind watcher</b> -
-        shows notification when behind count of project repository changes
+      <li><b>Behind tracker</b> -
+        shows notification when behind count of current branch changes
       </li>
     </ul>
     <h2>Configuration</h2>
@@ -35,10 +35,10 @@
           <li>3 presentation modes: arrows, arrow-heads, text</li>
         </ul>
       </li>
-      <li><b>Auto-fetch</b>
-        <ul>
-          <li>toggle and interval (in minutes)</li>
-        </ul>
+      <li><b>Auto fetch</b> -
+        toggle and interval (in minutes)
+      <li><b>Behind tracker</b> -
+        toggle
       </li>
     </ul>
     ]]></description>
@@ -48,7 +48,7 @@
       <ul>
         <li>Added auto-fetch (<a href="https://github.com/zielu/GitToolBox/issues/5">#5</a>)</li>
         <li>Removed 'Fetch and show behind' action</li>
-        <li>Added 'behind watcher'</li>
+        <li>Added 'Behind tracker'</li>
       </ul>
       <h3>Changes is 13.1.1</h3>
       <ul>
