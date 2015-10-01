@@ -20,7 +20,6 @@ public class AutoFetch implements Disposable, ProjectAware {
     private final Logger LOG = Logger.getInstance(getClass());
 
     private final AtomicLong myLastAutoFetch = new AtomicLong();
-    private final AtomicBoolean myInitialized = new AtomicBoolean();
     private final AtomicBoolean myActive = new AtomicBoolean();
     private final Project myProject;
     private final MessageBusConnection myConnection;
@@ -156,6 +155,7 @@ public class AutoFetch implements Disposable, ProjectAware {
 
     @Override
     public void closed() {
+        myActive.compareAndSet(true, false);
         myConnection.disconnect();
         cancelCurrentTask();
     }
