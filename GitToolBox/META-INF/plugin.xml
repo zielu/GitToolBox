@@ -23,7 +23,7 @@
         available in VCS / Git
       </li>
       <li><b>Behind tracker</b> -
-        shows notification when behind count of current branch changes
+        shows notification when behind count of current branch changes and is non-zero
       </li>
     </ul>
     <h2>Configuration</h2>
@@ -47,8 +47,8 @@
       <h3>Changes is 13.5.0</h3>
       <ul>
         <li>Added auto-fetch (<a href="https://github.com/zielu/GitToolBox/issues/5">#5</a>)</li>
-        <li>Removed 'Fetch and show behind' action</li>
         <li>Added 'Behind tracker'</li>
+        <li>Removed 'Fetch and show behind' action - superseded by 'Behind tracker'</li>
       </ul>
       <h3>Changes is 13.1.1</h3>
       <ul>
