@@ -2,6 +2,7 @@ package zielu.gittoolbox.fetch;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import java.util.List;
@@ -12,18 +13,26 @@ import zielu.gittoolbox.util.GtUtil;
 
 public enum AutoFetchStrategy {
     RepoWithRemotes("repoWithRemotes") {
+        private final Logger LOG = Logger.getInstance(getClass());
+
         @Override
         public List<GitRepository> fetchableRepositories(List<GitRepository> repositories, Project project) {
             List<GitRepository> fetchable = Lists.newArrayListWithCapacity(repositories.size());
             for (GitRepository repository : repositories) {
                 if (GtUtil.hasRemotes(repository)) {
                     fetchable.add(repository);
+                } else {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Skip repo "+GtUtil.name(repository)+" - no remotes");
+                    }
                 }
             }
             return fetchable;
         }
     },
     CurrentBranchWithRemote("currentBranchWithRemote") {
+        private final Logger LOG = Logger.getInstance(getClass());
+
         @Override
         public List<GitRepository> fetchableRepositories(List<GitRepository> repositories, Project project) {
             PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
@@ -32,6 +41,10 @@ public enum AutoFetchStrategy {
                 RepoInfo info = cache.getInfo(repository);
                 if (info.status.hasRemoteBranch()) {
                     fetchable.add(repository);
+                } else {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Skip repo "+GtUtil.name(repository)+" - no remote branch");
+                    }
                 }
             }
             return fetchable;
