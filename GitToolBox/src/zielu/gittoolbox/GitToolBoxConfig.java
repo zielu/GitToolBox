@@ -9,6 +9,7 @@ import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.fetch.AutoFetchParams;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 
@@ -26,7 +27,7 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
     public boolean showProjectViewStatus = true;
     public boolean autoFetch = true;
     public boolean behindTracker = true;
-    public int autoFetchIntervalMinutes = 15;
+    public int autoFetchIntervalMinutes = AutoFetchParams.defaultIntervalMinutes;
 
     @Transient
     public StatusPresenter getPresenter() {

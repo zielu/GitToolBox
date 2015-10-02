@@ -11,6 +11,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import zielu.gittoolbox.fetch.AutoFetchParams;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 
@@ -32,7 +33,12 @@ public class GitToolBoxForm {
             }
         });
         presentationMode.setModel(new DefaultComboBoxModel(StatusPresenters.values()));
-        autoFetchIntervalSpinner.setModel(new SpinnerNumberModel(15, 10, 180, 1));
+        autoFetchIntervalSpinner.setModel(new SpinnerNumberModel(
+            AutoFetchParams.defaultIntervalMinutes,
+            AutoFetchParams.intervalMinMinutes,
+            AutoFetchParams.intervalMaxMinutes,
+            1
+        ));
         autoFetchIntervalSpinner.setEnabled(false);
         autoFetchEnabledCheckBox.addItemListener(new ItemListener() {
             @Override
