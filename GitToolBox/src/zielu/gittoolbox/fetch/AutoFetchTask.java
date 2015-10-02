@@ -1,6 +1,7 @@
 package zielu.gittoolbox.fetch;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
@@ -15,10 +16,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
-import zielu.gittoolbox.util.GtUtil;
 
 public class AutoFetchTask implements Runnable {
     private static final boolean showNotifications = false;
@@ -58,17 +59,6 @@ public class AutoFetchTask implements Runnable {
         }
     }
 
-    private boolean shouldFetch(List<GitRepository> repos) {
-        boolean fetch = false;
-        for (GitRepository repo : repos) {
-            if (GtUtil.isFetchable(repo)) {
-                fetch = true;
-                break;
-            }
-        }
-        return fetch;
-    }
-
     private boolean isSmartMode() {
         return !DumbService.isDumb(myProject);
     }
@@ -77,11 +67,37 @@ public class AutoFetchTask implements Runnable {
         return myParent.isActive() && isSmartMode();
     }
 
+    private List<GitRepository> reposForFetch() {
+        GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
+        ImmutableList<GitRepository> allRepos = ImmutableList.copyOf(repositoryManager.getRepositories());
+        AutoFetchStrategy strategy = GitToolBoxConfig.getInstance().getAutoFetchStrategy();
+        return strategy.fetchableRepositories(allRepos, myProject);
+    }
+
+    private void doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
+        LOG.debug("Starting auto-fetch...");
+        indicator.setText(title);
+        indicator.setIndeterminate(true);
+        indicator.startNonCancelableSection();
+        if (isEnabled()) {
+            Collection<GitRepository> fetched =
+                GtFetcher.builder().fetchAll().build(myProject, indicator).fetchRoots(repos);
+            indicator.finishNonCancelableSection();
+            LOG.debug("Finished auto-fetch");
+            if (showNotifications) {
+                finishedNotification();
+            }
+        } else {
+            LOG.debug("Skipped auto-fetch");
+        }
+        myParent.updateLastAutoFetchDate();
+    }
+
+
     @Override
     public void run() {
-        GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
-        final List<GitRepository> repos = repositoryManager.getRepositories();
-        boolean shouldFetch = shouldFetch(repos);
+        final List<GitRepository> repos = reposForFetch();
+        boolean shouldFetch = !repos.isEmpty();
         boolean enabled = isEnabled();
         if (shouldFetch && enabled) {
             UIUtil.invokeLaterIfNeeded(new Runnable() {
@@ -91,22 +107,7 @@ public class AutoFetchTask implements Runnable {
                         ResBundle.getString("message.autoFetching"), false) {
                         @Override
                         public void run(@NotNull ProgressIndicator indicator) {
-                            LOG.debug("Starting auto-fetch...");
-                            indicator.setText(getTitle());
-                            indicator.setIndeterminate(true);
-                            indicator.startNonCancelableSection();
-                            if (isEnabled()) {
-                                Collection<GitRepository> fetched =
-                                    GtFetcher.builder().fetchAll().build(getProject(), indicator).fetchRoots(repos);
-                                indicator.finishNonCancelableSection();
-                                LOG.debug("Finished auto-fetch");
-                                if (showNotifications) {
-                                    finishedNotification();
-                                }
-                            } else {
-                                LOG.debug("Skipped auto-fetch");
-                            }
-                            myParent.updateLastAutoFetchDate();
+                            doFetch(repos, indicator, getTitle());
                         }
                     });
                 }

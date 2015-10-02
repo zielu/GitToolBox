@@ -10,6 +10,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.fetch.AutoFetchParams;
+import zielu.gittoolbox.fetch.AutoFetchStrategy;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 
@@ -28,6 +29,7 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
     public boolean autoFetch = true;
     public boolean behindTracker = true;
     public int autoFetchIntervalMinutes = AutoFetchParams.defaultIntervalMinutes;
+    public String autoFetchStrategy = AutoFetchStrategy.RepoWithRemotes.key();
 
     @Transient
     public StatusPresenter getPresenter() {
@@ -36,6 +38,15 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
 
     public void setPresenter(StatusPresenter presenter) {
         presentationMode = presenter.key();
+    }
+
+    @Transient
+    public AutoFetchStrategy getAutoFetchStrategy() {
+        return AutoFetchStrategy.forKey(autoFetchStrategy);
+    }
+
+    public void setAutoFetchStrategy(AutoFetchStrategy strategy) {
+        autoFetchStrategy = strategy.key();
     }
 
     public boolean isPresenterChanged(StatusPresenter presenter) {
@@ -60,6 +71,10 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
 
     public boolean isBehindTrackerChanged(boolean behindTracker) {
         return this.behindTracker != behindTracker;
+    }
+
+    public boolean isAutoFetchStrategyChanged(AutoFetchStrategy strategy) {
+        return !autoFetchStrategy.equals(strategy.key());
     }
 
     @Nullable

@@ -50,6 +50,10 @@ public class RepoStatus {
         return Objects.equal(remoteBranch, other.remoteBranch);
     }
 
+    public boolean hasRemoteBranch() {
+        return remoteBranch != null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

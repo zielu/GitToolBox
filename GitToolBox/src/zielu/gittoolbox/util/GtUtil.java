@@ -10,7 +10,7 @@ public enum GtUtil {
         return repository.getGitDir().getParent().getName();
     }
 
-    public static boolean isFetchable(@NotNull GitRepository repository) {
+    public static boolean hasRemotes(@NotNull GitRepository repository) {
         return !repository.getRemotes().isEmpty();
     }
 }

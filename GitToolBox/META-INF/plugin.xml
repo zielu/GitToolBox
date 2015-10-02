@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>13.5.0</version>
+  <version>13.5.1</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -44,6 +44,11 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <h3>Changes is 13.5.1</h3>
+      <ul>
+        <li>Lowered minimum auto-fetch interval to 5 minutes (from 10)</li>
+        <li>Fixed auto-fetch to run only for repositories with remotes</li>
+      </ul>
       <h3>Changes is 13.5.0</h3>
       <ul>
         <li>Added auto-fetch (<a href="https://github.com/zielu/GitToolBox/issues/5">#5</a>)</li>
