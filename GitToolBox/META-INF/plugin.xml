@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>13.5.1</version>
+  <version>13.5.1.plus</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -44,16 +44,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 13.5.1</h3>
+      <h3>Changes is 13.5.2</h3>
       <ul>
-        <li>Lowered minimum auto-fetch interval to 5 minutes (from 10)</li>
-        <li>Fixed auto-fetch to run only for repositories with remotes</li>
-      </ul>
-      <h3>Changes is 13.5.0</h3>
-      <ul>
-        <li>Added auto-fetch (<a href="https://github.com/zielu/GitToolBox/issues/5">#5</a>)</li>
-        <li>Added 'Behind tracker'</li>
-        <li>Removed 'Fetch and show behind' action - superseded by 'Behind tracker'</li>
+        <li>Fixed behind tracker showing notification on up-do-date transition</li>
+        <li>Added 'Update project' link in behind tracker notification</li>
       </ul>
       <h3>Changes is 13.1.1</h3>
       <ul>

@@ -2,6 +2,8 @@ package zielu.gittoolbox.status;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -11,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.swing.event.HyperlinkEvent;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
@@ -19,6 +22,7 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.ui.StatusMessages;
+import zielu.gittoolbox.ui.UpdateProject;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
@@ -26,11 +30,18 @@ public class BehindTracker extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
     private final AtomicBoolean myActive = new AtomicBoolean();
     private final Map<GitRepository, RepoInfo> myState = new ConcurrentHashMap<GitRepository, RepoInfo>();
+    private final NotificationListener updateProjectListener;
 
     private MessageBusConnection myConnection;
 
     public BehindTracker(Project project) {
         super(project);
+        updateProjectListener = new NotificationListener.Adapter() {
+            @Override
+            protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent hyperlinkEvent) {
+                UpdateProject.create(myProject).execute();
+            }
+        };
     }
 
     public static BehindTracker getInstance(@NotNull Project project) {
@@ -81,13 +92,20 @@ public class BehindTracker extends AbstractProjectComponent {
         Optional<String> message = prepareMessage();
         if (message.isPresent() && myActive.get()) {
             StringBuilder finalMessage = new StringBuilder(ResBundle.getString("message.fetch.done"));
-            if (manyRepos()) {
+            boolean manyRepos = manyRepos();
+            if (manyRepos) {
                 finalMessage.append(Html.br);
             } else {
                 finalMessage.append(": ");
             }
             finalMessage.append(message.get());
-            Notifier.getInstance(myProject).notifySuccess(finalMessage.toString());
+            if (manyRepos) {
+                finalMessage.append(Html.br);
+            } else {
+                finalMessage.append(" - ");
+            }
+            finalMessage.append(Html.link("update", ResBundle.getString("update.project")));
+            Notifier.getInstance(myProject).notifySuccess(finalMessage.toString(), updateProjectListener);
         }
     }
 
