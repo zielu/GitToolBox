@@ -33,6 +33,14 @@ public class GitAheadBehindCount {
         }
     }
 
+    public boolean isNotZeroBehind() {
+        if (status() == Status.Success) {
+            return behind.value() != 0;
+        } else {
+            return false;
+        }
+    }
+
     public Status status() {
         return ahead.status();
     }

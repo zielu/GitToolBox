@@ -58,9 +58,12 @@ public class BehindTracker extends AbstractProjectComponent {
         Map<GitRepository, RevListCount> statuses = Maps.newHashMap();
         for (Entry<GitRepository, RepoInfo> entry : myState.entrySet()) {
             RepoInfo value = entry.getValue();
-            Optional<GitAheadBehindCount> count = value.count;
-            if (count.isPresent() && count.get().status() == Status.Success) {
-                statuses.put(entry.getKey(), count.get().behind);
+            Optional<GitAheadBehindCount> countOption = value.count;
+            if (countOption.isPresent()) {
+                GitAheadBehindCount count = countOption.get();
+                if (count.isNotZeroBehind()) {
+                    statuses.put(entry.getKey(), count.behind);
+                }
             }
         }
         if (!statuses.isEmpty()) {
