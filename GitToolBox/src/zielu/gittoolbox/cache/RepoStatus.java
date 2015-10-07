@@ -42,6 +42,10 @@ public class RepoStatus {
         return empty;
     }
 
+    public boolean sameBranch(RepoStatus other) {
+        return Objects.equal(branch, other.branch);
+    }
+
     public boolean sameRemoteHash(RepoStatus other) {
         return Objects.equal(remoteHash, other.remoteHash);
     }

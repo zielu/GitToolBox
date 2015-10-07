@@ -9,6 +9,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
+import git4idea.util.GitUIUtil;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,7 +66,7 @@ public class BehindTracker extends AbstractProjectComponent {
         });
     }
 
-    private Optional<String> prepareMessage() {
+    private Optional<BehindMessage> prepareMessage() {
         Map<GitRepository, RevListCount> statuses = Maps.newHashMap();
         for (Entry<GitRepository, RepoInfo> entry : myState.entrySet()) {
             RepoInfo value = entry.getValue();
@@ -78,34 +79,25 @@ public class BehindTracker extends AbstractProjectComponent {
             }
         }
         if (!statuses.isEmpty()) {
-            return Optional.of(StatusMessages.getInstance().prepareBehindMessage(statuses));
+            boolean manyReposInProject = myState.size() > 1;
+            BehindMessage message = new BehindMessage(StatusMessages.getInstance()
+                .prepareBehindMessage(statuses, manyReposInProject), statuses.size() > 1);
+            return Optional.of(message);
         } else {
             return Optional.absent();
         }
     }
 
-    private boolean manyRepos() {
-        return myState.size() > 1;
-    }
+    private void showNotification(@NotNull  ChangeType changeType) {
+        Optional<BehindMessage> messageOption = prepareMessage();
+        if (messageOption.isPresent() && myActive.get()) {
+            BehindMessage message = messageOption.get();
+            String finalMessage = GitUIUtil.bold(changeType.title()) +
+                " (" + Html.link("update", ResBundle.getString("update.project")) + ")" +
+                Html.br +
+                message.text;
 
-    private void showNotification() {
-        Optional<String> message = prepareMessage();
-        if (message.isPresent() && myActive.get()) {
-            StringBuilder finalMessage = new StringBuilder(ResBundle.getString("message.fetch.done"));
-            boolean manyRepos = manyRepos();
-            if (manyRepos) {
-                finalMessage.append(Html.br);
-            } else {
-                finalMessage.append(": ");
-            }
-            finalMessage.append(message.get());
-            if (manyRepos) {
-                finalMessage.append(Html.br);
-            } else {
-                finalMessage.append(" - ");
-            }
-            finalMessage.append(Html.link("update", ResBundle.getString("update.project")));
-            Notifier.getInstance(myProject).notifySuccess(finalMessage.toString(), updateProjectListener);
+            Notifier.getInstance(myProject).notifySuccess(finalMessage, updateProjectListener);
         }
     }
 
@@ -113,10 +105,12 @@ public class BehindTracker extends AbstractProjectComponent {
         return GitToolBoxConfig.getInstance().behindTracker;
     }
 
-    private boolean isBehindChangedForBranch(RepoInfo previous, RepoInfo current) {
-        return previous != null &&
-                previous.status.sameRemoteBranch(current.status) &&
-                !previous.status.sameRemoteHash(current.status);
+    private boolean isRemoteHashChanged(RepoInfo previous, RepoInfo current) {
+        return !previous.status.sameRemoteHash(current.status);
+    }
+
+    private boolean isBranchSwitched(RepoInfo previous, RepoInfo current) {
+        return !previous.status.sameBranch(current.status);
     }
 
     private void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
@@ -124,14 +118,26 @@ public class BehindTracker extends AbstractProjectComponent {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Info update ["+GtUtil.name(repository)+"]: " + previousInfo + " > " + info);
         }
-        if (isBehindChangedForBranch(previousInfo, info) && isNotificationEnabled()) {
-            showNotification();
+        ChangeType type = ChangeType.none;
+        if (previousInfo != null) {
+            if (previousInfo.status.sameRemoteBranch(info.status)) {
+                if (isBranchSwitched(previousInfo, info)) {
+                    type = ChangeType.switched;
+                } else if (isRemoteHashChanged(previousInfo, info)) {
+                    type = ChangeType.fetched;
+                }
+            } else {
+                type = ChangeType.switched;
+            }
+        }
+        if (type.isVisible() && isNotificationEnabled()) {
+            showNotification(type);
         }
     }
 
     @Override
     public void disposeComponent() {
-
+        myState.clear();
     }
 
     @Override
@@ -144,6 +150,40 @@ public class BehindTracker extends AbstractProjectComponent {
         if (myActive.compareAndSet(true, false)) {
             myConnection.disconnect();
             myState.clear();
+        }
+    }
+
+    private static class BehindMessage {
+        public final String text;
+        public final boolean manyRepos;
+
+        private BehindMessage(String text, boolean manyRepos) {
+            this.text = text;
+            this.manyRepos = manyRepos;
+        }
+    }
+
+    private enum ChangeType {
+        none(false, "NONE"),
+        hidden(false, "HIDDEN"),
+        fetched(true, ResBundle.getString("message.fetch.done")),
+        switched(true, ResBundle.getString("message.switched"))
+        ;
+
+        private final boolean myVisible;
+        private final String myTitle;
+
+        ChangeType(boolean visible, String title) {
+            myVisible = visible;
+            this.myTitle = title;
+        }
+
+        boolean isVisible() {
+            return myVisible;
+        }
+
+        String title() {
+            return myTitle;
         }
     }
 }

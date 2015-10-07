@@ -71,8 +71,17 @@ public class StatusMessages {
         }
     }
 
-    private String prepareSingleLineMessage(RevListCount status) {
-        return behindStatus(status);
+    private String repoNamePrefix(GitRepository repository) {
+        return GitUIUtil.code(GtUtil.name(repository) + ": ");
+    }
+
+    private String prepareSingleLineMessage(GitRepository repository, RevListCount status, boolean forceRepoName) {
+        String message = "";
+        if (forceRepoName) {
+            message += repoNamePrefix(repository);
+        }
+        message += behindStatus(status);
+        return message;
     }
 
     private String prepareMultiLineMessage(Map<GitRepository, RevListCount> statuses) {
@@ -84,17 +93,21 @@ public class StatusMessages {
             } else {
                 first = false;
             }
-            result.append(GitUIUtil.bold(GtUtil.name(status.getKey())))
-                  .append(": ")
+            result.append(repoNamePrefix(status.getKey()))
                   .append(behindStatus(status.getValue()));
         }
         return result.toString();
     }
 
     public String prepareBehindMessage(Map<GitRepository, RevListCount> statuses) {
+        return prepareBehindMessage(statuses, false);
+    }
+
+    public String prepareBehindMessage(Map<GitRepository, RevListCount> statuses, boolean forceRepoNames) {
         StringBuilder message = new StringBuilder();
         if (statuses.size() == 1) {
-            message.append(prepareSingleLineMessage(Iterables.getOnlyElement(statuses.values())));
+            Entry<GitRepository, RevListCount> entry = Iterables.getOnlyElement(statuses.entrySet());
+            message.append(prepareSingleLineMessage(entry.getKey(), entry.getValue(), forceRepoNames));
         } else {
             message.append(prepareMultiLineMessage(statuses));
         }
