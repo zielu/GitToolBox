@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>13.5.1.plus</version>
+  <version>13.5.2</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -47,7 +47,8 @@
       <h3>Changes is 13.5.2</h3>
       <ul>
         <li>Fixed behind tracker showing notification on up-do-date transition</li>
-        <li>Added 'Update project' link in behind tracker notification</li>
+        <li>Added 'Update project' link in behind tracker notification (<a href="https://github.com/zielu/GitToolBox/issues/9">#9</a>)</li>
+        <li>Failed fetch notification is showed as balloon instead of dialog (<a href="https://github.com/zielu/GitToolBox/issues/8">#8</a>)</li>
       </ul>
       <h3>Changes is 13.1.1</h3>
       <ul>
