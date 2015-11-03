@@ -30,17 +30,21 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
         }
     }
 
-    @Nullable
-    @Override
-    public JComponent createComponent() {
-        initComponent();
-        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
+    private void setFormState(GitToolBoxConfig config) {
         form.setPresenter(config.getPresenter());
         form.setShowGitStatus(config.showStatusWidget);
         form.setShowProjectViewStatus(config.showProjectViewStatus);
         form.setAutoFetchEnabled(config.autoFetch);
         form.setAutoFetchInterval(config.autoFetchIntervalMinutes);
         form.setBehindTrackerEnabled(config.behindTracker);
+    }
+
+    @Nullable
+    @Override
+    public JComponent createComponent() {
+        initComponent();
+        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
+        setFormState(config);
         return form.getContent();
     }
 
@@ -74,7 +78,7 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
     public void reset() {
         initComponent();
         GitToolBoxConfig config = GitToolBoxConfig.getInstance();
-        form.setPresenter(config.getPresenter());
+        setFormState(config);
     }
 
     @Override
