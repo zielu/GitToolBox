@@ -1,0 +1,14 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+	hideDotFiles = dotGitOnly
+[svn-remote "svn"]
+	url = http://ulipad.googlecode.com/svn
+	fetch = :refs/remotes/git-svn
+[remote "origin"]
+	url = git@github.com:zielu/testing.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
