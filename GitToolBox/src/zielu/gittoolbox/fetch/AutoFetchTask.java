@@ -2,6 +2,7 @@ package zielu.gittoolbox.fetch;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
@@ -71,7 +72,14 @@ public class AutoFetchTask implements Runnable {
         GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
         ImmutableList<GitRepository> allRepos = ImmutableList.copyOf(repositoryManager.getRepositories());
         AutoFetchStrategy strategy = GitToolBoxConfig.getInstance().getAutoFetchStrategy();
-        return strategy.fetchableRepositories(allRepos, myProject);
+        List<GitRepository> fetchable = strategy.fetchableRepositories(allRepos, myProject);
+        List<GitRepository> toFetch = Lists.newArrayListWithCapacity(fetchable.size());
+        for (GitRepository repository : fetchable) {
+            if (repository.getRoot().exists()) {
+                toFetch.add(repository);
+            }
+        }
+        return toFetch;
     }
 
     private void doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
