@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>13.5.3</version>
+  <version>16.0.0</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -44,6 +44,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <h3>Changes is 16.0.0</h3>
+      <ul>
+        <li>Idea 16 compatibility (<a href="https://github.com/zielu/GitToolBox/issues/2">#2</a>)</li>
+      </ul>
       <h3>Changes is 13.5.3</h3>
       <ul>
         <li>Constrained max compatible version to Idea 15</li>
@@ -69,7 +73,7 @@
   <depends>Git4Idea</depends>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="138.0000" until-build="143.9999"/>
+  <idea-version since-build="144.0000" until-build="144.9999"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
@@ -103,7 +107,7 @@
   <actions>
     <action class="zielu.gittoolbox.actions.GitPushTagsAction" id="GitToolBox.PushTags"
             text="Push tags on branch...">
-      <add-to-group group-id="GitRepositoryActions" anchor="after" relative-to-action="Git.Push"/>
+      <add-to-group group-id="GitRepositoryActions" anchor="after" relative-to-action="Vcs.Push"/>
     </action>
   </actions>
 
