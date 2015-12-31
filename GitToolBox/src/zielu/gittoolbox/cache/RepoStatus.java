@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
+import git4idea.repo.GitRepoInfo;
 import git4idea.repo.GitRepository;
 
 public class RepoStatus {
@@ -29,11 +30,10 @@ public class RepoStatus {
 
         branch = repository.getCurrentBranch();
         if (branch != null) {
-            localHash = branch.getHash();
+            GitRepoInfo repoInfo = repository.getInfo();
+            localHash = repoInfo.getLocalBranchesWithHashes().get(branch);
             remote = branch.findTrackedBranch(repository);
-            if (remote != null) {
-                remoteHash = remote.getHash();
-            }
+            remoteHash = repoInfo.getRemoteBranchesWithHashes().get(remote);
         }
         return new RepoStatus(branch, localHash, remote, remoteHash);
     }

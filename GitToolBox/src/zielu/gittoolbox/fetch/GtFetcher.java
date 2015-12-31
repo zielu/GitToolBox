@@ -4,11 +4,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.vcsUtil.VcsImplUtil;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
@@ -40,7 +40,7 @@ public class GtFetcher {
         StringBuilder info = new StringBuilder();
         if (myRepositoryManager.moreThanOneRoot()) {
             for (Map.Entry<VirtualFile, String> entry : additionalInfo.entrySet()) {
-                info.append(entry.getValue()).append(" in ").append(DvcsUtil.getShortRepositoryName(myProject, entry.getKey())).append("<br/>");
+                info.append(entry.getValue()).append(" in ").append(VcsImplUtil.getShortVcsRootName(myProject, entry.getKey())).append("<br/>");
             }
         } else {
             info.append(additionalInfo.values().iterator().next());
