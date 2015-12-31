@@ -2,7 +2,6 @@ package zielu.gittoolbox.cache;
 
 import com.google.common.collect.Maps;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -12,6 +11,7 @@ import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.jetbrains.annotations.NotNull;
@@ -41,27 +41,35 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         return new PerRepoInfoCache(project);
     }
 
-    private CachedStatus get(GitRepository repository) {
+    private CachedStatus get(final GitRepository repository) {
         myLock.writeLock().lock();
         try {
             if (myActive) {
                 Application application = ApplicationManager.getApplication();
-                AccessToken read = application.acquireReadActionLock();
-                CachedStatus cachedStatus = behindStatuses.get(repository);
-                if (cachedStatus == null) {
+                final AtomicReference<CachedStatus> cachedStatus =
+                    new AtomicReference<CachedStatus>(behindStatuses.get(repository));
+                if (cachedStatus.get() == null) {
                     CachedStatus newStatus = CachedStatus.create();
                     CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
-                    cachedStatus = foundStatus != null ? foundStatus : newStatus;
+                    cachedStatus.set(foundStatus != null ? foundStatus : newStatus);
                 }
-                cachedStatus.update(repository, myCalculator);
-                read.finish();
-                return cachedStatus;
+                application.runReadAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        update(repository, cachedStatus.get());
+                    }
+                });
+                return cachedStatus.get();
             } else {
                 return CachedStatus.create();
             }
         } finally {
             myLock.writeLock().unlock();
         }
+    }
+
+    private void update(GitRepository repository, CachedStatus status) {
+        status.update(repository, myCalculator);
     }
 
     @NotNull
