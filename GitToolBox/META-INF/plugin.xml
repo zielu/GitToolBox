@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>16.0.0</version>
+  <version>16.0.1</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -44,9 +44,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 16.0.0</h3>
+      <h3>Changes is 16.0.1</h3>
       <ul>
-        <li>Idea 16 compatibility (<a href="https://github.com/zielu/GitToolBox/issues/2">#2</a>)</li>
+        <li>Idea 16 Preview compatibility (145.+)</li>
+        <li>Fixed NullPointer in auto-fetch</li>
       </ul>
       <h3>Changes is 13.5.3</h3>
       <ul>
@@ -73,7 +74,7 @@
   <depends>Git4Idea</depends>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="144.0000" until-build="144.9999"/>
+  <idea-version since-build="144.0000" until-build="145.9999"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
