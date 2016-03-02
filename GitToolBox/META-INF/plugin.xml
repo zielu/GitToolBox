@@ -73,7 +73,7 @@
   <depends>Git4Idea</depends>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="144.0000" until-build="144.9999"/>
+  <idea-version since-build="144.0000" until-build="146.9999"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
