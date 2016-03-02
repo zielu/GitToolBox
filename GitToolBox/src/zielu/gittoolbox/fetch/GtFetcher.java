@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
@@ -22,6 +23,8 @@ import zielu.gittoolbox.util.FetchResult;
 import zielu.gittoolbox.util.FetchResultsPerRoot;
 
 public class GtFetcher {
+    private final Logger LOG = Logger.getInstance(getClass());
+
     private final Project myProject;
     private final GitFetcher myFetcher;
     private final GitRepositoryManager myRepositoryManager;
@@ -52,8 +55,15 @@ public class GtFetcher {
         Map<VirtualFile, String> additionalInfos = Maps.newHashMapWithExpectedSize(repositories.size());
         FetchResultsPerRoot errorsPerRoot = new FetchResultsPerRoot();
         ImmutableList.Builder<GitRepository> resultBuilder = ImmutableList.builder();
+        final boolean debug = LOG.isDebugEnabled();
         for (GitRepository repository : repositories) {
+            if (debug) {
+                LOG.debug("Fetching "+repository);
+            }
             GitFetchResult result = myFetcher.fetch(repository);
+            if (debug) {
+                LOG.debug("Fetched "+repository+": success="+result.isSuccess()+", error="+result.isError());
+            }
             String ai = result.getAdditionalInfo();
             if (!StringUtil.isEmptyOrSpaces(ai)) {
                 additionalInfos.put(repository.getRoot(), ai);

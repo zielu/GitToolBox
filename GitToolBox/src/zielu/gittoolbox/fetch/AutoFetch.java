@@ -46,7 +46,9 @@ public class AutoFetch implements Disposable, ProjectAware {
             @Override
             public void exitDumbMode() {
                 LOG.debug("Exit dumb mode");
-                init();
+                if (myActive.get()) {
+                    init();
+                }
             }
         });
     }
@@ -55,8 +57,12 @@ public class AutoFetch implements Disposable, ProjectAware {
         GitToolBoxConfig config = GitToolBoxConfig.getInstance();
         if (config.autoFetch) {
             synchronized (this) {
-                currentInterval = config.autoFetchIntervalMinutes;
-                myScheduledTask = scheduleFastTask(config.autoFetchIntervalMinutes);
+                if (myScheduledTask == null) {
+                    currentInterval = config.autoFetchIntervalMinutes;
+                    myScheduledTask = scheduleFastTask(config.autoFetchIntervalMinutes);
+                } else {
+                    LOG.debug("Task already scheduled");
+                }
             }
         }
     }
@@ -149,14 +155,17 @@ public class AutoFetch implements Disposable, ProjectAware {
 
     @Override
     public void opened() {
-        myActive.compareAndSet(false, true);
-        myExecutor = GitToolBoxApp.getInstance().autoFetchExecutor();
+        if (myActive.compareAndSet(false, true)) {
+            myExecutor = GitToolBoxApp.getInstance().autoFetchExecutor();
+            init();
+        }
     }
 
     @Override
     public void closed() {
-        myActive.compareAndSet(true, false);
-        myConnection.disconnect();
-        cancelCurrentTask();
+        if (myActive.compareAndSet(true, false)) {
+            myConnection.disconnect();
+            cancelCurrentTask();
+        }
     }
 }
