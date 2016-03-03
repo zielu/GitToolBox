@@ -49,11 +49,9 @@
         <li>Idea 16 Preview compatibility (145.+)</li>
         <li>Fixed NullPointer in auto-fetch</li>
       </ul>
-      <h3>Changes is 13.5.3</h3>
+      <h3>Changes is 13.5.4</h3>
       <ul>
-        <li>Constrained max compatible version to Idea 15</li>
-        <li>Fixed some potential memory leaks</li>
-        <li>Fixed read action usage</li>
+        <li>Fixed NullPointer during auto-fetch</li>
       </ul>
       <h3>Changes is 13.1.1</h3>
       <ul>
