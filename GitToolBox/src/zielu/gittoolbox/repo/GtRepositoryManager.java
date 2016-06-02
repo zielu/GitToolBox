@@ -4,12 +4,12 @@ import com.google.common.base.Optional;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.util.containers.ConcurrentHashMap;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import java.io.File;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
 public class GtRepositoryManager extends AbstractProjectComponent implements GitRepositoryChangeListener {
