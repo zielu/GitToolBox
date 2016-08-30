@@ -26,6 +26,8 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
     public String presentationMode = StatusPresenters.arrows.key();
     public boolean showStatusWidget = true;
     public boolean showProjectViewStatus = true;
+    public boolean showProjectViewLocationPath = true;
+    public boolean showProjectViewStatusBeforeLocation = false;
     public boolean autoFetch = true;
     public boolean behindTracker = true;
     public int autoFetchIntervalMinutes = AutoFetchParams.defaultIntervalMinutes;
@@ -59,6 +61,14 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
 
     public boolean isShowProjectViewStatusChanged(boolean showProjectViewStatus) {
         return  this.showProjectViewStatus != showProjectViewStatus;
+    }
+
+    public boolean isShowProjectViewLocationPathChanged(boolean showProjectViewLocationPath) {
+        return this.showProjectViewLocationPath != showProjectViewLocationPath;
+    }
+
+    public boolean isShowProjectViewStatusBeforeLocationChanged(boolean showProjectViewStatusBeforeLocation) {
+        return this.showProjectViewStatusBeforeLocation != showProjectViewStatusBeforeLocation;
     }
 
     public boolean isAutoFetchChanged(boolean autoFetch) {

@@ -23,6 +23,8 @@ public class GitToolBoxForm {
     private JCheckBox autoFetchEnabledCheckBox;
     private JSpinner autoFetchIntervalSpinner;
     private JCheckBox behindTrackerEnabledCheckBox;
+    private JCheckBox showLocationPathCheckBox;
+    private JCheckBox showStatusBeforeLocationCheckBox;
 
     public void init() {
         presentationMode.setRenderer(new ListCellRendererWrapper<StatusPresenter>() {
@@ -46,6 +48,22 @@ public class GitToolBoxForm {
                 autoFetchIntervalSpinner.setEnabled(autoFetchEnabledCheckBox.isEnabled());
             }
         });
+        showProjectViewStatusCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                onProjectViewStatusChange();
+            }
+        });
+    }
+
+    private void onProjectViewStatusChange() {
+        boolean enabled = showProjectViewStatusCheckBox.isSelected();
+        showLocationPathCheckBox.setEnabled(enabled);
+        showStatusBeforeLocationCheckBox.setEnabled(enabled);
+    }
+
+    public void afterStateSet() {
+        onProjectViewStatusChange();
     }
 
     public JComponent getContent() {
@@ -74,6 +92,22 @@ public class GitToolBoxForm {
 
     public boolean getShowProjectViewStatus() {
         return showProjectViewStatusCheckBox.isSelected();
+    }
+
+    public void setShowProjectViewLocationPath(boolean showProjectViewLocationPath) {
+        showLocationPathCheckBox.setSelected(showProjectViewLocationPath);
+    }
+
+    public boolean getShowProjectViewLocationPath() {
+        return showLocationPathCheckBox.isSelected();
+    }
+
+    public void setShowProjectViewStatusBeforeLocation(boolean showProjectViewStatusBeforeLocation) {
+        showStatusBeforeLocationCheckBox.setSelected(showProjectViewStatusBeforeLocation);
+    }
+
+    public boolean getShowProjectViewStatusBeforeLocation() {
+        return showStatusBeforeLocationCheckBox.isSelected();
     }
 
     public boolean getAutoFetchEnabled() {

@@ -34,9 +34,12 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
         form.setPresenter(config.getPresenter());
         form.setShowGitStatus(config.showStatusWidget);
         form.setShowProjectViewStatus(config.showProjectViewStatus);
+        form.setShowProjectViewLocationPath(config.showProjectViewLocationPath);
+        form.setShowProjectViewStatusBeforeLocation(config.showProjectViewStatusBeforeLocation);
         form.setAutoFetchEnabled(config.autoFetch);
         form.setAutoFetchInterval(config.autoFetchIntervalMinutes);
         form.setBehindTrackerEnabled(config.behindTracker);
+        form.afterStateSet();
     }
 
     @Nullable
@@ -54,6 +57,8 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
         boolean modified = config.isPresenterChanged(form.getPresenter());
         modified = modified || config.isShowStatusWidgetChanged(form.getShowGitStatus());
         modified = modified || config.isShowProjectViewStatusChanged(form.getShowProjectViewStatus());
+        modified = modified || config.isShowProjectViewLocationPathChanged(form.getShowProjectViewLocationPath());
+        modified = modified || config.isShowProjectViewStatusBeforeLocationChanged(form.getShowProjectViewStatusBeforeLocation());
         modified = modified || config.isAutoFetchChanged(form.getAutoFetchEnabled());
         modified = modified || config.isAutoFetchIntervalMinutesChanged(form.getAutoFetchInterval());
         modified = modified || config.isBehindTrackerChanged(form.getBehindTrackerEnabled());
@@ -68,6 +73,8 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
         config.setPresenter(form.getPresenter());
         config.showStatusWidget = form.getShowGitStatus();
         config.showProjectViewStatus = form.getShowProjectViewStatus();
+        config.showProjectViewLocationPath = form.getShowProjectViewLocationPath();
+        config.showProjectViewStatusBeforeLocation = form.getShowProjectViewStatusBeforeLocation();
         config.autoFetch = form.getAutoFetchEnabled();
         config.autoFetchIntervalMinutes = form.getAutoFetchInterval();
         config.behindTracker = form.getBehindTrackerEnabled();
