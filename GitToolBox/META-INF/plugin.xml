@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>16.1.0</version>
+  <version>16.2.0</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -33,6 +33,7 @@
         <ul>
           <li>status bar and Project View can be toggled independently</li>
           <li>3 presentation modes: arrows, arrow-heads, text</li>
+          <li>in Project View show status before location path or hide path entirely</li>
         </ul>
       </li>
       <li><b>Auto fetch</b> -
@@ -44,9 +45,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 16.1.0</h3>
+      <h3>Changes is 16.2.0</h3>
       <ul>
-        <li>2016.2 EAP compatibility (162.+)</li>
+        <li>Additional Project View decoration display options (<a href="https://github.com/zielu/GitToolBox/issues/16">#16</a>)</li>
       </ul>
       <h3>Changes is 16.0.1</h3>
       <ul>
@@ -76,7 +77,7 @@
   <depends>Git4Idea</depends>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="162.0000" until-build="162.9999"/>
+  <idea-version since-build="162.0000" until-build="162.*"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
