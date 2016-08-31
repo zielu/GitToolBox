@@ -54,12 +54,22 @@ public class GitToolBoxForm {
                 onProjectViewStatusChange();
             }
         });
+        showLocationPathCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                onProjectViewStatusChange();
+            }
+        });
     }
 
     private void onProjectViewStatusChange() {
         boolean enabled = showProjectViewStatusCheckBox.isSelected();
         showLocationPathCheckBox.setEnabled(enabled);
-        showStatusBeforeLocationCheckBox.setEnabled(enabled);
+        if (enabled) {
+            showStatusBeforeLocationCheckBox.setEnabled(showLocationPathCheckBox.isSelected());
+        } else {
+            showStatusBeforeLocationCheckBox.setEnabled(false);
+        }
     }
 
     public void afterStateSet() {
