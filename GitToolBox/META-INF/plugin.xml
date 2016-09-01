@@ -49,11 +49,6 @@
       <ul>
         <li>Additional Project View decoration display options (<a href="https://github.com/zielu/GitToolBox/issues/16">#16</a>)</li>
       </ul>
-      <h3>Changes is 16.0.1</h3>
-      <ul>
-        <li>Idea 16 Preview compatibility (145.+)</li>
-        <li>Fixed NullPointer in auto-fetch</li>
-      </ul>
       <h3>Changes is 13.5.4</h3>
       <ul>
         <li>Fixed NullPointer during auto-fetch</li>
