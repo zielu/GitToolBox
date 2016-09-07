@@ -23,7 +23,7 @@ public class ProjectViewManager implements Disposable, ProjectAware {
     private ProjectViewManager(Project project) {
         this.myProject = project;
         myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier() {
+        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier.Adapter() {
             @Override
             public void configChanged(GitToolBoxConfig config) {
                 refreshProjectView();

@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.GitToolBoxConfigForProject;
 import zielu.gittoolbox.GitToolBoxConfigNotifier;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
@@ -63,7 +64,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 runUpdateLater();
             }
         });
-        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier() {
+        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier.Adapter() {
             @Override
             public void configChanged(GitToolBoxConfig config) {
                 runUpdateLater();
@@ -172,7 +173,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     }
 
     private String prepareInfoToolTipPart() {
-        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
+        GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(getProject());
         StringBuilder result = new StringBuilder();
         if (config.autoFetch) {
             result.append(GitUIUtil.bold(ResBundle.getString("message.autoFetch") + ": "));

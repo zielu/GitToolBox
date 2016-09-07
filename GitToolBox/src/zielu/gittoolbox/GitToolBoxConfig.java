@@ -5,22 +5,15 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.fetch.AutoFetchParams;
-import zielu.gittoolbox.fetch.AutoFetchStrategy;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 
 @State(
     name = "GitToolBoxAppSettings",
-    storages = {
-        @Storage(
-            file = StoragePathMacros.APP_CONFIG + "/git_toolbox.xml"
-        )
-    }
+    storages = @Storage("git_toolbox.xml")
 )
 public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConfig> {
     public String presentationMode = StatusPresenters.arrows.key();
@@ -28,10 +21,7 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
     public boolean showProjectViewStatus = true;
     public boolean showProjectViewLocationPath = true;
     public boolean showProjectViewStatusBeforeLocation = false;
-    public boolean autoFetch = true;
     public boolean behindTracker = true;
-    public int autoFetchIntervalMinutes = AutoFetchParams.defaultIntervalMinutes;
-    public String autoFetchStrategy = AutoFetchStrategy.RepoWithRemotes.key();
 
     @Transient
     public StatusPresenter getPresenter() {
@@ -40,15 +30,6 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
 
     public void setPresenter(StatusPresenter presenter) {
         presentationMode = presenter.key();
-    }
-
-    @Transient
-    public AutoFetchStrategy getAutoFetchStrategy() {
-        return AutoFetchStrategy.forKey(autoFetchStrategy);
-    }
-
-    public void setAutoFetchStrategy(AutoFetchStrategy strategy) {
-        autoFetchStrategy = strategy.key();
     }
 
     public boolean isPresenterChanged(StatusPresenter presenter) {
@@ -71,20 +52,8 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
         return this.showProjectViewStatusBeforeLocation != showProjectViewStatusBeforeLocation;
     }
 
-    public boolean isAutoFetchChanged(boolean autoFetch) {
-        return this.autoFetch != autoFetch;
-    }
-
-    public boolean isAutoFetchIntervalMinutesChanged(int autoFetchIntervalMinutes) {
-        return this.autoFetchIntervalMinutes != autoFetchIntervalMinutes;
-    }
-
     public boolean isBehindTrackerChanged(boolean behindTracker) {
         return this.behindTracker != behindTracker;
-    }
-
-    public boolean isAutoFetchStrategyChanged(AutoFetchStrategy strategy) {
-        return !autoFetchStrategy.equals(strategy.key());
     }
 
     @Nullable

@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.GitToolBoxConfigForProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
@@ -71,7 +71,7 @@ public class AutoFetchTask implements Runnable {
     private List<GitRepository> reposForFetch() {
         GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
         ImmutableList<GitRepository> allRepos = ImmutableList.copyOf(repositoryManager.getRepositories());
-        AutoFetchStrategy strategy = GitToolBoxConfig.getInstance().getAutoFetchStrategy();
+        AutoFetchStrategy strategy = GitToolBoxConfigForProject.getInstance(myProject).getAutoFetchStrategy();
         List<GitRepository> fetchable = strategy.fetchableRepositories(allRepos, myProject);
         List<GitRepository> toFetch = Lists.newArrayListWithCapacity(fetchable.size());
         for (GitRepository repository : fetchable) {

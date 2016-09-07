@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>16.2.0</version>
+  <version>16.3.0</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -27,27 +27,32 @@
       </li>
     </ul>
     <h2>Configuration</h2>
-    Settings / Other Settings / Git ToolBox
+    Settings / Other Settings / Git ToolBox Global
     <ul>
       <li><b>Git status display</b>
         <ul>
           <li>status bar and Project View can be toggled independently</li>
-          <li>3 presentation modes: arrows, arrow-heads, text</li>
-          <li>in Project View show status before location path or hide path entirely</li>
+          <li>3 display modes: arrows, arrow-heads, text</li>
+          <li>in Project View show status before location path or hide path entirely, customizable styling</li>
         </ul>
       </li>
-      <li><b>Auto fetch</b> -
-        toggle and interval (in minutes)
       <li><b>Behind tracker</b> -
         toggle
+      </li>
+    </ul>
+    Settings / Other Settings / Git ToolBox Project
+    <ul>
+      <li><b>Auto fetch</b> -
+        toggle and interval (in minutes)
       </li>
     </ul>
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 16.2.0</h3>
+      <h3>Changes is 16.3.0</h3>
       <ul>
-        <li>Additional Project View decoration display options (<a href="https://github.com/zielu/GitToolBox/issues/16">#16</a>)</li>
+        <li>Break out per project configuration</li>
+        <li>Project View decoration styling (<a href="https://github.com/zielu/GitToolBox/issues/17">#17</a>)</li>
       </ul>
       <h3>Changes is 13.5.4</h3>
       <ul>
@@ -77,8 +82,14 @@
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxConfig"/>
+    <projectService serviceImplementation="zielu.gittoolbox.GitToolBoxConfigForProject"/>
+
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
-    <applicationConfigurable instance="zielu.gittoolbox.ui.config.GitToolBoxConfigurable" id="zielu.svntoolbox.app.config" />
+
+
+    <applicationConfigurable instance="zielu.gittoolbox.ui.config.GitToolBoxConfigurable" id="zielu.gittoolbox.app.config"/>
+    <projectConfigurable instance="zielu.gittoolbox.ui.config.GitToolBoxProjectConfigurable"
+                         id="zielu.svntoolbox.prj.config" parentId="zielu.gittoolbox.app.config"/>
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectView.GitProjectViewDecorator"/>
   </extensions>
 

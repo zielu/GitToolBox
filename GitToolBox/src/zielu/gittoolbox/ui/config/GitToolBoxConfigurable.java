@@ -1,15 +1,15 @@
 package zielu.gittoolbox.ui.config;
 
-import com.intellij.openapi.options.BaseConfigurable;
 import com.intellij.openapi.options.ConfigurationException;
-import javax.swing.JComponent;
+import com.intellij.openapi.options.SearchableConfigurable;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
 
-public class GitToolBoxConfigurable extends BaseConfigurable {
-    private volatile GitToolBoxForm form;
+public class GitToolBoxConfigurable extends GitToolBoxConfigurableBase<GitToolBoxForm, GitToolBoxConfig>
+    implements SearchableConfigurable {
 
     @Nls
     @Override
@@ -23,73 +23,58 @@ public class GitToolBoxConfigurable extends BaseConfigurable {
         return null;
     }
 
-    private synchronized void initComponent() {
-        if (form == null) {
-            form = new GitToolBoxForm();
-            form.init();
-        }
+    @Override
+    protected GitToolBoxForm createForm() {
+        return new GitToolBoxForm();
     }
 
-    private void setFormState(GitToolBoxConfig config) {
+    @Override
+    protected GitToolBoxConfig getConfig() {
+        return GitToolBoxConfig.getInstance();
+    }
+
+    @Override
+    protected void setFormState(GitToolBoxForm form, GitToolBoxConfig config) {
         form.setPresenter(config.getPresenter());
         form.setShowGitStatus(config.showStatusWidget);
         form.setShowProjectViewStatus(config.showProjectViewStatus);
         form.setShowProjectViewLocationPath(config.showProjectViewLocationPath);
         form.setShowProjectViewStatusBeforeLocation(config.showProjectViewStatusBeforeLocation);
-        form.setAutoFetchEnabled(config.autoFetch);
-        form.setAutoFetchInterval(config.autoFetchIntervalMinutes);
         form.setBehindTrackerEnabled(config.behindTracker);
         form.afterStateSet();
     }
 
-    @Nullable
     @Override
-    public JComponent createComponent() {
-        initComponent();
-        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
-        setFormState(config);
-        return form.getContent();
-    }
-
-    @Override
-    public boolean isModified() {
-        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
+    protected boolean checkModified(GitToolBoxForm form, GitToolBoxConfig config) {
         boolean modified = config.isPresenterChanged(form.getPresenter());
         modified = modified || config.isShowStatusWidgetChanged(form.getShowGitStatus());
         modified = modified || config.isShowProjectViewStatusChanged(form.getShowProjectViewStatus());
         modified = modified || config.isShowProjectViewLocationPathChanged(form.getShowProjectViewLocationPath());
         modified = modified || config.isShowProjectViewStatusBeforeLocationChanged(form.getShowProjectViewStatusBeforeLocation());
-        modified = modified || config.isAutoFetchChanged(form.getAutoFetchEnabled());
-        modified = modified || config.isAutoFetchIntervalMinutesChanged(form.getAutoFetchInterval());
         modified = modified || config.isBehindTrackerChanged(form.getBehindTrackerEnabled());
-        setModified(modified);
-        return super.isModified();
+        return modified;
     }
 
     @Override
-    public void apply() throws ConfigurationException {
-        initComponent();
-        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
+    protected void doApply(GitToolBoxForm form, GitToolBoxConfig config) throws ConfigurationException {
         config.setPresenter(form.getPresenter());
         config.showStatusWidget = form.getShowGitStatus();
         config.showProjectViewStatus = form.getShowProjectViewStatus();
         config.showProjectViewLocationPath = form.getShowProjectViewLocationPath();
         config.showProjectViewStatusBeforeLocation = form.getShowProjectViewStatusBeforeLocation();
-        config.autoFetch = form.getAutoFetchEnabled();
-        config.autoFetchIntervalMinutes = form.getAutoFetchInterval();
         config.behindTracker = form.getBehindTrackerEnabled();
         config.fireChanged();
     }
 
+    @NotNull
     @Override
-    public void reset() {
-        initComponent();
-        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
-        setFormState(config);
+    public String getId() {
+        return "zielu.gittoolbox.app.config";
     }
 
+    @Nullable
     @Override
-    public synchronized void disposeUIResources() {
-        form = null;
+    public Runnable enableSearch(String option) {
+        return null;
     }
 }

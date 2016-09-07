@@ -22,7 +22,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
     private StatusBarManager(Project project) {
         myProject = project;
         myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier() {
+        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier.Adapter() {
             @Override
             public void configChanged(GitToolBoxConfig config) {
                 final boolean showStatusWidget = config.showStatusWidget;

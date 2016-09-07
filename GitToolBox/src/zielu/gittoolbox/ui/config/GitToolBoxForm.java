@@ -1,31 +1,32 @@
 package zielu.gittoolbox.ui.config;
 
 import com.intellij.ui.ListCellRendererWrapper;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import zielu.gittoolbox.fetch.AutoFetchParams;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 
-public class GitToolBoxForm {
+public class GitToolBoxForm implements GitToolBoxFormUi {
     private JComboBox presentationMode;
     private JPanel content;
     private JCheckBox showGitStatCheckBox;
     private JCheckBox showProjectViewStatusCheckBox;
-    private JCheckBox autoFetchEnabledCheckBox;
-    private JSpinner autoFetchIntervalSpinner;
     private JCheckBox behindTrackerEnabledCheckBox;
     private JCheckBox showLocationPathCheckBox;
     private JCheckBox showStatusBeforeLocationCheckBox;
+    private JLabel presentationStatusBarPreview;
+    private JLabel presentationProjectViewPreview;
 
+    @Override
     public void init() {
         presentationMode.setRenderer(new ListCellRendererWrapper<StatusPresenter>() {
             @Override
@@ -35,17 +36,12 @@ public class GitToolBoxForm {
             }
         });
         presentationMode.setModel(new DefaultComboBoxModel(StatusPresenters.values()));
-        autoFetchIntervalSpinner.setModel(new SpinnerNumberModel(
-            AutoFetchParams.defaultIntervalMinutes,
-            AutoFetchParams.intervalMinMinutes,
-            AutoFetchParams.intervalMaxMinutes,
-            1
-        ));
-        autoFetchIntervalSpinner.setEnabled(false);
-        autoFetchEnabledCheckBox.addItemListener(new ItemListener() {
+        presentationMode.addActionListener(new ActionListener() {
             @Override
-            public void itemStateChanged(ItemEvent e) {
-                autoFetchIntervalSpinner.setEnabled(autoFetchEnabledCheckBox.isEnabled());
+            public void actionPerformed(ActionEvent e) {
+                StatusPresenter presenter = getPresenter();
+                presentationStatusBarPreview.setText(getStatusBarPreview(presenter));
+                presentationProjectViewPreview.setText(getProjectViewPreview(presenter));
             }
         });
         showProjectViewStatusCheckBox.addItemListener(new ItemListener() {
@@ -62,6 +58,18 @@ public class GitToolBoxForm {
         });
     }
 
+    private String getStatusBarPreview(StatusPresenter presenter) {
+        return presenter.aheadBehindStatus(3, 2)
+            + " | " + presenter.aheadBehindStatus(3, 0)
+            + " | " + presenter.aheadBehindStatus(0, 2);
+    }
+
+    private String getProjectViewPreview(StatusPresenter presenter) {
+        return presenter.nonZeroAheadBehindStatus(3, 2)
+            + " | " + presenter.nonZeroAheadBehindStatus(3, 0)
+            + " | " + presenter.nonZeroAheadBehindStatus(0, 2);
+    }
+
     private void onProjectViewStatusChange() {
         boolean enabled = showProjectViewStatusCheckBox.isSelected();
         showLocationPathCheckBox.setEnabled(enabled);
@@ -72,10 +80,12 @@ public class GitToolBoxForm {
         }
     }
 
+    @Override
     public void afterStateSet() {
         onProjectViewStatusChange();
     }
 
+    @Override
     public JComponent getContent() {
         return content;
     }
@@ -118,22 +128,6 @@ public class GitToolBoxForm {
 
     public boolean getShowProjectViewStatusBeforeLocation() {
         return showStatusBeforeLocationCheckBox.isSelected();
-    }
-
-    public boolean getAutoFetchEnabled() {
-        return autoFetchEnabledCheckBox.isSelected();
-    }
-
-    public void setAutoFetchEnabled(boolean autoFetchEnabled) {
-        autoFetchEnabledCheckBox.setSelected(autoFetchEnabled);
-    }
-
-    public int getAutoFetchInterval() {
-        return (Integer) autoFetchIntervalSpinner.getValue();
-    }
-
-    public void setAutoFetchInterval(int autoFetchInterval) {
-        autoFetchIntervalSpinner.setValue(autoFetchInterval);
     }
 
     public boolean getBehindTrackerEnabled() {

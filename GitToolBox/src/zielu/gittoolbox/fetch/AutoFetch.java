@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import zielu.gittoolbox.GitToolBoxApp;
-import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.GitToolBoxConfigForProject;
 import zielu.gittoolbox.GitToolBoxConfigNotifier;
 import zielu.gittoolbox.ProjectAware;
 
@@ -30,9 +30,9 @@ public class AutoFetch implements Disposable, ProjectAware {
     private AutoFetch(Project project) {
         myProject = project;
         myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier() {
+        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier.Adapter() {
             @Override
-            public void configChanged(GitToolBoxConfig config) {
+            public void configChanged(GitToolBoxConfigForProject config) {
                 onConfigChange(config);
             }
         });
@@ -54,7 +54,7 @@ public class AutoFetch implements Disposable, ProjectAware {
     }
 
     private void init() {
-        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
+        GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project());
         if (config.autoFetch) {
             synchronized (this) {
                 if (myScheduledTask == null) {
@@ -77,7 +77,7 @@ public class AutoFetch implements Disposable, ProjectAware {
         }
     }
 
-    private void onConfigChange(GitToolBoxConfig config) {
+    private void onConfigChange(GitToolBoxConfigForProject config) {
         if (config.autoFetch) {
             LOG.debug("Auto-fetch enabled");
             synchronized (this) {

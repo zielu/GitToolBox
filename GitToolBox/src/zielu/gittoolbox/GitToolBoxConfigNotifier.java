@@ -6,4 +6,14 @@ public interface GitToolBoxConfigNotifier {
     Topic<GitToolBoxConfigNotifier> CONFIG_TOPIC = Topic.create("Git ToolBox Config", GitToolBoxConfigNotifier.class);
 
     void configChanged(GitToolBoxConfig config);
+    void configChanged(GitToolBoxConfigForProject config);
+
+    class Adapter implements GitToolBoxConfigNotifier {
+
+        @Override
+        public void configChanged(GitToolBoxConfig config) {}
+
+        @Override
+        public void configChanged(GitToolBoxConfigForProject config) {}
+    }
 }
