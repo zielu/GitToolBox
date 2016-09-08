@@ -33,7 +33,12 @@
         <ul>
           <li>status bar and Project View can be toggled independently</li>
           <li>3 display modes: arrows, arrow-heads, text</li>
-          <li>in Project View show status before location path or hide path entirely, customizable styling</li>
+          <li>Project View
+            <ul>
+              <li>show status before location path or hide path entirely</li>
+              <li>customizable styling</li>
+            </ul>
+          </li>
         </ul>
       </li>
       <li><b>Behind tracker</b> -
@@ -51,7 +56,7 @@
   <change-notes><![CDATA[
       <h3>Changes is 16.3.0</h3>
       <ul>
-        <li>Break out per project configuration</li>
+        <li>Break out per project configuration (auto fetch)</li>
         <li>Project View decoration styling (<a href="https://github.com/zielu/GitToolBox/issues/17">#17</a>)</li>
       </ul>
       <h3>Changes is 13.5.4</h3>

@@ -34,6 +34,9 @@ public class GitToolBoxPrjForm implements GitToolBoxFormUi {
     @Override
     public void afterStateSet() {}
 
+    @Override
+    public void dispose() {}
+
     public boolean getAutoFetchEnabled() {
         return autoFetchEnabledCheckBox.isSelected();
     }

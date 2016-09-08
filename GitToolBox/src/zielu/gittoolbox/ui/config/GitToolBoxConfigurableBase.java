@@ -3,6 +3,8 @@ package zielu.gittoolbox.ui.config;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.options.BaseConfigurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.util.Computable;
+import com.intellij.util.ui.UIUtil;
 import javax.swing.JComponent;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +26,14 @@ public abstract class GitToolBoxConfigurableBase
 
     private synchronized void initComponent() {
         if (form == null) {
-            form = createForm();
-            form.init();
+            form = UIUtil.invokeAndWaitIfNeeded(new Computable<FORM>() {
+                @Override
+                public FORM compute() {
+                    FORM form = createForm();
+                    form.init();
+                    return form;
+                }
+            });
         }
     }
 
@@ -58,6 +66,9 @@ public abstract class GitToolBoxConfigurableBase
     @Override
     public synchronized void disposeUIResources() {
         dispose();
+        if (form != null) {
+            form.dispose();
+        }
         form = null;
     }
 }

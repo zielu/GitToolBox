@@ -17,9 +17,10 @@ public class NodeDecorationFactory {
 
     public NodeDecoration decorationFor(@NotNull GitRepository repo, @NotNull Optional<GitAheadBehindCount> aheadBehind) {
         GitToolBoxConfig config = GitToolBoxConfig.getInstance();
-        return new LocationOnlyNodeDecoration(config, repo, aheadBehind);
+        if (config.isProjectViewStatusDecorated()) {
+            return new ColoredNodeDecoration(config, repo, aheadBehind);
+        } else {
+            return new LocationOnlyNodeDecoration(config, repo, aheadBehind);
+        }
     }
-
-
-
 }

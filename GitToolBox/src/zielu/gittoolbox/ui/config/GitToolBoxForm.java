@@ -1,6 +1,7 @@
 package zielu.gittoolbox.ui.config;
 
 import com.intellij.ui.ListCellRendererWrapper;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -12,8 +13,11 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
+import zielu.gittoolbox.ui.util.CheckBoxWithColorChooserEx;
 
 public class GitToolBoxForm implements GitToolBoxFormUi {
     private JComboBox presentationMode;
@@ -25,6 +29,13 @@ public class GitToolBoxForm implements GitToolBoxFormUi {
     private JCheckBox showStatusBeforeLocationCheckBox;
     private JLabel presentationStatusBarPreview;
     private JLabel presentationProjectViewPreview;
+    private CheckBoxWithColorChooserEx projectViewStatusColorChooser;
+    private JCheckBox projectViewStatusBoldCheckBox;
+    private JCheckBox projectViewStatusItalicCheckBox;
+
+    protected void createUIComponents() {
+        projectViewStatusColorChooser = new CheckBoxWithColorChooserEx(ResBundle.getString("configurable.app.showProjectViewStatusColor.label"));
+    }
 
     @Override
     public void init() {
@@ -58,6 +69,11 @@ public class GitToolBoxForm implements GitToolBoxFormUi {
         });
     }
 
+    @Override
+    public void dispose() {
+        projectViewStatusColorChooser.dispose();
+    }
+
     private String getStatusBarPreview(StatusPresenter presenter) {
         return presenter.aheadBehindStatus(3, 2)
             + " | " + presenter.aheadBehindStatus(3, 0)
@@ -73,6 +89,9 @@ public class GitToolBoxForm implements GitToolBoxFormUi {
     private void onProjectViewStatusChange() {
         boolean enabled = showProjectViewStatusCheckBox.isSelected();
         showLocationPathCheckBox.setEnabled(enabled);
+        projectViewStatusColorChooser.setEnabled(enabled);
+        projectViewStatusBoldCheckBox.setEnabled(enabled);
+        projectViewStatusItalicCheckBox.setEnabled(enabled);
         if (enabled) {
             showStatusBeforeLocationCheckBox.setEnabled(showLocationPathCheckBox.isSelected());
         } else {
@@ -106,6 +125,14 @@ public class GitToolBoxForm implements GitToolBoxFormUi {
         return showGitStatCheckBox.isSelected();
     }
 
+    public boolean getBehindTrackerEnabled() {
+        return behindTrackerEnabledCheckBox.isSelected();
+    }
+
+    public void setBehindTrackerEnabled(boolean behindTrackerEnabled) {
+        behindTrackerEnabledCheckBox.setSelected(behindTrackerEnabled);
+    }
+
     public void setShowProjectViewStatus(boolean showProjectViewStatus) {
         showProjectViewStatusCheckBox.setSelected(showProjectViewStatus);
     }
@@ -130,11 +157,36 @@ public class GitToolBoxForm implements GitToolBoxFormUi {
         return showStatusBeforeLocationCheckBox.isSelected();
     }
 
-    public boolean getBehindTrackerEnabled() {
-        return behindTrackerEnabledCheckBox.isSelected();
+    public void setProjectViewStatusColor(@NotNull Color color) {
+        projectViewStatusColorChooser.setColor(color);
     }
 
-    public void setBehindTrackerEnabled(boolean behindTrackerEnabled) {
-        behindTrackerEnabledCheckBox.setSelected(behindTrackerEnabled);
+    @NotNull
+    public Color getProjectViewStatusColor() {
+        return projectViewStatusColorChooser.getColor();
+    }
+
+    public void setProjectViewStatusColorEnabled(boolean enabled) {
+        projectViewStatusColorChooser.setSelected(enabled);
+    }
+
+    public boolean getProjectViewStatusColorEnabled() {
+        return projectViewStatusColorChooser.isSelected();
+    }
+
+    public void setProjectViewStatusBold(boolean bold) {
+        projectViewStatusBoldCheckBox.setSelected(bold);
+    }
+
+    public boolean getProjectViewStatusBold() {
+        return projectViewStatusBoldCheckBox.isSelected();
+    }
+
+    public void setProjectViewStatusItalic(boolean italic) {
+        projectViewStatusItalicCheckBox.setSelected(italic);
+    }
+
+    public boolean getProjectViewStatusItalic() {
+        return projectViewStatusItalicCheckBox.isSelected();
     }
 }

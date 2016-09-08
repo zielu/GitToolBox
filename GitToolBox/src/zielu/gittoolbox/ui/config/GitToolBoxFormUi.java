@@ -6,4 +6,5 @@ public interface GitToolBoxFormUi {
     void init();
     JComponent getContent();
     void afterStateSet();
+    void dispose();
 }
