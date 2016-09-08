@@ -32,7 +32,7 @@ public class AutoFetch implements Disposable, ProjectAware {
         myConnection = myProject.getMessageBus().connect();
         myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier.Adapter() {
             @Override
-            public void configChanged(GitToolBoxConfigForProject config) {
+            public void configChanged(Project project, GitToolBoxConfigForProject config) {
                 onConfigChange(config);
             }
         });
