@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui;
+package zielu.gittoolbox.ui.statusBar;
 
 import com.google.common.base.Optional;
 import com.intellij.ide.ui.UISettings;
@@ -31,6 +31,7 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.status.GitAheadBehindCount;
+import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.util.Html;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {

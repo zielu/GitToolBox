@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui;
+package zielu.gittoolbox.ui.statusBar;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;

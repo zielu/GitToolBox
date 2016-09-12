@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.fetch.AutoFetch;
-import zielu.gittoolbox.ui.StatusBarManager;
+import zielu.gittoolbox.ui.statusBar.StatusBarManager;
 import zielu.gittoolbox.ui.projectView.ProjectViewManager;
 import zielu.gittoolbox.util.ProjectAwares;
 
