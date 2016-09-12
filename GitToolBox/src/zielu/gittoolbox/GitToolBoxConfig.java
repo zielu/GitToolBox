@@ -105,7 +105,7 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
 
     public void fireChanged() {
         ApplicationManager.getApplication().getMessageBus().
-            syncPublisher(GitToolBoxConfigNotifier.CONFIG_TOPIC).configChanged(this);
+            syncPublisher(ConfigNotifier.CONFIG_TOPIC).configChanged(this);
     }
 
     @Override

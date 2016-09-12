@@ -92,10 +92,10 @@
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
 
 
-    <applicationConfigurable instance="zielu.gittoolbox.ui.config.GitToolBoxConfigurable" id="zielu.gittoolbox.app.config"/>
-    <projectConfigurable instance="zielu.gittoolbox.ui.config.GitToolBoxProjectConfigurable"
+    <applicationConfigurable instance="zielu.gittoolbox.ui.config.GtConfigurable" id="zielu.gittoolbox.app.config"/>
+    <projectConfigurable instance="zielu.gittoolbox.ui.config.GtProjectConfigurable"
                          id="zielu.svntoolbox.prj.config" parentId="zielu.gittoolbox.app.config"/>
-    <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectView.GitProjectViewDecorator"/>
+    <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectView.ProjectViewDecorator"/>
   </extensions>
 
   <application-components>

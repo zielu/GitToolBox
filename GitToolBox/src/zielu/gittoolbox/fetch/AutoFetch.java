@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.GitToolBoxConfigForProject;
-import zielu.gittoolbox.GitToolBoxConfigNotifier;
+import zielu.gittoolbox.ConfigNotifier;
 import zielu.gittoolbox.ProjectAware;
 
 public class AutoFetch implements Disposable, ProjectAware {
@@ -30,7 +30,7 @@ public class AutoFetch implements Disposable, ProjectAware {
     private AutoFetch(Project project) {
         myProject = project;
         myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier.Adapter() {
+        myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
             @Override
             public void configChanged(Project project, GitToolBoxConfigForProject config) {
                 onConfigChange(config);

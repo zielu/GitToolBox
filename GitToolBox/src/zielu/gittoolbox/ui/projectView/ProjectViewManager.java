@@ -9,7 +9,7 @@ import git4idea.repo.GitRepository;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfig;
-import zielu.gittoolbox.GitToolBoxConfigNotifier;
+import zielu.gittoolbox.ConfigNotifier;
 import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
@@ -23,7 +23,7 @@ public class ProjectViewManager implements Disposable, ProjectAware {
     private ProjectViewManager(Project project) {
         this.myProject = project;
         myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier.Adapter() {
+        myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
             @Override
             public void configChanged(GitToolBoxConfig config) {
                 refreshProjectView();

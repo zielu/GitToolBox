@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
 
-public class GitToolBoxConfigurable extends GitToolBoxConfigurableBase<GitToolBoxForm, GitToolBoxConfig>
+public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     implements SearchableConfigurable {
 
     @Nls
@@ -24,8 +24,8 @@ public class GitToolBoxConfigurable extends GitToolBoxConfigurableBase<GitToolBo
     }
 
     @Override
-    protected GitToolBoxForm createForm() {
-        return new GitToolBoxForm();
+    protected GtForm createForm() {
+        return new GtForm();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class GitToolBoxConfigurable extends GitToolBoxConfigurableBase<GitToolBo
     }
 
     @Override
-    protected void setFormState(GitToolBoxForm form, GitToolBoxConfig config) {
+    protected void setFormState(GtForm form, GitToolBoxConfig config) {
         form.setPresenter(config.getPresenter());
         form.setShowGitStatus(config.showStatusWidget);
         form.setShowProjectViewStatus(config.showProjectViewStatus);
@@ -49,7 +49,7 @@ public class GitToolBoxConfigurable extends GitToolBoxConfigurableBase<GitToolBo
     }
 
     @Override
-    protected boolean checkModified(GitToolBoxForm form, GitToolBoxConfig config) {
+    protected boolean checkModified(GtForm form, GitToolBoxConfig config) {
         boolean modified = config.isPresenterChanged(form.getPresenter());
         modified = modified || config.isShowStatusWidgetChanged(form.getShowGitStatus());
         modified = modified || config.isShowProjectViewStatusChanged(form.getShowProjectViewStatus());
@@ -64,7 +64,7 @@ public class GitToolBoxConfigurable extends GitToolBoxConfigurableBase<GitToolBo
     }
 
     @Override
-    protected void doApply(GitToolBoxForm form, GitToolBoxConfig config) throws ConfigurationException {
+    protected void doApply(GtForm form, GitToolBoxConfig config) throws ConfigurationException {
         config.setPresenter(form.getPresenter());
         config.showStatusWidget = form.getShowGitStatus();
         config.showProjectViewStatus = form.getShowProjectViewStatus();

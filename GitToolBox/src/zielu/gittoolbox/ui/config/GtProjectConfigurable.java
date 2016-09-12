@@ -9,12 +9,11 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfigForProject;
 import zielu.gittoolbox.ResBundle;
 
-public class GitToolBoxProjectConfigurable extends GitToolBoxConfigurableBase
-    <GitToolBoxPrjForm, GitToolBoxConfigForProject> implements SearchableConfigurable {
+public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitToolBoxConfigForProject> implements SearchableConfigurable {
 
     private final Project myProject;
 
-    public GitToolBoxProjectConfigurable(@NotNull Project project) {
+    public GtProjectConfigurable(@NotNull Project project) {
         myProject = project;
     }
 
@@ -31,8 +30,8 @@ public class GitToolBoxProjectConfigurable extends GitToolBoxConfigurableBase
     }
 
     @Override
-    protected GitToolBoxPrjForm createForm() {
-        return new GitToolBoxPrjForm();
+    protected GtPrjForm createForm() {
+        return new GtPrjForm();
     }
 
     @Override
@@ -41,20 +40,20 @@ public class GitToolBoxProjectConfigurable extends GitToolBoxConfigurableBase
     }
 
     @Override
-    protected void setFormState(GitToolBoxPrjForm form, GitToolBoxConfigForProject config) {
+    protected void setFormState(GtPrjForm form, GitToolBoxConfigForProject config) {
         form.setAutoFetchEnabled(config.autoFetch);
         form.setAutoFetchInterval(config.autoFetchIntervalMinutes);
     }
 
     @Override
-    protected boolean checkModified(GitToolBoxPrjForm form, GitToolBoxConfigForProject config) {
+    protected boolean checkModified(GtPrjForm form, GitToolBoxConfigForProject config) {
         boolean modified = config.isAutoFetchChanged(form.getAutoFetchEnabled());
         modified = modified || config.isAutoFetchIntervalMinutesChanged(form.getAutoFetchInterval());
         return modified;
     }
 
     @Override
-    protected void doApply(GitToolBoxPrjForm form, GitToolBoxConfigForProject config) throws ConfigurationException {
+    protected void doApply(GtPrjForm form, GitToolBoxConfigForProject config) throws ConfigurationException {
         config.autoFetch = form.getAutoFetchEnabled();
         config.autoFetchIntervalMinutes = form.getAutoFetchInterval();
         config.fireChanged(myProject);

@@ -8,8 +8,8 @@ import com.intellij.util.ui.UIUtil;
 import javax.swing.JComponent;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class GitToolBoxConfigurableBase
-    <FORM extends GitToolBoxFormUi, CONFIG extends PersistentStateComponent> extends BaseConfigurable {
+public abstract class GtConfigurableBase
+    <FORM extends GtFormUi, CONFIG extends PersistentStateComponent> extends BaseConfigurable {
 
     private volatile FORM form;
 

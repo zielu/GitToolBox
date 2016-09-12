@@ -19,7 +19,7 @@ import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.util.CheckBoxWithColorChooserEx;
 
-public class GitToolBoxForm implements GitToolBoxFormUi {
+public class GtForm implements GtFormUi {
     private JComboBox presentationMode;
     private JPanel content;
     private JCheckBox showGitStatCheckBox;

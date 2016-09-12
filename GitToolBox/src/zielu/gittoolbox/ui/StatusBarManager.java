@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfig;
-import zielu.gittoolbox.GitToolBoxConfigNotifier;
+import zielu.gittoolbox.ConfigNotifier;
 import zielu.gittoolbox.ProjectAware;
 
 public class StatusBarManager implements Disposable, ProjectAware {
@@ -22,7 +22,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
     private StatusBarManager(Project project) {
         myProject = project;
         myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier.Adapter() {
+        myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
             @Override
             public void configChanged(GitToolBoxConfig config) {
                 final boolean showStatusWidget = config.showStatusWidget;

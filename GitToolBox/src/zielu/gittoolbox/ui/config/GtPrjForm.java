@@ -9,7 +9,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import zielu.gittoolbox.fetch.AutoFetchParams;
 
-public class GitToolBoxPrjForm implements GitToolBoxFormUi {
+public class GtPrjForm implements GtFormUi {
     private JPanel content;
     private JCheckBox autoFetchEnabledCheckBox;
     private JSpinner autoFetchIntervalSpinner;

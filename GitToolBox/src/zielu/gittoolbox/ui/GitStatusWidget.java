@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxConfigForProject;
-import zielu.gittoolbox.GitToolBoxConfigNotifier;
+import zielu.gittoolbox.ConfigNotifier;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
@@ -64,7 +64,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 runUpdateLater();
             }
         });
-        myConnection.subscribe(GitToolBoxConfigNotifier.CONFIG_TOPIC, new GitToolBoxConfigNotifier.Adapter() {
+        myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
             @Override
             public void configChanged(GitToolBoxConfig config) {
                 runUpdateLater();

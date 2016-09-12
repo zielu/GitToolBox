@@ -43,7 +43,7 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     }
 
     public void fireChanged(@NotNull Project project) {
-        project.getMessageBus().syncPublisher(GitToolBoxConfigNotifier.CONFIG_TOPIC).configChanged(project, this);
+        project.getMessageBus().syncPublisher(ConfigNotifier.CONFIG_TOPIC).configChanged(project, this);
     }
 
     @Nullable

@@ -2,7 +2,7 @@ package zielu.gittoolbox.ui.config;
 
 import javax.swing.JComponent;
 
-public interface GitToolBoxFormUi {
+public interface GtFormUi {
     void init();
     JComponent getContent();
     void afterStateSet();

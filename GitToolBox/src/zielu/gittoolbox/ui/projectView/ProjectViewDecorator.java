@@ -19,7 +19,7 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.util.LogWatch;
 
-public class GitProjectViewDecorator implements ProjectViewNodeDecorator {
+public class ProjectViewDecorator implements ProjectViewNodeDecorator {
     private final Logger LOG = Logger.getInstance(getClass());
     private final LogWatch moduleCheckWatch = LogWatch.create(LOG, "Module check");
     private final LogWatch decorateWatch = LogWatch.create(LOG, "Decorate");
