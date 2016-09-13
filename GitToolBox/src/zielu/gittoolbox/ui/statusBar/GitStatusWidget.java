@@ -10,21 +10,17 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
-import com.intellij.util.text.DateFormatUtil;
 import com.intellij.util.ui.UIUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
-import git4idea.util.GitUIUtil;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.GitToolBoxConfig;
-import zielu.gittoolbox.GitToolBoxConfigForProject;
 import zielu.gittoolbox.ConfigNotifier;
+import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
@@ -32,17 +28,17 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
-import zielu.gittoolbox.util.Html;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
     public static final String id = GitStatusWidget.class.getName();
     private final AtomicBoolean opened = new AtomicBoolean();
-    private final AtomicReference<Optional<GitAheadBehindCount>> myCurrentAheadBehind = new AtomicReference<Optional<GitAheadBehindCount>>();
+    private final StatusToolTip myToolTip;
     private String myText = "";
     private boolean myVisible = true;
 
     private GitStatusWidget(@NotNull Project project) {
         super(project);
+        myToolTip = new StatusToolTip(project);
         myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
             @Override
             public void stateChanged(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
@@ -130,21 +126,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     @Nullable
     @Override
     public String getTooltipText() {
-        Optional<GitAheadBehindCount> currentAheadBehind = myCurrentAheadBehind.get();
-        if (currentAheadBehind == null) {
-            return "";
-        } else {
-            Optional<GitAheadBehindCount> aheadBehind = currentAheadBehind;
-            if (aheadBehind.isPresent()) {
-                String infoPart = prepareInfoToolTipPart();
-                if (infoPart.length() > 0) {
-                    infoPart += Html.br;
-                }
-                return infoPart + StatusText.formatToolTip(aheadBehind.get());
-            } else {
-                return prepareInfoToolTipPart();
-            }
-        }
+        return myToolTip.getText();
     }
 
     @Override
@@ -169,28 +151,12 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     }
 
     private void empty() {
-        myCurrentAheadBehind.set(null);
+        myToolTip.clear();
         myText = "";
     }
 
-    private String prepareInfoToolTipPart() {
-        GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(getProject());
-        StringBuilder result = new StringBuilder();
-        if (config.autoFetch) {
-            result.append(GitUIUtil.bold(ResBundle.getString("message.autoFetch") + ": "));
-            long lastAutoFetch = GitToolBoxProject.getInstance(myProject).autoFetch().lastAutoFetch();
-            if (lastAutoFetch != 0) {
-                result.append(DateFormatUtil.formatBetweenDates(lastAutoFetch, System.currentTimeMillis()));
-            } else {
-                result.append(ResBundle.getString("common.on"));
-            }
-        }
-
-        return result.toString();
-    }
-
-    private void updateData(Optional<GitAheadBehindCount> aheadBehind) {
-        myCurrentAheadBehind.set(aheadBehind);
+    private void updateData(@NotNull GitRepository repository, Optional<GitAheadBehindCount> aheadBehind) {
+        myToolTip.update(repository, aheadBehind);
         if (aheadBehind.isPresent()) {
             String statusText = StatusText.format(aheadBehind.get());
             myText = ResBundle.getString("status.prefix") + " " + statusText;
@@ -218,7 +184,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     private void update(@Nullable GitRepository repository, Optional<GitAheadBehindCount> aheadBehind) {
         if (myVisible) {
             if (repository != null) {
-                updateData(aheadBehind);
+                updateData(repository, aheadBehind);
             } else {
                 empty();
             }
