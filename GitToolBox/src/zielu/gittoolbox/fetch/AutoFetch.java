@@ -11,9 +11,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import zielu.gittoolbox.ConfigNotifier;
 import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.GitToolBoxConfigForProject;
-import zielu.gittoolbox.ConfigNotifier;
 import zielu.gittoolbox.ProjectAware;
 
 public class AutoFetch implements Disposable, ProjectAware {
@@ -122,7 +122,7 @@ public class AutoFetch implements Disposable, ProjectAware {
     }
 
     private ScheduledFuture<?> scheduleTask(long intervalMinutes) {
-         LOG.debug("Scheduling regular auto-fetch");
+        LOG.debug("Scheduling regular auto-fetch");
         return myExecutor.scheduleWithFixedDelay(AutoFetchTask.create(this),
             intervalMinutes,
             intervalMinutes,

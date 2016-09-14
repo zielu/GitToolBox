@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.projectView;
 
-import com.google.common.base.Optional;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.util.treeView.PresentableNodeDescriptor.ColoredFragment;
@@ -10,14 +9,15 @@ import com.intellij.util.FontUtil;
 import git4idea.repo.GitRepository;
 import java.awt.Color;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
 public class ColoredNodeDecoration extends NodeDecorationBase {
 
-    public ColoredNodeDecoration(@NotNull  GitToolBoxConfig config,
+    public ColoredNodeDecoration(@NotNull GitToolBoxConfig config,
                                  @NotNull GitRepository repo,
-                                 @NotNull Optional<GitAheadBehindCount> aheadBehind) {
+                                 @Nullable GitAheadBehindCount aheadBehind) {
         super(config, repo, aheadBehind);
     }
 
@@ -51,7 +51,7 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
             } else {
                 String location = data.getLocationString();
                 data.setLocationString("");
-                data.addText(FontUtil.spaceAndThinSpace() + location + " - " , getLocationAttributes());
+                data.addText(FontUtil.spaceAndThinSpace() + location + " - ", getLocationAttributes());
                 data.addText(makeStatusFragment(false));
             }
         } else {

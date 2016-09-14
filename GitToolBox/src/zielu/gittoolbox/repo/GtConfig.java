@@ -33,7 +33,7 @@ public class GtConfig {
 
     @NotNull
     public static GtConfig load(@NotNull File configFile) {
-        if(!configFile.exists()) {
+        if (!configFile.exists()) {
             LOG.info("No .git/config file at " + configFile.getPath());
             return EMPTY;
         } else {

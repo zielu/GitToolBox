@@ -4,8 +4,7 @@ public enum Status {
     Success(true),
     NoRemote(true),
     Cancel(false),
-    Failure(false)
-    ;
+    Failure(false);
 
     private final boolean valid;
 

@@ -1,9 +1,9 @@
 package zielu.gittoolbox.fetch;
 
-import com.google.common.base.Optional;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import git4idea.update.GitFetchResult;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.repo.GtConfig;
 import zielu.gittoolbox.repo.GtRepositoryManager;

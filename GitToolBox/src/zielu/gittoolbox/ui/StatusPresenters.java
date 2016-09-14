@@ -106,10 +106,10 @@ public enum StatusPresenters implements StatusPresenter {
         public String getLabel() {
             return ResBundle.getString("presentation.label.text");
         }
-    }
-    ;
+    };
 
     private static final ImmutableMap<String, StatusPresenter> presenters;
+
     static {
         ImmutableMap.Builder<String, StatusPresenter> builder = ImmutableMap.builder();
         for (StatusPresenters presenter : values()) {

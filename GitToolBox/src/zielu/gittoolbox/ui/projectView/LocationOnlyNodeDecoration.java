@@ -1,11 +1,11 @@
 package zielu.gittoolbox.ui.projectView;
 
-import com.google.common.base.Optional;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import git4idea.repo.GitRepository;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
@@ -13,7 +13,7 @@ public class LocationOnlyNodeDecoration extends NodeDecorationBase {
 
     public LocationOnlyNodeDecoration(@NotNull GitToolBoxConfig config,
                                       @NotNull GitRepository repo,
-                                      @NotNull Optional<GitAheadBehindCount> aheadBehind) {
+                                      @Nullable GitAheadBehindCount aheadBehind) {
         super(config, repo, aheadBehind);
     }
 

@@ -47,7 +47,7 @@ public class GitAheadBehindCount {
 
     @Override
     public String toString() {
-        return ahead + " ahead, " + behind + " behind, status="+status();
+        return ahead + " ahead, " + behind + " behind, status=" + status();
     }
 
     public static GitAheadBehindCount noRemote() {

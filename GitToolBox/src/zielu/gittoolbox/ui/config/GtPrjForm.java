@@ -32,10 +32,12 @@ public class GtPrjForm implements GtFormUi {
     }
 
     @Override
-    public void afterStateSet() {}
+    public void afterStateSet() {
+    }
 
     @Override
-    public void dispose() {}
+    public void dispose() {
+    }
 
     public boolean getAutoFetchEnabled() {
         return autoFetchEnabledCheckBox.isSelected();

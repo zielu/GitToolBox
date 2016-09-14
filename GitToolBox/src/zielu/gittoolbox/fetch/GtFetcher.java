@@ -58,11 +58,11 @@ public class GtFetcher {
         final boolean debug = LOG.isDebugEnabled();
         for (GitRepository repository : repositories) {
             if (debug) {
-                LOG.debug("Fetching "+repository);
+                LOG.debug("Fetching " + repository);
             }
             GitFetchResult result = myFetcher.fetch(repository);
             if (debug) {
-                LOG.debug("Fetched "+repository+": success="+result.isSuccess()+", error="+result.isError());
+                LOG.debug("Fetched " + repository + ": success=" + result.isSuccess() + ", error=" + result.isError());
             }
             String ai = result.getAdditionalInfo();
             if (!StringUtil.isEmptyOrSpaces(ai)) {

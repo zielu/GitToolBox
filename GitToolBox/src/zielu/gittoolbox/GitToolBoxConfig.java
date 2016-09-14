@@ -50,7 +50,7 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
     }
 
     public boolean isShowProjectViewStatusChanged(boolean showProjectViewStatus) {
-        return  this.showProjectViewStatus != showProjectViewStatus;
+        return this.showProjectViewStatus != showProjectViewStatus;
     }
 
     public boolean isShowProjectViewLocationPathChanged(boolean showProjectViewLocationPath) {

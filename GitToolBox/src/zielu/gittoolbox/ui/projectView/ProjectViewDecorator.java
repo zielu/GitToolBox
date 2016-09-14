@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.projectView;
 
-import com.google.common.base.Optional;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.ProjectViewNodeDecorator;
@@ -48,7 +47,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
                     decorateWatch.elapsed("Repo find");
                     if (repo != null) {
                         PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
-                        Optional<GitAheadBehindCount> countOptional = cache.getInfo(repo).count;
+                        GitAheadBehindCount countOptional = cache.getInfo(repo).count;
                         NodeDecoration decoration = decorationFactory.decorationFor(repo, countOptional);
                         boolean applied = decoration.apply(projectViewNode, presentation);
                         decorateWatch.elapsed("Decoration");

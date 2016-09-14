@@ -1,21 +1,24 @@
 package zielu.gittoolbox.cache;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
 public class RepoInfo {
-    private static final RepoInfo empty = new RepoInfo(RepoStatus.empty(), Optional.<GitAheadBehindCount>absent());
+    private static final RepoInfo empty = new RepoInfo(RepoStatus.empty(), null);
 
+    @NotNull
     public final RepoStatus status;
-    public final Optional<GitAheadBehindCount> count;
+    @Nullable
+    public final GitAheadBehindCount count;
 
-    private RepoInfo(RepoStatus _status, Optional<GitAheadBehindCount> _count) {
+    private RepoInfo(@NotNull RepoStatus _status, @Nullable GitAheadBehindCount _count) {
         status = _status;
         count = _count;
     }
 
-    public static RepoInfo create(RepoStatus status, Optional<GitAheadBehindCount> count) {
+    public static RepoInfo create(@NotNull RepoStatus status, @Nullable GitAheadBehindCount count) {
         return new RepoInfo(status, count);
     }
 

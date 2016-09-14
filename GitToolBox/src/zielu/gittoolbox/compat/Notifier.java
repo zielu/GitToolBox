@@ -49,7 +49,7 @@ public class Notifier {
     }
 
     public NotificationHandle notifyLogWithPopup(@NotNull String title, @NotNull String message) {
-        if(StringUtil.isEmptyOrSpaces(message)) {
+        if (StringUtil.isEmptyOrSpaces(message)) {
             message = title;
             title = "";
         }

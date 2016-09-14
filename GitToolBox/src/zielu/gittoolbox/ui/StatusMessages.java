@@ -94,7 +94,7 @@ public class StatusMessages {
                 first = false;
             }
             result.append(repoNamePrefix(status.getKey()))
-                  .append(behindStatus(status.getValue()));
+                .append(behindStatus(status.getValue()));
         }
         return result.toString();
     }

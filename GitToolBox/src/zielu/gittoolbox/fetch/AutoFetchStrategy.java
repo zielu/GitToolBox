@@ -23,7 +23,7 @@ public enum AutoFetchStrategy {
                     fetchable.add(repository);
                 } else {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Skip repo "+GtUtil.name(repository)+" - no remotes");
+                        LOG.debug("Skip repo " + GtUtil.name(repository) + " - no remotes");
                     }
                 }
             }
@@ -43,16 +43,16 @@ public enum AutoFetchStrategy {
                     fetchable.add(repository);
                 } else {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Skip repo "+GtUtil.name(repository)+" - no remote branch");
+                        LOG.debug("Skip repo " + GtUtil.name(repository) + " - no remote branch");
                     }
                 }
             }
             return fetchable;
         }
-    }
-    ;
+    };
 
     private static final ImmutableMap<String, AutoFetchStrategy> strategies;
+
     static {
         ImmutableMap.Builder<String, AutoFetchStrategy> builder = ImmutableMap.builder();
         for (AutoFetchStrategy strategy : AutoFetchStrategy.values()) {

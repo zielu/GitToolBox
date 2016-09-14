@@ -59,7 +59,8 @@ public class TagsPushSpec {
         private ImmutableList<String> myTags;
         private boolean force;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder tags(Iterable<String> tags) {
             myTags = ImmutableList.copyOf(tags);

@@ -122,7 +122,7 @@ public class AutoFetchTask implements Runnable {
             });
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Fetched skipped: shouldFetch="+shouldFetch+", enabled="+enabled);
+                LOG.debug("Fetched skipped: shouldFetch=" + shouldFetch + ", enabled=" + enabled);
             }
             if (showNotifications) {
                 UIUtil.invokeLaterIfNeeded(new Runnable() {

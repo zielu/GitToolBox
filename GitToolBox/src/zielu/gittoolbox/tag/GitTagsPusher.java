@@ -1,6 +1,5 @@
 package zielu.gittoolbox.tag;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -16,6 +15,7 @@ import git4idea.commands.GitStandardProgressAnalyzer;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.push.GitPushRejectedDetector;
@@ -40,10 +40,10 @@ public class GitTagsPusher {
     public GtPushResult push(@NotNull TagsPushSpec pushSpec) {
         Preconditions.checkNotNull(pushSpec);
         GitRepository repository = GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(pushSpec.gitRoot());
-        Optional<GitBranchTrackInfo> trackInfo = Optional.fromNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
+        Optional<GitBranchTrackInfo> trackInfo = Optional.ofNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
         if (trackInfo.isPresent()) {
             GitRemote remote = trackInfo.get().getRemote();
-            Optional<String> url = Optional.fromNullable(remote.getFirstUrl());
+            Optional<String> url = Optional.ofNullable(remote.getFirstUrl());
             if (url.isPresent()) {
                 return push(pushSpec, repository, remote, url.get());
             } else {
@@ -55,14 +55,14 @@ public class GitTagsPusher {
     }
 
     private GtPushResult push(final TagsPushSpec pushSpec, final GitRepository repository,
-                                     final GitRemote remote, final String url) {
+                              final GitRemote remote, final String url) {
         final GitLineHandlerListener progressListener = GitStandardProgressAnalyzer.createListener(myProgress);
         final GitPushRejectedDetector rejectedDetector = new GitPushRejectedDetector();
         GitCommandResult result = myGit.runCommand(new Computable<GitLineHandler>() {
             @Override
             public GitLineHandler compute() {
                 final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(),
-                                                                   GitCommand.PUSH);
+                    GitCommand.PUSH);
                 h.setUrl(url);
                 h.setSilent(false);
                 h.setStdoutSuppressed(false);

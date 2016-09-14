@@ -1,6 +1,5 @@
 package zielu.gittoolbox.status;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
@@ -12,6 +11,7 @@ import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.event.HyperlinkEvent;
@@ -57,7 +57,7 @@ public class BehindTracker extends AbstractProjectComponent {
             public void stateChanged(@NotNull RepoInfo info,
                                      @NotNull GitRepository repository) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("State changed ["+GtUtil.name(repository)+"]: " + info);
+                    LOG.debug("State changed [" + GtUtil.name(repository) + "]: " + info);
                 }
                 if (myActive.get()) {
                     onStateChange(repository, info);
@@ -70,11 +70,9 @@ public class BehindTracker extends AbstractProjectComponent {
         Map<GitRepository, RevListCount> statuses = Maps.newHashMap();
         for (Entry<GitRepository, RepoInfo> entry : myState.entrySet()) {
             RepoInfo value = entry.getValue();
-            Optional<GitAheadBehindCount> countOption = value.count;
-            if (countOption.isPresent()) {
-                GitAheadBehindCount count = countOption.get();
-                if (count.isNotZeroBehind()) {
-                    statuses.put(entry.getKey(), count.behind);
+            if (value.count != null) {
+                if (value.count.isNotZeroBehind()) {
+                    statuses.put(entry.getKey(), value.count.behind);
                 }
             }
         }
@@ -84,11 +82,11 @@ public class BehindTracker extends AbstractProjectComponent {
                 .prepareBehindMessage(statuses, manyReposInProject), statuses.size() > 1);
             return Optional.of(message);
         } else {
-            return Optional.absent();
+            return java.util.Optional.empty();
         }
     }
 
-    private void showNotification(@NotNull  ChangeType changeType) {
+    private void showNotification(@NotNull ChangeType changeType) {
         Optional<BehindMessage> messageOption = prepareMessage();
         if (messageOption.isPresent() && myActive.get()) {
             BehindMessage message = messageOption.get();
@@ -116,7 +114,7 @@ public class BehindTracker extends AbstractProjectComponent {
     private void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
         RepoInfo previousInfo = myState.put(repository, info);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Info update ["+GtUtil.name(repository)+"]: " + previousInfo + " > " + info);
+            LOG.debug("Info update [" + GtUtil.name(repository) + "]: " + previousInfo + " > " + info);
         }
         ChangeType type = ChangeType.none;
         if (previousInfo != null) {
@@ -167,8 +165,7 @@ public class BehindTracker extends AbstractProjectComponent {
         none(false, "NONE"),
         hidden(false, "HIDDEN"),
         fetched(true, ResBundle.getString("message.fetch.done")),
-        switched(true, ResBundle.getString("message.switched"))
-        ;
+        switched(true, ResBundle.getString("message.switched"));
 
         private final boolean myVisible;
         private final String myTitle;

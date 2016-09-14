@@ -1,27 +1,27 @@
 package zielu.gittoolbox.status;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.Nullable;
 
 
 public class RevListCount {
 
-    private static final RevListCount cancel = new RevListCount(Status.Cancel, Optional.<Integer>absent());
-    private static final RevListCount failure = new RevListCount(Status.Failure, Optional.<Integer>absent());
-    private static final RevListCount noRemote = new RevListCount(Status.NoRemote, Optional.<Integer>absent());
+    private static final RevListCount cancel = new RevListCount(Status.Cancel, null);
+    private static final RevListCount failure = new RevListCount(Status.Failure, null);
+    private static final RevListCount noRemote = new RevListCount(Status.NoRemote, null);
 
-    private final Optional<Integer> myValue;
+    private final Integer myValue;
     private final Status myStatus;
 
-    private RevListCount(Status status, Optional<Integer> value){
+    private RevListCount(Status status, @Nullable Integer value) {
         myValue = value;
         myStatus = status;
     }
 
     public int value() {
         Preconditions.checkState(Status.Success == myStatus, "Value not possible for {0}", myStatus);
-        return myValue.get();
+        return myValue;
     }
 
     public Status status() {
@@ -29,7 +29,7 @@ public class RevListCount {
     }
 
     public static RevListCount success(int count) {
-        return new RevListCount(Status.Success, Optional.of(count));
+        return new RevListCount(Status.Success, count);
     }
 
     public static RevListCount cancel() {

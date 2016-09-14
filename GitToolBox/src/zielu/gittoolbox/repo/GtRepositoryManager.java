@@ -1,6 +1,5 @@
 package zielu.gittoolbox.repo;
 
-import com.google.common.base.Optional;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
@@ -9,6 +8,7 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import java.io.File;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,8 +27,8 @@ public class GtRepositoryManager extends AbstractProjectComponent implements Git
         myConfigs.put(repository, config);
     }
 
-    public Optional<GtConfig> configFor(GitRepository repository) {
-        return Optional.fromNullable(myConfigs.get(repository));
+    public java.util.Optional<GtConfig> configFor(GitRepository repository) {
+        return Optional.ofNullable(myConfigs.get(repository));
     }
 
     @Override

@@ -5,6 +5,7 @@ import git4idea.commands.GitLineHandlerListener;
 
 public class GitRevListCounter implements GitLineHandlerListener {
     private int myCount = -1;
+
     @Override
     public void onLineAvailable(String line, Key outputType) {
         myCount = Integer.parseInt(line);

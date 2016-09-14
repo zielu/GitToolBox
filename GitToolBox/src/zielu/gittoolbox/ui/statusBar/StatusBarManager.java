@@ -9,8 +9,8 @@ import com.intellij.util.messages.MessageBusConnection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ConfigNotifier;
+import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ProjectAware;
 
 public class StatusBarManager implements Disposable, ProjectAware {

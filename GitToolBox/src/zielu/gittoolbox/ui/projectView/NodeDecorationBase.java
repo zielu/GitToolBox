@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.projectView;
 
-import com.google.common.base.Optional;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import org.apache.commons.lang.StringUtils;
@@ -14,11 +13,11 @@ import zielu.gittoolbox.ui.StatusPresenter;
 public abstract class NodeDecorationBase implements NodeDecoration {
     protected final GitToolBoxConfig config;
     protected final GitRepository repo;
-    protected final Optional<GitAheadBehindCount> aheadBehind;
+    protected final GitAheadBehindCount aheadBehind;
 
     public NodeDecorationBase(@NotNull GitToolBoxConfig config,
-                                      @NotNull GitRepository repo,
-                                      @NotNull Optional<GitAheadBehindCount> aheadBehind) {
+                              @NotNull GitRepository repo,
+                              @Nullable GitAheadBehindCount aheadBehind) {
         this.config = config;
         this.repo = repo;
         this.aheadBehind = aheadBehind;
@@ -26,11 +25,10 @@ public abstract class NodeDecorationBase implements NodeDecoration {
 
     @Nullable
     protected final String getCountText() {
-        if (aheadBehind.isPresent()) {
-            GitAheadBehindCount count = aheadBehind.get();
-            if (count.status() == Status.Success) {
+        if (aheadBehind != null) {
+            if (aheadBehind.status() == Status.Success) {
                 StatusPresenter presenter = config.getPresenter();
-                String text = presenter.nonZeroAheadBehindStatus(count.ahead.value(), count.behind.value());
+                String text = presenter.nonZeroAheadBehindStatus(aheadBehind.ahead.value(), aheadBehind.behind.value());
                 if (StringUtils.isNotBlank(text)) {
                     return text;
                 }

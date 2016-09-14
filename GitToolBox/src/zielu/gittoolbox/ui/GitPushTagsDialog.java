@@ -1,7 +1,6 @@
 package zielu.gittoolbox.ui;
 
 import com.google.common.base.Functions;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -28,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -189,7 +189,7 @@ public class GitPushTagsDialog extends DialogWrapper {
 
     private Optional<GitLocalBranch> currentBranch() {
         GitRepository repository = getRepository();
-        return Optional.fromNullable(repository.getCurrentBranch());
+        return Optional.ofNullable(repository.getCurrentBranch());
     }
 
     private GitRepository getRepository() {
@@ -198,7 +198,7 @@ public class GitPushTagsDialog extends DialogWrapper {
 
     private Optional<GitBranchTrackInfo> remoteForCurrentBranch() {
         GitRepository repository = getRepository();
-        return Optional.fromNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
+        return Optional.ofNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
     }
 
     private void validatePushAvailable() {
@@ -239,11 +239,11 @@ public class GitPushTagsDialog extends DialogWrapper {
         return builder;
     }
 
-    public Optional<TagsPushSpec> getPushSpec() {
+    public java.util.Optional<TagsPushSpec> getPushSpec() {
         if (isAnythingSelected()) {
             return Optional.of(pushSpecBuilder().build(getGitRoot()));
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 }

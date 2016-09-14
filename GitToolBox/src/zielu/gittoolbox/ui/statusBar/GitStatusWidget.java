@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.statusBar;
 
-import com.google.common.base.Optional;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -155,10 +154,10 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         myText = "";
     }
 
-    private void updateData(@NotNull GitRepository repository, Optional<GitAheadBehindCount> aheadBehind) {
+    private void updateData(@NotNull GitRepository repository, @Nullable GitAheadBehindCount aheadBehind) {
         myToolTip.update(repository, aheadBehind);
-        if (aheadBehind.isPresent()) {
-            String statusText = StatusText.format(aheadBehind.get());
+        if (aheadBehind != null) {
+            String statusText = StatusText.format(aheadBehind);
             myText = ResBundle.getString("status.prefix") + " " + statusText;
         } else {
             myText = ResBundle.getString("status.prefix") + " " + ResBundle.getString("git.na");
@@ -169,7 +168,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         GitVcs git = GitVcs.getInstance(myProject);
         if (git != null) {
             GitRepository repository = GitBranchUtil.getCurrentRepository(myProject);
-            Optional<GitAheadBehindCount> aheadBehind = Optional.absent();
+            GitAheadBehindCount aheadBehind = null;
             if (repository != null) {
                 GitToolBoxProject toolBox = GitToolBoxProject.getInstance(myProject);
                 aheadBehind = toolBox.perRepoStatusCache().getInfo(repository).count;
@@ -181,7 +180,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         updateStatusBar();
     }
 
-    private void update(@Nullable GitRepository repository, Optional<GitAheadBehindCount> aheadBehind) {
+    private void update(@Nullable GitRepository repository, @Nullable GitAheadBehindCount aheadBehind) {
         if (myVisible) {
             if (repository != null) {
                 updateData(repository, aheadBehind);

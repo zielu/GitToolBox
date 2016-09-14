@@ -1,7 +1,6 @@
 package zielu.gittoolbox.actions;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -36,7 +35,7 @@ public class GitPushTagsAction extends GitRepositoryAction {
         GitPushTagsDialog dialog = new GitPushTagsDialog(project, gitRoots, defaultRoot);
         dialog.show();
         if (dialog.isOK()) {
-            final Optional<TagsPushSpec> pushSpec = dialog.getPushSpec();
+            final java.util.Optional<TagsPushSpec> pushSpec = dialog.getPushSpec();
             if (pushSpec.isPresent()) {
                 Task.Backgroundable task = new Task.Backgroundable(project, ResBundle.getString("message.pushing"), false) {
                     @Override
@@ -67,7 +66,7 @@ public class GitPushTagsAction extends GitRepositoryAction {
                 break;
             }
             case REJECTED: {
-                notifier.notifyWeakError("Push rejected: " +  Joiner.on(" ").join(result.getRejectedBranches()));
+                notifier.notifyWeakError("Push rejected: " + Joiner.on(" ").join(result.getRejectedBranches()));
                 break;
             }
             case NOT_AUTHORIZED: {

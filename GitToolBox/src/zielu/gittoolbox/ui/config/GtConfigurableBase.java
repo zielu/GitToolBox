@@ -14,11 +14,17 @@ public abstract class GtConfigurableBase
     private volatile FORM form;
 
     protected abstract FORM createForm();
+
     protected abstract CONFIG getConfig();
+
     protected abstract void setFormState(FORM form, CONFIG config);
+
     protected abstract boolean checkModified(FORM form, CONFIG config);
+
     protected abstract void doApply(FORM form, CONFIG config) throws ConfigurationException;
-    protected void dispose() {}
+
+    protected void dispose() {
+    }
 
     protected final FORM getForm() {
         return form;

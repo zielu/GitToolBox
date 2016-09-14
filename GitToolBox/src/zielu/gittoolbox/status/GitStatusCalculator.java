@@ -1,6 +1,5 @@
 package zielu.gittoolbox.status;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
@@ -16,6 +15,7 @@ import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,9 +36,9 @@ public class GitStatusCalculator {
         return create(project, new EmptyProgressIndicator());
     }
 
-    public Map<GitRepository, RevListCount> behindStatus(Collection<GitRepository> repositories){
+    public Map<GitRepository, RevListCount> behindStatus(Collection<GitRepository> repositories) {
         Map<GitRepository, RevListCount> result = Maps.newLinkedHashMap();
-        for (GitRepository repository : repositories){
+        for (GitRepository repository : repositories) {
             result.put(repository, behindStatus(repository));
         }
         return result;
@@ -46,7 +46,7 @@ public class GitStatusCalculator {
 
     @NotNull
     public RevListCount behindStatus(GitRepository repository) {
-        Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
+        java.util.Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
         if (trackInfo.isPresent()) {
             return behindStatus(repository.getCurrentBranch(), trackInfo.get(), repository);
         }
@@ -55,7 +55,7 @@ public class GitStatusCalculator {
 
     @NotNull
     public GitAheadBehindCount aheadBehindStatus(GitRepository repository) {
-        Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
+        java.util.Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
         if (trackInfo.isPresent()) {
             return aheadBehindStatus(repository.getCurrentBranch(), trackInfo.get(), repository);
         }
@@ -69,9 +69,9 @@ public class GitStatusCalculator {
         return count.behind;
     }
 
-    private Optional<GitBranchTrackInfo> trackInfoForCurrentBranch(GitRepository repository) {
+    private java.util.Optional<GitBranchTrackInfo> trackInfoForCurrentBranch(GitRepository repository) {
         GitBranchTrackInfo trackInfo = GitUtil.getTrackInfoForCurrentBranch(repository);
-        return Optional.fromNullable(trackInfo);
+        return Optional.ofNullable(trackInfo);
     }
 
     private GitAheadBehindCount aheadBehindStatus(
