@@ -16,5 +16,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="miglayout-4.0" level="project" />
     <orderEntry type="library" scope="TEST" name="jmockit-1.8" level="project" />
+    <orderEntry type="library" name="jodd-mobile-3.7" level="project" />
   </component>
 </module>

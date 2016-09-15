@@ -6,6 +6,7 @@ import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Map;
 import java.util.Map.Entry;
+import jodd.util.StringBand;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.status.GitAheadBehindCount;
@@ -75,17 +76,17 @@ public class StatusMessages {
         return GitUIUtil.code(GtUtil.name(repository) + ": ");
     }
 
-    private String prepareSingleLineMessage(GitRepository repository, RevListCount status, boolean forceRepoName) {
-        String message = "";
+    private StringBand prepareSingleLineMessage(GitRepository repository, RevListCount status, boolean forceRepoName) {
+        StringBand message = new StringBand();
         if (forceRepoName) {
-            message += repoNamePrefix(repository);
+            message.append(repoNamePrefix(repository));
         }
-        message += behindStatus(status);
+        message.append(behindStatus(status));
         return message;
     }
 
-    private String prepareMultiLineMessage(Map<GitRepository, RevListCount> statuses) {
-        StringBuilder result = new StringBuilder();
+    private StringBand prepareMultiLineMessage(Map<GitRepository, RevListCount> statuses) {
+        StringBand result = new StringBand();
         boolean first = true;
         for (Entry<GitRepository, RevListCount> status : statuses.entrySet()) {
             if (!first) {
@@ -96,7 +97,7 @@ public class StatusMessages {
             result.append(repoNamePrefix(status.getKey()))
                 .append(behindStatus(status.getValue()));
         }
-        return result.toString();
+        return result;
     }
 
     public String prepareBehindMessage(Map<GitRepository, RevListCount> statuses) {
@@ -104,7 +105,7 @@ public class StatusMessages {
     }
 
     public String prepareBehindMessage(Map<GitRepository, RevListCount> statuses, boolean forceRepoNames) {
-        StringBuilder message = new StringBuilder();
+        StringBand message = new StringBand();
         if (statuses.size() == 1) {
             Entry<GitRepository, RevListCount> entry = Iterables.getOnlyElement(statuses.entrySet());
             message.append(prepareSingleLineMessage(entry.getKey(), entry.getValue(), forceRepoNames));
