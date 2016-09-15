@@ -5,6 +5,7 @@ import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
@@ -13,7 +14,6 @@ import com.intellij.util.ui.UIUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
-import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +28,8 @@ import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
 
-public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
+public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
+            StatusBarWidget.MultipleTextValuesPresentation {
     public static final String id = GitStatusWidget.class.getName();
     private final AtomicBoolean opened = new AtomicBoolean();
     private final StatusToolTip myToolTip;
@@ -105,21 +106,22 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         return this;
     }
 
-    @NotNull
+    @Nullable
     @Override
-    public String getText() {
+    public ListPopup getPopupStep() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public String getSelectedValue() {
         return myText;
     }
 
     @NotNull
     @Override
-    public String getMaxPossibleText() {
-        return "0000000000000000";
-    }
-
-    @Override
-    public float getAlignment() {
-        return Component.LEFT_ALIGNMENT;
+    public String getMaxValue() {
+        return "";
     }
 
     @Nullable
@@ -195,12 +197,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     @Nullable
     @Override
     public Consumer<MouseEvent> getClickConsumer() {
-        return new Consumer<MouseEvent>() {
-            @Override
-            public void consume(MouseEvent mouseEvent) {
-                runUpdate();
-            }
-        };
+        return null;
     }
 
     public void installed() {

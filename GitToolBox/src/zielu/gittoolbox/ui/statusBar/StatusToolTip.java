@@ -48,39 +48,43 @@ public class StatusToolTip {
             }
             Collection<GitRepository> repositories = GitUtil.getRepositories(myProject);
             if (repositories.size() == 1) {
-                return infoPart.append(StatusText.formatToolTip(myCurrentAheadBehind)).toString();
+                infoPart.append(StatusText.formatToolTip(myCurrentAheadBehind));
             } else if (repositories.size() > 2) {
-                PerRepoInfoCache cache = GitToolBoxProject.getInstance(myProject).perRepoStatusCache();
-                TreeMap<String, String> statuses = new TreeMap<>();
-                String currentRepoKey = null;
-                for (GitRepository repository : repositories) {
-                    GitAheadBehindCount count = cache.getInfo(repository).count;
-                    if (count != null) {
-                        String name = repository.getRoot().getName();
-                        String statusText = StatusText.format(count);
-                        if (repository.equals(myCurrentRepository)) {
-                            currentRepoKey = name;
-                        }
-                        statuses.put(name, statusText);
-                    }
-                }
-                if (!statuses.isEmpty()) {
-                    if (infoPart.length() > 0) {
-                        infoPart.append(Html.hr);
-                    }
-                    final String currentName = currentRepoKey;
-                    infoPart.append(
-                        statuses.entrySet().stream().map(e -> {
-                            String repoStatus = GitUIUtil.bold(e.getKey()) + ": " + e.getValue();
-                            if (e.getKey().equals(currentName)) {
-                                repoStatus = Html.u(repoStatus);
-                            }
-                            return repoStatus;
-                        }).collect(Collectors.joining(Html.br))
-                    );
-                }
+                prepareMultiRepoTooltip(infoPart, repositories);
             }
             return infoPart.toString();
+        }
+    }
+
+    private void prepareMultiRepoTooltip(StringBand infoPart, Collection<GitRepository> repositories) {
+        PerRepoInfoCache cache = GitToolBoxProject.getInstance(myProject).perRepoStatusCache();
+        TreeMap<String, String> statuses = new TreeMap<>();
+        String currentRepoKey = null;
+        for (GitRepository repository : repositories) {
+            GitAheadBehindCount count = cache.getInfo(repository).count;
+            if (count != null) {
+                String name = repository.getRoot().getName();
+                String statusText = StatusText.format(count);
+                if (repository.equals(myCurrentRepository)) {
+                    currentRepoKey = name;
+                }
+                statuses.put(name, statusText);
+            }
+        }
+        if (!statuses.isEmpty()) {
+            if (infoPart.length() > 0) {
+                infoPart.append(Html.hr);
+            }
+            final String currentName = currentRepoKey;
+            infoPart.append(
+                statuses.entrySet().stream().map(e -> {
+                    String repoStatus = GitUIUtil.bold(e.getKey()) + ": " + e.getValue();
+                    if (e.getKey().equals(currentName)) {
+                        repoStatus = Html.u(repoStatus);
+                    }
+                    return repoStatus;
+                }).collect(Collectors.joining(Html.br))
+            );
         }
     }
 
