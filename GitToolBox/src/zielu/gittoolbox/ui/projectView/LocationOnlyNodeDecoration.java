@@ -3,6 +3,7 @@ package zielu.gittoolbox.ui.projectView;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import git4idea.repo.GitRepository;
+import jodd.util.StringBand;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +34,7 @@ public class LocationOnlyNodeDecoration extends NodeDecorationBase {
             locationPath = existingLocation;
         }
         String status = getStatusText();
-        StringBuilder location = new StringBuilder();
+        StringBand location = new StringBand();
         if (config.showProjectViewStatusBeforeLocation) {
             location.append(status);
             if (locationPath != null) {

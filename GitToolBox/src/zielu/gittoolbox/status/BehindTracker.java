@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.event.HyperlinkEvent;
+import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
@@ -82,7 +83,7 @@ public class BehindTracker extends AbstractProjectComponent {
                 .prepareBehindMessage(statuses, manyReposInProject), statuses.size() > 1);
             return Optional.of(message);
         } else {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -90,12 +91,11 @@ public class BehindTracker extends AbstractProjectComponent {
         Optional<BehindMessage> messageOption = prepareMessage();
         if (messageOption.isPresent() && myActive.get()) {
             BehindMessage message = messageOption.get();
-            String finalMessage = GitUIUtil.bold(changeType.title()) +
-                " (" + Html.link("update", ResBundle.getString("update.project")) + ")" +
-                Html.br +
-                message.text;
+            StringBand finalMessage = new StringBand(GitUIUtil.bold(changeType.title()))
+                .append(" (").append(Html.link("update", ResBundle.getString("update.project")))
+                .append(")").append(Html.br).append(message.text);
 
-            Notifier.getInstance(myProject).notifySuccess(finalMessage, updateProjectListener);
+            Notifier.getInstance(myProject).notifySuccess(finalMessage.toString(), updateProjectListener);
         }
     }
 

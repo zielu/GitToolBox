@@ -11,6 +11,7 @@ import git4idea.GitVcs;
 import git4idea.actions.GitRepositoryAction;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
@@ -35,7 +36,7 @@ public class GitPushTagsAction extends GitRepositoryAction {
         GitPushTagsDialog dialog = new GitPushTagsDialog(project, gitRoots, defaultRoot);
         dialog.show();
         if (dialog.isOK()) {
-            final java.util.Optional<TagsPushSpec> pushSpec = dialog.getPushSpec();
+            final Optional<TagsPushSpec> pushSpec = dialog.getPushSpec();
             if (pushSpec.isPresent()) {
                 Task.Backgroundable task = new Task.Backgroundable(project, ResBundle.getString("message.pushing"), false) {
                     @Override

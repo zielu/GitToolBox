@@ -2,6 +2,7 @@ package zielu.gittoolbox.ui.projectView;
 
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
+import jodd.util.StringBand;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,7 +47,7 @@ public abstract class NodeDecorationBase implements NodeDecoration {
     protected final String getStatusText() {
         String branch = getBranchText();
         String count = getCountText();
-        StringBuilder status = new StringBuilder(branch);
+        StringBand status = new StringBand(branch);
         if (count != null) {
             status.append(" ").append(count);
         }
