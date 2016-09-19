@@ -1,0 +1,38 @@
+buildscript {
+    repositories {
+        maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
+    }
+}
+
+plugins {
+    id "org.jetbrains.intellij" version "0.1.10"
+}
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'org.jetbrains.intellij'
+apply plugin: "java"
+
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
+
+
+intellij {
+    version ideaVersion
+    plugins 'git4idea'
+    downloadSources true
+}
+
+apply plugin: 'idea'
+idea {
+    project {
+        jdkName = javaVersion
+        languageLevel = javaVersion
+    }
+}
+
+dependencies {
+    compile 'org.jodd:jodd-core:3.7.1'
+}
