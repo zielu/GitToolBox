@@ -6,8 +6,10 @@ import com.intellij.openapi.project.Project;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.CalledInAwt;
+import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.util.GtUtil;
 
 /**
@@ -24,14 +26,18 @@ public class RootActions extends DefaultActionGroup {
     @CalledInAwt
     public boolean update() {
         removeAll();
-        final AtomicBoolean updated = new AtomicBoolean();
+        boolean updated = false;
         Collection<GitRepository> repositories = GitUtil.getRepositories(myProject);
         repositories = GtUtil.sort(repositories);
-        repositories.stream().filter(GtUtil::hasRemotes).forEach(repo -> {
-            addAction(new RepositoryActions(repo));
-            updated.set(true);
-        });
-        return updated.get();
+        List<RepositoryActions> actions = repositories.stream()
+                                                      .filter(GtUtil::hasRemotes).map(RepositoryActions::new)
+                                                      .collect(Collectors.toList());
+        if (!actions.isEmpty()) {
+            updated = true;
+            addSeparator(ResBundle.getString("statusBar.menu.repositories.title"));
+            addAll(actions);
+        }
+        return updated;
     }
 
     @Override
