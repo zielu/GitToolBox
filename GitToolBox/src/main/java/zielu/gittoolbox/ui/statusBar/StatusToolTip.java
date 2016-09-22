@@ -1,12 +1,15 @@
 package zielu.gittoolbox.ui.statusBar;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.util.containers.hash.LinkedHashMap;
 import com.intellij.util.text.DateFormatUtil;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Collection;
-import java.util.TreeMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
@@ -59,28 +62,26 @@ public class StatusToolTip {
 
     private void prepareMultiRepoTooltip(StringBand infoPart, Collection<GitRepository> repositories) {
         PerRepoInfoCache cache = GitToolBoxProject.getInstance(myProject).perRepoStatusCache();
-        TreeMap<String, String> statuses = new TreeMap<>();
-        String currentRepoKey = null;
-        for (GitRepository repository : repositories) {
+        Map<GitRepository, String> statuses = new LinkedHashMap<>();
+        final AtomicReference<GitRepository> currentRepo = new AtomicReference<>();
+        for (GitRepository repository : GtUtil.sort(repositories)) {
             GitAheadBehindCount count = cache.getInfo(repository).count;
             if (count != null) {
-                String name = GtUtil.name(repository);
                 String statusText = StatusText.format(count);
                 if (repository.equals(myCurrentRepository)) {
-                    currentRepoKey = name;
+                    currentRepo.set(repository);
                 }
-                statuses.put(name, statusText);
+                statuses.put(repository, statusText);
             }
         }
         if (!statuses.isEmpty()) {
             if (infoPart.length() > 0) {
                 infoPart.append(Html.hr);
             }
-            final String currentName = currentRepoKey;
             infoPart.append(
                 statuses.entrySet().stream().map(e -> {
-                    String repoStatus = GitUIUtil.bold(e.getKey()) + ": " + e.getValue();
-                    if (e.getKey().equals(currentName)) {
+                    String repoStatus = GitUIUtil.bold(GtUtil.name(e.getKey())) + ": " + e.getValue();
+                    if (Objects.equals(e.getKey(), currentRepo.get())) {
                         repoStatus = Html.u(repoStatus);
                     }
                     return repoStatus;
