@@ -17,6 +17,7 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
+import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
 public class StatusToolTip {
@@ -63,7 +64,7 @@ public class StatusToolTip {
         for (GitRepository repository : repositories) {
             GitAheadBehindCount count = cache.getInfo(repository).count;
             if (count != null) {
-                String name = repository.getRoot().getName();
+                String name = GtUtil.name(repository);
                 String statusText = StatusText.format(count);
                 if (repository.equals(myCurrentRepository)) {
                     currentRepoKey = name;

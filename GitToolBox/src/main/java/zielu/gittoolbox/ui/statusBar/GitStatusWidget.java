@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
@@ -33,12 +34,15 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     public static final String id = GitStatusWidget.class.getName();
     private final AtomicBoolean opened = new AtomicBoolean();
     private final StatusToolTip myToolTip;
+    private final RootActions myRootActions;
     private String myText = "";
     private boolean myVisible = true;
+
 
     private GitStatusWidget(@NotNull Project project) {
         super(project);
         myToolTip = new StatusToolTip(project);
+        myRootActions = new RootActions(project);
         myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
             @Override
             public void stateChanged(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
@@ -109,7 +113,11 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     @Nullable
     @Override
     public ListPopup getPopupStep() {
-        return null;
+        if (myRootActions.update()) {
+            return new StatusActionGroupPopup(ResBundle.getString("statusBar.menu.title"), myRootActions, myProject, Condition.TRUE);
+        } else {
+            return null;
+        }
     }
 
     @Nullable
