@@ -16,6 +16,7 @@
         shows number of ahead / behind commits for current branch as status bar widget
         and Project View decoration on modules.
         Status bar tooltip shows info for all repositories. <b>NEW !</b>
+        Status bar tooltip menu allows fetching. <b>NEW !</b>
       </li>
       <li><b>Auto fetch</b> -
         runs git fetch at fixed intervals
@@ -59,6 +60,7 @@
       <ul>
         <li>Break out per project configuration (auto fetch)</li>
         <li>Project View decoration styling (color, bold/italics) (<a href="https://github.com/zielu/GitToolBox/issues/18">#18</a>)</li>
+        <li>Allow fetching from status bar menu (<a href="https://github.com/zielu/GitToolBox/issues/19">#19</a>)</li>
         <li>Status bar tooltip shows info for all repositories (<a href="https://github.com/zielu/GitToolBox/issues/20">#20</a>)</li>
       </ul>
       <h3>Changes is 13.5.4</h3>
