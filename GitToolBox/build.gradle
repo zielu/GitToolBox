@@ -22,6 +22,7 @@ targetCompatibility = javaVersion
 intellij {
     version ideaVersion
     plugins 'git4idea'
+    updateSinceUntilBuild false
     downloadSources true
 }
 
