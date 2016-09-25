@@ -29,13 +29,15 @@ public class RootActions extends DefaultActionGroup {
         boolean updated = false;
         Collection<GitRepository> repositories = GitUtil.getRepositories(myProject);
         repositories = GtUtil.sort(repositories);
-        List<RepositoryActions> actions = repositories.stream()
-                                                      .filter(GtUtil::hasRemotes).map(RepositoryActions::new)
-                                                      .collect(Collectors.toList());
-        if (!actions.isEmpty()) {
+        List<GitRepository> repos = repositories.stream().filter(GtUtil::hasRemotes).collect(Collectors.toList());
+        if (repos.size() == 1) {
+            updated = true;
+            GitRepository repo = repos.get(0);
+            addAll(StatusBarActions.actionsFor(repo));
+        } else if (repos.size() > 1) {
             updated = true;
             addSeparator(ResBundle.getString("statusBar.menu.repositories.title"));
-            addAll(actions);
+            addAll(repos.stream().map(RepositoryActions::new).collect(Collectors.toList()));
         }
         return updated;
     }

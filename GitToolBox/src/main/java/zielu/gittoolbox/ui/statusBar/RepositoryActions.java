@@ -19,8 +19,6 @@ public class RepositoryActions extends ActionGroup {
     @NotNull
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent e) {
-        return new AnAction[] {
-            new FetchAction(myRepository)
-        };
+        return StatusBarActions.actionsFor(myRepository);
     }
 }
