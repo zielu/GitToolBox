@@ -15,8 +15,12 @@
       <li><b>Git status display</b> -
         shows number of ahead / behind commits for current branch as status bar widget
         and Project View decoration on modules.
-        Status bar tooltip shows info for all repositories. <b>NEW !</b>
-        Status bar tooltip menu allows fetching. <b>NEW !</b>
+      </li>
+      <li><b>Status bar widget</b>
+        <ul>
+          <li>tooltip shows info for all repositories <b><span style="color:green">NEW !</span></b></li>
+          <li>popup menu allows fetching <b><span style="color:green">NEW !</span></b></li>
+        </ul>
       </li>
       <li><b>Auto fetch</b> -
         runs git fetch at fixed intervals
@@ -38,7 +42,7 @@
           <li>Project View
             <ul>
               <li>show status before location path or hide path entirely</li>
-              <li>customizable styling (color, bold/italics) <b>NEW !</b></li>
+              <li>customizable styling (color, bold/italics) <b><span style="color:green">NEW !</span></b></li>
             </ul>
           </li>
         </ul>
