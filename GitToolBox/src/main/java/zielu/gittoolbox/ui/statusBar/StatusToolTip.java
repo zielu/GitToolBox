@@ -18,6 +18,7 @@ import zielu.gittoolbox.GitToolBoxConfigForProject;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
+import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.util.GtUtil;
@@ -26,9 +27,8 @@ import zielu.gittoolbox.util.Html;
 public class StatusToolTip {
     private final Project myProject;
     private GitRepository myCurrentRepository;
-    private GitAheadBehindCount myCurrentAheadBehind;
 
-    private String myCurrentText;
+    private String myCurrentStatusText;
 
     public StatusToolTip(@NotNull Project project) {
         myProject = project;
@@ -36,29 +36,36 @@ public class StatusToolTip {
 
     @Nullable
     public String getText() {
-        if (myCurrentText == null) {
-            myCurrentText = prepateToolTip();
-        }
-        return myCurrentText;
+        return prepateToolTip();
     }
 
     private String prepateToolTip() {
-        if (myCurrentAheadBehind == null) {
-            return prepareInfoToolTipPart().toString();
-        } else {
-            StringBand infoPart = prepareInfoToolTipPart();
-            if (infoPart.length() > 0) {
-                infoPart.append(Html.br);
-            }
-            Collection<GitRepository> repositories = GitUtil.getRepositories(myProject);
-            if (repositories.size() == 1) {
-                infoPart.append(StatusText.formatToolTip(myCurrentAheadBehind));
-            } else if (repositories.size() > 2) {
-                prepareMultiRepoTooltip(infoPart, repositories);
-            }
-            return infoPart.toString();
+        StringBand infoPart = prepareInfoToolTipPart();
+        if (infoPart.length() > 0) {
+            infoPart.append(Html.br);
         }
+        if (myCurrentStatusText == null) {
+            myCurrentStatusText = prepareStatusTooltip();
+        }
+        infoPart.append(myCurrentStatusText);
+        return infoPart.toString();
     }
+
+    private String prepareStatusTooltip() {
+        StringBand infoPart = new StringBand();
+        Collection<GitRepository> repositories = GitUtil.getRepositories(myProject);
+        if (repositories.size() == 1) {
+            PerRepoInfoCache cache = GitToolBoxProject.getInstance(myProject).perRepoStatusCache();
+            RepoInfo info = cache.getInfo(myCurrentRepository);
+            if (info.count != null) {
+                infoPart.append(StatusText.formatToolTip(info.count));
+            }
+        } else if (repositories.size() > 2) {
+            prepareMultiRepoTooltip(infoPart, repositories);
+        }
+        return infoPart.toString();
+    }
+
 
     private void prepareMultiRepoTooltip(StringBand infoPart, Collection<GitRepository> repositories) {
         PerRepoInfoCache cache = GitToolBoxProject.getInstance(myProject).perRepoStatusCache();
@@ -109,13 +116,11 @@ public class StatusToolTip {
 
     public void update(@NotNull GitRepository repository, @Nullable GitAheadBehindCount aheadBehind) {
         myCurrentRepository = repository;
-        myCurrentAheadBehind = aheadBehind;
-        myCurrentText = null;
+        myCurrentStatusText = null;
     }
 
     public void clear() {
         myCurrentRepository = null;
-        myCurrentAheadBehind = null;
-        myCurrentText = null;
+        myCurrentStatusText = null;
     }
 }
