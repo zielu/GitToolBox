@@ -45,18 +45,13 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         myRootActions = new RootActions(project);
         myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
             @Override
-            public void stateChanged(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
-                UIUtil.invokeLaterIfNeeded(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (opened.get()) {
-                            if (repository.equals(GitBranchUtil.getCurrentRepository(myProject))) {
-                                update(repository, info.count);
-                                updateStatusBar();
-                            }
-                        }
-                    }
-                });
+            public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
+                onCacheChange(info, repository);
+            }
+
+            @Override
+            public void stateRefreshed(@NotNull RepoInfo info, @NotNull GitRepository repository) {
+                onCacheChange(info, repository);
             }
         });
         myConnection.subscribe(UISettingsListener.TOPIC, new UISettingsListener() {
@@ -69,6 +64,20 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
             @Override
             public void configChanged(GitToolBoxConfig config) {
                 runUpdateLater();
+            }
+        });
+    }
+
+    private void onCacheChange(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
+        UIUtil.invokeLaterIfNeeded(new Runnable() {
+            @Override
+            public void run() {
+                if (opened.get()) {
+                    if (repository.equals(GitBranchUtil.getCurrentRepository(myProject))) {
+                        update(repository, info.count);
+                        updateStatusBar();
+                    }
+                }
             }
         });
     }
