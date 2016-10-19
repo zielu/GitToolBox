@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
-import com.intellij.util.ui.UIUtil;
+import zielu.gittoolbox.ui.util.AppUtil;
 
 public class UpdateProject {
     private final Project myProject;
@@ -31,11 +31,6 @@ public class UpdateProject {
     }
 
     public void execute() {
-        UIUtil.invokeLaterIfNeeded(new Runnable() {
-            @Override
-            public void run() {
-                invokeAction();
-            }
-        });
+        AppUtil.invokeLaterIfNeeded(this::invokeAction);
     }
 }

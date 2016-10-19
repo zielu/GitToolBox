@@ -8,7 +8,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.UIUtil;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
@@ -21,6 +20,7 @@ import zielu.gittoolbox.GitToolBoxConfigForProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
+import zielu.gittoolbox.ui.util.AppUtil;
 
 public class AutoFetchTask implements Runnable {
     private static final boolean showNotifications = false;
@@ -108,29 +108,19 @@ public class AutoFetchTask implements Runnable {
         boolean shouldFetch = !repos.isEmpty();
         boolean enabled = isEnabled();
         if (shouldFetch && enabled) {
-            UIUtil.invokeLaterIfNeeded(new Runnable() {
+            AppUtil.invokeLaterIfNeeded(() -> GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(myProject),
+                ResBundle.getString("message.autoFetching"), false) {
                 @Override
-                public void run() {
-                    GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(myProject),
-                        ResBundle.getString("message.autoFetching"), false) {
-                        @Override
-                        public void run(@NotNull ProgressIndicator indicator) {
-                            doFetch(repos, indicator, getTitle());
-                        }
-                    });
+                public void run(@NotNull ProgressIndicator indicator) {
+                    doFetch(repos, indicator, getTitle());
                 }
-            });
+            }));
         } else {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Fetched skipped: shouldFetch=" + shouldFetch + ", enabled=" + enabled);
             }
             if (showNotifications) {
-                UIUtil.invokeLaterIfNeeded(new Runnable() {
-                    @Override
-                    public void run() {
-                        finishedWithoutFetch();
-                    }
-                });
+                AppUtil.invokeLaterIfNeeded(this::finishedWithoutFetch);
             }
         }
     }

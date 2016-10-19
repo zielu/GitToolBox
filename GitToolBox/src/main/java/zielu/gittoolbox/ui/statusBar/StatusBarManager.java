@@ -26,12 +26,9 @@ public class StatusBarManager implements Disposable, ProjectAware {
             @Override
             public void configChanged(GitToolBoxConfig config) {
                 final boolean showStatusWidget = config.showStatusWidget;
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (opened.get()) {
-                            myStatusWidget.setVisible(showStatusWidget);
-                        }
+                SwingUtilities.invokeLater(() -> {
+                    if (opened.get()) {
+                        myStatusWidget.setVisible(showStatusWidget);
                     }
                 });
             }
