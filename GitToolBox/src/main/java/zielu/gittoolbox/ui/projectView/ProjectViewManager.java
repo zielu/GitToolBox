@@ -4,7 +4,6 @@ import com.intellij.ide.projectView.ProjectView;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.ui.UIUtil;
 import git4idea.repo.GitRepository;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +13,7 @@ import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.ui.util.AppUtil;
 
 public class ProjectViewManager implements Disposable, ProjectAware {
     private final AtomicBoolean opened = new AtomicBoolean();
@@ -35,17 +35,19 @@ public class ProjectViewManager implements Disposable, ProjectAware {
                                      @NotNull final GitRepository repository) {
                 refreshProjectView();
             }
+
+            @Override
+            public void stateRefreshed(@NotNull RepoInfo info, @NotNull GitRepository repository) {
+                refreshProjectView();
+            }
         });
     }
 
     private void refreshProjectView() {
         if (opened.get()) {
-            UIUtil.invokeLaterIfNeeded(new Runnable() {
-                @Override
-                public void run() {
-                    if (opened.get()) {
-                        ProjectView.getInstance(myProject).refresh();
-                    }
+            AppUtil.invokeLaterIfNeeded(() -> {
+                if (opened.get()) {
+                    ProjectView.getInstance(myProject).refresh();
                 }
             });
         }

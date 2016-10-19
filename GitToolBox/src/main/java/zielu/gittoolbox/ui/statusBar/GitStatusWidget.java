@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.statusBar;
 
-import com.intellij.ide.ui.UISettings;
 import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
@@ -11,7 +10,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
-import com.intellij.util.ui.UIUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
@@ -28,6 +26,7 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
+import zielu.gittoolbox.ui.util.AppUtil;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
             StatusBarWidget.MultipleTextValuesPresentation {
@@ -54,12 +53,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 onCacheChange(info, repository);
             }
         });
-        myConnection.subscribe(UISettingsListener.TOPIC, new UISettingsListener() {
-            @Override
-            public void uiSettingsChanged(UISettings uiSettings) {
-                runUpdateLater();
-            }
-        });
+        myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> runUpdateLater());
         myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
             @Override
             public void configChanged(GitToolBoxConfig config) {
@@ -69,26 +63,18 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     }
 
     private void onCacheChange(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
-        UIUtil.invokeLaterIfNeeded(new Runnable() {
-            @Override
-            public void run() {
-                if (opened.get()) {
-                    if (repository.equals(GitBranchUtil.getCurrentRepository(myProject))) {
-                        update(repository, info.count);
-                        updateStatusBar();
-                    }
-                }
+        AppUtil.invokeLaterIfNeeded(() -> {
+            if (opened.get() && repository.equals(GitBranchUtil.getCurrentRepository(myProject))) {
+                update(repository, info.count);
+                updateStatusBar();
             }
         });
     }
 
     private void runUpdateLater() {
-        UIUtil.invokeLaterIfNeeded(new Runnable() {
-            @Override
-            public void run() {
-                if (opened.get()) {
-                    runUpdate();
-                }
+        AppUtil.invokeLaterIfNeeded(() -> {
+            if (opened.get()) {
+                runUpdate();
             }
         });
     }
@@ -97,7 +83,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         return new GitStatusWidget(project);
     }
 
-    public void setVisible(boolean visible) {
+    void setVisible(boolean visible) {
         myVisible = visible;
         runUpdateLater();
     }

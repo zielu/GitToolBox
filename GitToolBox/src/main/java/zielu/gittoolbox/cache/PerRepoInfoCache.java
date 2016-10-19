@@ -59,9 +59,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     private void update(GitRepository repository, CachedStatus status) {
         Optional<RepoInfo> updated = status.update(repository, myCalculator);
-        if (updated.isPresent()) {
-            onRepoStaleChanged(repository, updated.get());
-        }
+        updated.ifPresent(repoInfo -> onRepoStaleChanged(repository, repoInfo));
     }
 
     @NotNull
@@ -83,12 +81,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
             LOG.debug("Got repo changed event: " + repo);
         }
         if (myActive.get()) {
-            myApplication.executeOnPooledThread(new Runnable() {
-                @Override
-                public void run() {
-                    onRepoAsyncChanged(repo);
-                }
-            });
+            myApplication.executeOnPooledThread(() -> onRepoAsyncChanged(repo));
         }
     }
 

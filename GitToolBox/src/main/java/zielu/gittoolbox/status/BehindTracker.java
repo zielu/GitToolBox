@@ -60,11 +60,23 @@ public class BehindTracker extends AbstractProjectComponent {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("State changed [" + GtUtil.name(repository) + "]: " + info);
                 }
-                if (myActive.get()) {
-                    onStateChange(repository, info);
+                onRepoChange(info, repository);
+            }
+
+            @Override
+            public void stateRefreshed(@NotNull RepoInfo info, @NotNull GitRepository repository) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("State refreshed [" + GtUtil.name(repository) + "]: " + info);
                 }
+                onRepoChange(info, repository);
             }
         });
+    }
+
+    private void onRepoChange(@NotNull RepoInfo info, @NotNull GitRepository repository) {
+        if (myActive.get()) {
+            onStateChange(repository, info);
+        }
     }
 
     private Optional<BehindMessage> prepareMessage() {
