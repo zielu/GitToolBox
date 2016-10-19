@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>163.0</version>
+  <version>163.1</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -60,10 +60,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 163.0</h3>
+      <h3>Changes is 163.1</h3>
       <ul>
-        <li>Idea 2016.3 EAP compatibility (<a href="https://github.com/zielu/GitToolBox/issues/21">#21</a>)</li>
-        <li>New version scheme to follow platform versions</li>
+        <li>Status refresh fixes</li>
       </ul>
       <h3>Changes is 16.3.0</h3>
       <ul>
