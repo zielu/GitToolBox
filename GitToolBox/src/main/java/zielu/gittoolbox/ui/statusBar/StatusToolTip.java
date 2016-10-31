@@ -36,10 +36,14 @@ public class StatusToolTip {
 
     @Nullable
     public String getText() {
-        return prepateToolTip();
+        if (myCurrentRepository != null) {
+            return prepareToolTip();
+        } else {
+            return null;
+        }
     }
 
-    private String prepateToolTip() {
+    private String prepareToolTip() {
         StringBand infoPart = prepareInfoToolTipPart();
         if (infoPart.length() > 0) {
             infoPart.append(Html.br);
