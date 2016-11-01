@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>16.3.1</version>
+  <version>16.3.2</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -18,8 +18,8 @@
       </li>
       <li><b>Status bar widget</b>
         <ul>
-          <li>tooltip shows info for all repositories <b><span style="color:green">NEW !</span></b></li>
-          <li>popup menu allows fetching <b><span style="color:green">NEW !</span></b></li>
+          <li>tooltip shows info for all repositories</li>
+          <li>popup menu allows fetching</li>
         </ul>
       </li>
       <li><b>Auto fetch</b> -
@@ -42,7 +42,7 @@
           <li>Project View
             <ul>
               <li>show status before location path or hide path entirely</li>
-              <li>customizable styling (color, bold/italics) <b><span style="color:green">NEW !</span></b></li>
+              <li>customizable styling (color, bold/italics)</li>
             </ul>
           </li>
         </ul>
@@ -60,10 +60,13 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 16.3.1</h3>
+      <h3>Changes is 16.3.2</h3>
       <ul>
-        <li>Back-ported: Status refresh fixes</li>
-        <li>Back-ported: StatusBar tooltip stale data fix</li>
+        <li>Fixed NullPointerException when dragging tab (<a href="https://github.com/zielu/GitToolBox/issues/22">#22</a>)</li>
+      </ul>
+      <h3>Changes is 163.1</h3>
+      <ul>
+        <li>Status refresh fixes</li>
       </ul>
       <h3>Changes is 13.5.4</h3>
       <ul>
