@@ -58,7 +58,10 @@ class CachedStatus {
                 return Optional.empty();
             }
         } else {
-            return Optional.of(myInfo);
+            if (debug) {
+                LOG.debug("Status is still valid: " + myCount);
+            }
+            return Optional.empty();
         }
     }
 

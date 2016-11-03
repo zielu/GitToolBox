@@ -8,6 +8,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.FontUtil;
 import git4idea.repo.GitRepository;
 import java.awt.Color;
+import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
@@ -31,11 +32,13 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
         }
         Color color = config.projectViewStatusCustomColor ? config.getProjectViewStatusColor() : Gray._128;
         SimpleTextAttributes attributes = new SimpleTextAttributes(style, color);
-        String status = getStatusText();
+        StringBand status = getStatusText();
         if (prefix) {
-            status = FontUtil.spaceAndThinSpace() + status;
+            String statusTemp = status.toString();
+            status.setIndex(0);
+            status.append(FontUtil.spaceAndThinSpace()).append(statusTemp);
         }
-        return new ColoredFragment(status, attributes);
+        return new ColoredFragment(status.toString(), attributes);
     }
 
     private SimpleTextAttributes getLocationAttributes() {
@@ -49,9 +52,10 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
                 data.addText(makeStatusFragment(true));
                 data.setLocationString("- " + data.getLocationString());
             } else {
-                String location = data.getLocationString();
-                data.setLocationString("");
-                data.addText(FontUtil.spaceAndThinSpace() + location + " - ", getLocationAttributes());
+                StringBand location = new StringBand(FontUtil.spaceAndThinSpace());
+                location.append(data.getLocationString());
+                location.append(" - ");
+                data.addText(location.toString(), getLocationAttributes());
                 data.addText(makeStatusFragment(false));
             }
         } else {
