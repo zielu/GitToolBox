@@ -45,22 +45,26 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     }
 
     private CachedStatus get(final GitRepository repository) {
+        CachedStatus cachedStatus = behindStatuses.get(repository);
+        if (cachedStatus == null) {
+            CachedStatus newStatus = CachedStatus.create();
+            CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
+            cachedStatus = foundStatus != null ? foundStatus : newStatus;
+        }
+        return cachedStatus;
+    }
+
+    private CachedStatus updateAndGet(final GitRepository repository) {
         if (myActive.get()) {
-            CachedStatus cachedStatus = behindStatuses.get(repository);
-            if (cachedStatus == null) {
-                CachedStatus newStatus = CachedStatus.create();
-                CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
-                cachedStatus = foundStatus != null ? foundStatus : newStatus;
-            }
-            final CachedStatus finalStatus = cachedStatus;
+            CachedStatus cachedStatus = get(repository);
             String repoKey = repository.getRoot().getPath();
             if (inUpdate.add(repoKey)) {
                 myApplication.runReadAction(() -> {
-                    update(repository, finalStatus);
+                    update(repository, cachedStatus);
                     inUpdate.remove(repoKey);
                 });
             }
-            return finalStatus;
+            return cachedStatus;
         } else {
             return CachedStatus.create();
         }
@@ -68,12 +72,12 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     private void update(GitRepository repository, CachedStatus status) {
         Optional<RepoInfo> updated = status.update(repository, myCalculator);
-        updated.ifPresent(repoInfo -> onRepoStaleChanged(repository, repoInfo));
+        updated.ifPresent(repoInfo -> onRepoChanged(repository, repoInfo));
     }
 
     @NotNull
     public RepoInfo getInfo(GitRepository repository) {
-        CachedStatus cachedStatus = get(repository);
+        CachedStatus cachedStatus = updateAndGet(repository);
         return cachedStatus.get();
     }
 
@@ -97,19 +101,18 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     private void onRepoAsyncChanged(GitRepository repo) {
         if (myActive.get()) {
-            RepoInfo info = getInfo(repo);
-            myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Published cache changed event: " + repo);
+            synchronized (this) {
+                get(repo).invalidate();
+                getInfo(repo);
             }
         }
     }
 
-    private void onRepoStaleChanged(GitRepository repo, RepoInfo info) {
+    private void onRepoChanged(GitRepository repo, RepoInfo info) {
         if (myActive.get()) {
-            myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateRefreshed(info, repo);
+            myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Published cache refreshed event: " + repo);
+                LOG.debug("Published cache changed event: " + repo);
             }
         }
     }
