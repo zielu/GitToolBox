@@ -11,15 +11,16 @@ import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.status.GitStatusCalculator;
 
 public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable, ProjectAware {
-    public static Topic<PerRepoStatusCacheListener> CACHE_CHANGE = Topic.create("Status cache change", PerRepoStatusCacheListener.class);
+    public static final Topic<PerRepoStatusCacheListener> CACHE_CHANGE = Topic.create("Status cache change", PerRepoStatusCacheListener.class);
 
     private final Logger LOG = Logger.getInstance(getClass());
 
@@ -29,6 +30,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     private final Project myProject;
     private final GitStatusCalculator myCalculator;
     private final MessageBusConnection myRepoChangeConnection;
+    private final Set<String> inUpdate = new ConcurrentSkipListSet<>();
 
     private PerRepoInfoCache(@NotNull Application application, @NotNull Project project) {
         myApplication = application;
@@ -44,14 +46,21 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     private CachedStatus get(final GitRepository repository) {
         if (myActive.get()) {
-            final AtomicReference<CachedStatus> cachedStatus = new AtomicReference<CachedStatus>(behindStatuses.get(repository));
-            if (cachedStatus.get() == null) {
+            CachedStatus cachedStatus = behindStatuses.get(repository);
+            if (cachedStatus == null) {
                 CachedStatus newStatus = CachedStatus.create();
                 CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
-                cachedStatus.set(foundStatus != null ? foundStatus : newStatus);
+                cachedStatus = foundStatus != null ? foundStatus : newStatus;
             }
-            myApplication.runReadAction(() -> update(repository, cachedStatus.get()));
-            return cachedStatus.get();
+            final CachedStatus finalStatus = cachedStatus;
+            String repoKey = repository.getRoot().getPath();
+            if (inUpdate.add(repoKey)) {
+                myApplication.runReadAction(() -> {
+                    update(repository, finalStatus);
+                    inUpdate.remove(repoKey);
+                });
+            }
+            return finalStatus;
         } else {
             return CachedStatus.create();
         }
@@ -72,6 +81,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     public void dispose() {
         myRepoChangeConnection.disconnect();
         behindStatuses.clear();
+        inUpdate.clear();
     }
 
     @Override
