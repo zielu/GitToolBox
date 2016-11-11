@@ -63,6 +63,7 @@
       <h3>Changes is 16.3.3</h3>
       <ul>
         <li>Minor performance improvements</li>
+        <li>Marked compatible with 145.* platform (<a href="https://github.com/zielu/GitToolBox/issues/24">#24</a>))
       </ul>
       <h3>Changes is 163.1</h3>
       <ul>
@@ -91,7 +92,7 @@
   <depends>Git4Idea</depends>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="162.0000" until-build="162.*"/>
+  <idea-version since-build="145.0000" until-build="162.*"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
