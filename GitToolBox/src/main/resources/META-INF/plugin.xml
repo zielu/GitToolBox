@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>16.3.3.next</version>
+  <version>16.3.3</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -63,7 +63,7 @@
       <h3>Changes is 16.3.3</h3>
       <ul>
         <li>Minor performance improvements</li>
-        <li>Marked compatible with 145.* platform (<a href="https://github.com/zielu/GitToolBox/issues/24">#24</a>))
+        <li>Marked compatible with 145.* platform (<a href="https://github.com/zielu/GitToolBox/issues/24">#24</a>)</li>
       </ul>
       <h3>Changes is 163.1</h3>
       <ul>
