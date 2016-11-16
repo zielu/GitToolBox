@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitVcs;
@@ -12,7 +11,6 @@ import git4idea.actions.GitRepositoryAction;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.push.GtPushResult;
@@ -31,8 +29,7 @@ public class GitPushTagsAction extends GitRepositoryAction {
 
     @Override
     protected void perform(@NotNull Project project, @NotNull List<VirtualFile> gitRoots,
-                           @NotNull VirtualFile defaultRoot, Set<VirtualFile> affectedRoots,
-                           List<VcsException> exceptions) throws VcsException {
+                           @NotNull VirtualFile defaultRoot) {
         GitPushTagsDialog dialog = new GitPushTagsDialog(project, gitRoots, defaultRoot);
         dialog.show();
         if (dialog.isOK()) {
