@@ -45,10 +45,13 @@ class CachedStatus {
             if (!Objects.equal(myStatus, currentStatus)) {
                 GitAheadBehindCount oldCount = myCount;
                 statusUpdateWatch.start();
-                myCount = calculator.aheadBehindStatus(repo);
+                myCount = calculator.aheadBehindStatus(repo, currentStatus.localHash(), currentStatus.remoteHash());
                 statusUpdateWatch.finish();
                 if (debug) {
                     LOG.debug("Updated stale status [" + myRepoName + "]: " + oldCount + " > " + myCount);
+                }
+                if (!currentStatus.sameHashes(myCount)) {
+                    LOG.warn("Hash mismatch between count and status: " + myCount + " <> " + currentStatus);
                 }
                 myStatus = currentStatus;
                 myInfo = RepoInfo.create(myStatus, myCount);

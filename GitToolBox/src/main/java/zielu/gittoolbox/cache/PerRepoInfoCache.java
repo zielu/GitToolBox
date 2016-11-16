@@ -1,6 +1,7 @@
 package zielu.gittoolbox.cache;
 
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
@@ -11,9 +12,9 @@ import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ProjectAware;
@@ -24,13 +25,14 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     private final Logger LOG = Logger.getInstance(getClass());
 
+    private ExecutorService myUpdateExecutor;
+
     private final AtomicBoolean myActive = new AtomicBoolean();
-    private final ConcurrentMap<GitRepository, CachedStatus> behindStatuses = Maps.newConcurrentMap();
+    private final ConcurrentMap<GitRepository, CachedStatus> myBehindStatuses = Maps.newConcurrentMap();
     private final Application myApplication;
     private final Project myProject;
     private final GitStatusCalculator myCalculator;
     private final MessageBusConnection myRepoChangeConnection;
-    private final Set<String> inUpdate = new ConcurrentSkipListSet<>();
 
     private PerRepoInfoCache(@NotNull Application application, @NotNull Project project) {
         myApplication = application;
@@ -45,10 +47,10 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     }
 
     private CachedStatus get(final GitRepository repository) {
-        CachedStatus cachedStatus = behindStatuses.get(repository);
+        CachedStatus cachedStatus = myBehindStatuses.get(repository);
         if (cachedStatus == null) {
             CachedStatus newStatus = CachedStatus.create(repository);
-            CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
+            CachedStatus foundStatus = myBehindStatuses.putIfAbsent(repository, newStatus);
             cachedStatus = foundStatus != null ? foundStatus : newStatus;
         }
         return cachedStatus;
@@ -57,13 +59,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     private CachedStatus updateAndGet(final GitRepository repository) {
         if (myActive.get()) {
             CachedStatus cachedStatus = get(repository);
-            String repoKey = repository.getRoot().getPath();
-            if (inUpdate.add(repoKey)) {
-                myApplication.runReadAction(() -> {
-                    update(repository, cachedStatus);
-                    inUpdate.remove(repoKey);
-                });
-            }
+            myApplication.runReadAction(() -> update(repository, cachedStatus));
             return cachedStatus;
         } else {
             return CachedStatus.create(repository);
@@ -84,27 +80,17 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     @Override
     public void dispose() {
         myRepoChangeConnection.disconnect();
-        behindStatuses.clear();
-        inUpdate.clear();
+        myBehindStatuses.clear();
+        myUpdateExecutor = null;
     }
 
     @Override
     public void repositoryChanged(@NotNull GitRepository gitRepository) {
-        final GitRepository repo = gitRepository;
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Got repo changed event: " + repo);
+            LOG.debug("Got repo changed event: " + gitRepository);
         }
         if (myActive.get()) {
-            myApplication.executeOnPooledThread(() -> onRepoAsyncChanged(repo));
-        }
-    }
-
-    private void onRepoAsyncChanged(GitRepository repo) {
-        if (myActive.get()) {
-            synchronized (this) {
-                get(repo).invalidate();
-                getInfo(repo);
-            }
+            myUpdateExecutor.submit(new UpdateTask(gitRepository));
         }
     }
 
@@ -119,11 +105,36 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     @Override
     public void opened() {
-        myActive.set(true);
+        if (myActive.compareAndSet(false,true)) {
+            ThreadFactoryBuilder threadBuilder = new ThreadFactoryBuilder();
+            myUpdateExecutor = Executors.newSingleThreadExecutor(
+                    threadBuilder.setNameFormat(getClass().getSimpleName()+"-["+myProject.getName()+"]-%d").build()
+            );
+        }
     }
 
     @Override
     public void closed() {
-        myActive.set(false);
+        if (myActive.compareAndSet(true, false)) {
+            myUpdateExecutor.shutdown();
+        }
+    }
+
+    private class UpdateTask implements Runnable {
+        private final GitRepository myRepository;
+
+        private UpdateTask(@NotNull GitRepository myRepository) {
+            this.myRepository = myRepository;
+        }
+
+        @Override
+        public void run() {
+            if (myActive.get()) {
+                synchronized (PerRepoInfoCache.this) {
+                    get(myRepository).invalidate();
+                    getInfo(myRepository);
+                }
+            }
+        }
     }
 }

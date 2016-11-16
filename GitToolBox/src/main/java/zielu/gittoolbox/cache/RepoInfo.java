@@ -1,6 +1,6 @@
 package zielu.gittoolbox.cache;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.status.GitAheadBehindCount;
@@ -28,7 +28,7 @@ public class RepoInfo {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
             .add("status", status)
             .add("count", count)
             .toString();

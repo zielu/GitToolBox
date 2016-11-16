@@ -1,12 +1,16 @@
 package zielu.gittoolbox.status;
 
 import com.intellij.openapi.util.Key;
+import com.intellij.vcs.log.Hash;
 import git4idea.commands.GitLineHandlerListener;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.util.GtUtil;
 
 public class GitRevListLeftRightCounter implements GitLineHandlerListener {
     private int ahead = 0;
+    private Hash aheadHash;
     private int behind = 0;
+    private Hash behindHash;
 
     private int exitCode;
     @Nullable
@@ -14,11 +18,29 @@ public class GitRevListLeftRightCounter implements GitLineHandlerListener {
 
     @Override
     public void onLineAvailable(String line, Key outputType) {
-        if (line.startsWith("<")) {
+        if (aheadLine(line)) {
             ahead++;
-        } else if (line.startsWith(">")) {
+            if (aheadHash == null) {
+                aheadHash = hashFromLine(line);
+            }
+        } else if (behindLine(line)) {
             behind++;
+            if (behindHash == null) {
+                behindHash = hashFromLine(line);
+            }
         }
+    }
+
+    private boolean aheadLine(String line) {
+        return line.startsWith("<");
+    }
+
+    private boolean behindLine(String line) {
+        return line.startsWith(">");
+    }
+
+    private Hash hashFromLine(String line) {
+        return GtUtil.hash(line.substring(1));
     }
 
     public int ahead() {
@@ -27,6 +49,16 @@ public class GitRevListLeftRightCounter implements GitLineHandlerListener {
 
     public int behind() {
         return behind;
+    }
+
+    @Nullable
+    public Hash aheadTop() {
+        return aheadHash;
+    }
+
+    @Nullable
+    public Hash behindTop() {
+        return behindHash;
     }
 
     public boolean isSuccess() {

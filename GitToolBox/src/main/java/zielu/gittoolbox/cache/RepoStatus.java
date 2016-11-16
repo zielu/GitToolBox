@@ -1,11 +1,17 @@
 package zielu.gittoolbox.cache;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRepoInfo;
 import git4idea.repo.GitRepository;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.status.GitAheadBehindCount;
+import zielu.gittoolbox.util.GitLock;
+import zielu.gittoolbox.util.GtUtil;
 
 public class RepoStatus {
     private static final RepoStatus empty = new RepoStatus(null, null, null, null);
@@ -22,24 +28,40 @@ public class RepoStatus {
         this.remoteHash = remoteHash;
     }
 
-    public static RepoStatus create(GitRepository repository) {
+    public static RepoStatus create(@NotNull GitRepository repository) {
         GitLocalBranch branch;
         Hash localHash = null;
         GitRemoteBranch remote = null;
         Hash remoteHash = null;
 
-        branch = repository.getCurrentBranch();
-        if (branch != null) {
-            GitRepoInfo repoInfo = repository.getInfo();
-            localHash = repoInfo.getLocalBranchesWithHashes().get(branch);
-            remote = branch.findTrackedBranch(repository);
-            remoteHash = repoInfo.getRemoteBranchesWithHashes().get(remote);
+        GitLock lock = GtUtil.lock(repository);
+        lock.readLock();
+        try {
+            branch = repository.getCurrentBranch();
+            if (branch != null) {
+                GitRepoInfo repoInfo = repository.getInfo();
+                localHash = repoInfo.getLocalBranchesWithHashes().get(branch);
+                remote = branch.findTrackedBranch(repository);
+                remoteHash = repoInfo.getRemoteBranchesWithHashes().get(remote);
+            }
+        } finally {
+            lock.readUnlock();
         }
         return new RepoStatus(branch, localHash, remote, remoteHash);
     }
 
     public static RepoStatus empty() {
         return empty;
+    }
+
+    @Nullable
+    public Hash localHash() {
+        return localHash;
+    }
+
+    @Nullable
+    public Hash remoteHash() {
+        return remoteHash;
     }
 
     public boolean sameBranch(RepoStatus other) {
@@ -56,6 +78,10 @@ public class RepoStatus {
 
     public boolean hasRemoteBranch() {
         return remoteBranch != null;
+    }
+
+    public boolean sameHashes(GitAheadBehindCount aheadBehind) {
+        return Objects.equal(localHash, aheadBehind.ahead.top()) && Objects.equal(remoteHash, aheadBehind.behind.top());
     }
 
     @Override
@@ -80,11 +106,11 @@ public class RepoStatus {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
             .add("localHash", localHash)
             .add("remoteHash", remoteHash)
-            .add("branch", branch)
-            .add("remote", remoteBranch)
+            .add("localBranch", branch)
+            .add("remoteBranch", remoteBranch)
             .toString();
     }
 }
