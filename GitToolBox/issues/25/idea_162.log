@@ -1,0 +1,1334 @@
+2016-11-16 20:12:11,883 [      0]   INFO -        #com.intellij.idea.Main - ------------------------------------------------------ IDE STARTED ------------------------------------------------------ 
+2016-11-16 20:12:11,916 [     33]   INFO -        #com.intellij.idea.Main - IDE: IntelliJ IDEA (build #IC-145.1617.8, 03 Jun 2016 00:00) 
+2016-11-16 20:12:11,916 [     33]   INFO -        #com.intellij.idea.Main - OS: Windows 10 (10.0, x86) 
+2016-11-16 20:12:11,916 [     33]   INFO -        #com.intellij.idea.Main - JRE: 1.8.0_102-b14 (Oracle Corporation) 
+2016-11-16 20:12:11,916 [     33]   INFO -        #com.intellij.idea.Main - JVM: 25.102-b14 (Java HotSpot(TM) Client VM) 
+2016-11-16 20:12:11,918 [     35]   INFO -        #com.intellij.idea.Main - JVM Args: -Didea.classpath.index.enabled=false -Didea.config.path=C:\Users\Lukasz_Zielinski\Documents\Private\Code\GitToolBox\GitToolBox\build\idea-sandbox\config -Didea.is.internal=true -Didea.platform.prefix=Idea -Didea.plugins.path=C:\Users\Lukasz_Zielinski\Documents\Private\Code\GitToolBox\GitToolBox\build\idea-sandbox\plugins -Didea.required.plugins.id=zielu.gittoolbox -Didea.system.path=C:\Users\Lukasz_Zielinski\Documents\Private\Code\GitToolBox\GitToolBox\build\idea-sandbox\system -Xbootclasspath/a:C:\Users\Lukasz_Zielinski\.gradle\caches\modules-2\files-2.1\com.jetbrains.intellij.idea\ideaIC\2016.1.3\c36c34088b8d770d73fe97760cdd47ab86ea00b\ideaIC-2016.1.3/lib/boot.jar -XX:MaxPermSize=250m -Xms256m -Xmx512m -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -ea 
+2016-11-16 20:12:11,920 [     37]   INFO -        #com.intellij.idea.Main - ext: C:\Java\jdk1.8.0_102\jre\lib\ext: [access-bridge-32.jar, cldrdata.jar, dnsns.jar, jaccess.jar, jfxrt.jar, localedata.jar, meta-index, nashorn.jar, sunec.jar, sunjce_provider.jar, sunmscapi.jar, sunpkcs11.jar, zipfs.jar] 
+2016-11-16 20:12:11,920 [     37]   INFO -        #com.intellij.idea.Main - JNU charset: Cp1250 
+2016-11-16 20:12:11,958 [     75]   INFO -        #com.intellij.idea.Main - JNA library loaded (32-bit) in 37 ms 
+2016-11-16 20:12:11,961 [     78]   INFO - penapi.util.io.win32.IdeaWin32 - Native filesystem for Windows is operational 
+2016-11-16 20:12:11,962 [     79]   INFO -        #com.intellij.idea.Main - Using "FocusKiller" library to prevent focus stealing. 
+2016-11-16 20:12:11,967 [     84]   INFO -     #com.intellij.util.ui.JBUI - UI scale factor: 1.25 
+2016-11-16 20:12:12,543 [    660]   INFO - llij.ide.plugins.PluginManager - Cannot find optional descriptor duplicates-groovy.xml 
+2016-11-16 20:12:12,798 [    915]   INFO - llij.ide.plugins.PluginManager - 33 plugins initialized in 391 ms 
+2016-11-16 20:12:12,813 [    930]   INFO - llij.ide.plugins.PluginManager - Loaded bundled plugins: Android Support (10.1.5), Ant Support (1.0), Bytecode Viewer (0.1), CVS Integration (11), Copyright (8.1), Coverage (145.SNAPSHOT), Eclipse Integration (3.0), EditorConfig (145.1617.8), Git Integration (8.1), GitHub (145.1617.8), Gradle (145.1617.8), Groovy (9.0), I18n for Java (145.1617.8), IDEA CORE (145.SNAPSHOT), IntelliLang (8.0), JUnit (1.0), Java Bytecode Decompiler (145.SNAPSHOT), JavaFX (1.0), Kotlin (1.0.1-release-IJ143-46), Maven Integration (145.1617.8), Plugin DevKit (1.0), Properties Support (145.SNAPSHOT), Settings Repository (145.1617.8), Subversion Integration (1.1), Task Management (1.0), Terminal (0.1), TestNG-J (8.0), UI Designer (145.1617.8), XPathView + XSLT Support (4), XSLT-Debugger (1.4), YAML (145.SNAPSHOT), hg4idea (10.0) 
+2016-11-16 20:12:12,814 [    931]   INFO - llij.ide.plugins.PluginManager - Loaded custom plugins: GitToolBox (16.3.3.next) 
+2016-11-16 20:12:13,351 [   1468]   INFO - ellij.util.io.PagedFileStorage - lower=100; upper=200; buffer=10; max=474 
+2016-11-16 20:12:13,374 [   1491]   INFO - pl.local.NativeFileWatcherImpl - Starting file watcher: C:\Users\Lukasz_Zielinski\.gradle\caches\modules-2\files-2.1\com.jetbrains.intellij.idea\ideaIC\2016.1.3\c36c34088b8d770d73fe97760cdd47ab86ea00b\ideaIC-2016.1.3\bin\win\fsnotifier.exe 
+2016-11-16 20:12:13,390 [   1507]   INFO - pl.local.NativeFileWatcherImpl - Native file watcher is operational. 
+2016-11-16 20:12:13,700 [   1817]   INFO - .history.utils.LocalHistoryLog - Checking local history storage... 
+2016-11-16 20:12:13,704 [   1821]   INFO - .history.utils.LocalHistoryLog - Local history storage seems to be ok (took 0 sec) 
+2016-11-16 20:12:13,736 [   1853]   INFO -     #com.intellij.util.ui.JBUI - UI scale factor changed: 1.25 
+2016-11-16 20:12:13,871 [   1988]   INFO - lij.diagnostic.DebugLogManager - Set DEBUG for the following categories: #zielu.gittoolbox 
+2016-11-16 20:12:13,919 [   2036]   INFO - rains.ide.BuiltInServerManager - built-in server started, port 63343 
+2016-11-16 20:12:13,951 [   2068]   INFO - gs.impl.UpdateCheckerComponent - channel: eap 
+2016-11-16 20:12:14,814 [   2931]   INFO - plication.impl.ApplicationImpl - 84 application components initialized in 2408 ms 
+2016-11-16 20:12:14,825 [   2942]   INFO - .intellij.idea.IdeaApplication - App initialization took 3836 ms 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.kotlin loaded 956 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.intellij.groovy loaded 161 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.android loaded 146 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.idea.maven loaded 61 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - CVS loaded 44 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - com.intellij.properties loaded 28 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - com.intellij.uiDesigner loaded 28 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.settingsRepository loaded 27 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - Subversion loaded 25 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - Git4Idea loaded 24 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - hg4idea loaded 21 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - com.intellij.tasks loaded 20 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - AntSupport loaded 19 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - XPathView loaded 18 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.plugins.github loaded 12 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.plugins.javaFX loaded 11 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.plugins.gradle loaded 11 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.plugins.yaml loaded 9 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.java.decompiler loaded 8 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - DevKit loaded 4 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - com.intellij.copyright loaded 3 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - ByteCodeViewer loaded 2 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.idea.eclipse loaded 2 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - Coverage loaded 2 classes 
+2016-11-16 20:12:14,826 [   2943]   INFO - llij.ide.plugins.PluginManager - zielu.gittoolbox loaded 1 classes 
+2016-11-16 20:12:15,243 [   3360]   INFO - .openapi.application.Preloader - Finished preloading com.intellij.openapi.actionSystem.impl.ActionPreloader@134bd24 
+2016-11-16 20:12:15,697 [   3814]   INFO - CompilerWorkspaceConfiguration - Available processors: 4 
+2016-11-16 20:12:15,723 [   3840]   WARN - .intellij.diagnostic.VMOptions - VM options file path missing 
+2016-11-16 20:12:16,113 [   4230]   INFO - .openapi.application.Preloader - Finished preloading com.intellij.ide.ui.search.SearchableOptionPreloader@aeb9fd 
+2016-11-16 20:12:16,225 [   4342]   INFO - ellij.project.impl.ProjectImpl - 153 project components initialized in 1049 ms 
+2016-11-16 20:12:16,297 [   4414]   INFO - le.impl.ModuleManagerComponent - 5 module(s) loaded in 72 ms 
+2016-11-16 20:12:16,557 [   4674]  DEBUG - elu.gittoolbox.fetch.AutoFetch - Scheduling fast auto-fetch 
+2016-11-16 20:12:16,558 [   4675]  DEBUG - u.gittoolbox.GitToolBoxProject - Project opened 
+2016-11-16 20:12:16,562 [   4679]  DEBUG - elu.gittoolbox.fetch.AutoFetch - Enter dumb mode 
+2016-11-16 20:12:16,562 [   4679]  DEBUG - elu.gittoolbox.fetch.AutoFetch - Existing task cancelled 
+2016-11-16 20:12:16,587 [   4704]   INFO - penapi.project.DumbServiceImpl - Running dumb mode task: wait for file watcher 
+2016-11-16 20:12:16,588 [   4705]   INFO - penapi.project.DumbServiceImpl - Running dumb mode task: com.intellij.util.indexing.UnindexedFilesUpdater@1b8faaf 
+2016-11-16 20:12:16,603 [   4720]   INFO - .diagnostic.PerformanceWatcher - Pushing properties took 14ms; general responsiveness: ok; EDT responsiveness: ok 
+2016-11-16 20:12:16,664 [   4781]   INFO - .diagnostic.PerformanceWatcher - Indexable file iteration took 60ms; general responsiveness: ok; EDT responsiveness: ok 
+2016-11-16 20:12:16,666 [   4783]   INFO - penapi.project.DumbServiceImpl - Running dumb mode task: initial refresh 
+2016-11-16 20:12:16,667 [   4784]   INFO - penapi.project.DumbServiceImpl - updateFinished 
+2016-11-16 20:12:16,673 [   4790]   INFO - g.FileBasedIndexProjectHandler - Has changed files: false; project=Project 'C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest' IdeaTest 
+2016-11-16 20:12:16,673 [   4790]  DEBUG - elu.gittoolbox.fetch.AutoFetch - Exit dumb mode 
+2016-11-16 20:12:16,673 [   4790]  DEBUG - elu.gittoolbox.fetch.AutoFetch - Scheduling fast auto-fetch 
+2016-11-16 20:12:17,184 [   5301]   INFO - tartup.impl.StartupManagerImpl - C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/.idea case-sensitivity: expected=false actual=false 
+2016-11-16 20:12:17,468 [   5585]  DEBUG - toolbox.cache.PerRepoInfoCache - Got repo changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing 
+2016-11-16 20:12:17,477 [   5594]  DEBUG - .gittoolbox.cache.CachedStatus - Repo status create [ms]: 0 
+2016-11-16 20:12:17,478 [   5595]  DEBUG - .gittoolbox.cache.CachedStatus - State update [testing]:
+new=RepoStatus{localHash=7c0ca9ad98b7034fb425db0168ef2d6560d094a2, remoteHash=7c0ca9ad98b7034fb425db0168ef2d6560d094a2, branch=refs/heads/master, remote=refs/remotes/origin/master}
+old=null 
+2016-11-16 20:12:17,479 [   5596]  DEBUG - toolbox.cache.PerRepoInfoCache - Got repo changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:12:17,660 [   5777]  DEBUG - .gittoolbox.cache.CachedStatus - Status update [ms]: 181 
+2016-11-16 20:12:17,660 [   5777]  DEBUG - .gittoolbox.cache.CachedStatus - Updated stale status [testing]: null > RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:17,663 [   5780]  DEBUG - ittoolbox.status.BehindTracker - State changed [testing]: RepoInfo{status=RepoStatus{localHash=7c0ca9ad98b7034fb425db0168ef2d6560d094a2, remoteHash=7c0ca9ad98b7034fb425db0168ef2d6560d094a2, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} 
+2016-11-16 20:12:17,664 [   5781]  DEBUG - ittoolbox.status.BehindTracker - Info update [testing]: null > RepoInfo{status=RepoStatus{localHash=7c0ca9ad98b7034fb425db0168ef2d6560d094a2, remoteHash=7c0ca9ad98b7034fb425db0168ef2d6560d094a2, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} 
+2016-11-16 20:12:17,671 [   5788]  DEBUG - toolbox.cache.PerRepoInfoCache - Published cache changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing 
+2016-11-16 20:12:17,672 [   5789]  DEBUG - .gittoolbox.cache.CachedStatus - Repo status create [ms]: 0 
+2016-11-16 20:12:17,672 [   5789]  DEBUG - .gittoolbox.cache.CachedStatus - State update [testing2]:
+new=RepoStatus{localHash=8085df18e3d692d8c12a6a7b0f66bd802a25ff8d, remoteHash=36ab683390c56f98ba93d867a973f51dec3568a3, branch=refs/heads/master, remote=refs/remotes/origin/master}
+old=null 
+2016-11-16 20:12:17,834 [   5951]  DEBUG - .gittoolbox.cache.CachedStatus - Status update [ms]: 162 
+2016-11-16 20:12:17,836 [   5953]  DEBUG - .gittoolbox.cache.CachedStatus - Updated stale status [testing2]: null > RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:17,838 [   5955]  DEBUG - ittoolbox.status.BehindTracker - State changed [testing2]: RepoInfo{status=RepoStatus{localHash=8085df18e3d692d8c12a6a7b0f66bd802a25ff8d, remoteHash=36ab683390c56f98ba93d867a973f51dec3568a3, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} 
+2016-11-16 20:12:17,838 [   5955]  DEBUG - ittoolbox.status.BehindTracker - Info update [testing2]: null > RepoInfo{status=RepoStatus{localHash=8085df18e3d692d8c12a6a7b0f66bd802a25ff8d, remoteHash=36ab683390c56f98ba93d867a973f51dec3568a3, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} 
+2016-11-16 20:12:17,840 [   5957]  DEBUG - toolbox.cache.PerRepoInfoCache - Published cache changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:12:17,885 [   6002]   INFO - tor.impl.FileEditorManagerImpl - Project opening took 2742 ms 
+2016-11-16 20:12:17,885 [   6002]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.kotlin loaded 1044 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.android loaded 822 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.intellij.groovy loaded 267 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - Git4Idea loaded 233 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - com.intellij.uiDesigner loaded 207 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.idea.maven loaded 203 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - com.intellij.tasks loaded 109 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - hg4idea loaded 85 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - CVS loaded 77 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - Subversion loaded 70 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.plugins.gradle loaded 53 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - zielu.gittoolbox loaded 53 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - com.intellij.properties loaded 48 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - XPathView loaded 39 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - Coverage loaded 34 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - DevKit loaded 32 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - AntSupport loaded 32 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.settingsRepository loaded 30 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.plugins.github loaded 22 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.plugins.javaFX loaded 17 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.editorconfig.editorconfigjetbrains loaded 16 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - TestNG-J loaded 16 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - JUnit loaded 16 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - com.intellij.copyright loaded 13 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.plugins.yaml loaded 13 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.plugins.terminal loaded 11 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.java.decompiler loaded 8 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.jetbrains.idea.eclipse loaded 5 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - com.intellij.java-i18n loaded 3 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - ByteCodeViewer loaded 2 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - XSLT-Debugger loaded 2 classes 
+2016-11-16 20:12:17,886 [   6003]   INFO - llij.ide.plugins.PluginManager - org.intellij.intelliLang loaded 2 classes 
+2016-11-16 20:12:18,289 [   6406]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,289 [   6406]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 0 
+2016-11-16 20:12:18,290 [   6407]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:12:18,290 [   6407]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 0 
+2016-11-16 20:12:18,292 [   6409]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,292 [   6409]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 0 
+2016-11-16 20:12:18,292 [   6409]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:12:18,292 [   6409]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 0 
+2016-11-16 20:12:18,293 [   6410]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,293 [   6410]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 0 
+2016-11-16 20:12:18,293 [   6410]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:12:18,293 [   6410]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 0 
+2016-11-16 20:12:18,293 [   6410]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,293 [   6410]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 0 
+2016-11-16 20:12:18,293 [   6410]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:18,299 [   6416]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 6 
+2016-11-16 20:12:18,299 [   6416]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 6 
+2016-11-16 20:12:18,299 [   6416]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,300 [   6417]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 6 
+2016-11-16 20:12:18,300 [   6417]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:18,300 [   6417]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 6 
+2016-11-16 20:12:18,300 [   6417]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 6 
+2016-11-16 20:12:18,541 [   6658]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,541 [   6658]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 7 
+2016-11-16 20:12:18,542 [   6659]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:12:18,542 [   6659]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 7 
+2016-11-16 20:12:18,542 [   6659]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,542 [   6659]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 7 
+2016-11-16 20:12:18,542 [   6659]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:12:18,542 [   6659]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 7 
+2016-11-16 20:12:18,543 [   6660]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,543 [   6660]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 7 
+2016-11-16 20:12:18,543 [   6660]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:12:18,543 [   6660]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 7 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 7 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 7 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 7 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 7 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 7 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:12:18,545 [   6662]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 7 
+2016-11-16 20:12:18,546 [   6663]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,546 [   6663]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 7 
+2016-11-16 20:12:18,546 [   6663]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:12:18,546 [   6663]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 7 
+2016-11-16 20:12:18,546 [   6663]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,546 [   6663]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 8 
+2016-11-16 20:12:18,546 [   6663]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:18,546 [   6663]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 8 
+2016-11-16 20:12:18,546 [   6663]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 8 
+2016-11-16 20:12:18,546 [   6663]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 8 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 8 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 8 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 8 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 8 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 8 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 8 
+2016-11-16 20:12:18,547 [   6664]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:18,548 [   6665]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 8 
+2016-11-16 20:12:18,548 [   6665]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 8 
+2016-11-16 20:12:18,548 [   6665]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,548 [   6665]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 8 
+2016-11-16 20:12:18,548 [   6665]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:12:18,548 [   6665]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 9 
+2016-11-16 20:12:18,549 [   6666]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,549 [   6666]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 9 
+2016-11-16 20:12:18,549 [   6666]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:12:18,549 [   6666]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 9 
+2016-11-16 20:12:18,549 [   6666]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,549 [   6666]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 9 
+2016-11-16 20:12:18,549 [   6666]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:18,550 [   6667]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 9 
+2016-11-16 20:12:18,550 [   6667]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 9 
+2016-11-16 20:12:18,550 [   6667]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,550 [   6667]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 9 
+2016-11-16 20:12:18,550 [   6667]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:18,550 [   6667]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 9 
+2016-11-16 20:12:18,550 [   6667]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 9 
+2016-11-16 20:12:18,555 [   6672]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,555 [   6672]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 9 
+2016-11-16 20:12:18,555 [   6672]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:18,555 [   6672]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 10 
+2016-11-16 20:12:18,555 [   6672]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 10 
+2016-11-16 20:12:18,567 [   6684]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,567 [   6684]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 10 
+2016-11-16 20:12:18,567 [   6684]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,567 [   6684]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 10 
+2016-11-16 20:12:18,567 [   6684]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,568 [   6685]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 10 
+2016-11-16 20:12:18,568 [   6685]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,568 [   6685]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 10 
+2016-11-16 20:12:18,574 [   6691]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,574 [   6691]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 10 
+2016-11-16 20:12:18,574 [   6691]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:12:18,574 [   6691]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 10 
+2016-11-16 20:12:18,576 [   6693]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,576 [   6693]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 10 
+2016-11-16 20:12:18,577 [   6694]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,577 [   6694]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 10 
+2016-11-16 20:12:18,579 [   6696]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,579 [   6696]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 10 
+2016-11-16 20:12:18,606 [   6723]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,606 [   6723]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 10 
+2016-11-16 20:12:18,609 [   6726]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,609 [   6726]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 11 
+2016-11-16 20:12:18,609 [   6726]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:12:18,609 [   6726]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 11 
+2016-11-16 20:12:18,610 [   6727]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,610 [   6727]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 11 
+2016-11-16 20:12:18,611 [   6728]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,611 [   6728]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 11 
+2016-11-16 20:12:18,613 [   6730]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,614 [   6731]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 11 
+2016-11-16 20:12:18,614 [   6731]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:12:18,614 [   6731]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 11 
+2016-11-16 20:12:18,614 [   6731]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 11 
+2016-11-16 20:12:18,615 [   6732]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,615 [   6732]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 11 
+2016-11-16 20:12:18,616 [   6733]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,616 [   6733]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 11 
+2016-11-16 20:12:18,616 [   6733]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,616 [   6733]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 11 
+2016-11-16 20:12:18,619 [   6736]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,619 [   6736]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 11 
+2016-11-16 20:12:18,622 [   6739]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,622 [   6739]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 11 
+2016-11-16 20:12:18,624 [   6741]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,624 [   6741]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 12 
+2016-11-16 20:12:18,625 [   6742]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,625 [   6742]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 12 
+2016-11-16 20:12:18,627 [   6744]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,627 [   6744]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 12 
+2016-11-16 20:12:18,627 [   6744]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:12:18,627 [   6744]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 12 
+2016-11-16 20:12:18,628 [   6745]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,628 [   6745]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 12 
+2016-11-16 20:12:18,629 [   6746]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:12:18,629 [   6746]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 12 
+2016-11-16 20:12:46,681 [  34798]  DEBUG - gittoolbox.fetch.AutoFetchTask - Starting auto-fetch... 
+2016-11-16 20:12:46,685 [  34802]  DEBUG - elu.gittoolbox.fetch.GtFetcher - Fetching C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:12:46,689 [  34806]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false fetch origin --progress --prune 
+2016-11-16 20:12:47,730 [  35847]  DEBUG - elu.gittoolbox.fetch.GtFetcher - Fetched C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2: success=true, error=false 
+2016-11-16 20:12:47,730 [  35847]  DEBUG - elu.gittoolbox.fetch.GtFetcher - Fetching C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing 
+2016-11-16 20:12:47,731 [  35848]   INFO -  #git4idea.commands.GitHandler - [testing] git -c core.quotepath=false fetch origin --progress --prune 
+2016-11-16 20:12:48,697 [  36814]  DEBUG - elu.gittoolbox.fetch.GtFetcher - Fetched C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing: success=true, error=false 
+2016-11-16 20:12:48,698 [  36815]  DEBUG - gittoolbox.fetch.AutoFetchTask - Finished auto-fetch 
+2016-11-16 20:14:25,630 [ 133747]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false push --progress --porcelain origin refs/heads/master:master 
+2016-11-16 20:14:29,045 [ 137162]   INFO -  #git4idea.commands.GitHandler - To https://github.com/zielu/testing2.git 
+2016-11-16 20:14:29,045 [ 137162]   INFO -  #git4idea.commands.GitHandler - error: failed to push some refs to 'https://github.com/zielu/testing2.git' 
+2016-11-16 20:14:29,046 [ 137163]   INFO -  #git4idea.commands.GitHandler - hint: Updates were rejected because the remote contains work that you do 
+2016-11-16 20:14:29,046 [ 137163]   INFO -  #git4idea.commands.GitHandler - !	refs/heads/master:refs/heads/master	[rejected] (fetch first) 
+2016-11-16 20:14:29,046 [ 137163]   INFO -  #git4idea.commands.GitHandler - hint: not have locally. This is usually caused by another repository pushing 
+2016-11-16 20:14:29,046 [ 137163]   INFO -  #git4idea.commands.GitHandler - Done 
+2016-11-16 20:14:29,046 [ 137163]   INFO -  #git4idea.commands.GitHandler - hint: to the same ref. You may want to first integrate the remote changes 
+2016-11-16 20:14:29,047 [ 137164]   INFO -  #git4idea.commands.GitHandler - hint: (e.g., 'git pull ...') before pushing again. 
+2016-11-16 20:14:29,047 [ 137164]   INFO -  #git4idea.commands.GitHandler - hint: See the 'Note about fast-forwards' in 'git push --help' for details. 
+2016-11-16 20:14:35,757 [ 143874]   INFO - t4idea.update.GitUpdateProcess - update started|REBASE 
+2016-11-16 20:14:35,763 [ 143880]   INFO - t4idea.update.GitUpdateProcess - checkRebaseInProgress: checking if there is an unfinished rebase process... 
+2016-11-16 20:14:35,769 [ 143886]   INFO - t4idea.update.GitUpdateProcess - isMergeInProgress: checking if there is an unfinished merge process... 
+2016-11-16 20:14:35,769 [ 143886]   INFO - t4idea.update.GitUpdateProcess - areUnmergedFiles: checking if there are unmerged files... 
+2016-11-16 20:14:35,904 [ 144021]   INFO - idea.merge.GitConflictResolver - merge: no unmerged files 
+2016-11-16 20:14:35,904 [ 144021]   INFO - t4idea.update.GitUpdateProcess - checking tracked branch configuration... 
+2016-11-16 20:14:35,905 [ 144022]   INFO -    #git4idea.update.GitFetcher - fetching C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:14:35,905 [ 144022]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false fetch origin --progress --prune 
+2016-11-16 20:14:37,011 [ 145128]   INFO -  #git4idea.commands.GitHandler - remote: Counting objects: 3, done. 
+2016-11-16 20:14:37,012 [ 145129]   INFO -  #git4idea.commands.GitHandler - remote: Compressing objects: 100% (3/3), done. 
+2016-11-16 20:14:37,013 [ 145130]   INFO -  #git4idea.commands.GitHandler - remote: Total 3 (delta 0), reused 3 (delta 0), pack-reused 0 
+2016-11-16 20:14:37,196 [ 145313]   INFO -  #git4idea.commands.GitHandler - From https://github.com/zielu/testing2 
+2016-11-16 20:14:37,196 [ 145313]   INFO -  #git4idea.commands.GitHandler - 36ab683..dcb460d  master     -> origin/master 
+2016-11-16 20:14:37,247 [ 145364]   INFO -    #git4idea.update.GitFetcher - fetching C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing 
+2016-11-16 20:14:37,248 [ 145365]   INFO -  #git4idea.commands.GitHandler - [testing] git -c core.quotepath=false fetch origin --progress --prune 
+2016-11-16 20:14:37,249 [ 145366]  DEBUG - toolbox.cache.PerRepoInfoCache - Got repo changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:14:37,249 [ 145366]  DEBUG - .gittoolbox.cache.CachedStatus - Repo status create [ms]: 0 
+2016-11-16 20:14:37,249 [ 145366]  DEBUG - .gittoolbox.cache.CachedStatus - State update [testing2]:
+new=RepoStatus{localHash=8085df18e3d692d8c12a6a7b0f66bd802a25ff8d, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}
+old=RepoStatus{localHash=8085df18e3d692d8c12a6a7b0f66bd802a25ff8d, remoteHash=36ab683390c56f98ba93d867a973f51dec3568a3, branch=refs/heads/master, remote=refs/remotes/origin/master} 
+2016-11-16 20:14:37,333 [ 145450]  DEBUG - .gittoolbox.cache.CachedStatus - Status update [ms]: 245 
+2016-11-16 20:14:37,333 [ 145450]  DEBUG - .gittoolbox.cache.CachedStatus - Updated stale status [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success > RevListCount{value=1, status=Success} ahead, RevListCount{value=1, status=Success} behind, status=Success 
+2016-11-16 20:14:37,334 [ 145451]  DEBUG - ittoolbox.status.BehindTracker - State changed [testing2]: RepoInfo{status=RepoStatus{localHash=8085df18e3d692d8c12a6a7b0f66bd802a25ff8d, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=1, status=Success} behind, status=Success} 
+2016-11-16 20:14:37,334 [ 145451]  DEBUG - ittoolbox.status.BehindTracker - Info update [testing2]: RepoInfo{status=RepoStatus{localHash=8085df18e3d692d8c12a6a7b0f66bd802a25ff8d, remoteHash=36ab683390c56f98ba93d867a973f51dec3568a3, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} > RepoInfo{status=RepoStatus{localHash=8085df18e3d692d8c12a6a7b0f66bd802a25ff8d, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=1, status=Success} behind, status=Success} 
+2016-11-16 20:14:37,339 [ 145456]  DEBUG - toolbox.cache.PerRepoInfoCache - Published cache changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:14:37,634 [ 145751]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,635 [ 145752]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 12 
+2016-11-16 20:14:37,635 [ 145752]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:14:37,635 [ 145752]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 12 
+2016-11-16 20:14:37,635 [ 145752]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,635 [ 145752]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 12 
+2016-11-16 20:14:37,635 [ 145752]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:14:37,635 [ 145752]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 12 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 12 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 12 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 13 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 13 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 13 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:14:37,636 [ 145753]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 13 
+2016-11-16 20:14:37,637 [ 145754]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,637 [ 145754]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 13 
+2016-11-16 20:14:37,637 [ 145754]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:14:37,637 [ 145754]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 13 
+2016-11-16 20:14:37,637 [ 145754]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,637 [ 145754]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 13 
+2016-11-16 20:14:37,637 [ 145754]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:14:37,637 [ 145754]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 13 
+2016-11-16 20:14:37,637 [ 145754]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 13 
+2016-11-16 20:14:37,638 [ 145755]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,638 [ 145755]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 13 
+2016-11-16 20:14:37,638 [ 145755]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:14:37,638 [ 145755]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 13 
+2016-11-16 20:14:37,638 [ 145755]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 13 
+2016-11-16 20:14:37,638 [ 145755]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,638 [ 145755]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 13 
+2016-11-16 20:14:37,638 [ 145755]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=1, status=Success} behind, status=Success 
+2016-11-16 20:14:37,638 [ 145755]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 14 
+2016-11-16 20:14:37,638 [ 145755]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,640 [ 145757]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,640 [ 145757]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 14 
+2016-11-16 20:14:37,640 [ 145757]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=1, status=Success} behind, status=Success 
+2016-11-16 20:14:37,640 [ 145757]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 14 
+2016-11-16 20:14:37,640 [ 145757]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,641 [ 145758]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,641 [ 145758]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,641 [ 145758]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,641 [ 145758]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,642 [ 145759]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,642 [ 145759]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,642 [ 145759]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,642 [ 145759]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,642 [ 145759]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,642 [ 145759]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,643 [ 145760]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,643 [ 145760]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,643 [ 145760]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,643 [ 145760]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,643 [ 145760]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,643 [ 145760]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,643 [ 145760]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,644 [ 145761]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,644 [ 145761]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,644 [ 145761]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 14 
+2016-11-16 20:14:37,644 [ 145761]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,644 [ 145761]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,644 [ 145761]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,644 [ 145761]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,645 [ 145762]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,645 [ 145762]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,645 [ 145762]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,645 [ 145762]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,645 [ 145762]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,645 [ 145762]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,645 [ 145762]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,645 [ 145762]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,646 [ 145763]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,646 [ 145763]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,646 [ 145763]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,646 [ 145763]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,647 [ 145764]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,647 [ 145764]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,647 [ 145764]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,647 [ 145764]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,647 [ 145764]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,647 [ 145764]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,647 [ 145764]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,647 [ 145764]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,648 [ 145765]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,648 [ 145765]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,648 [ 145765]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,648 [ 145765]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,648 [ 145765]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,648 [ 145765]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,649 [ 145766]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,649 [ 145766]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,650 [ 145767]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,650 [ 145767]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,650 [ 145767]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,650 [ 145767]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,651 [ 145768]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,651 [ 145768]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,651 [ 145768]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,651 [ 145768]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,651 [ 145768]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,651 [ 145768]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:37,652 [ 145769]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:37,652 [ 145769]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 15 
+2016-11-16 20:14:38,266 [ 146383]   INFO - t4idea.update.GitUpdateProcess - updateImpl: defining updaters... 
+2016-11-16 20:14:38,332 [ 146449]   INFO - t4idea.update.GitUpdateProcess - update| root=file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 ,updater=Rebase updater 
+2016-11-16 20:14:38,396 [ 146513]   INFO -    #git4idea.update.GitUpdater - isSaveNeeded No remote changes, save is not needed 
+2016-11-16 20:14:38,396 [ 146513]   INFO - t4idea.update.GitUpdateProcess - update| root=file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing ,updater=Rebase updater 
+2016-11-16 20:14:38,397 [ 146514]   INFO - t4idea.update.GitUpdateProcess - updateImpl: identifying if save is needed... 
+2016-11-16 20:14:38,397 [ 146514]   INFO - t4idea.update.GitUpdateProcess - update| root file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 needs save 
+2016-11-16 20:14:38,397 [ 146514]   INFO - t4idea.update.GitUpdateProcess - updateImpl: saving local changes... 
+2016-11-16 20:14:38,402 [ 146519]   INFO - dea.stash.GitStashChangesSaver - saving [file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2] 
+2016-11-16 20:14:38,402 [ 146519]   INFO - dea.stash.GitStashChangesSaver - Stashing changes from 'testing2'... 
+2016-11-16 20:14:38,403 [ 146520]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false stash save "Uncommitted changes before Update at 16.11.2016 20:14" 
+2016-11-16 20:14:39,523 [ 147640]   WARN - dea.stash.GitStashChangesSaver - stash file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2:  
+2016-11-16 20:14:39,523 [ 147640]   INFO - t4idea.update.GitUpdateProcess - updateImpl: updating... 
+2016-11-16 20:14:39,581 [ 147698]   INFO - t4idea.update.GitRebaseUpdater - doUpdate  
+2016-11-16 20:14:39,587 [ 147704]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false rebase origin/master 
+2016-11-16 20:14:40,883 [ 149000]   INFO -  #git4idea.commands.GitHandler - First, rewinding head to replay your work on top of it... 
+2016-11-16 20:14:41,184 [ 149301]   INFO -  #git4idea.commands.GitHandler - Applying: Changed 
+2016-11-16 20:14:41,257 [ 149374]   INFO -  #git4idea.commands.GitHandler - Using index info to reconstruct a base tree... 
+2016-11-16 20:14:41,257 [ 149374]   INFO -  #git4idea.commands.GitHandler - M	README.md 
+2016-11-16 20:14:41,303 [ 149420]   INFO -  #git4idea.commands.GitHandler - Falling back to patching base and 3-way merge... 
+2016-11-16 20:14:41,303 [ 149420]   INFO -  #git4idea.commands.GitHandler - Auto-merging README.md 
+2016-11-16 20:14:41,303 [ 149420]   INFO -  #git4idea.commands.GitHandler - CONFLICT (content): Merge conflict in README.md 
+2016-11-16 20:14:41,303 [ 149420]   INFO -  #git4idea.commands.GitHandler - Patch failed at 0001 Changed 
+2016-11-16 20:14:41,303 [ 149420]   INFO -  #git4idea.commands.GitHandler - The copy of the patch that failed is found in: .git/rebase-apply/patch 
+2016-11-16 20:14:41,303 [ 149420]   INFO -  #git4idea.commands.GitHandler - When you have resolved this problem, run "git rebase --continue". 
+2016-11-16 20:14:41,303 [ 149420]   INFO -  #git4idea.commands.GitHandler - If you prefer to skip this patch, run "git rebase --skip" instead. 
+2016-11-16 20:14:41,303 [ 149420]   INFO -  #git4idea.commands.GitHandler - To check out the original branch and stop rebasing, run "git rebase --abort". 
+2016-11-16 20:14:41,306 [ 149423]   INFO -  #git4idea.commands.GitHandler - error: Failed to merge in the changes. 
+2016-11-16 20:14:41,390 [ 149507]   INFO -    #git4idea.rebase.GitRebaser - handleRebaseFailure merge conflict 
+2016-11-16 20:14:45,123 [ 153240]   INFO - ellij.project.impl.ProjectImpl - 22 project components initialized in 23 ms 
+2016-11-16 20:14:45,124 [ 153241]   INFO - le.impl.ModuleManagerComponent - 0 module(s) loaded in 0 ms 
+2016-11-16 20:14:45,230 [ 153347]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false add --ignore-errors -- README.md 
+2016-11-16 20:14:45,293 [ 153410]   INFO -  #git4idea.commands.GitHandler - warning: LF will be replaced by CRLF in README.md.
+The file will have its original line endings in your working directory. 
+2016-11-16 20:14:45,390 [ 153507]   INFO - idea.merge.GitConflictResolver - merge no more unmerged files 
+2016-11-16 20:14:45,390 [ 153507]   INFO -    #git4idea.rebase.GitRebaser - continueRebase file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 --continue 
+2016-11-16 20:14:45,396 [ 153513]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false rebase --continue 
+2016-11-16 20:14:45,620 [ 153737]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:45,620 [ 153737]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 16 
+2016-11-16 20:14:46,456 [ 154573]   INFO -  #git4idea.commands.GitHandler - Applying: Changed 
+2016-11-16 20:14:46,456 [ 154573]   INFO -  #git4idea.commands.GitHandler - No changes - did you forget to use 'git add'? 
+2016-11-16 20:14:46,456 [ 154573]   INFO -  #git4idea.commands.GitHandler - If there is nothing left to stage, chances are that something else 
+2016-11-16 20:14:46,456 [ 154573]   INFO -  #git4idea.commands.GitHandler - already introduced the same changes; you might want to skip this patch. 
+2016-11-16 20:14:46,456 [ 154573]   INFO -  #git4idea.commands.GitHandler - When you have resolved this problem, run "git rebase --continue". 
+2016-11-16 20:14:46,456 [ 154573]   INFO -  #git4idea.commands.GitHandler - If you prefer to skip this patch, run "git rebase --skip" instead. 
+2016-11-16 20:14:46,457 [ 154574]   INFO -  #git4idea.commands.GitHandler - To check out the original branch and stop rebasing, run "git rebase --abort". 
+2016-11-16 20:14:46,490 [ 154607]   INFO -    #git4idea.rebase.GitRebaser - handleRebaseFailure no changes error detected 
+2016-11-16 20:14:46,614 [ 154731]   INFO -    #git4idea.rebase.GitRebaser - no changes confirmed. Skipping commit 8085df18e3d692d8c12a6a7b0f66bd802a25ff8d 
+2016-11-16 20:14:46,614 [ 154731]   INFO -    #git4idea.rebase.GitRebaser - continueRebase file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 --skip 
+2016-11-16 20:14:46,615 [ 154732]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false rebase --skip 
+2016-11-16 20:14:48,094 [ 156211]   INFO - t4idea.update.GitUpdateProcess - updating root file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 finished: SUCCESS_WITH_RESOLVED_CONFLICTS 
+2016-11-16 20:14:48,095 [ 156212]   INFO - idea.merge.GitConflictResolver - merge: no unmerged files 
+2016-11-16 20:14:48,095 [ 156212]   INFO - dea.stash.GitStashChangesSaver - load: conflicts resolved status is true in roots [] 
+2016-11-16 20:14:48,099 [ 156216]  DEBUG - toolbox.cache.PerRepoInfoCache - Got repo changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:14:48,099 [ 156216]  DEBUG - .gittoolbox.cache.CachedStatus - Repo status create [ms]: 0 
+2016-11-16 20:14:48,099 [ 156216]  DEBUG - .gittoolbox.cache.CachedStatus - State update [testing2]:
+new=RepoStatus{localHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}
+old=RepoStatus{localHash=8085df18e3d692d8c12a6a7b0f66bd802a25ff8d, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master} 
+2016-11-16 20:14:48,172 [ 156289]  DEBUG - .gittoolbox.cache.CachedStatus - Status update [ms]: 317 
+2016-11-16 20:14:48,172 [ 156289]  DEBUG - .gittoolbox.cache.CachedStatus - Updated stale status [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=1, status=Success} behind, status=Success > RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:14:48,173 [ 156290]  DEBUG - ittoolbox.status.BehindTracker - State changed [testing2]: RepoInfo{status=RepoStatus{localHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} 
+2016-11-16 20:14:48,173 [ 156290]  DEBUG - ittoolbox.status.BehindTracker - Info update [testing2]: RepoInfo{status=RepoStatus{localHash=8085df18e3d692d8c12a6a7b0f66bd802a25ff8d, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=1, status=Success} behind, status=Success} > RepoInfo{status=RepoStatus{localHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} 
+2016-11-16 20:14:48,173 [ 156290]  DEBUG - toolbox.cache.PerRepoInfoCache - Published cache changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:14:48,484 [ 156601]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,485 [ 156602]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 16 
+2016-11-16 20:14:48,485 [ 156602]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:14:48,485 [ 156602]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 16 
+2016-11-16 20:14:48,485 [ 156602]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,485 [ 156602]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 16 
+2016-11-16 20:14:48,485 [ 156602]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:14:48,485 [ 156602]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 16 
+2016-11-16 20:14:48,486 [ 156603]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,486 [ 156603]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 16 
+2016-11-16 20:14:48,486 [ 156603]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:14:48,486 [ 156603]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 16 
+2016-11-16 20:14:48,486 [ 156603]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,486 [ 156603]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 16 
+2016-11-16 20:14:48,486 [ 156603]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:14:48,486 [ 156603]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 16 
+2016-11-16 20:14:48,487 [ 156604]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,487 [ 156604]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 17 
+2016-11-16 20:14:48,487 [ 156604]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:14:48,487 [ 156604]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 17 
+2016-11-16 20:14:48,487 [ 156604]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,487 [ 156604]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 17 
+2016-11-16 20:14:48,487 [ 156604]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:14:48,487 [ 156604]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 17 
+2016-11-16 20:14:48,488 [ 156605]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,488 [ 156605]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 17 
+2016-11-16 20:14:48,488 [ 156605]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:14:48,488 [ 156605]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 17 
+2016-11-16 20:14:48,488 [ 156605]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 17 
+2016-11-16 20:14:48,488 [ 156605]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,488 [ 156605]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 17 
+2016-11-16 20:14:48,488 [ 156605]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:14:48,488 [ 156605]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 17 
+2016-11-16 20:14:48,488 [ 156605]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 17 
+2016-11-16 20:14:48,489 [ 156606]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,489 [ 156606]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 17 
+2016-11-16 20:14:48,489 [ 156606]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:14:48,489 [ 156606]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 18 
+2016-11-16 20:14:48,489 [ 156606]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,490 [ 156607]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,490 [ 156607]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 18 
+2016-11-16 20:14:48,490 [ 156607]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:14:48,490 [ 156607]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 18 
+2016-11-16 20:14:48,490 [ 156607]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,492 [ 156609]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,492 [ 156609]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,492 [ 156609]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,492 [ 156609]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,492 [ 156609]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,492 [ 156609]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,493 [ 156610]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,493 [ 156610]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,493 [ 156610]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 0 
+2016-11-16 20:14:48,493 [ 156610]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,494 [ 156611]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,494 [ 156611]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,494 [ 156611]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,494 [ 156611]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,494 [ 156611]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,494 [ 156611]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,495 [ 156612]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,495 [ 156612]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,495 [ 156612]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,495 [ 156612]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 18 
+2016-11-16 20:14:48,496 [ 156613]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,496 [ 156613]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,496 [ 156613]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,496 [ 156613]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,497 [ 156614]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,497 [ 156614]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,497 [ 156614]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,497 [ 156614]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,498 [ 156615]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,498 [ 156615]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,498 [ 156615]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,498 [ 156615]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,499 [ 156616]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,499 [ 156616]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,499 [ 156616]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,499 [ 156616]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,500 [ 156617]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,500 [ 156617]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,500 [ 156617]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,500 [ 156617]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,500 [ 156617]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,500 [ 156617]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,500 [ 156617]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,501 [ 156618]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,501 [ 156618]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,501 [ 156618]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,501 [ 156618]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,501 [ 156618]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,502 [ 156619]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,502 [ 156619]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,502 [ 156619]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,502 [ 156619]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,504 [ 156621]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,504 [ 156621]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,504 [ 156621]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,504 [ 156621]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 19 
+2016-11-16 20:14:48,505 [ 156622]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,505 [ 156622]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 20 
+2016-11-16 20:14:48,505 [ 156622]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,505 [ 156622]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 20 
+2016-11-16 20:14:48,505 [ 156622]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,505 [ 156622]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 20 
+2016-11-16 20:14:48,506 [ 156623]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:14:48,506 [ 156623]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 20 
+2016-11-16 20:15:12,629 [ 180746]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,629 [ 180746]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 20 
+2016-11-16 20:15:12,639 [ 180756]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,639 [ 180756]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 20 
+2016-11-16 20:15:12,639 [ 180756]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:15:12,640 [ 180757]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 21 
+2016-11-16 20:15:12,640 [ 180757]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,641 [ 180758]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 21 
+2016-11-16 20:15:12,641 [ 180758]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,641 [ 180758]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 21 
+2016-11-16 20:15:12,642 [ 180759]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,642 [ 180759]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 21 
+2016-11-16 20:15:12,643 [ 180760]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,643 [ 180760]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 21 
+2016-11-16 20:15:12,643 [ 180760]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:15:12,643 [ 180760]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 21 
+2016-11-16 20:15:12,644 [ 180761]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,644 [ 180761]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 21 
+2016-11-16 20:15:12,644 [ 180761]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,644 [ 180761]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 21 
+2016-11-16 20:15:12,645 [ 180762]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,645 [ 180762]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 22 
+2016-11-16 20:15:12,646 [ 180763]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:15:12,646 [ 180763]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 22 
+2016-11-16 20:15:12,646 [ 180763]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,646 [ 180763]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 22 
+2016-11-16 20:15:12,647 [ 180764]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,647 [ 180764]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 22 
+2016-11-16 20:15:12,648 [ 180765]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,648 [ 180765]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 22 
+2016-11-16 20:15:12,648 [ 180765]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:12,648 [ 180765]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 23 
+2016-11-16 20:15:12,649 [ 180766]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 23 
+2016-11-16 20:15:12,649 [ 180766]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,649 [ 180766]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 23 
+2016-11-16 20:15:12,650 [ 180767]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,650 [ 180767]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 23 
+2016-11-16 20:15:12,650 [ 180767]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,650 [ 180767]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 23 
+2016-11-16 20:15:12,651 [ 180768]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,651 [ 180768]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 23 
+2016-11-16 20:15:12,651 [ 180768]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,651 [ 180768]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 23 
+2016-11-16 20:15:12,652 [ 180769]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,652 [ 180769]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 23 
+2016-11-16 20:15:12,652 [ 180769]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:12,652 [ 180769]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 23 
+2016-11-16 20:15:12,653 [ 180770]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 23 
+2016-11-16 20:15:12,653 [ 180770]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,653 [ 180770]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:12,653 [ 180770]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,653 [ 180770]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:12,654 [ 180771]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,654 [ 180771]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:12,654 [ 180771]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:12,654 [ 180771]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:13,032 [ 181149]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,032 [ 181149]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:13,035 [ 181152]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,035 [ 181152]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 24 
+2016-11-16 20:15:13,035 [ 181152]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:15:13,035 [ 181152]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:13,036 [ 181153]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,036 [ 181153]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:13,036 [ 181153]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,036 [ 181153]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:13,037 [ 181154]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,037 [ 181154]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 24 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 24 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 24 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:15:13,038 [ 181155]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,039 [ 181156]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,039 [ 181156]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,039 [ 181156]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,039 [ 181156]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,039 [ 181156]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,039 [ 181156]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 25 
+2016-11-16 20:15:13,039 [ 181156]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:13,040 [ 181157]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 25 
+2016-11-16 20:15:13,040 [ 181157]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,040 [ 181157]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,040 [ 181157]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,040 [ 181157]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,040 [ 181157]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,040 [ 181157]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,040 [ 181157]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,041 [ 181158]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,041 [ 181158]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,041 [ 181158]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,041 [ 181158]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,041 [ 181158]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,041 [ 181158]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 25 
+2016-11-16 20:15:13,042 [ 181159]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:13,042 [ 181159]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 25 
+2016-11-16 20:15:13,042 [ 181159]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,042 [ 181159]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,042 [ 181159]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,042 [ 181159]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,042 [ 181159]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,042 [ 181159]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,042 [ 181159]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,043 [ 181160]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,043 [ 181160]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 25 
+2016-11-16 20:15:13,363 [ 181480]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,363 [ 181480]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 26 
+2016-11-16 20:15:13,720 [ 181837]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:13,720 [ 181837]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 26 
+2016-11-16 20:15:14,541 [ 182658]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:14,541 [ 182658]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 26 
+2016-11-16 20:15:14,858 [ 182975]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:14,858 [ 182975]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 26 
+2016-11-16 20:15:18,633 [ 186750]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false commit --only -F C:\Users\Lukasz_Zielinski\AppData\Local\Temp\git-commit-msg-.txt -- README.md 
+2016-11-16 20:15:18,732 [ 186849]   INFO -  #git4idea.commands.GitHandler - [master 80b0a70] Changed
+ 1 file changed, 3 insertions(+), 1 deletion(-) 
+2016-11-16 20:15:18,735 [ 186852]  DEBUG - toolbox.cache.PerRepoInfoCache - Got repo changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:15:18,736 [ 186853]  DEBUG - .gittoolbox.cache.CachedStatus - Repo status create [ms]: 0 
+2016-11-16 20:15:18,736 [ 186853]  DEBUG - .gittoolbox.cache.CachedStatus - State update [testing2]:
+new=RepoStatus{localHash=80b0a709c7dcfd9388cba06bb82283a2a3ff58c7, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}
+old=RepoStatus{localHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master} 
+2016-11-16 20:15:18,827 [ 186944]  DEBUG - .gittoolbox.cache.CachedStatus - Status update [ms]: 408 
+2016-11-16 20:15:18,827 [ 186944]  DEBUG - .gittoolbox.cache.CachedStatus - Updated stale status [testing2]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success > RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:18,827 [ 186944]  DEBUG - ittoolbox.status.BehindTracker - State changed [testing2]: RepoInfo{status=RepoStatus{localHash=80b0a709c7dcfd9388cba06bb82283a2a3ff58c7, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} 
+2016-11-16 20:15:18,828 [ 186945]  DEBUG - ittoolbox.status.BehindTracker - Info update [testing2]: RepoInfo{status=RepoStatus{localHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} > RepoInfo{status=RepoStatus{localHash=80b0a709c7dcfd9388cba06bb82283a2a3ff58c7, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} 
+2016-11-16 20:15:18,828 [ 186945]  DEBUG - toolbox.cache.PerRepoInfoCache - Published cache changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:15:19,131 [ 187248]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:19,132 [ 187249]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 27 
+2016-11-16 20:15:19,132 [ 187249]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:15:19,132 [ 187249]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 27 
+2016-11-16 20:15:19,133 [ 187250]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 1 
+2016-11-16 20:15:19,133 [ 187250]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 27 
+2016-11-16 20:15:19,133 [ 187250]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:15:19,133 [ 187250]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 27 
+2016-11-16 20:15:19,134 [ 187251]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,134 [ 187251]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 27 
+2016-11-16 20:15:19,134 [ 187251]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:15:19,134 [ 187251]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 28 
+2016-11-16 20:15:19,135 [ 187252]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,135 [ 187252]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 28 
+2016-11-16 20:15:19,135 [ 187252]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:15:19,135 [ 187252]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 28 
+2016-11-16 20:15:19,136 [ 187253]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,136 [ 187253]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 28 
+2016-11-16 20:15:19,136 [ 187253]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:15:19,136 [ 187253]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 28 
+2016-11-16 20:15:19,137 [ 187254]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,137 [ 187254]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 28 
+2016-11-16 20:15:19,137 [ 187254]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:15:19,137 [ 187254]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 28 
+2016-11-16 20:15:19,138 [ 187255]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,138 [ 187255]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 29 
+2016-11-16 20:15:19,139 [ 187256]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:19,139 [ 187256]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 29 
+2016-11-16 20:15:19,139 [ 187256]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 29 
+2016-11-16 20:15:19,139 [ 187256]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,140 [ 187257]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 29 
+2016-11-16 20:15:19,140 [ 187257]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:19,140 [ 187257]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 30 
+2016-11-16 20:15:19,140 [ 187257]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 30 
+2016-11-16 20:15:19,141 [ 187258]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,141 [ 187258]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 30 
+2016-11-16 20:15:19,141 [ 187258]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:19,141 [ 187258]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 30 
+2016-11-16 20:15:19,141 [ 187258]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 30 
+2016-11-16 20:15:19,143 [ 187260]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,143 [ 187260]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 31 
+2016-11-16 20:15:19,143 [ 187260]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:19,143 [ 187260]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 31 
+2016-11-16 20:15:19,143 [ 187260]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 31 
+2016-11-16 20:15:19,145 [ 187262]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,146 [ 187263]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 31 
+2016-11-16 20:15:19,146 [ 187263]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,146 [ 187263]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 31 
+2016-11-16 20:15:19,146 [ 187263]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,146 [ 187263]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 31 
+2016-11-16 20:15:19,147 [ 187264]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,147 [ 187264]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 31 
+2016-11-16 20:15:19,148 [ 187265]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,148 [ 187265]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 31 
+2016-11-16 20:15:19,148 [ 187265]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,148 [ 187265]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 31 
+2016-11-16 20:15:19,149 [ 187266]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,149 [ 187266]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 31 
+2016-11-16 20:15:19,149 [ 187266]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,149 [ 187266]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,149 [ 187266]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,150 [ 187267]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,150 [ 187267]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,150 [ 187267]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,151 [ 187268]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,151 [ 187268]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,151 [ 187268]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,151 [ 187268]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,152 [ 187269]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,152 [ 187269]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,152 [ 187269]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,152 [ 187269]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,153 [ 187270]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,153 [ 187270]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,153 [ 187270]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,153 [ 187270]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,154 [ 187271]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,154 [ 187271]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,154 [ 187271]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,154 [ 187271]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,155 [ 187272]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,155 [ 187272]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,155 [ 187272]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,155 [ 187272]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,156 [ 187273]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,156 [ 187273]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 32 
+2016-11-16 20:15:19,156 [ 187273]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,156 [ 187273]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,157 [ 187274]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,157 [ 187274]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,157 [ 187274]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,157 [ 187274]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,157 [ 187274]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,157 [ 187274]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,158 [ 187275]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,158 [ 187275]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,159 [ 187276]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,159 [ 187276]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,159 [ 187276]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,160 [ 187277]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,160 [ 187277]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,160 [ 187277]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,161 [ 187278]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,161 [ 187278]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,161 [ 187278]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,161 [ 187278]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,162 [ 187279]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,162 [ 187279]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 33 
+2016-11-16 20:15:19,510 [ 187627]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,510 [ 187627]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 33 
+2016-11-16 20:15:19,510 [ 187627]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:15:19,510 [ 187627]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 34 
+2016-11-16 20:15:19,511 [ 187628]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,511 [ 187628]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 34 
+2016-11-16 20:15:19,511 [ 187628]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,511 [ 187628]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 34 
+2016-11-16 20:15:19,513 [ 187630]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,513 [ 187630]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 34 
+2016-11-16 20:15:19,514 [ 187631]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,514 [ 187631]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 34 
+2016-11-16 20:15:19,514 [ 187631]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:15:19,514 [ 187631]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 34 
+2016-11-16 20:15:19,515 [ 187632]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,515 [ 187632]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 34 
+2016-11-16 20:15:19,516 [ 187633]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,516 [ 187633]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 34 
+2016-11-16 20:15:19,516 [ 187633]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,517 [ 187634]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 34 
+2016-11-16 20:15:19,517 [ 187634]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:15:19,517 [ 187634]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 35 
+2016-11-16 20:15:19,517 [ 187634]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,517 [ 187634]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 35 
+2016-11-16 20:15:19,518 [ 187635]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,518 [ 187635]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 35 
+2016-11-16 20:15:19,518 [ 187635]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,519 [ 187636]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 35 
+2016-11-16 20:15:19,519 [ 187636]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:19,519 [ 187636]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 35 
+2016-11-16 20:15:19,519 [ 187636]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 35 
+2016-11-16 20:15:19,519 [ 187636]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,520 [ 187637]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 35 
+2016-11-16 20:15:19,520 [ 187637]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,520 [ 187637]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 35 
+2016-11-16 20:15:19,520 [ 187637]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,520 [ 187637]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 35 
+2016-11-16 20:15:19,521 [ 187638]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,521 [ 187638]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 36 
+2016-11-16 20:15:19,522 [ 187639]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,522 [ 187639]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 36 
+2016-11-16 20:15:19,523 [ 187640]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,523 [ 187640]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 36 
+2016-11-16 20:15:19,523 [ 187640]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:15:19,523 [ 187640]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 36 
+2016-11-16 20:15:19,523 [ 187640]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 36 
+2016-11-16 20:15:19,524 [ 187641]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,524 [ 187641]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 36 
+2016-11-16 20:15:19,525 [ 187642]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,525 [ 187642]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 36 
+2016-11-16 20:15:19,525 [ 187642]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,525 [ 187642]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 36 
+2016-11-16 20:15:19,526 [ 187643]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:15:19,526 [ 187643]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 37 
+2016-11-16 20:16:22,444 [ 250561]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,444 [ 250561]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 37 
+2016-11-16 20:16:22,889 [ 251006]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,890 [ 251007]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 37 
+2016-11-16 20:16:22,890 [ 251007]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:16:22,890 [ 251007]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 37 
+2016-11-16 20:16:22,891 [ 251008]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,891 [ 251008]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 37 
+2016-11-16 20:16:22,891 [ 251008]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,892 [ 251009]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 37 
+2016-11-16 20:16:22,894 [ 251011]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,894 [ 251011]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 38 
+2016-11-16 20:16:22,896 [ 251013]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,896 [ 251013]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 38 
+2016-11-16 20:16:22,896 [ 251013]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:16:22,896 [ 251013]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 38 
+2016-11-16 20:16:22,896 [ 251013]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,897 [ 251014]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 38 
+2016-11-16 20:16:22,898 [ 251015]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,898 [ 251015]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 38 
+2016-11-16 20:16:22,899 [ 251016]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,899 [ 251016]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 38 
+2016-11-16 20:16:22,899 [ 251016]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:16:22,899 [ 251016]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 39 
+2016-11-16 20:16:22,900 [ 251017]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,900 [ 251017]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 39 
+2016-11-16 20:16:22,901 [ 251018]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,901 [ 251018]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 39 
+2016-11-16 20:16:22,902 [ 251019]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,902 [ 251019]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 39 
+2016-11-16 20:16:22,903 [ 251020]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:16:22,903 [ 251020]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 39 
+2016-11-16 20:16:22,903 [ 251020]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 40 
+2016-11-16 20:16:22,904 [ 251021]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,904 [ 251021]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 40 
+2016-11-16 20:16:22,905 [ 251022]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,905 [ 251022]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 40 
+2016-11-16 20:16:22,905 [ 251022]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,905 [ 251022]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 40 
+2016-11-16 20:16:22,906 [ 251023]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,906 [ 251023]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 40 
+2016-11-16 20:16:22,907 [ 251024]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,908 [ 251025]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 40 
+2016-11-16 20:16:22,909 [ 251026]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,909 [ 251026]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 40 
+2016-11-16 20:16:22,909 [ 251026]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:16:22,910 [ 251027]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 41 
+2016-11-16 20:16:22,910 [ 251027]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 41 
+2016-11-16 20:16:22,911 [ 251028]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,911 [ 251028]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 41 
+2016-11-16 20:16:22,911 [ 251028]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 2 
+2016-11-16 20:16:22,911 [ 251028]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 41 
+2016-11-16 20:16:22,912 [ 251029]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:22,912 [ 251029]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 41 
+2016-11-16 20:16:22,913 [ 251030]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:22,914 [ 251031]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 41 
+2016-11-16 20:16:31,620 [ 259737]   INFO -    #git4idea.update.GitFetcher - fetching C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:16:31,620 [ 259737]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false fetch origin --progress --prune 
+2016-11-16 20:16:32,736 [ 260853]   INFO -  #git4idea.commands.GitHandler - remote: Counting objects: 6, done. 
+2016-11-16 20:16:32,736 [ 260853]   INFO -  #git4idea.commands.GitHandler - remote: Compressing objects: 100% (5/5), done. 
+2016-11-16 20:16:32,736 [ 260853]   INFO -  #git4idea.commands.GitHandler - remote: Total 6 (delta 1), reused 6 (delta 1), pack-reused 0 
+2016-11-16 20:16:32,852 [ 260969]   INFO -  #git4idea.commands.GitHandler - From https://github.com/zielu/testing2 
+2016-11-16 20:16:32,852 [ 260969]   INFO -  #git4idea.commands.GitHandler - dcb460d..784b322  master     -> origin/master 
+2016-11-16 20:16:32,902 [ 261019]  DEBUG - toolbox.cache.PerRepoInfoCache - Got repo changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:16:32,902 [ 261019]  DEBUG - .gittoolbox.cache.CachedStatus - Repo status create [ms]: 0 
+2016-11-16 20:16:32,902 [ 261019]  DEBUG - .gittoolbox.cache.CachedStatus - State update [testing2]:
+new=RepoStatus{localHash=80b0a709c7dcfd9388cba06bb82283a2a3ff58c7, remoteHash=784b322d83551c532f416359553de3cad46ca2a4, branch=refs/heads/master, remote=refs/remotes/origin/master}
+old=RepoStatus{localHash=80b0a709c7dcfd9388cba06bb82283a2a3ff58c7, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master} 
+2016-11-16 20:16:32,971 [ 261088]  DEBUG - .gittoolbox.cache.CachedStatus - Status update [ms]: 477 
+2016-11-16 20:16:32,971 [ 261088]  DEBUG - .gittoolbox.cache.CachedStatus - Updated stale status [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success > RevListCount{value=1, status=Success} ahead, RevListCount{value=2, status=Success} behind, status=Success 
+2016-11-16 20:16:32,972 [ 261089]  DEBUG - ittoolbox.status.BehindTracker - State changed [testing2]: RepoInfo{status=RepoStatus{localHash=80b0a709c7dcfd9388cba06bb82283a2a3ff58c7, remoteHash=784b322d83551c532f416359553de3cad46ca2a4, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=2, status=Success} behind, status=Success} 
+2016-11-16 20:16:32,972 [ 261089]  DEBUG - ittoolbox.status.BehindTracker - Info update [testing2]: RepoInfo{status=RepoStatus{localHash=80b0a709c7dcfd9388cba06bb82283a2a3ff58c7, remoteHash=dcb460d790bc8ab26b15d5f098dfc0efc74ad8e6, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} > RepoInfo{status=RepoStatus{localHash=80b0a709c7dcfd9388cba06bb82283a2a3ff58c7, remoteHash=784b322d83551c532f416359553de3cad46ca2a4, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=2, status=Success} behind, status=Success} 
+2016-11-16 20:16:32,973 [ 261090]  DEBUG - toolbox.cache.PerRepoInfoCache - Published cache changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:16:33,278 [ 261395]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,279 [ 261396]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 42 
+2016-11-16 20:16:33,279 [ 261396]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:16:33,279 [ 261396]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 43 
+2016-11-16 20:16:33,280 [ 261397]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,280 [ 261397]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 43 
+2016-11-16 20:16:33,280 [ 261397]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:16:33,281 [ 261398]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 43 
+2016-11-16 20:16:33,282 [ 261399]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,282 [ 261399]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 43 
+2016-11-16 20:16:33,282 [ 261399]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:16:33,282 [ 261399]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 44 
+2016-11-16 20:16:33,283 [ 261400]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,283 [ 261400]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 44 
+2016-11-16 20:16:33,283 [ 261400]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:16:33,283 [ 261400]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 44 
+2016-11-16 20:16:33,285 [ 261402]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,285 [ 261402]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 44 
+2016-11-16 20:16:33,285 [ 261402]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:16:33,285 [ 261402]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 44 
+2016-11-16 20:16:33,286 [ 261403]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,286 [ 261403]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 45 
+2016-11-16 20:16:33,286 [ 261403]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:16:33,286 [ 261403]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 45 
+2016-11-16 20:16:33,287 [ 261404]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,288 [ 261405]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 45 
+2016-11-16 20:16:33,288 [ 261405]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:16:33,288 [ 261405]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 46 
+2016-11-16 20:16:33,288 [ 261405]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 46 
+2016-11-16 20:16:33,289 [ 261406]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,289 [ 261406]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 46 
+2016-11-16 20:16:33,290 [ 261407]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:16:33,290 [ 261407]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 47 
+2016-11-16 20:16:33,290 [ 261407]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 47 
+2016-11-16 20:16:33,291 [ 261408]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,292 [ 261409]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 47 
+2016-11-16 20:16:33,292 [ 261409]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=2, status=Success} behind, status=Success 
+2016-11-16 20:16:33,292 [ 261409]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 48 
+2016-11-16 20:16:33,292 [ 261409]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 48 
+2016-11-16 20:16:33,295 [ 261412]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,295 [ 261412]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 48 
+2016-11-16 20:16:33,296 [ 261413]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=2, status=Success} behind, status=Success 
+2016-11-16 20:16:33,296 [ 261413]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 49 
+2016-11-16 20:16:33,296 [ 261413]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 49 
+2016-11-16 20:16:33,299 [ 261416]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,299 [ 261416]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 49 
+2016-11-16 20:16:33,300 [ 261417]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,300 [ 261417]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 49 
+2016-11-16 20:16:33,301 [ 261418]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,302 [ 261419]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 49 
+2016-11-16 20:16:33,303 [ 261420]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,303 [ 261420]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 49 
+2016-11-16 20:16:33,304 [ 261421]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,304 [ 261421]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 50 
+2016-11-16 20:16:33,305 [ 261422]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,305 [ 261422]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 50 
+2016-11-16 20:16:33,306 [ 261423]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,306 [ 261423]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 50 
+2016-11-16 20:16:33,307 [ 261424]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,307 [ 261424]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 50 
+2016-11-16 20:16:33,308 [ 261425]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,308 [ 261425]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 50 
+2016-11-16 20:16:33,309 [ 261426]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,309 [ 261426]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 50 
+2016-11-16 20:16:33,310 [ 261427]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,310 [ 261427]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 50 
+2016-11-16 20:16:33,311 [ 261428]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,311 [ 261428]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,312 [ 261429]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,312 [ 261429]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,313 [ 261430]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,313 [ 261430]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,313 [ 261430]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,313 [ 261430]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,314 [ 261431]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,314 [ 261431]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,315 [ 261432]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,315 [ 261432]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,315 [ 261432]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,315 [ 261432]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,316 [ 261433]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,316 [ 261433]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,316 [ 261433]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,317 [ 261434]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,317 [ 261434]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,317 [ 261434]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,318 [ 261435]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,318 [ 261435]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,318 [ 261435]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,318 [ 261435]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 51 
+2016-11-16 20:16:33,318 [ 261435]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,318 [ 261435]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 52 
+2016-11-16 20:16:33,319 [ 261436]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,319 [ 261436]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 52 
+2016-11-16 20:16:33,319 [ 261436]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,319 [ 261436]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 52 
+2016-11-16 20:16:33,321 [ 261438]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,321 [ 261438]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 52 
+2016-11-16 20:16:33,321 [ 261438]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,321 [ 261438]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 52 
+2016-11-16 20:16:33,322 [ 261439]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,322 [ 261439]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 52 
+2016-11-16 20:16:33,322 [ 261439]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,322 [ 261439]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 52 
+2016-11-16 20:16:33,323 [ 261440]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,323 [ 261440]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 52 
+2016-11-16 20:16:33,323 [ 261440]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:33,323 [ 261440]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 52 
+2016-11-16 20:16:36,330 [ 264447]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false push --progress --porcelain origin refs/heads/master:master 
+2016-11-16 20:16:39,243 [ 267360]   INFO -  #git4idea.commands.GitHandler - error: failed to push some refs to 'https://github.com/zielu/testing2.git' 
+2016-11-16 20:16:39,243 [ 267360]   INFO -  #git4idea.commands.GitHandler - To https://github.com/zielu/testing2.git 
+2016-11-16 20:16:39,243 [ 267360]   INFO -  #git4idea.commands.GitHandler - hint: Updates were rejected because the tip of your current branch is behind 
+2016-11-16 20:16:39,243 [ 267360]   INFO -  #git4idea.commands.GitHandler - !	refs/heads/master:refs/heads/master	[rejected] (non-fast-forward) 
+2016-11-16 20:16:39,243 [ 267360]   INFO -  #git4idea.commands.GitHandler - Done 
+2016-11-16 20:16:39,243 [ 267360]   INFO -  #git4idea.commands.GitHandler - hint: its remote counterpart. Integrate the remote changes (e.g. 
+2016-11-16 20:16:39,243 [ 267360]   INFO -  #git4idea.commands.GitHandler - hint: 'git pull ...') before pushing again. 
+2016-11-16 20:16:39,243 [ 267360]   INFO -  #git4idea.commands.GitHandler - hint: See the 'Note about fast-forwards' in 'git push --help' for details. 
+2016-11-16 20:16:44,445 [ 272562]   INFO - t4idea.update.GitUpdateProcess - update started|REBASE 
+2016-11-16 20:16:44,452 [ 272569]   INFO - t4idea.update.GitUpdateProcess - checkRebaseInProgress: checking if there is an unfinished rebase process... 
+2016-11-16 20:16:44,452 [ 272569]   INFO - t4idea.update.GitUpdateProcess - isMergeInProgress: checking if there is an unfinished merge process... 
+2016-11-16 20:16:44,452 [ 272569]   INFO - t4idea.update.GitUpdateProcess - areUnmergedFiles: checking if there are unmerged files... 
+2016-11-16 20:16:44,586 [ 272703]   INFO - idea.merge.GitConflictResolver - merge: no unmerged files 
+2016-11-16 20:16:44,586 [ 272703]   INFO - t4idea.update.GitUpdateProcess - checking tracked branch configuration... 
+2016-11-16 20:16:44,586 [ 272703]   INFO -    #git4idea.update.GitFetcher - fetching C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:16:44,587 [ 272704]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false fetch origin --progress --prune 
+2016-11-16 20:16:45,599 [ 273716]   INFO -    #git4idea.update.GitFetcher - fetching C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing 
+2016-11-16 20:16:45,600 [ 273717]   INFO -  #git4idea.commands.GitHandler - [testing] git -c core.quotepath=false fetch origin --progress --prune 
+2016-11-16 20:16:46,573 [ 274690]   INFO - t4idea.update.GitUpdateProcess - updateImpl: defining updaters... 
+2016-11-16 20:16:46,637 [ 274754]   INFO - t4idea.update.GitUpdateProcess - update| root=file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 ,updater=Rebase updater 
+2016-11-16 20:16:46,698 [ 274815]   INFO -    #git4idea.update.GitUpdater - isSaveNeeded No remote changes, save is not needed 
+2016-11-16 20:16:46,698 [ 274815]   INFO - t4idea.update.GitUpdateProcess - update| root=file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing ,updater=Rebase updater 
+2016-11-16 20:16:46,698 [ 274815]   INFO - t4idea.update.GitRebaseUpdater - Trying fast-forward merge for file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 
+2016-11-16 20:16:46,756 [ 274873]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false merge origin/master --ff-only 
+2016-11-16 20:16:46,817 [ 274934]   INFO -  #git4idea.commands.GitHandler - fatal: Not possible to fast-forward, aborting. 
+2016-11-16 20:16:46,942 [ 275059]   INFO - t4idea.update.GitUpdateProcess - updateImpl: identifying if save is needed... 
+2016-11-16 20:16:46,942 [ 275059]   INFO - t4idea.update.GitUpdateProcess - update| root file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 needs save 
+2016-11-16 20:16:46,942 [ 275059]   INFO - t4idea.update.GitUpdateProcess - updateImpl: saving local changes... 
+2016-11-16 20:16:46,955 [ 275072]   INFO - dea.stash.GitStashChangesSaver - saving [file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2] 
+2016-11-16 20:16:46,955 [ 275072]   INFO - dea.stash.GitStashChangesSaver - Stashing changes from 'testing2'... 
+2016-11-16 20:16:46,956 [ 275073]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false stash save "Uncommitted changes before Update at 16.11.2016 20:16" 
+2016-11-16 20:16:48,715 [ 276832]   INFO -  #git4idea.commands.GitHandler - warning: LF will be replaced by CRLF in README.md. 
+2016-11-16 20:16:48,715 [ 276832]   INFO -  #git4idea.commands.GitHandler - The file will have its original line endings in your working directory. 
+2016-11-16 20:16:49,282 [ 277399]   INFO - t4idea.update.GitUpdateProcess - updateImpl: updating... 
+2016-11-16 20:16:49,346 [ 277463]   INFO - t4idea.update.GitRebaseUpdater - doUpdate  
+2016-11-16 20:16:49,346 [ 277463]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false rebase origin/master 
+2016-11-16 20:16:50,687 [ 278804]   INFO -  #git4idea.commands.GitHandler - First, rewinding head to replay your work on top of it... 
+2016-11-16 20:16:50,973 [ 279090]   INFO -  #git4idea.commands.GitHandler - Applying: Changed 
+2016-11-16 20:16:51,046 [ 279163]   INFO -  #git4idea.commands.GitHandler - Using index info to reconstruct a base tree... 
+2016-11-16 20:16:51,046 [ 279163]   INFO -  #git4idea.commands.GitHandler - M	README.md 
+2016-11-16 20:16:51,097 [ 279214]   INFO -  #git4idea.commands.GitHandler - error: Failed to merge in the changes. 
+2016-11-16 20:16:51,098 [ 279215]   INFO -  #git4idea.commands.GitHandler - Falling back to patching base and 3-way merge... 
+2016-11-16 20:16:51,098 [ 279215]   INFO -  #git4idea.commands.GitHandler - Auto-merging README.md 
+2016-11-16 20:16:51,098 [ 279215]   INFO -  #git4idea.commands.GitHandler - CONFLICT (content): Merge conflict in README.md 
+2016-11-16 20:16:51,098 [ 279215]   INFO -  #git4idea.commands.GitHandler - Patch failed at 0001 Changed 
+2016-11-16 20:16:51,098 [ 279215]   INFO -  #git4idea.commands.GitHandler - The copy of the patch that failed is found in: .git/rebase-apply/patch 
+2016-11-16 20:16:51,098 [ 279215]   INFO -  #git4idea.commands.GitHandler - When you have resolved this problem, run "git rebase --continue". 
+2016-11-16 20:16:51,098 [ 279215]   INFO -  #git4idea.commands.GitHandler - If you prefer to skip this patch, run "git rebase --skip" instead. 
+2016-11-16 20:16:51,098 [ 279215]   INFO -  #git4idea.commands.GitHandler - To check out the original branch and stop rebasing, run "git rebase --abort". 
+2016-11-16 20:16:51,161 [ 279278]   INFO -    #git4idea.rebase.GitRebaser - handleRebaseFailure merge conflict 
+2016-11-16 20:16:55,695 [ 283812]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false add --ignore-errors -- README.md 
+2016-11-16 20:16:55,759 [ 283876]   INFO -  #git4idea.commands.GitHandler - warning: LF will be replaced by CRLF in README.md.
+The file will have its original line endings in your working directory. 
+2016-11-16 20:16:55,848 [ 283965]   INFO - idea.merge.GitConflictResolver - merge no more unmerged files 
+2016-11-16 20:16:55,848 [ 283965]   INFO -    #git4idea.rebase.GitRebaser - continueRebase file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 --continue 
+2016-11-16 20:16:55,849 [ 283966]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false rebase --continue 
+2016-11-16 20:16:56,078 [ 284195]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:16:56,078 [ 284195]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 52 
+2016-11-16 20:16:56,902 [ 285019]   INFO -  #git4idea.commands.GitHandler - Applying: Changed 
+2016-11-16 20:16:57,386 [ 285503]   INFO - t4idea.update.GitUpdateProcess - updating root file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 finished: SUCCESS_WITH_RESOLVED_CONFLICTS 
+2016-11-16 20:16:57,386 [ 285503]   INFO - dea.stash.GitStashChangesSaver - loadRoot file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2 
+2016-11-16 20:16:57,387 [ 285504]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false stash pop 
+2016-11-16 20:16:59,594 [ 287711]  DEBUG - toolbox.cache.PerRepoInfoCache - Got repo changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:16:59,599 [ 287716]  DEBUG - .gittoolbox.cache.CachedStatus - Repo status create [ms]: 0 
+2016-11-16 20:16:59,599 [ 287716]  DEBUG - .gittoolbox.cache.CachedStatus - State update [testing2]:
+new=RepoStatus{localHash=d63eb088660050ee4cf4eefcab221c3aa70ee2e5, remoteHash=784b322d83551c532f416359553de3cad46ca2a4, branch=refs/heads/master, remote=refs/remotes/origin/master}
+old=RepoStatus{localHash=80b0a709c7dcfd9388cba06bb82283a2a3ff58c7, remoteHash=784b322d83551c532f416359553de3cad46ca2a4, branch=refs/heads/master, remote=refs/remotes/origin/master} 
+2016-11-16 20:16:59,695 [ 287812]   INFO - idea.merge.GitConflictResolver - merge: no unmerged files 
+2016-11-16 20:16:59,695 [ 287812]   INFO - dea.stash.GitStashChangesSaver - load: conflicts resolved status is true in roots [file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/testing2] 
+2016-11-16 20:16:59,700 [ 287817]  DEBUG - .gittoolbox.cache.CachedStatus - Status update [ms]: 578 
+2016-11-16 20:16:59,700 [ 287817]  DEBUG - .gittoolbox.cache.CachedStatus - Updated stale status [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=2, status=Success} behind, status=Success > RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:16:59,700 [ 287817]  DEBUG - ittoolbox.status.BehindTracker - State changed [testing2]: RepoInfo{status=RepoStatus{localHash=d63eb088660050ee4cf4eefcab221c3aa70ee2e5, remoteHash=784b322d83551c532f416359553de3cad46ca2a4, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} 
+2016-11-16 20:16:59,701 [ 287818]  DEBUG - ittoolbox.status.BehindTracker - Info update [testing2]: RepoInfo{status=RepoStatus{localHash=80b0a709c7dcfd9388cba06bb82283a2a3ff58c7, remoteHash=784b322d83551c532f416359553de3cad46ca2a4, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=2, status=Success} behind, status=Success} > RepoInfo{status=RepoStatus{localHash=d63eb088660050ee4cf4eefcab221c3aa70ee2e5, remoteHash=784b322d83551c532f416359553de3cad46ca2a4, branch=refs/heads/master, remote=refs/remotes/origin/master}, count=RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success} 
+2016-11-16 20:16:59,701 [ 287818]  DEBUG - toolbox.cache.PerRepoInfoCache - Published cache changed event: C:\Users\Lukasz_Zielinski\Documents\Private\IdeaTest\testing2 
+2016-11-16 20:17:00,007 [ 288124]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,008 [ 288125]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 53 
+2016-11-16 20:17:00,008 [ 288125]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:17:00,008 [ 288125]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 53 
+2016-11-16 20:17:00,008 [ 288125]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,008 [ 288125]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 53 
+2016-11-16 20:17:00,008 [ 288125]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:17:00,008 [ 288125]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 53 
+2016-11-16 20:17:00,009 [ 288126]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,009 [ 288126]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 53 
+2016-11-16 20:17:00,009 [ 288126]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:17:00,009 [ 288126]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 53 
+2016-11-16 20:17:00,009 [ 288126]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,009 [ 288126]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 54 
+2016-11-16 20:17:00,010 [ 288127]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:17:00,010 [ 288127]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 54 
+2016-11-16 20:17:00,010 [ 288127]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,010 [ 288127]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 54 
+2016-11-16 20:17:00,010 [ 288127]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:17:00,010 [ 288127]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 54 
+2016-11-16 20:17:00,010 [ 288127]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,010 [ 288127]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 54 
+2016-11-16 20:17:00,010 [ 288127]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:17:00,010 [ 288127]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 54 
+2016-11-16 20:17:00,011 [ 288128]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,011 [ 288128]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 54 
+2016-11-16 20:17:00,011 [ 288128]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:17:00,011 [ 288128]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 54 
+2016-11-16 20:17:00,011 [ 288128]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 54 
+2016-11-16 20:17:00,012 [ 288129]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,012 [ 288129]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 54 
+2016-11-16 20:17:00,012 [ 288129]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:17:00,012 [ 288129]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 55 
+2016-11-16 20:17:00,012 [ 288129]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 55 
+2016-11-16 20:17:00,012 [ 288129]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,012 [ 288129]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 55 
+2016-11-16 20:17:00,013 [ 288130]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:17:00,013 [ 288130]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 55 
+2016-11-16 20:17:00,013 [ 288130]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 55 
+2016-11-16 20:17:00,014 [ 288131]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,014 [ 288131]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 55 
+2016-11-16 20:17:00,014 [ 288131]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:17:00,014 [ 288131]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 55 
+2016-11-16 20:17:00,014 [ 288131]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 55 
+2016-11-16 20:17:00,015 [ 288132]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,015 [ 288132]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,016 [ 288133]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,016 [ 288133]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,016 [ 288133]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,016 [ 288133]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,017 [ 288134]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,017 [ 288134]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,017 [ 288134]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,017 [ 288134]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,018 [ 288135]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,018 [ 288135]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,018 [ 288135]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,018 [ 288135]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,018 [ 288135]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,018 [ 288135]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,019 [ 288136]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,019 [ 288136]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,019 [ 288136]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,019 [ 288136]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,020 [ 288137]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,020 [ 288137]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,020 [ 288137]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,020 [ 288137]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,021 [ 288138]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,021 [ 288138]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,021 [ 288138]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,021 [ 288138]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,021 [ 288138]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,021 [ 288138]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,022 [ 288139]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,022 [ 288139]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,022 [ 288139]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 3 
+2016-11-16 20:17:00,022 [ 288139]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 56 
+2016-11-16 20:17:00,023 [ 288140]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,023 [ 288140]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,023 [ 288140]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,023 [ 288140]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,024 [ 288141]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,024 [ 288141]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,024 [ 288141]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,024 [ 288141]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,024 [ 288141]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,024 [ 288141]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,025 [ 288142]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,025 [ 288142]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,025 [ 288142]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,025 [ 288142]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,026 [ 288143]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,026 [ 288143]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,026 [ 288143]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,026 [ 288143]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,028 [ 288145]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,028 [ 288145]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,028 [ 288145]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,028 [ 288145]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,029 [ 288146]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,029 [ 288146]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,043 [ 288160]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,043 [ 288160]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,043 [ 288160]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,043 [ 288160]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,044 [ 288161]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,044 [ 288161]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 57 
+2016-11-16 20:17:00,494 [ 288611]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,494 [ 288611]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 58 
+2016-11-16 20:17:00,494 [ 288611]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/nogit 
+2016-11-16 20:17:00,494 [ 288611]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 58 
+2016-11-16 20:17:00,495 [ 288612]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,496 [ 288613]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 58 
+2016-11-16 20:17:00,496 [ 288613]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,496 [ 288613]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 58 
+2016-11-16 20:17:00,500 [ 288617]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,500 [ 288617]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 59 
+2016-11-16 20:17:00,502 [ 288619]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,502 [ 288619]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 59 
+2016-11-16 20:17:00,502 [ 288619]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_1 
+2016-11-16 20:17:00,502 [ 288619]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 59 
+2016-11-16 20:17:00,503 [ 288620]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,503 [ 288620]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 59 
+2016-11-16 20:17:00,505 [ 288622]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,505 [ 288622]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 60 
+2016-11-16 20:17:00,507 [ 288624]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,507 [ 288624]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 60 
+2016-11-16 20:17:00,507 [ 288624]  DEBUG - ojectView.ProjectViewDecorator - No repo for: file://C:/Users/Lukasz_Zielinski/Documents/Private/IdeaTest/Test_2 
+2016-11-16 20:17:00,507 [ 288624]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 60 
+2016-11-16 20:17:00,508 [ 288625]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,508 [ 288625]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 60 
+2016-11-16 20:17:00,510 [ 288627]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,510 [ 288627]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 60 
+2016-11-16 20:17:00,512 [ 288629]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,512 [ 288629]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 61 
+2016-11-16 20:17:00,513 [ 288630]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing]: RevListCount{value=0, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:17:00,513 [ 288630]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 62 
+2016-11-16 20:17:00,513 [ 288630]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 62 
+2016-11-16 20:17:00,514 [ 288631]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,514 [ 288631]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 62 
+2016-11-16 20:17:00,516 [ 288633]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,516 [ 288633]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 62 
+2016-11-16 20:17:00,517 [ 288634]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,517 [ 288634]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 62 
+2016-11-16 20:17:00,518 [ 288635]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,518 [ 288635]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 62 
+2016-11-16 20:17:00,518 [ 288635]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,519 [ 288636]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 63 
+2016-11-16 20:17:00,520 [ 288637]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,520 [ 288637]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Repo find [ms]: 63 
+2016-11-16 20:17:00,520 [ 288637]  DEBUG - .gittoolbox.cache.CachedStatus - Status is still valid [testing2]: RevListCount{value=1, status=Success} ahead, RevListCount{value=0, status=Success} behind, status=Success 
+2016-11-16 20:17:00,520 [ 288637]  DEBUG - ojectView.ProjectViewDecorator - Decorate/Decoration [ms]: 63 
+2016-11-16 20:17:00,520 [ 288637]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 63 
+2016-11-16 20:17:00,521 [ 288638]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,521 [ 288638]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 63 
+2016-11-16 20:17:00,521 [ 288638]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,521 [ 288638]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 63 
+2016-11-16 20:17:00,522 [ 288639]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,522 [ 288639]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 64 
+2016-11-16 20:17:00,523 [ 288640]  DEBUG - ojectView.ProjectViewDecorator - Module check [ms]: 4 
+2016-11-16 20:17:00,523 [ 288640]  DEBUG - ojectView.ProjectViewDecorator - Decorate [ms]: 64 
+2016-11-16 20:17:07,918 [ 296035]   INFO -  #git4idea.commands.GitHandler - [testing2] git -c core.quotepath=false push --progress --porcelain origin refs/heads/master:master 
+2016-11-16 20:17:11,012 [ 299129]   INFO -  #git4idea.commands.GitHandler - Counting objects: 3, done. 
+2016-11-16 20:17:11,012 [ 299129]   INFO -  #git4idea.commands.GitHandler - Delta compression using up to 4 threads. 
+2016-11-16 20:17:11,014 [ 299131]   INFO -  #git4idea.commands.GitHandler - Compressing objects: 100% (3/3), done. 
+2016-11-16 20:17:11,014 [ 299131]   INFO -  #git4idea.commands.GitHandler - Writing objects: 100% (3/3), 339 bytes | 0 bytes/s, done. 
+2016-11-16 20:17:11,014 [ 299131]   INFO -  #git4idea.commands.GitHandler - Total 3 (delta 0), reused 0 (delta 0) 
+2016-11-16 20:17:12,294 [ 300411]   INFO -  #git4idea.commands.GitHandler - To https://github.com/zielu/testing2.git 
+2016-11-16 20:17:12,294 [ 300411]   INFO -  #git4idea.commands.GitHandler - refs/heads/master:refs/heads/master	784b322..d63eb08 
+2016-11-16 20:17:12,294 [ 300411]   INFO -  #git4idea.commands.GitHandler - Done 
+2016-11-16 20:17:31,927 [ 320044]  DEBUG - elu.gittoolbox.fetch.AutoFetch - Existing task cancelled 
+2016-11-16 20:17:31,927 [ 320044]  DEBUG - u.gittoolbox.GitToolBoxProject - Project closed 
+2016-11-16 20:17:31,972 [ 320089]   INFO - org.jetbrains.io.BuiltInServer - web server stopped 
+2016-11-16 20:17:31,976 [ 320093]   INFO - Types.impl.FileTypeManagerImpl - FileTypeManager: 22 auto-detected files
+Elapsed time on auto-detect: 11 ms 
+2016-11-16 20:17:31,979 [ 320096]   INFO - il.indexing.FileBasedIndexImpl - START INDEX SHUTDOWN 
+2016-11-16 20:17:31,989 [ 320106]   INFO - il.indexing.FileBasedIndexImpl - END INDEX SHUTDOWN 
+2016-11-16 20:17:31,989 [ 320106]   INFO - stubs.SerializationManagerImpl - START StubSerializationManager SHUTDOWN 
+2016-11-16 20:17:31,989 [ 320106]   INFO - stubs.SerializationManagerImpl - END StubSerializationManager SHUTDOWN 
+2016-11-16 20:17:31,990 [ 320107]   INFO - .history.utils.LocalHistoryLog - Checking local history storage... 
+2016-11-16 20:17:31,993 [ 320110]   INFO - .history.utils.LocalHistoryLog - Local history storage seems to be ok (took 0 sec) 
+2016-11-16 20:17:31,994 [ 320111]   INFO - .history.utils.LocalHistoryLog - Checking local history storage... 
+2016-11-16 20:17:31,995 [ 320112]   INFO - .history.utils.LocalHistoryLog - Local history storage seems to be ok (took 0 sec) 
+2016-11-16 20:17:32,064 [ 320181]   INFO - pl.local.NativeFileWatcherImpl - Watcher terminated with exit code 0 
+2016-11-16 20:17:32,064 [ 320181]   INFO - newvfs.persistent.PersistentFS - VFS dispose started 
+2016-11-16 20:17:32,077 [ 320194]   INFO - newvfs.persistent.PersistentFS - VFS dispose completed 
+2016-11-16 20:17:32,080 [ 320197]   INFO -        #com.intellij.idea.Main - ------------------------------------------------------ IDE SHUTDOWN ------------------------------------------------------ 
+2016-11-16 20:17:32,081 [ 320198]   INFO - org.jetbrains.io.BuiltInServer - web server stopped 
