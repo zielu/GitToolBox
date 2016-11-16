@@ -47,7 +47,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     private CachedStatus get(final GitRepository repository) {
         CachedStatus cachedStatus = behindStatuses.get(repository);
         if (cachedStatus == null) {
-            CachedStatus newStatus = CachedStatus.create();
+            CachedStatus newStatus = CachedStatus.create(repository);
             CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
             cachedStatus = foundStatus != null ? foundStatus : newStatus;
         }
@@ -66,7 +66,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
             }
             return cachedStatus;
         } else {
-            return CachedStatus.create();
+            return CachedStatus.create(repository);
         }
     }
 

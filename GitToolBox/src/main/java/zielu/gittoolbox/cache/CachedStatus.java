@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
+import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.LogWatch;
 
 class CachedStatus {
@@ -16,16 +17,18 @@ class CachedStatus {
     private final LogWatch statusUpdateWatch = LogWatch.create(LOG, "Status update");
     private final LogWatch repoStatusCreateWatch = LogWatch.create(LOG, "Repo status create");
     private final AtomicBoolean myInvalid = new AtomicBoolean(true);
+    private final String myRepoName;
     @Nullable
     private GitAheadBehindCount myCount;
     private RepoStatus myStatus;
     private RepoInfo myInfo = RepoInfo.empty();
 
-    private CachedStatus() {
+    private CachedStatus(String repoName) {
+        myRepoName = repoName;
     }
 
-    public static CachedStatus create() {
-        return new CachedStatus();
+    public static CachedStatus create(GitRepository repository) {
+        return new CachedStatus(GtUtil.name(repository));
     }
 
     @NotNull
@@ -36,7 +39,7 @@ class CachedStatus {
             RepoStatus currentStatus = RepoStatus.create(repo);
             repoStatusCreateWatch.finish();
             if (debug) {
-                LOG.debug("State update:\nnew=" + currentStatus + "\nold=" + myStatus);
+                LOG.debug("State update [" + myRepoName + "]:\nnew=" + currentStatus + "\nold=" + myStatus);
             }
 
             if (!Objects.equal(myStatus, currentStatus)) {
@@ -45,7 +48,7 @@ class CachedStatus {
                 myCount = calculator.aheadBehindStatus(repo);
                 statusUpdateWatch.finish();
                 if (debug) {
-                    LOG.debug("Updated stale status: " + oldCount + " > " + myCount);
+                    LOG.debug("Updated stale status [" + myRepoName + "]: " + oldCount + " > " + myCount);
                 }
                 myStatus = currentStatus;
                 myInfo = RepoInfo.create(myStatus, myCount);
@@ -53,13 +56,13 @@ class CachedStatus {
                 return Optional.of(myInfo);
             } else {
                 if (debug) {
-                    LOG.debug("Status did not change: " + myCount);
+                    LOG.debug("Status did not change [" + myRepoName + "]: " + myCount);
                 }
                 return Optional.empty();
             }
         } else {
             if (debug) {
-                LOG.debug("Status is still valid: " + myCount);
+                LOG.debug("Status is still valid [" + myRepoName + "]: " + myCount);
             }
             return Optional.empty();
         }
