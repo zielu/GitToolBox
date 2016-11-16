@@ -36,7 +36,7 @@ class CachedStatus {
             RepoStatus currentStatus = RepoStatus.create(repo);
             repoStatusCreateWatch.finish();
             if (debug) {
-                LOG.debug("Current state: " + currentStatus);
+                LOG.debug("State update:\nnew=" + currentStatus + "\nold=" + myStatus);
             }
 
             if (!Objects.equal(myStatus, currentStatus)) {

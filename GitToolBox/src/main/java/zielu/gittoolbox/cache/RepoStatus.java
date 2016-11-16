@@ -81,10 +81,10 @@ public class RepoStatus {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-            .add("branch", branch)
             .add("localHash", localHash)
-            .add("remote", remoteBranch)
             .add("remoteHash", remoteHash)
+            .add("branch", branch)
+            .add("remote", remoteBranch)
             .toString();
     }
 }
