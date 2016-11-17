@@ -44,13 +44,13 @@ public abstract class NodeDecorationBase implements NodeDecoration {
     }
 
     @NotNull
-    protected final String getStatusText() {
+    protected final StringBand getStatusText() {
         String branch = getBranchText();
         String count = getCountText();
         StringBand status = new StringBand(branch);
         if (count != null) {
             status.append(" ").append(count);
         }
-        return status.toString();
+        return status;
     }
 }

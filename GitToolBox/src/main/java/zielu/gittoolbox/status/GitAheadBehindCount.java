@@ -1,5 +1,8 @@
 package zielu.gittoolbox.status;
 
+import com.intellij.vcs.log.Hash;
+import org.jetbrains.annotations.Nullable;
+
 public class GitAheadBehindCount {
     public final RevListCount ahead;
     public final RevListCount behind;
@@ -13,8 +16,8 @@ public class GitAheadBehindCount {
         return new GitAheadBehindCount(ahead, behind);
     }
 
-    public static GitAheadBehindCount success(int ahead, int behind) {
-        return create(RevListCount.success(ahead), RevListCount.success(behind));
+    public static GitAheadBehindCount success(int ahead, @Nullable Hash aheadHash, int behind, @Nullable Hash behindHash) {
+        return create(RevListCount.success(ahead, aheadHash), RevListCount.success(behind, behindHash));
     }
 
     public static GitAheadBehindCount cancel() {

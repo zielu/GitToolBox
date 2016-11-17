@@ -47,11 +47,6 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
             public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
                 onCacheChange(info, repository);
             }
-
-            @Override
-            public void stateRefreshed(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-                onCacheChange(info, repository);
-            }
         });
         myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> runUpdateLater());
         myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {

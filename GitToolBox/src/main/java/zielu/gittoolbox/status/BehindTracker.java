@@ -62,14 +62,6 @@ public class BehindTracker extends AbstractProjectComponent {
                 }
                 onRepoChange(info, repository);
             }
-
-            @Override
-            public void stateRefreshed(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("State refreshed [" + GtUtil.name(repository) + "]: " + info);
-                }
-                onRepoChange(info, repository);
-            }
         });
     }
 

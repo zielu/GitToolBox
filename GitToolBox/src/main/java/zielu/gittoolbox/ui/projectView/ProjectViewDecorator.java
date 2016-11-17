@@ -51,7 +51,11 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
                         NodeDecoration decoration = decorationFactory.decorationFor(repo, countOptional);
                         boolean applied = decoration.apply(projectViewNode, presentation);
                         decorateWatch.elapsed("Decoration");
-                        presentation.setChanged(applied);
+                        //presentation.setChanged(applied);
+                    } else {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("No repo for: " + file);
+                        }
                     }
                 }
             }

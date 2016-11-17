@@ -38,4 +38,5 @@ version = "${version}"
 
 dependencies {
     compile 'org.jodd:jodd-core:3.7.1'
+    compile 'com.google.guava:guava:20.0'
 }

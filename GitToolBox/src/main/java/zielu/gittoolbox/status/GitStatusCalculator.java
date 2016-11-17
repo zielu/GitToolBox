@@ -2,9 +2,11 @@ package zielu.gittoolbox.status;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
 import git4idea.commands.GitCommand;
@@ -18,8 +20,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class GitStatusCalculator {
+    private final Logger LOG = Logger.getInstance(getClass());
+
     private final Project myProject;
     private final ProgressIndicator myIndicator;
 
@@ -54,12 +59,20 @@ public class GitStatusCalculator {
     }
 
     @NotNull
-    public GitAheadBehindCount aheadBehindStatus(GitRepository repository) {
+    public GitAheadBehindCount aheadBehindStatus(@NotNull GitRepository repository) {
         Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
         if (trackInfo.isPresent()) {
             return aheadBehindStatus(repository.getCurrentBranch(), trackInfo.get(), repository);
         }
         return GitAheadBehindCount.noRemote();
+    }
+
+    public GitAheadBehindCount aheadBehindStatus(@NotNull GitRepository repository, @Nullable Hash localHash, @Nullable Hash remoteHash) {
+        if (localHash != null && remoteHash != null) {
+            return doRevListLeftRight(localHash.asString(), remoteHash.asString(), repository);
+        } else {
+            return GitAheadBehindCount.noRemote();
+        }
     }
 
     private RevListCount behindStatus(GitLocalBranch currentBranch, GitBranchTrackInfo trackInfo, GitRepository repository) {
@@ -82,8 +95,9 @@ public class GitStatusCalculator {
     }
 
     @NotNull
-    private GitAheadBehindCount doRevListLeftRight(String localName, String remoteName, GitRepository repository) {
-        String branches = localName + "..." + remoteName;
+    private GitAheadBehindCount doRevListLeftRight(String localRef, String remoteRef, GitRepository repository) {
+        final boolean debug = LOG.isDebugEnabled();
+        String branches = localRef + "..." + remoteRef;
         final GitLineHandler handler = new GitLineHandler(myProject, repository.getRoot(), GitCommand.REV_LIST);
         handler.addParameters(branches, "--left-right");
         final GitRevListLeftRightCounter counter = new GitRevListLeftRightCounter();
@@ -91,10 +105,13 @@ public class GitStatusCalculator {
         GitTask task = new GitTask(myProject, handler, branches);
         task.setProgressIndicator(myIndicator);
         final AtomicReference<GitAheadBehindCount> result = new AtomicReference<GitAheadBehindCount>();
+        if (debug) {
+            LOG.debug("Executing count with refs: '" + branches + "'");
+        }
         task.execute(true, false, new GitTaskResultHandlerAdapter() {
             @Override
             protected void onSuccess() {
-                result.set(GitAheadBehindCount.success(counter.ahead(), counter.behind()));
+                result.set(GitAheadBehindCount.success(counter.ahead(), counter.aheadTop(), counter.behind(), counter.behindTop()));
             }
 
             @Override

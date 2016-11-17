@@ -33,7 +33,7 @@ public class LocationOnlyNodeDecoration extends NodeDecorationBase {
         if (config.showProjectViewLocationPath && StringUtils.isNotBlank(existingLocation)) {
             locationPath = existingLocation;
         }
-        String status = getStatusText();
+        StringBand status = getStatusText();
         StringBand location = new StringBand();
         if (config.showProjectViewStatusBeforeLocation) {
             location.append(status);
