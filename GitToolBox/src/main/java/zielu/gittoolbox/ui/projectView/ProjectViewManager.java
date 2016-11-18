@@ -35,11 +35,6 @@ public class ProjectViewManager implements Disposable, ProjectAware {
                                      @NotNull final GitRepository repository) {
                 refreshProjectView();
             }
-
-            @Override
-            public void stateRefreshed(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-                refreshProjectView();
-            }
         });
     }
 
