@@ -19,7 +19,8 @@
       <li><b>Status bar widget</b>
         <ul>
           <li>tooltip shows info for all repositories</li>
-          <li>popup menu allows fetching</li>
+          <li>popup menu - status refresh</li>
+          <li>popup menu - repository fetch</li>
         </ul>
       </li>
       <li><b>Auto fetch</b> -
@@ -63,6 +64,7 @@
       <h3>Changes is 16.3.4</h3>
       <ul>
         <li>Fixed stale Project View decorations (<a href="https://github.com/zielu/GitToolBox/issues/25">#25</a>)</li>
+        <li>Added 'Refresh status' status bar action (<a href="https://github.com/zielu/GitToolBox/issues/25">#25</a>)</li>
       </ul>
       <h3>Changes is 163.1</h3>
       <ul>
