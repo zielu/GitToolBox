@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.statusBar;
+package zielu.gittoolbox.ui.statusBar.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;

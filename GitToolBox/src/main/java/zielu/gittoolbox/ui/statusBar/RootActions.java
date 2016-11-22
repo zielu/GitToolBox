@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.CalledInAwt;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.ui.statusBar.actions.RefreshStatusAction;
 import zielu.gittoolbox.util.GtUtil;
 
 /**
@@ -26,20 +27,24 @@ public class RootActions extends DefaultActionGroup {
     @CalledInAwt
     public boolean update() {
         removeAll();
-        boolean updated = false;
         Collection<GitRepository> repositories = GitUtil.getRepositories(myProject);
         repositories = GtUtil.sort(repositories);
         List<GitRepository> repos = repositories.stream().filter(GtUtil::hasRemotes).collect(Collectors.toList());
-        if (repos.size() == 1) {
-            updated = true;
-            GitRepository repo = repos.get(0);
-            addAll(StatusBarActions.actionsFor(repo));
-        } else if (repos.size() > 1) {
-            updated = true;
+        add(new RefreshStatusAction());
+        if (hasRepositories(repos)) {
             addSeparator(ResBundle.getString("statusBar.menu.repositories.title"));
-            addAll(repos.stream().map(RepositoryActions::new).collect(Collectors.toList()));
+            if (repos.size() == 1) {
+                GitRepository repo = repos.get(0);
+                addAll(StatusBarActions.actionsFor(repo));
+            } else if (repos.size() > 1) {
+                addAll(repos.stream().map(RepositoryActions::new).collect(Collectors.toList()));
+            }
         }
-        return updated;
+        return true;
+    }
+
+    private boolean hasRepositories(Collection<GitRepository> repositories) {
+        return !repositories.isEmpty();
     }
 
     @Override
