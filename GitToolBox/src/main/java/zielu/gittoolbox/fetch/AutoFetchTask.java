@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfigForProject;
+import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
@@ -91,6 +92,7 @@ public class AutoFetchTask implements Runnable {
             Collection<GitRepository> fetched =
                 GtFetcher.builder().fetchAll().build(myProject, indicator).fetchRoots(repos);
             indicator.finishNonCancelableSection();
+            GitToolBoxProject.getInstance(myProject).perRepoStatusCache().refresh(fetched);
             LOG.debug("Finished auto-fetch");
             if (showNotifications) {
                 finishedNotification();

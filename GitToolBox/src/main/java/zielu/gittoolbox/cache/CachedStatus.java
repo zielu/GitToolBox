@@ -17,6 +17,7 @@ class CachedStatus {
     private final LogWatch statusUpdateWatch = LogWatch.create(LOG, "Status update");
     private final LogWatch repoStatusCreateWatch = LogWatch.create(LOG, "Repo status create");
     private final AtomicBoolean myInvalid = new AtomicBoolean(true);
+    private final AtomicBoolean myNew = new AtomicBoolean(true);
     private final String myRepoName;
     @Nullable
     private GitAheadBehindCount myCount;
@@ -34,6 +35,7 @@ class CachedStatus {
     @NotNull
     public synchronized Optional<RepoInfo> update(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator) {
         final boolean debug = LOG.isDebugEnabled();
+        myNew.set(false);
         if (myInvalid.get()) {
             repoStatusCreateWatch.start();
             RepoStatus currentStatus = RepoStatus.create(repo);
@@ -77,6 +79,10 @@ class CachedStatus {
 
     public boolean isInvalid() {
         return myInvalid.get();
+    }
+
+    public boolean isNew() {
+        return myNew.get();
     }
 
     @NotNull

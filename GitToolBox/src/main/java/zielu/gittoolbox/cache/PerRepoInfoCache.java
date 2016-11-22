@@ -13,7 +13,6 @@ import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -55,7 +54,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
             CachedStatus newStatus = CachedStatus.create(repository);
             CachedStatus foundStatus = myBehindStatuses.putIfAbsent(repository, newStatus);
             cachedStatus = foundStatus != null ? foundStatus : newStatus;
-            if (cachedStatus.isInvalid()) {
+            if (cachedStatus.isNew()) {
                 scheduleUpdate(repository);
             }
         }
@@ -138,7 +137,11 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     public void refreshAll() {
         LOG.info("Refreshing repositories statuses");
-        Collection<GitRepository> repositories = GitUtil.getRepositories(myProject);
+        refresh(GitUtil.getRepositories(myProject));
+    }
+
+    public void refresh(Iterable<GitRepository> repositories) {
+        LOG.info("Refreshing repositories statuses");
         repositories.forEach(this::scheduleRefresh);
     }
 
