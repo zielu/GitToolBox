@@ -75,6 +75,10 @@ class CachedStatus {
         myInvalid.set(true);
     }
 
+    public boolean isInvalid() {
+        return myInvalid.get();
+    }
+
     @NotNull
     public synchronized RepoInfo get() {
         return myInfo;

@@ -7,6 +7,7 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
@@ -54,28 +55,23 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
             CachedStatus newStatus = CachedStatus.create(repository);
             CachedStatus foundStatus = myBehindStatuses.putIfAbsent(repository, newStatus);
             cachedStatus = foundStatus != null ? foundStatus : newStatus;
+            if (cachedStatus.isInvalid()) {
+                scheduleUpdate(repository);
+            }
         }
         return cachedStatus;
     }
 
-    private CachedStatus updateAndGet(final GitRepository repository) {
+    private void update(GitRepository repository) {
         if (myActive.get()) {
-            CachedStatus cachedStatus = get(repository);
-            myApplication.runReadAction(() -> update(repository, cachedStatus));
-            return cachedStatus;
-        } else {
-            return CachedStatus.create(repository);
+            Optional<RepoInfo> updated = myApplication.runReadAction((Computable<Optional<RepoInfo>>) () -> get(repository).update(repository, myCalculator));
+            updated.ifPresent(repoInfo -> onRepoChanged(repository, repoInfo));
         }
-    }
-
-    private void update(GitRepository repository, CachedStatus status) {
-        Optional<RepoInfo> updated = status.update(repository, myCalculator);
-        updated.ifPresent(repoInfo -> onRepoChanged(repository, repoInfo));
     }
 
     @NotNull
     public RepoInfo getInfo(GitRepository repository) {
-        CachedStatus cachedStatus = updateAndGet(repository);
+        CachedStatus cachedStatus = get(repository);
         return cachedStatus.get();
     }
 
@@ -84,6 +80,20 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         myRepoChangeConnection.disconnect();
         myBehindStatuses.clear();
         myUpdateExecutor = null;
+    }
+
+    private void scheduleRefresh(@NotNull GitRepository repository) {
+        final boolean debug = LOG.isDebugEnabled();
+        if (myActive.get()) {
+            if (debug) {
+                LOG.debug("Scheduled refresh for: " + repository);
+            }
+            myUpdateExecutor.submit(new RefreshTask(repository));
+        } else {
+            if (debug) {
+                LOG.debug("Inactive - ignored scheduling refresh for " + repository);
+            }
+        }
     }
 
     private void scheduleUpdate(@NotNull GitRepository repository) {
@@ -95,7 +105,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
             myUpdateExecutor.submit(new UpdateTask(repository));
         } else {
             if (debug) {
-                LOG.debug("Inactive - ignored scheduling update for " + repository);
+                LOG.debug("Inactive - ignored updating refresh for " + repository);
             }
         }
     }
@@ -105,7 +115,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         if (LOG.isDebugEnabled()) {
             LOG.debug("Got repo changed event: " + repository);
         }
-        scheduleUpdate(repository);
+        scheduleRefresh(repository);
     }
 
     private void onRepoChanged(GitRepository repo, RepoInfo info) {
@@ -117,19 +127,19 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         }
     }
 
-    private void refreshNoSync(GitRepository repository) {
+    private synchronized void refreshSync(GitRepository repository) {
         get(repository).invalidate();
-        getInfo(repository);
+        update(repository);
     }
 
-    private synchronized void refresh(GitRepository repository) {
-        refreshNoSync(repository);
+    private synchronized void updateSync(GitRepository repository) {
+        update(repository);
     }
 
     public void refreshAll() {
         LOG.info("Refreshing repositories statuses");
         Collection<GitRepository> repositories = GitUtil.getRepositories(myProject);
-        repositories.forEach(this::scheduleUpdate);
+        repositories.forEach(this::scheduleRefresh);
     }
 
     @Override
@@ -149,6 +159,21 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         }
     }
 
+    private class RefreshTask implements Runnable {
+        private final GitRepository myRepository;
+
+        private RefreshTask(@NotNull GitRepository myRepository) {
+            this.myRepository = myRepository;
+        }
+
+        @Override
+        public void run() {
+            if (myActive.get()) {
+                refreshSync(myRepository);
+            }
+        }
+    }
+
     private class UpdateTask implements Runnable {
         private final GitRepository myRepository;
 
@@ -159,7 +184,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         @Override
         public void run() {
             if (myActive.get()) {
-                refresh(myRepository);
+                updateSync(myRepository);
             }
         }
     }
