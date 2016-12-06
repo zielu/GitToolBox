@@ -12,10 +12,12 @@ public class GitLock {
     }
 
     public void readLock() {
-        myVcs.getCommandLock().readLock().lock();
+        //issue #28
+        //myVcs.getCommandLock().readLock().lock();
     }
 
     public void readUnlock() {
-        myVcs.getCommandLock().readLock().unlock();
+        //issue #28
+        //myVcs.getCommandLock().readLock().unlock();
     }
 }
