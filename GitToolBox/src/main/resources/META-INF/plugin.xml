@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>163.2</version>
+  <version>163.2.1</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -61,9 +61,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 163.2</h3>
+      <h3>Changes is 163.2.1</h3>
       <ul>
-        <li>Status refresh fixes</li>
+        <li>Fixed freezes during interactive rebase (<a href="https://github.com/zielu/GitToolBox/issues/28">#28</a>)</li>
       </ul>
       <h3>Changes is 16.3.4</h3>
       <ul>
