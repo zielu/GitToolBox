@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>163.2.1</version>
+  <version>171.0</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -61,6 +61,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <h3>Changes is 171.0</h3>
+      <ul>
+        <li>2017 EAP compatibility</li>
+      </ul>
       <h3>Changes is 163.2.1</h3>
       <ul>
         <li>Fixed freezes during interactive rebase (<a href="https://github.com/zielu/GitToolBox/issues/28">#28</a>)</li>
@@ -93,7 +97,7 @@
   <depends>Git4Idea</depends>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="163.7743.44" until-build="163.*"/>
+  <idea-version since-build="171.2014.21" until-build="171.*"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
