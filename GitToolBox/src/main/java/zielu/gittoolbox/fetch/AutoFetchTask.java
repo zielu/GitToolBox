@@ -14,6 +14,7 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfigForProject;
@@ -29,6 +30,7 @@ public class AutoFetchTask implements Runnable {
     private final Logger LOG = Logger.getInstance(getClass());
     private final AutoFetch myParent;
     private final Project myProject;
+    private final AtomicBoolean myFetchInProgress = new AtomicBoolean();
 
     private final AtomicReference<NotificationHandle> lastNotification = new AtomicReference<NotificationHandle>();
 
@@ -89,20 +91,30 @@ public class AutoFetchTask implements Runnable {
         indicator.setIndeterminate(true);
         indicator.startNonCancelableSection();
         if (isEnabled()) {
-            Collection<GitRepository> fetched =
-                GtFetcher.builder().fetchAll().build(myProject, indicator).fetchRoots(repos);
-            indicator.finishNonCancelableSection();
-            GitToolBoxProject.getInstance(myProject).perRepoStatusCache().refresh(fetched);
-            LOG.debug("Finished auto-fetch");
-            if (showNotifications) {
-                finishedNotification();
+            if (myFetchInProgress.compareAndSet(false, true)) {
+                try {
+                    doFetch(repos, indicator);
+                } finally {
+                    indicator.finishNonCancelableSection();
+                    myFetchInProgress.compareAndSet(true, false);
+                }
+            } else {
+                LOG.info("Auto-fetch already in progress");
             }
         } else {
-            LOG.debug("Skipped auto-fetch");
+            LOG.debug("Auto-fetch inactive");
         }
         myParent.updateLastAutoFetchDate();
     }
 
+    private void doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
+        Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().build(myProject, indicator).fetchRoots(repos);
+        GitToolBoxProject.getInstance(myProject).perRepoStatusCache().refresh(fetched);
+        LOG.debug("Finished auto-fetch");
+        if (showNotifications) {
+            finishedNotification();
+        }
+    }
 
     @Override
     public void run() {
