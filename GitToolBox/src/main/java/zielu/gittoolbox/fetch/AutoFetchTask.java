@@ -76,7 +76,7 @@ public class AutoFetchTask implements Runnable {
         List<GitRepository> fetchable = strategy.fetchableRepositories(allRepos, myProject);
         List<GitRepository> toFetch = Lists.newArrayListWithCapacity(fetchable.size());
         for (GitRepository repository : fetchable) {
-            if (repository.getRoot().exists()) {
+            if (repository.getRoot().exists() && !repository.isRebaseInProgress()) {
                 toFetch.add(repository);
             }
         }
