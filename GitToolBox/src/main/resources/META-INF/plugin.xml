@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>171.0</version>
+  <version>171.1</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -61,9 +61,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 171.0</h3>
+      <h3>Changes is 171.1</h3>
       <ul>
-        <li>2017 EAP compatibility</li>
+        <li>Fixed excessive auto-fetch queuing (<a href="https://github.com/zielu/GitToolBox/issues/33">#33</a>)</li>
       </ul>
       <h3>Changes is 163.2.1</h3>
       <ul>
