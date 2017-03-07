@@ -1,11 +1,13 @@
 package zielu.gittoolbox.fetch;
 
+import com.intellij.compiler.server.BuildManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.DumbService.DumbModeListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +49,23 @@ public class AutoFetch implements Disposable, ProjectAware {
             public void exitDumbMode() {
                 LOG.debug("Exit dumb mode");
                 if (myActive.get()) {
+                    init();
+                }
+            }
+        });
+        myConnection.subscribe(BuildManagerListener.TOPIC, new BuildManagerListener() {
+            @Override
+            public void buildStarted(Project project, UUID sessionId, boolean isAutomake) {
+                LOG.debug("Build start");
+                if (myProject.equals(project)) {
+                    cancelCurrentTask();
+                }
+            }
+
+            @Override
+            public void buildFinished(Project project, UUID sessionId, boolean isAutomake) {
+                LOG.debug("Build finished");
+                if (myProject.equals(project) && myActive.get()) {
                     init();
                 }
             }
