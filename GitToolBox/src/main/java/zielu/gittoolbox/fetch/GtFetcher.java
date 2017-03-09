@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.DumbProgressIndicator;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
@@ -26,12 +27,14 @@ public class GtFetcher {
     private final Logger LOG = Logger.getInstance(getClass());
 
     private final Project myProject;
+    private final ProgressIndicator myProgress;
     private final GitFetcher myFetcher;
     private final GitRepositoryManager myRepositoryManager;
 
     private GtFetcher(@NotNull Project project, @NotNull ProgressIndicator progress, Builder builder) {
         myProject = Preconditions.checkNotNull(project, "Null Project");
-        myFetcher = new GitFetcher(myProject, Preconditions.checkNotNull(progress, "Null ProgressIndicator"), builder.fetchAll);
+        myProgress = progress;
+        myFetcher = new GitFetcher(myProject, DumbProgressIndicator.INSTANCE, builder.fetchAll);
         myRepositoryManager = GitUtil.getRepositoryManager(myProject);
     }
 

@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
@@ -14,7 +13,6 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfigForProject;
@@ -30,7 +28,6 @@ public class AutoFetchTask implements Runnable {
     private final Logger LOG = Logger.getInstance(getClass());
     private final AutoFetch myParent;
     private final Project myProject;
-    private final AtomicBoolean myFetchInProgress = new AtomicBoolean();
 
     private final AtomicReference<NotificationHandle> lastNotification = new AtomicReference<NotificationHandle>();
 
@@ -63,14 +60,6 @@ public class AutoFetchTask implements Runnable {
         }
     }
 
-    private boolean isSmartMode() {
-        return !DumbService.isDumb(myProject);
-    }
-
-    private boolean isEnabled() {
-        return myParent.isActive() && isSmartMode();
-    }
-
     private List<GitRepository> reposForFetch() {
         GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
         ImmutableList<GitRepository> allRepos = ImmutableList.copyOf(repositoryManager.getRepositories());
@@ -85,26 +74,31 @@ public class AutoFetchTask implements Runnable {
         return toFetch;
     }
 
-    private void doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
+    private boolean doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
         LOG.debug("Starting auto-fetch...");
         indicator.setText(title);
         indicator.setIndeterminate(true);
         indicator.startNonCancelableSection();
-        if (isEnabled()) {
-            if (myFetchInProgress.compareAndSet(false, true)) {
+        boolean result = false;
+        if (myParent.canAutoFetch()) {
+            if (myParent.fetchStart()) {
                 try {
                     doFetch(repos, indicator);
                 } finally {
                     indicator.finishNonCancelableSection();
-                    myFetchInProgress.compareAndSet(true, false);
+                    myParent.fetchFinish();
                 }
             } else {
                 LOG.info("Auto-fetch already in progress");
+                finishedWithoutFetch();
             }
+            result = true;
         } else {
             LOG.debug("Auto-fetch inactive");
+            finishedWithoutFetch();
         }
         myParent.updateLastAutoFetchDate();
+        return result;
     }
 
     private void doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
@@ -120,18 +114,20 @@ public class AutoFetchTask implements Runnable {
     public void run() {
         final List<GitRepository> repos = reposForFetch();
         boolean shouldFetch = !repos.isEmpty();
-        boolean enabled = isEnabled();
+        boolean enabled = myParent.canAutoFetch();
         if (shouldFetch && enabled) {
             AppUtil.invokeLaterIfNeeded(() -> GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(myProject),
                 ResBundle.getString("message.autoFetching"), false) {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
-                    doFetch(repos, indicator, getTitle());
+                    if (doFetch(repos, indicator, getTitle())) {
+                        myParent.scheduleNextTask();
+                    }
                 }
             }));
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Fetched skipped: shouldFetch=" + shouldFetch + ", enabled=" + enabled);
+                LOG.debug("Fetched skipped: shouldFetch=" + shouldFetch + ", canAutoFetch=" + enabled);
             }
             if (showNotifications) {
                 AppUtil.invokeLaterIfNeeded(this::finishedWithoutFetch);
