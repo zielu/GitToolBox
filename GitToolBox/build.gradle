@@ -5,7 +5,7 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.2.0"
+    id "org.jetbrains.intellij" version "0.2.5"
 }
 
 repositories {
@@ -37,6 +37,6 @@ idea {
 version = "${version}"
 
 dependencies {
-    compile 'org.jodd:jodd-core:3.7.1'
-    compile 'com.google.guava:guava:20.0'
+    compile 'org.jodd:jodd-core:3.8.1'
+    compile 'com.google.guava:guava:21.0'
 }
