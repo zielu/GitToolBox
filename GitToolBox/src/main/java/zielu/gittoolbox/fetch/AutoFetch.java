@@ -1,38 +1,43 @@
 package zielu.gittoolbox.fetch;
 
-import com.intellij.compiler.server.BuildManagerListener;
-import com.intellij.openapi.Disposable;
+import com.google.common.collect.Lists;
+import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.DumbService;
-import com.intellij.openapi.project.DumbService.DumbModeListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
-import java.util.UUID;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ConfigNotifier;
 import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.GitToolBoxConfigForProject;
-import zielu.gittoolbox.ProjectAware;
 
-public class AutoFetch implements Disposable, ProjectAware {
+public class AutoFetch extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
 
     private final AtomicLong myLastAutoFetch = new AtomicLong();
     private final AtomicBoolean myActive = new AtomicBoolean();
-    private final Project myProject;
-    private final MessageBusConnection myConnection;
-    private final AutoFetchState myState = new AutoFetchState();
+    private MessageBusConnection myConnection;
 
     private ScheduledExecutorService myExecutor;
-    private ScheduledFuture<?> myScheduledTask;
+    private final List<ScheduledFuture<?>> myScheduledTasks = new LinkedList<>();
     private int currentInterval;
 
-    private AutoFetch(Project project) {
-        myProject = project;
+    public AutoFetch(Project project) {
+        super(project);
+    }
+
+    public static AutoFetch getInstance(@NotNull Project project) {
+        return project.getComponent(AutoFetch.class);
+    }
+
+    @Override
+    public void initComponent() {
         myConnection = myProject.getMessageBus().connect();
         myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
             @Override
@@ -40,61 +45,35 @@ public class AutoFetch implements Disposable, ProjectAware {
                 onConfigChange(config);
             }
         });
-        myConnection.subscribe(DumbService.DUMB_MODE, new DumbModeListener() {
-            @Override
-            public void enteredDumbMode() {
-                LOG.debug("Enter dumb mode");
-                myState.enterDumbMode();
-            }
+        myConnection.subscribe(AutoFetchNotifier.TOPIC, this::onStateChanged);
+    }
 
-            @Override
-            public void exitDumbMode() {
-                LOG.debug("Exit dumb mode");
-                if (myState.exitDumbMode()) {
-                    scheduleTask();
-                }
-            }
-        });
-        myConnection.subscribe(BuildManagerListener.TOPIC, new BuildManagerListener() {
-            @Override
-            public void buildStarted(Project project, UUID sessionId, boolean isAutomake) {
-                LOG.debug("Build start");
-                if (myProject.equals(project)) {
-                    myState.buildStarted();
-                }
-            }
-
-            @Override
-            public void buildFinished(Project project, UUID sessionId, boolean isAutomake) {
-                LOG.debug("Build finished");
-                if (myProject.equals(project) && myState.buildFinished()) {
-                    scheduleTask();
-                }
-            }
-        });
+    public static AutoFetch create(Project project) {
+        return new AutoFetch(project);
     }
 
     private void init() {
         GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project());
         if (config.autoFetch) {
             synchronized (this) {
-                if (myScheduledTask == null) {
-                    currentInterval = config.autoFetchIntervalMinutes;
-                    scheduleInitTask();
-                } else {
-                    LOG.debug("Task already scheduled");
-                }
+                currentInterval = config.autoFetchIntervalMinutes;
+                scheduleInitTask();
             }
         }
     }
 
-    private void cancelCurrentTask() {
+    private void cancelCurrentTasks() {
         synchronized (this) {
-            if (myScheduledTask != null) {
-                LOG.debug("Existing task cancelled");
-                myScheduledTask.cancel(false);
-                myScheduledTask = null;
-            }
+            List<ScheduledFuture<?>> tasks = Lists.newArrayList(myScheduledTasks);
+            myScheduledTasks.clear();
+            tasks.forEach(t -> t.cancel(false));
+        }
+    }
+
+    private boolean cleanAndCheckTasks() {
+        synchronized (this) {
+            myScheduledTasks.removeIf(task -> task.isCancelled() || task.isDone());
+            return myScheduledTasks.isEmpty();
         }
     }
 
@@ -108,7 +87,7 @@ public class AutoFetch implements Disposable, ProjectAware {
                             + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
                     }
 
-                    cancelCurrentTask();
+                    cancelCurrentTasks();
                     LOG.debug("Existing task cancelled on auto-fetch change");
                     if (currentInterval == 0) {
                         //enable
@@ -127,7 +106,7 @@ public class AutoFetch implements Disposable, ProjectAware {
         } else {
             LOG.debug("Auto-fetch disabled");
             synchronized (this) {
-                cancelCurrentTask();
+                cancelCurrentTasks();
                 currentInterval = 0;
                 LOG.debug("Existing task cancelled on auto-fetch disable");
             }
@@ -145,44 +124,60 @@ public class AutoFetch implements Disposable, ProjectAware {
     private void scheduleFastTask(int seconds) {
         if (isActive()) {
             synchronized (this) {
-                LOG.debug("Scheduling fast auto-fetch in %s seconds", seconds);
-                myScheduledTask = myExecutor.schedule(AutoFetchTask.create(this), seconds, TimeUnit.SECONDS);
+                if (cleanAndCheckTasks()) {
+                    LOG.debug("Scheduling fast auto-fetch in ", seconds, " seconds");
+                    myScheduledTasks.add(myExecutor.schedule(AutoFetchTask.create(this), seconds, TimeUnit.SECONDS));
+                } else {
+                    LOG.debug("Tasks already scheduled (in fast auto-fetch)");
+                }
             }
         }
     }
 
+    private void onStateChanged(AutoFetchState state) {
+        if (state.canAutoFetch()) {
+            long lastAutoFetch = lastAutoFetch();
+            if (lastAutoFetch != 0) {
+                long nextAutoFetch = lastAutoFetch + TimeUnit.MINUTES.toMillis(getIntervalMinutes());
+                long difference = nextAutoFetch - System.currentTimeMillis();
+                if (difference > 0) {
+                    int delayMinutes = Math.max((int) TimeUnit.MILLISECONDS.toMinutes(difference), 1);
+                    scheduleTask(delayMinutes);
+                } else {
+                    scheduleTask(1);
+                }
+            }
+        }
+    }
+
+    private int getIntervalMinutes() {
+        return GitToolBoxConfigForProject.getInstance(project()).autoFetchIntervalMinutes;
+    }
+
     private void scheduleTask() {
+        scheduleTask(getIntervalMinutes());
+    }
+
+    private void scheduleTask(int delayMinutes) {
         if (isActive()) {
             synchronized (this) {
-                LOG.debug("Scheduling regular auto-fetch");
-                GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project());
-                int intervalMinutes = config.autoFetchIntervalMinutes;
-                myScheduledTask = myExecutor.schedule(AutoFetchTask.create(this), intervalMinutes, TimeUnit.MINUTES);
+                if (cleanAndCheckTasks()) {
+                    LOG.debug("Scheduling regular auto-fetch in ", delayMinutes, "  minutes");
+                    myScheduledTasks.add(myExecutor.schedule(AutoFetchTask.create(this), delayMinutes, TimeUnit.MINUTES));
+                } else {
+                    LOG.debug("Tasks already scheduled (in regular auto-fetch)");
+                }
             }
         }
     }
 
     void scheduleNextTask() {
         synchronized (this) {
-            cancelCurrentTask();
-            scheduleTask();
+            GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project());
+            if (config.autoFetch) {
+                scheduleTask();
+            }
         }
-    }
-
-    boolean canAutoFetch() {
-        return myState.canAutoFetch() && isActive();
-    }
-
-    boolean fetchStart() {
-        return myState.fetchStart();
-    }
-
-    boolean fetchFinish() {
-        return myState.fetchFinish();
-    }
-
-    public static AutoFetch create(Project project) {
-        return new AutoFetch(project);
     }
 
     public Project project() {
@@ -202,11 +197,7 @@ public class AutoFetch implements Disposable, ProjectAware {
     }
 
     @Override
-    public void dispose() {
-    }
-
-    @Override
-    public void opened() {
+    public void projectOpened() {
         if (myActive.compareAndSet(false, true)) {
             myExecutor = GitToolBoxApp.getInstance().autoFetchExecutor();
             init();
@@ -214,10 +205,17 @@ public class AutoFetch implements Disposable, ProjectAware {
     }
 
     @Override
-    public void closed() {
+    public void projectClosed() {
         if (myActive.compareAndSet(true, false)) {
+            cancelCurrentTasks();
+        }
+    }
+
+    @Override
+    public void disposeComponent() {
+        if (myConnection != null) {
             myConnection.disconnect();
-            cancelCurrentTask();
+            myConnection = null;
         }
     }
 }

@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.statusBar;
 
+import com.intellij.ide.ui.UISettings;
 import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
@@ -48,13 +49,13 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
                 onCacheChange(info, repository);
             }
         });
-        myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> runUpdateLater());
         myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
             @Override
             public void configChanged(GitToolBoxConfig config) {
                 runUpdateLater();
             }
         });
+        myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> AppUtil.invokeLaterIfNeeded(this::updateStatusBar));
     }
 
     private void onCacheChange(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {

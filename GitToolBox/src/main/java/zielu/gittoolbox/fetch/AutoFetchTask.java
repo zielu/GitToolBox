@@ -80,13 +80,14 @@ public class AutoFetchTask implements Runnable {
         indicator.setIndeterminate(true);
         indicator.startNonCancelableSection();
         boolean result = false;
-        if (myParent.canAutoFetch()) {
-            if (myParent.fetchStart()) {
+        AutoFetchState state = AutoFetchState.getInstance(myProject);
+        if (state.canAutoFetch()) {
+            if (state.fetchStart()) {
                 try {
                     doFetch(repos, indicator);
                 } finally {
                     indicator.finishNonCancelableSection();
-                    myParent.fetchFinish();
+                    state.fetchFinish();
                 }
             } else {
                 LOG.info("Auto-fetch already in progress");
@@ -114,8 +115,7 @@ public class AutoFetchTask implements Runnable {
     public void run() {
         final List<GitRepository> repos = reposForFetch();
         boolean shouldFetch = !repos.isEmpty();
-        boolean enabled = myParent.canAutoFetch();
-        if (shouldFetch && enabled) {
+        if (shouldFetch) {
             AppUtil.invokeLaterIfNeeded(() -> GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(myProject),
                 ResBundle.getString("message.autoFetching"), false) {
                 @Override
@@ -127,7 +127,7 @@ public class AutoFetchTask implements Runnable {
             }));
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Fetched skipped: shouldFetch=" + shouldFetch + ", canAutoFetch=" + enabled);
+                LOG.debug("Fetched skipped: shouldFetch=" + shouldFetch);
             }
             if (showNotifications) {
                 AppUtil.invokeLaterIfNeeded(this::finishedWithoutFetch);

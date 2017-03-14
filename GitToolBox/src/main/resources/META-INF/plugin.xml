@@ -125,6 +125,12 @@
       <implementation-class>zielu.gittoolbox.GitToolBoxProject</implementation-class>
     </component>
     <component>
+      <implementation-class>zielu.gittoolbox.fetch.AutoFetch</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.fetch.AutoFetchState</implementation-class>
+    </component>
+    <component>
       <implementation-class>zielu.gittoolbox.status.BehindTracker</implementation-class>
     </component>
     <!--

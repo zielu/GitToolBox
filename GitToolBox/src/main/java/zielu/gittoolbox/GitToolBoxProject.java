@@ -5,7 +5,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
-import zielu.gittoolbox.fetch.AutoFetch;
 import zielu.gittoolbox.ui.projectView.ProjectViewManager;
 import zielu.gittoolbox.ui.statusBar.StatusBarManager;
 import zielu.gittoolbox.util.ProjectAwares;
@@ -15,7 +14,6 @@ public class GitToolBoxProject extends AbstractProjectComponent {
     private PerRepoInfoCache perRepoInfoCache;
     private StatusBarManager myStatusBarManager;
     private ProjectViewManager myProjectViewManager;
-    private AutoFetch myAutoFetch;
     private ProjectAwares myAwares;
 
     public GitToolBoxProject(@NotNull Project project) {
@@ -31,12 +29,10 @@ public class GitToolBoxProject extends AbstractProjectComponent {
         perRepoInfoCache = PerRepoInfoCache.create(myProject);
         myStatusBarManager = StatusBarManager.create(myProject);
         myProjectViewManager = ProjectViewManager.create(myProject);
-        myAutoFetch = AutoFetch.create(myProject);
         myAwares = ProjectAwares.create(
             perRepoInfoCache,
             myStatusBarManager,
-            myProjectViewManager,
-            myAutoFetch
+            myProjectViewManager
         );
     }
 
@@ -45,16 +41,11 @@ public class GitToolBoxProject extends AbstractProjectComponent {
         perRepoInfoCache.dispose();
         myStatusBarManager.dispose();
         myProjectViewManager.dispose();
-        myAutoFetch.dispose();
         myAwares.dispose();
     }
 
     public PerRepoInfoCache perRepoStatusCache() {
         return perRepoInfoCache;
-    }
-
-    public AutoFetch autoFetch() {
-        return myAutoFetch;
     }
 
     @Override
