@@ -1,5 +1,7 @@
 package zielu.gittoolbox.ui.projectView;
 
+import com.intellij.dvcs.repo.Repository;
+import com.intellij.dvcs.repo.VcsRepositoryManager;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.ProjectViewNodeDecorator;
@@ -9,9 +11,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.packageDependencies.ui.PackageDependenciesNode;
 import com.intellij.ui.ColoredTreeCellRenderer;
-import git4idea.GitUtil;
+import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryManager;
+import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
@@ -42,25 +44,38 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
                 Project project = projectViewNode.getProject();
                 VirtualFile file = projectViewNode.getVirtualFile();
                 if (project != null && file != null) {
-                    GitRepositoryManager repoManager = GitUtil.getRepositoryManager(project);
-                    GitRepository repo = repoManager.getRepositoryForFile(file);
+                    GitRepository repo = getRepoForFile(project, file);
                     decorateWatch.elapsed("Repo find");
                     if (repo != null) {
-                        PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
-                        GitAheadBehindCount countOptional = cache.getInfo(repo).count;
-                        NodeDecoration decoration = decorationFactory.decorationFor(repo, countOptional);
-                        boolean applied = decoration.apply(projectViewNode, presentation);
-                        decorateWatch.elapsed("Decoration");
-                        //presentation.setChanged(applied);
+                        applyDecoration(project, repo, projectViewNode, presentation);
                     } else {
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("No repo for: " + file);
+                            LOG.debug("No git repo for: " + file);
                         }
                     }
                 }
             }
         }
         decorateWatch.finish();
+    }
+
+    @Nullable
+    private GitRepository getRepoForFile(Project project, VirtualFile file) {
+        VcsRepositoryManager repoManager = VcsRepositoryManager.getInstance(project);
+        Repository repo = repoManager.getRepositoryForFile(file, true);
+        if (repo != null && GitVcs.NAME.equals(repo.getVcs().getName())) {
+            return (GitRepository) repo;
+        }
+        return null;
+    }
+
+    private void applyDecoration(Project project, GitRepository repo, ProjectViewNode projectViewNode, PresentationData presentation) {
+        PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
+        GitAheadBehindCount countOptional = cache.getInfo(repo).count;
+        NodeDecoration decoration = decorationFactory.decorationFor(repo, countOptional);
+        boolean applied = decoration.apply(projectViewNode, presentation);
+        decorateWatch.elapsed("Decoration");
+        //presentation.setChanged(applied);
     }
 
     @Override
