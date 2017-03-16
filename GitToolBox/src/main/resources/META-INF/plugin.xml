@@ -65,6 +65,7 @@
       <ul>
         <li>Fixed excessive auto-fetch queuing (<a href="https://github.com/zielu/GitToolBox/issues/33">#33</a>)</li>
         <li>Do not auto-fetch when build in progress (<a href="https://github.com/zielu/GitToolBox/issues/34">#34</a>)</li>
+        <li>Improved Project View decoration performance</li>
       </ul>
       <h3>Changes is 163.2.1</h3>
       <ul>
