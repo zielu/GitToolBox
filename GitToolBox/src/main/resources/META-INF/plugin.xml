@@ -67,9 +67,12 @@
         <li>Do not auto-fetch when build in progress (<a href="https://github.com/zielu/GitToolBox/issues/34">#34</a>)</li>
         <li>Improved Project View decoration performance</li>
       </ul>
-      <h3>Changes is 163.2.1</h3>
+      <h3>Changes is 163.3.1</h3>
       <ul>
-        <li>Fixed freezes during interactive rebase (<a href="https://github.com/zielu/GitToolBox/issues/28">#28</a>)</li>
+        <li>Fixed excessive auto-fetch queuing (<a href="https://github.com/zielu/GitToolBox/issues/33">#33</a>)</li>
+        <li>Do not auto-fetch when build in progress (<a href="https://github.com/zielu/GitToolBox/issues/34">#34</a>)</li>
+        <li>Improved Project View decoration performance</li>
+        <li>Fixed non-Idea IDEs compatibility (<a href="https://github.com/zielu/GitToolBox/issues/36">#36</a>)</li>
       </ul>
       <h3>Changes is 16.3.4</h3>
       <ul>
@@ -97,7 +100,7 @@
   <!-- uncomment to enable plugin in all products -->
   <depends>com.intellij.modules.lang</depends>
   <depends>Git4Idea</depends>
-
+  <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
   <idea-version since-build="171.2014.21" until-build="171.*"/>
 
@@ -148,4 +151,13 @@
     </action>
   </actions>
 
+  <extensionPoints>
+    <extensionPoint name="autoFetchAllowed" beanClass="zielu.gittoolbox.extension.AutoFetchAllowedEP">
+      <with attribute="provider" implements="zielu.gittoolbox.extension.AutoFetchAllowed"/>
+    </extensionPoint>
+  </extensionPoints>
+
+  <extensions defaultExtensionNs="zielu.gittoolbox">
+    <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbMode"/>
+  </extensions>
 </idea-plugin>

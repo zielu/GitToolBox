@@ -1,21 +1,25 @@
 package zielu.gittoolbox.fetch;
 
-import com.intellij.compiler.server.BuildManagerListener;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.DumbService;
-import com.intellij.openapi.project.DumbService.DumbModeListener;
+import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.extension.AutoFetchAllowed;
+import zielu.gittoolbox.extension.AutoFetchAllowedEP;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class AutoFetchState extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
-    private final AtomicBoolean myInDumbMode = new AtomicBoolean();
-    private final AtomicBoolean myBuildRunning = new AtomicBoolean();
+
     private final AtomicBoolean myFetchRunning = new AtomicBoolean();
+    private final List<AutoFetchAllowed> myFetchAllowed = new ArrayList<>();
     private MessageBusConnection myConnection;
 
     public AutoFetchState(Project project) {
@@ -28,39 +32,15 @@ public class AutoFetchState extends AbstractProjectComponent {
 
     @Override
     public void initComponent() {
+        List<AutoFetchAllowedEP> autoFetchAllowedEPs = Arrays.asList(Extensions.getExtensions(AutoFetchAllowedEP.POINT_NAME));
+        myFetchAllowed.addAll(autoFetchAllowedEPs.stream().map(ep -> {
+            AutoFetchAllowed fetchAllowed = ep.instantiate();
+            fetchAllowed.initialize(myProject);
+            LOG.debug("Added auto fetch allowed: ", fetchAllowed);
+            return fetchAllowed;
+        }).collect(Collectors.toList()));
         myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(DumbService.DUMB_MODE, new DumbModeListener() {
-            @Override
-            public void enteredDumbMode() {
-                LOG.debug("Enter dumb mode");
-                myInDumbMode.set(true);
-            }
-
-            @Override
-            public void exitDumbMode() {
-                LOG.debug("Exit dumb mode");
-                myInDumbMode.set(false);
-                fireStateChanged();
-            }
-        });
-        myConnection.subscribe(BuildManagerListener.TOPIC, new BuildManagerListener() {
-            @Override
-            public void buildStarted(Project project, UUID sessionId, boolean isAutomake) {
-                LOG.debug("Build start");
-                if (myProject.equals(project)) {
-                    myBuildRunning.set(true);
-                }
-            }
-
-            @Override
-            public void buildFinished(Project project, UUID sessionId, boolean isAutomake) {
-                LOG.debug("Build finished");
-                if (myProject.equals(project)) {
-                    myBuildRunning.set(false);
-                    fireStateChanged();
-                }
-            }
-        });
+        myConnection.subscribe(AutoFetchAllowed.TOPIC, allowed -> fireStateChanged());
     }
 
     private void fireStateChanged() {
@@ -73,10 +53,24 @@ public class AutoFetchState extends AbstractProjectComponent {
             myConnection.disconnect();
             myConnection = null;
         }
+        List<AutoFetchAllowed> allowed = new ArrayList<>(myFetchAllowed);
+        myFetchAllowed.clear();
+        allowed.forEach(AutoFetchAllowed::dispose);
+    }
+
+    private boolean isFetchAllowed() {
+        boolean allowed = true;
+        for (AutoFetchAllowed fetchAllowed : myFetchAllowed) {
+            if (!fetchAllowed.isAllowed()) {
+                allowed = false;
+                break;
+            }
+        }
+        return allowed;
     }
 
     public boolean canAutoFetch() {
-        return !myInDumbMode.get() && !myBuildRunning.get() && !myFetchRunning.get();
+        return isFetchAllowed() && !myFetchRunning.get();
     }
 
     public boolean fetchStart() {

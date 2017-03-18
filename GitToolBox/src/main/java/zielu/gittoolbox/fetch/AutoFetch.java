@@ -136,17 +136,20 @@ public class AutoFetch extends AbstractProjectComponent {
 
     private void onStateChanged(AutoFetchState state) {
         if (state.canAutoFetch()) {
+            int delayMinutes;
             long lastAutoFetch = lastAutoFetch();
             if (lastAutoFetch != 0) {
                 long nextAutoFetch = lastAutoFetch + TimeUnit.MINUTES.toMillis(getIntervalMinutes());
                 long difference = nextAutoFetch - System.currentTimeMillis();
                 if (difference > 0) {
-                    int delayMinutes = Math.max((int) TimeUnit.MILLISECONDS.toMinutes(difference), 1);
-                    scheduleTask(delayMinutes);
+                    delayMinutes = Math.max((int) TimeUnit.MILLISECONDS.toMinutes(difference), 1);
                 } else {
-                    scheduleTask(1);
+                    delayMinutes = 1;
                 }
+            } else {
+                delayMinutes = 1;
             }
+            scheduleTask(delayMinutes);
         }
     }
 

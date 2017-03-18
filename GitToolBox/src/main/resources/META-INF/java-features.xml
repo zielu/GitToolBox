@@ -1,0 +1,5 @@
+<idea-plugin url="https://github.com/zielu/GitToolBox">
+    <extensions defaultExtensionNs="zielu.gittoolbox">
+        <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedBuild"/>
+    </extensions>
+</idea-plugin>
