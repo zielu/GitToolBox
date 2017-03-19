@@ -76,18 +76,20 @@ public class AutoFetchTask implements Runnable {
 
     private boolean doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
         LOG.debug("Starting auto-fetch...");
-        indicator.setText(title);
-        indicator.setIndeterminate(true);
-        indicator.startNonCancelableSection();
         boolean result = false;
         AutoFetchState state = AutoFetchState.getInstance(myProject);
         if (state.canAutoFetch()) {
+            LOG.debug("Can auto-fetch");
             if (state.fetchStart()) {
+                indicator.setText(title);
+                indicator.setIndeterminate(true);
+                indicator.startNonCancelableSection();
                 try {
                     doFetch(repos, indicator);
                 } finally {
                     indicator.finishNonCancelableSection();
                     state.fetchFinish();
+                    myParent.updateLastAutoFetchDate();
                 }
             } else {
                 LOG.info("Auto-fetch already in progress");
@@ -98,11 +100,11 @@ public class AutoFetchTask implements Runnable {
             LOG.debug("Auto-fetch inactive");
             finishedWithoutFetch();
         }
-        myParent.updateLastAutoFetchDate();
         return result;
     }
 
     private void doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
+        LOG.debug("Auto-fetching...");
         Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().build(myProject, indicator).fetchRoots(repos);
         GitToolBoxProject.getInstance(myProject).perRepoStatusCache().refresh(fetched);
         LOG.debug("Finished auto-fetch");
