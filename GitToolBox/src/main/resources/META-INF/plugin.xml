@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>171.1</version>
+  <version>171.1.1</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -61,11 +61,12 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 171.1</h3>
+      <h3>Changes is 171.1.1</h3>
       <ul>
         <li>Fixed excessive auto-fetch queuing (<a href="https://github.com/zielu/GitToolBox/issues/33">#33</a>)</li>
         <li>Do not auto-fetch when build in progress (<a href="https://github.com/zielu/GitToolBox/issues/34">#34</a>)</li>
         <li>Improved Project View decoration performance</li>
+        <li>Fixed non-Idea IDEs compatibility (<a href="https://github.com/zielu/GitToolBox/issues/36">#36</a>)</li>
       </ul>
       <h3>Changes is 163.3.1</h3>
       <ul>
