@@ -24,6 +24,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
     private final Logger LOG = Logger.getInstance(getClass());
     private final LogWatch moduleCheckWatch = LogWatch.create(LOG, "Module check");
     private final LogWatch decorateWatch = LogWatch.create(LOG, "Decorate");
+    private final LogWatch decorateApplyWatch = LogWatch.create(LOG, "Decorate apply");
 
     private final NodeDecorationFactory decorationFactory = NodeDecorationFactory.getInstance();
 
@@ -31,7 +32,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
         moduleCheckWatch.start();
         boolean isModule = node.getVirtualFile() != null && node.getProject() != null
             && ProjectRootsUtil.isModuleContentRoot(node.getVirtualFile(), node.getProject());
-        moduleCheckWatch.finish();
+        moduleCheckWatch.elapsed("[", node.getName(), "]").finish();
         return isModule;
     }
 
@@ -45,7 +46,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
                 VirtualFile file = projectViewNode.getVirtualFile();
                 if (project != null && file != null) {
                     GitRepository repo = getRepoForFile(project, file);
-                    decorateWatch.elapsed("Repo find");
+                    decorateWatch.elapsed("Repo find", file);
                     if (repo != null) {
                         applyDecoration(project, repo, projectViewNode, presentation);
                     } else {
@@ -70,11 +71,13 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
     }
 
     private void applyDecoration(Project project, GitRepository repo, ProjectViewNode projectViewNode, PresentationData presentation) {
+        decorateApplyWatch.start();
         PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
         GitAheadBehindCount countOptional = cache.getInfo(repo).count;
         NodeDecoration decoration = decorationFactory.decorationFor(repo, countOptional);
         boolean applied = decoration.apply(projectViewNode, presentation);
-        decorateWatch.elapsed("Decoration");
+        decorateApplyWatch.elapsed("for ", repo).finish();
+        decorateWatch.elapsed("Decoration ", "[", projectViewNode.getName() + "]");
         //presentation.setChanged(applied);
     }
 

@@ -1,7 +1,7 @@
-<idea-plugin version="2" url="https://github.com/zielu/GitToolBox">
+<idea-plugin url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>171.1.1</version>
+  <version>171.1.2</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -61,34 +61,31 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes is 171.1.1</h3>
+      <h3>Changes in 171.1.1</h3>
+      <ul>
+        <li>Reduced cache contention (<a href="https://github.com/zielu/GitToolBox/issues/37">#37</a>)</li>
+      </ul>
+      <h3>Changes in 163.3.1</h3>
       <ul>
         <li>Fixed excessive auto-fetch queuing (<a href="https://github.com/zielu/GitToolBox/issues/33">#33</a>)</li>
         <li>Do not auto-fetch when build in progress (<a href="https://github.com/zielu/GitToolBox/issues/34">#34</a>)</li>
         <li>Improved Project View decoration performance</li>
         <li>Fixed non-Idea IDEs compatibility (<a href="https://github.com/zielu/GitToolBox/issues/36">#36</a>)</li>
       </ul>
-      <h3>Changes is 163.3.1</h3>
-      <ul>
-        <li>Fixed excessive auto-fetch queuing (<a href="https://github.com/zielu/GitToolBox/issues/33">#33</a>)</li>
-        <li>Do not auto-fetch when build in progress (<a href="https://github.com/zielu/GitToolBox/issues/34">#34</a>)</li>
-        <li>Improved Project View decoration performance</li>
-        <li>Fixed non-Idea IDEs compatibility (<a href="https://github.com/zielu/GitToolBox/issues/36">#36</a>)</li>
-      </ul>
-      <h3>Changes is 16.3.4</h3>
+      <h3>Changes in 16.3.4</h3>
       <ul>
         <li>Fixed stale Project View decorations (<a href="https://github.com/zielu/GitToolBox/issues/25">#25</a>)</li>
         <li>Added 'Refresh status' status bar action (<a href="https://github.com/zielu/GitToolBox/issues/25">#25</a>)</li>
       </ul>
-      <h3>Changes is 13.5.4</h3>
+      <h3>Changes in 13.5.4</h3>
       <ul>
         <li>Fixed NullPointer during auto-fetch</li>
       </ul>
-      <h3>Changes is 13.1.1</h3>
+      <h3>Changes in 13.1.1</h3>
       <ul>
         <li>Recompiled with 1.6 compatibility (<a href="https://github.com/zielu/GitToolBox/issues/2">#2</a>)</li>
       </ul>
-      <h3>Changes is 13.0.2</h3>
+      <h3>Changes in 13.0.2</h3>
       <ul>
         <li>133.x compatible release</li>
       </ul>

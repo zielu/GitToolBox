@@ -7,13 +7,11 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Computable;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,6 +29,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     private final AtomicBoolean myActive = new AtomicBoolean();
     private final ConcurrentMap<GitRepository, CachedStatus> myBehindStatuses = Maps.newConcurrentMap();
+    private final ConcurrentMap<GitRepository, Boolean> myScheduledRepositories = Maps.newConcurrentMap();
     private final Application myApplication;
     private final Project myProject;
     private final GitStatusCalculator myCalculator;
@@ -63,8 +62,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     private void update(GitRepository repository) {
         if (myActive.get()) {
-            Optional<RepoInfo> updated = myApplication.runReadAction((Computable<Optional<RepoInfo>>) () -> get(repository).update(repository, myCalculator));
-            updated.ifPresent(repoInfo -> onRepoChanged(repository, repoInfo));
+            myApplication.runReadAction(() -> get(repository).update(repository, myCalculator, info -> onRepoChanged(repository, info)));
         }
     }
 
@@ -79,6 +77,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         myRepoChangeConnection.disconnect();
         myBehindStatuses.clear();
         myUpdateExecutor = null;
+        myScheduledRepositories.clear();
     }
 
     private void scheduleRefresh(@NotNull GitRepository repository) {
@@ -87,7 +86,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
             if (debug) {
                 LOG.debug("Scheduled refresh for: " + repository);
             }
-            myUpdateExecutor.submit(new RefreshTask(repository));
+            scheduleTask(new RefreshTask(repository));
         } else {
             if (debug) {
                 LOG.debug("Inactive - ignored scheduling refresh for " + repository);
@@ -101,11 +100,17 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
             if (debug) {
                 LOG.debug("Scheduled update for: " + repository);
             }
-            myUpdateExecutor.submit(new UpdateTask(repository));
+            scheduleTask(new UpdateTask(repository));
         } else {
             if (debug) {
                 LOG.debug("Inactive - ignored updating refresh for " + repository);
             }
+        }
+    }
+
+    private void scheduleTask(CacheTask task) {
+        if (myScheduledRepositories.putIfAbsent(task.myRepository, Boolean.TRUE) == null) {
+            myUpdateExecutor.submit(task);
         }
     }
 
@@ -126,12 +131,12 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         }
     }
 
-    private synchronized void refreshSync(GitRepository repository) {
+    private void refreshSync(GitRepository repository) {
         get(repository).invalidate();
         update(repository);
     }
 
-    private synchronized void updateSync(GitRepository repository) {
+    private void updateSync(GitRepository repository) {
         update(repository);
     }
 
@@ -162,33 +167,45 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         }
     }
 
-    private class RefreshTask implements Runnable {
-        private final GitRepository myRepository;
+    private class RefreshTask extends CacheTask {
 
         private RefreshTask(@NotNull GitRepository myRepository) {
-            this.myRepository = myRepository;
+            super(myRepository);
         }
 
         @Override
-        public void run() {
-            if (myActive.get()) {
-                refreshSync(myRepository);
-            }
+        public void runImpl() {
+            refreshSync(myRepository);
         }
     }
 
-    private class UpdateTask implements Runnable {
-        private final GitRepository myRepository;
+    private class UpdateTask extends CacheTask {
 
         private UpdateTask(@NotNull GitRepository myRepository) {
-            this.myRepository = myRepository;
+            super(myRepository);
+        }
+
+        @Override
+        public void runImpl() {
+            updateSync(myRepository);
+        }
+    }
+
+    private abstract class CacheTask implements Runnable {
+        final GitRepository myRepository;
+
+        CacheTask(GitRepository repository) {
+            this.myRepository = repository;
         }
 
         @Override
         public void run() {
             if (myActive.get()) {
-                updateSync(myRepository);
+                runImpl();
+                myScheduledRepositories.remove(myRepository);
             }
         }
+
+        abstract void runImpl();
     }
 }

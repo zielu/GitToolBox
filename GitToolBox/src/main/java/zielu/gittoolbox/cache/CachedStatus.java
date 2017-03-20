@@ -3,8 +3,9 @@ package zielu.gittoolbox.cache;
 import com.google.common.base.Objects;
 import com.intellij.openapi.diagnostic.Logger;
 import git4idea.repo.GitRepository;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.status.GitAheadBehindCount;
@@ -18,11 +19,11 @@ class CachedStatus {
     private final LogWatch repoStatusCreateWatch = LogWatch.create(LOG, "Repo status create");
     private final AtomicBoolean myInvalid = new AtomicBoolean(true);
     private final AtomicBoolean myNew = new AtomicBoolean(true);
+    private final AtomicReference<RepoInfo> myInfo = new AtomicReference<>(RepoInfo.empty());
     private final String myRepoName;
     @Nullable
     private GitAheadBehindCount myCount;
     private RepoStatus myStatus;
-    private RepoInfo myInfo = RepoInfo.empty();
 
     private CachedStatus(String repoName) {
         myRepoName = repoName;
@@ -33,7 +34,7 @@ class CachedStatus {
     }
 
     @NotNull
-    public synchronized Optional<RepoInfo> update(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator) {
+    public void update(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator, @NotNull Consumer<RepoInfo> infoConsumer) {
         final boolean debug = LOG.isDebugEnabled();
         myNew.set(false);
         if (myInvalid.get()) {
@@ -56,20 +57,19 @@ class CachedStatus {
                     LOG.warn("Hash mismatch between count and status: " + myCount + " <> " + currentStatus);
                 }
                 myStatus = currentStatus;
-                myInfo = RepoInfo.create(myStatus, myCount);
+                RepoInfo newInfo = RepoInfo.create(myStatus, myCount);
+                myInfo.set(newInfo);;
                 myInvalid.set(false);
-                return Optional.of(myInfo);
+                infoConsumer.accept(newInfo);
             } else {
                 if (debug) {
                     LOG.debug("Status did not change [" + myRepoName + "]: " + myCount);
                 }
-                return Optional.empty();
             }
         } else {
             if (debug) {
                 LOG.debug("Status is still valid [" + myRepoName + "]: " + myCount);
             }
-            return Optional.empty();
         }
     }
 
@@ -86,7 +86,7 @@ class CachedStatus {
     }
 
     @NotNull
-    public synchronized RepoInfo get() {
-        return myInfo;
+    public RepoInfo get() {
+        return myInfo.get();
     }
 }

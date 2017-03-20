@@ -2,7 +2,9 @@ package zielu.gittoolbox.util;
 
 import com.google.common.base.Stopwatch;
 import com.intellij.openapi.diagnostic.Logger;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class LogWatch {
     private final Logger myLog;
@@ -33,9 +35,10 @@ public class LogWatch {
         return this;
     }
 
-    public LogWatch elapsed(String message) {
+    public LogWatch elapsed(String message, Object... rest) {
         if (myEnabled) {
-            myLog.debug(myMessage + "/" + message + " [ms]: ", myWatch.elapsed(TimeUnit.MILLISECONDS));
+            String other = Arrays.stream(rest).map(String::valueOf).collect(Collectors.joining(""));
+            myLog.debug(myMessage + "/" + message +  other +  " [ms]: ", myWatch.elapsed(TimeUnit.MILLISECONDS));
         }
         return this;
     }
