@@ -30,8 +30,10 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
 
     private boolean isModuleNode(ProjectViewNode node) {
         moduleCheckWatch.start();
-        boolean isModule = node.getVirtualFile() != null && node.getProject() != null
-            && ProjectRootsUtil.isModuleContentRoot(node.getVirtualFile(), node.getProject());
+        VirtualFile file = node.getVirtualFile();
+        Project project = node.getProject();
+        boolean isModule = file != null && project != null
+            && file.isDirectory() && ProjectRootsUtil.isModuleContentRoot(file, project);
         moduleCheckWatch.elapsed("[", node.getName(), "]").finish();
         return isModule;
     }
