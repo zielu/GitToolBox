@@ -34,7 +34,7 @@ class CachedStatus {
     }
 
     @NotNull
-    public void update(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator, @NotNull Consumer<RepoInfo> infoConsumer) {
+    public synchronized void update(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator, @NotNull Consumer<RepoInfo> infoConsumer) {
         final boolean debug = LOG.isDebugEnabled();
         myNew.set(false);
         if (myInvalid.get()) {
@@ -58,7 +58,7 @@ class CachedStatus {
                 }
                 myStatus = currentStatus;
                 RepoInfo newInfo = RepoInfo.create(myStatus, myCount);
-                myInfo.set(newInfo);;
+                myInfo.set(newInfo);
                 myInvalid.set(false);
                 infoConsumer.accept(newInfo);
             } else {

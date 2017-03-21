@@ -111,6 +111,9 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     private void scheduleTask(CacheTask task) {
         if (myScheduledRepositories.putIfAbsent(task.myRepository, Boolean.TRUE) == null) {
             myUpdateExecutor.submit(task);
+            LOG.debug("Scheduled ", task);
+        } else {
+            LOG.debug("Task for ", task.myRepository, " already scheduled");
         }
     }
 
