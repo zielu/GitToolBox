@@ -18,6 +18,7 @@ import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.GitToolBoxConfigForProject;
 
 public class AutoFetch extends AbstractProjectComponent {
+    private static final int DEFAULT_DELAY_MINUTES = 1;
     private final Logger LOG = Logger.getInstance(getClass());
 
     private final AtomicLong myLastAutoFetch = new AtomicLong();
@@ -135,19 +136,19 @@ public class AutoFetch extends AbstractProjectComponent {
     }
 
     private void onStateChanged(AutoFetchState state) {
-        if (state.canAutoFetch()) {
+        if (state.canAutoFetch() && isAutoFetchEnabled()) {
             int delayMinutes;
             long lastAutoFetch = lastAutoFetch();
             if (lastAutoFetch != 0) {
                 long nextAutoFetch = lastAutoFetch + TimeUnit.MINUTES.toMillis(getIntervalMinutes());
                 long difference = nextAutoFetch - System.currentTimeMillis();
                 if (difference > 0) {
-                    delayMinutes = Math.max((int) TimeUnit.MILLISECONDS.toMinutes(difference), 1);
+                    delayMinutes = Math.max((int) TimeUnit.MILLISECONDS.toMinutes(difference), DEFAULT_DELAY_MINUTES);
                 } else {
-                    delayMinutes = 1;
+                    delayMinutes = DEFAULT_DELAY_MINUTES;
                 }
             } else {
-                delayMinutes = 1;
+                delayMinutes = DEFAULT_DELAY_MINUTES;
             }
             scheduleTask(delayMinutes);
         }
@@ -176,11 +177,14 @@ public class AutoFetch extends AbstractProjectComponent {
 
     void scheduleNextTask() {
         synchronized (this) {
-            GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project());
-            if (config.autoFetch) {
+            if (isAutoFetchEnabled()) {
                 scheduleTask();
             }
         }
+    }
+
+    private boolean isAutoFetchEnabled() {
+        return GitToolBoxConfigForProject.getInstance(project()).autoFetch;
     }
 
     public Project project() {
