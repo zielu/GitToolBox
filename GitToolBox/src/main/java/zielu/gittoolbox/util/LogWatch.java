@@ -28,8 +28,12 @@ public class LogWatch {
         return new LogWatch(log, message);
     }
 
+    public static LogWatch createStarted(Logger log, String message) {
+        return create(log, message).start();
+    }
+
     public LogWatch start() {
-        if (myEnabled) {
+        if (myEnabled && !myWatch.isRunning()) {
             myWatch.start();
         }
         return this;
@@ -44,7 +48,7 @@ public class LogWatch {
     }
 
     public LogWatch finish() {
-        if (myEnabled) {
+        if (myEnabled && myWatch.isRunning()) {
             myLog.debug(myMessage + " [ms]: ", myWatch.stop().elapsed(TimeUnit.MILLISECONDS));
         }
         return this;
