@@ -122,7 +122,7 @@ public class AutoFetchTask implements Runnable {
                 ResBundle.getString("message.autoFetching"), false) {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
-                    if (doFetch(repos, indicator, getTitle())) {
+                    if (myParent.isActive() && doFetch(repos, indicator, getTitle())) {
                         myParent.scheduleNextTask();
                     }
                 }

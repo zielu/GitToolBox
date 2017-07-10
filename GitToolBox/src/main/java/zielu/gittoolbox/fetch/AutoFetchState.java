@@ -19,6 +19,7 @@ public class AutoFetchState extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
 
     private final AtomicBoolean myFetchRunning = new AtomicBoolean();
+    private final AtomicBoolean myActive = new AtomicBoolean();
     private final List<AutoFetchAllowed> myFetchAllowed = new ArrayList<>();
     private MessageBusConnection myConnection;
 
@@ -43,8 +44,18 @@ public class AutoFetchState extends AbstractProjectComponent {
         myConnection.subscribe(AutoFetchAllowed.TOPIC, allowed -> fireStateChanged());
     }
 
+    @Override
+    public void projectOpened() {
+        myActive.compareAndSet(false, true);
+    }
+
     private void fireStateChanged() {
         myProject.getMessageBus().syncPublisher(AutoFetchNotifier.TOPIC).stateChanged(this);
+    }
+
+    @Override
+    public void projectClosed() {
+        myActive.compareAndSet(true, false);
     }
 
     @Override
@@ -59,7 +70,7 @@ public class AutoFetchState extends AbstractProjectComponent {
     }
 
     private boolean isFetchAllowed() {
-        boolean allowed = true;
+        boolean allowed = myActive.get();
         for (AutoFetchAllowed fetchAllowed : myFetchAllowed) {
             if (!fetchAllowed.isAllowed()) {
                 allowed = false;
