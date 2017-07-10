@@ -8,6 +8,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.FontUtil;
 import git4idea.repo.GitRepository;
 import java.awt.Color;
+import java.util.Optional;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,19 +48,25 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
 
     @Override
     public boolean apply(ProjectViewNode node, PresentationData data) {
+        Optional<String> locationString = Optional.ofNullable(data.getLocationString());
         if (config.showProjectViewLocationPath) {
             if (config.showProjectViewStatusBeforeLocation) {
                 data.addText(makeStatusFragment(true));
-                data.setLocationString("- " + data.getLocationString());
+                locationString.ifPresent(l -> data.setLocationString("- " + l));
             } else {
-                StringBand location = new StringBand(FontUtil.spaceAndThinSpace());
-                location.append(data.getLocationString());
-                location.append(" - ");
-                data.addText(location.toString(), getLocationAttributes());
-                data.addText(makeStatusFragment(false));
+                if (locationString.isPresent()) {
+                    StringBand location = new StringBand(FontUtil.spaceAndThinSpace());
+                    location.append(locationString.get());
+                    location.append(" - ");
+                    data.addText(location.toString(), getLocationAttributes());
+                    data.addText(makeStatusFragment(false));
+                    data.setLocationString("");
+                } else {
+                    data.addText(makeStatusFragment(true));
+                }
             }
         } else {
-            data.setTooltip(data.getLocationString());
+            locationString.ifPresent(data::setTooltip);
             data.setLocationString("");
             data.addText(makeStatusFragment(true));
         }
