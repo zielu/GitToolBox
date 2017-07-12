@@ -1,6 +1,10 @@
 buildscript {
     repositories {
         maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.0-M5"
     }
 }
 
@@ -13,9 +17,11 @@ repositories {
 }
 
 ext.junitJupiterVersion  = '5.0.0-M5'
+ext.junitPlatformVersion = '1.0.0-M5'
 
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: "java"
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
@@ -38,6 +44,23 @@ idea {
 
 version = "${version}"
 
+junitPlatform {
+    filters {
+        engines {
+            // include 'junit-jupiter', 'junit-vintage'
+            // exclude 'custom-engine'
+        }
+        tags {
+            // include 'fast'
+            // exclude 'slow'
+        }
+        // includeClassNamePattern '.*Test'
+    }
+    // enableStandardTestTask true
+    // reportsDir file('build/test-results/junit-platform') // this is the default
+    // logManager 'org.apache.logging.log4j.jul.LogManager'
+}
+
 dependencies {
     compile 'org.jodd:jodd-core:3.8.1'
     compile 'com.google.guava:guava:21.0'
@@ -47,6 +70,6 @@ dependencies {
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
     // Only needed to run tests in an IntelliJ IDEA that bundles an older version
-    testRuntime("org.junit.platform:junit-platform-launcher:1.0.0-M5")
+    testRuntime("org.junit.platform:junit-platform-launcher:${junitPlatformVersion}")
     testRuntime("org.junit.vintage:junit-vintage-engine:4.12.0-M5")
 }
