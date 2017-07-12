@@ -39,4 +39,7 @@ version = "${version}"
 dependencies {
     compile 'org.jodd:jodd-core:3.8.1'
     compile 'com.google.guava:guava:21.0'
+
+    testCompile 'org.mockito:mockito-core:2.8.47'
+    testCompile 'org.assertj:assertj-core:3.8.0'
 }
