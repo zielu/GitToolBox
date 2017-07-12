@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ConfigNotifier;
@@ -22,7 +21,7 @@ public class AutoFetch extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
 
     private final AtomicLong myLastAutoFetch = new AtomicLong();
-    private final AtomicBoolean myActive = new AtomicBoolean();
+    private transient boolean myActive;
     private MessageBusConnection myConnection;
 
     private ScheduledExecutorService myExecutor;
@@ -67,7 +66,7 @@ public class AutoFetch extends AbstractProjectComponent {
         synchronized (this) {
             List<ScheduledFuture<?>> tasks = Lists.newArrayList(myScheduledTasks);
             myScheduledTasks.clear();
-            tasks.forEach(t -> t.cancel(false));
+            tasks.forEach(t -> t.cancel(true));
         }
     }
 
@@ -177,7 +176,7 @@ public class AutoFetch extends AbstractProjectComponent {
 
     void scheduleNextTask() {
         synchronized (this) {
-            if (isAutoFetchEnabled()) {
+            if (isActive() && isAutoFetchEnabled()) {
                 scheduleTask();
             }
         }
@@ -191,8 +190,8 @@ public class AutoFetch extends AbstractProjectComponent {
         return myProject;
     }
 
-    boolean isActive() {
-        return myActive.get();
+    private boolean isActive() {
+        return myActive;
     }
 
     public void updateLastAutoFetchDate() {
@@ -205,7 +204,8 @@ public class AutoFetch extends AbstractProjectComponent {
 
     @Override
     public void projectOpened() {
-        if (myActive.compareAndSet(false, true)) {
+        synchronized (this) {
+            myActive = true;
             myExecutor = GitToolBoxApp.getInstance().autoFetchExecutor();
             init();
         }
@@ -213,16 +213,27 @@ public class AutoFetch extends AbstractProjectComponent {
 
     @Override
     public void projectClosed() {
-        if (myActive.compareAndSet(true, false)) {
+        synchronized (this) {
             cancelCurrentTasks();
+            myActive = false;
         }
     }
 
     @Override
     public void disposeComponent() {
-        if (myConnection != null) {
-            myConnection.disconnect();
-            myConnection = null;
+        synchronized (this) {
+            if (myConnection != null) {
+                myConnection.disconnect();
+                myConnection = null;
+            }
+        }
+    }
+
+    void runIfActive(Runnable task) {
+        synchronized (this) {
+            if (isActive()) {
+                task.run();
+            }
         }
     }
 }

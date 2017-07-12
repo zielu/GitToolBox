@@ -42,20 +42,19 @@ public class AutoFetchTask implements Runnable {
 
     private void finishedNotification() {
         NotificationHandle toCancel = lastNotification.getAndSet(null);
-        if (toCancel != null && myParent.isActive()) {
+        if (toCancel != null) {
             toCancel.expire();
         }
-        if (myParent.isActive()) {
-            NotificationHandle notification = Notifier.getInstance(myProject).notifyLogOnly(
-                ResBundle.getString("message.autoFetch"),
-                ResBundle.getString("message.finished"));
-            lastNotification.set(notification);
-        }
+
+        NotificationHandle notification = Notifier.getInstance(myProject).notifyLogOnly(
+            ResBundle.getString("message.autoFetch"),
+            ResBundle.getString("message.finished"));
+        lastNotification.set(notification);
     }
 
     private void finishedWithoutFetch() {
         NotificationHandle toCancel = lastNotification.getAndSet(null);
-        if (toCancel != null && myParent.isActive()) {
+        if (toCancel != null) {
             toCancel.expire();
         }
     }
@@ -104,13 +103,15 @@ public class AutoFetchTask implements Runnable {
     }
 
     private void doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
-        LOG.debug("Auto-fetching...");
-        Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().build(myProject, indicator).fetchRoots(repos);
-        GitToolBoxProject.getInstance(myProject).perRepoStatusCache().refresh(fetched);
-        LOG.debug("Finished auto-fetch");
-        if (showNotifications) {
-            finishedNotification();
-        }
+        myParent.runIfActive(() -> {
+            LOG.debug("Auto-fetching...");
+            Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().build(myProject, indicator).fetchRoots(repos);
+            GitToolBoxProject.getInstance(myProject).perRepoStatusCache().refresh(fetched);
+            LOG.debug("Finished auto-fetch");
+            if (showNotifications) {
+                finishedNotification();
+            }
+        });
     }
 
     @Override
@@ -122,14 +123,16 @@ public class AutoFetchTask implements Runnable {
                 ResBundle.getString("message.autoFetching"), false) {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
-                    if (myParent.isActive() && doFetch(repos, indicator, getTitle())) {
-                        myParent.scheduleNextTask();
-                    }
+                    myParent.runIfActive(() -> {
+                        if (doFetch(repos, indicator, getTitle())) {
+                            myParent.scheduleNextTask();
+                        }
+                    });
                 }
             }));
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Fetched skipped: shouldFetch=" + shouldFetch);
+                LOG.debug("Fetched skipped");
             }
             if (showNotifications) {
                 AppUtil.invokeLaterIfNeeded(this::finishedWithoutFetch);
