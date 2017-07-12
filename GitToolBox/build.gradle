@@ -12,6 +12,8 @@ repositories {
     mavenCentral()
 }
 
+ext.junitJupiterVersion  = '5.0.0-M5'
+
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: "java"
 
@@ -41,5 +43,10 @@ dependencies {
     compile 'com.google.guava:guava:21.0'
 
     testCompile 'org.mockito:mockito-core:2.8.47'
-    testCompile 'org.assertj:assertj-core:3.8.0'
+    // JUnit 5
+    testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    // Only needed to run tests in an IntelliJ IDEA that bundles an older version
+    testRuntime("org.junit.platform:junit-platform-launcher:1.0.0-M5")
+    testRuntime("org.junit.vintage:junit-vintage-engine:4.12.0-M5")
 }
