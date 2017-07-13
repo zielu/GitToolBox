@@ -38,14 +38,19 @@ public class LocationOnlyNodeDecorationTest {
         decoration = new LocationOnlyNodeDecoration(config, repository, count);
     }
 
-    private PresentationData presentationData() {
-        PresentationData data = new PresentationData();
-        data.setLocationString(LOCATION);
+    private PresentationData presentationData(boolean location) {
+        PresentationData data = presentationData();
+        if (location) {
+            data.setLocationString(LOCATION);
+        }
         return data;
     }
 
-    private PresentationData apply() {
-        PresentationData presentationData = presentationData();
+    private PresentationData presentationData() {
+        return new PresentationData();
+    }
+
+    private PresentationData apply(PresentationData presentationData) {
         decoration.apply(node, presentationData);
         return presentationData;
     }
@@ -54,16 +59,52 @@ public class LocationOnlyNodeDecorationTest {
     @DisplayName("Location is shown before status")
     void locationBeforeStatus() {
         config.showProjectViewStatusBeforeLocation = true;
-        PresentationData presentationData = apply();
+        PresentationData presentationData = apply(presentationData(true));
         String location = presentationData.getLocationString();
         assertEquals(BRANCH + " " + AHEAD_BEHIND + " - " + LOCATION, location);
     }
 
     @Test
+    @DisplayName("Status is shown when location before status and location is null")
+    void locationBeforeStatusNullLocation() {
+        config.showProjectViewStatusBeforeLocation = true;
+        PresentationData presentationData = apply(presentationData(false));
+        String location = presentationData.getLocationString();
+        assertEquals(BRANCH + " " + AHEAD_BEHIND, location);
+    }
+
+    @Test
     @DisplayName("Status is shown before location")
     void statusBeforeLocation() {
-        PresentationData presentationData = apply();
+        PresentationData presentationData = apply(presentationData(true));
         String location = presentationData.getLocationString();
         assertEquals(LOCATION + " - " + BRANCH + " " + AHEAD_BEHIND, location);
+    }
+
+    @Test
+    @DisplayName("Status is shown when status before location and location is null")
+    void statusBeforeLocationNullLocation() {
+        PresentationData presentationData = apply(presentationData(false));
+        String location = presentationData.getLocationString();
+        assertEquals(BRANCH + " " + AHEAD_BEHIND, location);
+    }
+
+    @Test
+    @DisplayName("Status is shown when location is not shown and location before status")
+    void statusWhenLocationBeforeStatusAndLocationNotShown() {
+        config.showProjectViewLocationPath = false;
+        PresentationData presentationData = apply(presentationData(true));
+        String location = presentationData.getLocationString();
+        assertEquals(BRANCH + " " + AHEAD_BEHIND, location);
+    }
+
+    @Test
+    @DisplayName("Status is shown when location is not shown and status before location")
+    void statusWhenStatusBeforeLocationAndLocationNotShown() {
+        config.showProjectViewLocationPath = false;
+        config.showProjectViewStatusBeforeLocation = true;
+        PresentationData presentationData = apply(presentationData(true));
+        String location = presentationData.getLocationString();
+        assertEquals(BRANCH + " " + AHEAD_BEHIND, location);
     }
 }
