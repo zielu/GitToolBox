@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
+import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.ui.util.AppUtil;
 
@@ -22,7 +23,8 @@ public class UpdateProject {
     }
 
     private void invokeAction() {
-        AnAction action = GitToolBoxUpdateProjectApp.getInstance().getById(null).getAction();
+        String actionId = GitToolBoxConfig.getInstance().getUpdateProjectActionId();
+        AnAction action = GitToolBoxUpdateProjectApp.getInstance().getById(actionId).getAction();
         DataManager dataManager = DataManager.getInstance();
         WindowManager windowManager = WindowManager.getInstance();
         AnActionEvent evt = new AnActionEvent(null,

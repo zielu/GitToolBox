@@ -29,6 +29,7 @@ intellij {
     plugins 'git4idea'
     updateSinceUntilBuild false
     downloadSources true
+    plugins = ['Git4Idea', 'gr.jchrist.gitextender:0.4.0']
 }
 
 apply plugin: 'idea'

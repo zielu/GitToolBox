@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>171.1.4</version>
+  <version>171.2.0</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -61,10 +61,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes in 171.1.4</h3>
+      <h3>Changes in 171.2.0</h3>
       <ul>
-        <li>Fixed location path is null (<a href="https://github.com/zielu/GitToolBox/issues/39">#39</a>)</li>
-        <li>Fixed already disposed (<a href="https://github.com/zielu/GitToolBox/issues/42">#42</a>)</li>
+        <li>Git Extender integration (<a href="https://github.com/zielu/GitToolBox/issues/43">#43</a>)</li>
       </ul>
       <h3>Changes in 163.3.1</h3>
       <ul>
@@ -100,6 +99,7 @@
   <depends>com.intellij.modules.lang</depends>
   <depends>Git4Idea</depends>
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
+  <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
   <idea-version since-build="171.2014.21" until-build="172.*"/>
 
@@ -164,5 +164,6 @@
 
   <extensions defaultExtensionNs="zielu.gittoolbox">
     <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbMode"/>
+    <updateProjectAction provider="zielu.gittoolbox.ui.update.DefaultUpdateProjectAction"/>
   </extensions>
 </idea-plugin>

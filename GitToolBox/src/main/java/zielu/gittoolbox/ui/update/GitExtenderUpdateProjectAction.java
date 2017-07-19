@@ -5,8 +5,8 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import zielu.gittoolbox.extension.UpdateProjectAction;
 
-public class DefaultUpdateProjectAction implements UpdateProjectAction {
-    public static final String ID = "idea.update.project.action";
+public class GitExtenderUpdateProjectAction implements UpdateProjectAction {
+    private final String ID = "gitextender.update.project.action";
 
     @Override
     public String getId() {
@@ -15,12 +15,12 @@ public class DefaultUpdateProjectAction implements UpdateProjectAction {
 
     @Override
     public boolean isDefault() {
-        return true;
+        return false;
     }
 
     @Override
     public AnAction getAction() {
-        return ActionManager.getInstance().getAction("Vcs.UpdateProject");
+        return ActionManager.getInstance().getAction("GitExtender.UpdateAll");
     }
 
     @Override

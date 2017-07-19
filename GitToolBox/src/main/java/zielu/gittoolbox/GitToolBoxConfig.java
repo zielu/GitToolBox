@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
+import zielu.gittoolbox.ui.update.DefaultUpdateProjectAction;
 
 @State(
     name = "GitToolBoxAppSettings",
@@ -31,6 +32,7 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
     public boolean projectViewStatusCustomColor = false;
     public boolean projectViewStatusBold = false;
     public boolean projectViewStatusItalic = false;
+    public String updateProjectActionId = DefaultUpdateProjectAction.ID;
 
     @Transient
     public StatusPresenter getPresenter() {
@@ -95,6 +97,18 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
 
     public boolean isBehindTrackerChanged(boolean behindTracker) {
         return this.behindTracker != behindTracker;
+    }
+
+    public void setUpdateProjectActionId(String id) {
+        updateProjectActionId = id;
+    }
+
+    public String getUpdateProjectActionId() {
+        return updateProjectActionId;
+    }
+
+    public boolean isUpdateProjectActionId(@NotNull String id) {
+        return !updateProjectActionId.equals(id);
     }
 
     @Nullable

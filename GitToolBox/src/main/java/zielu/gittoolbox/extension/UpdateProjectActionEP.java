@@ -7,7 +7,7 @@ import com.intellij.util.xmlb.annotations.Attribute;
 
 public class UpdateProjectActionEP extends AbstractExtensionPointBean {
     public final static ExtensionPointName<UpdateProjectActionEP>
-            POINT_NAME = ExtensionPointName.create("zielu.gittoolbox.updateProjectInvoker");
+            POINT_NAME = ExtensionPointName.create("zielu.gittoolbox.updateProjectAction");
 
     @Attribute("provider")
     public String provider;
