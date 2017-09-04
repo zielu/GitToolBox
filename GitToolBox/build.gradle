@@ -4,12 +4,12 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.0-M5"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.0-RC2"
     }
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.2.14"
+    id "org.jetbrains.intellij" version "0.2.16"
 }
 
 repositories {
@@ -69,5 +69,5 @@ dependencies {
     testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
     // Only needed to run tests in an IntelliJ IDEA that bundles an older version
     testRuntime("org.junit.platform:junit-platform-launcher:${junitPlatformVersion}")
-    testRuntime("org.junit.vintage:junit-vintage-engine:4.12.0-M5")
+    testRuntime("org.junit.vintage:junit-vintage-engine:${junitVintageEngineVersion}")
 }
