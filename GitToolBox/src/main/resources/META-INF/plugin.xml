@@ -32,6 +32,9 @@
       <li><b>Behind tracker</b> -
         shows notification when behind count of current branch changes and is non-zero
       </li>
+      <li><b>Git Extender integration</b> -
+        can be selected as update action executed from behind tracker popup
+      </li>
     </ul>
     <h2>Configuration</h2>
     Settings / Other Settings / Git ToolBox Global
@@ -50,6 +53,9 @@
       </li>
       <li><b>Behind tracker</b> -
         toggle
+      </li>
+      <li><b>Update project action</b> -
+        select action to invoke from behind tracker popup
       </li>
     </ul>
     Settings / Other Settings / Git ToolBox Project
