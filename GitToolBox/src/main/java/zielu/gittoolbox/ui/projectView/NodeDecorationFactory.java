@@ -3,7 +3,7 @@ package zielu.gittoolbox.ui.projectView;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
 public class NodeDecorationFactory {

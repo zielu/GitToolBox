@@ -1,4 +1,4 @@
-package zielu.gittoolbox;
+package zielu.gittoolbox.config;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.Topic;

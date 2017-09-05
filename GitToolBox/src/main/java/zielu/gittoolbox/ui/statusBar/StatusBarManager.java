@@ -9,9 +9,9 @@ import com.intellij.util.messages.MessageBusConnection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.ConfigNotifier;
-import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ProjectAware;
+import zielu.gittoolbox.config.ConfigNotifier;
+import zielu.gittoolbox.config.GitToolBoxConfig;
 
 public class StatusBarManager implements Disposable, ProjectAware {
     private final AtomicBoolean opened = new AtomicBoolean();

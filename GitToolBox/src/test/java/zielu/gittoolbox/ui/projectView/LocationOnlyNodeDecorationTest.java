@@ -12,11 +12,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusPresenters;
 
-public class LocationOnlyNodeDecorationTest {
+class LocationOnlyNodeDecorationTest {
     private static final String LOCATION = "/var/log/project";
     private static final String AHEAD_BEHIND = "1 // 1";
     private static final String BRANCH = "master";

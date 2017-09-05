@@ -7,7 +7,7 @@ import git4idea.util.GitUIUtil;
 import java.util.Map;
 import java.util.Map.Entry;
 import jodd.util.StringBand;
-import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.RevListCount;

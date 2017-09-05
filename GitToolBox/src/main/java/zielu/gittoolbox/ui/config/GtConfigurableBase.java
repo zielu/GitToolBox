@@ -47,7 +47,9 @@ public abstract class GtConfigurableBase
     @Override
     public final JComponent createComponent() {
         initComponent();
-        setFormState(getForm(), getConfig());
+        FORM form = getForm();
+        setFormState(form, getConfig());
+        form.afterStateSet();
         return form.getContent();
     }
 

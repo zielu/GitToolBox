@@ -5,7 +5,7 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.ResBundle;
 
@@ -47,7 +47,6 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
         form.setProjectViewStatusBold(config.projectViewStatusBold);
         form.setProjectViewStatusItalic(config.projectViewStatusItalic);
         form.setUpdateProjectAction(GitToolBoxUpdateProjectApp.getInstance().getById(config.getUpdateProjectActionId()));
-        form.afterStateSet();
     }
 
     @Override

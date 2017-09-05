@@ -61,12 +61,13 @@ junitPlatform {
 }
 
 dependencies {
-    compile 'org.jodd:jodd-core:3.8.1'
-    compile 'com.google.guava:guava:21.0'
+    compile("org.jodd:jodd-core:${joddVersion}")
+    compile("com.google.guava:guava:${guavaVersion}")
 
     testCompile("org.mockito:mockito-core:${mockitoVersion}")
     // JUnit 5
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testCompile("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
     // Only needed to run tests in an IntelliJ IDEA that bundles an older version
     // testRuntime("org.junit.platform:junit-platform-launcher:${junitPlatformVersion}")

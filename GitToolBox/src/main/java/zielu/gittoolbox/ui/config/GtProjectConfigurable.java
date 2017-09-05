@@ -6,8 +6,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.GitToolBoxConfigForProject;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
 public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitToolBoxConfigForProject> implements SearchableConfigurable {
 
@@ -43,12 +43,16 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     protected void setFormState(GtPrjForm form, GitToolBoxConfigForProject config) {
         form.setAutoFetchEnabled(config.autoFetch);
         form.setAutoFetchInterval(config.autoFetchIntervalMinutes);
+        form.setCommitCompletionEnabled(config.commitDialogCompletion);
+        form.setCommitCompletionConfigs(config.completionConfigs);
     }
 
     @Override
     protected boolean checkModified(GtPrjForm form, GitToolBoxConfigForProject config) {
         boolean modified = config.isAutoFetchChanged(form.getAutoFetchEnabled());
         modified = modified || config.isAutoFetchIntervalMinutesChanged(form.getAutoFetchInterval());
+        modified = modified || config.isCommitDialogCompletionChanged(form.getCommitCompletionEnabled());
+        modified = modified || config.isCommitDialogCompletionConfigsChanged(form.getCommitCompletionConfigs());
         return modified;
     }
 
@@ -56,13 +60,15 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     protected void doApply(GtPrjForm form, GitToolBoxConfigForProject config) throws ConfigurationException {
         config.autoFetch = form.getAutoFetchEnabled();
         config.autoFetchIntervalMinutes = form.getAutoFetchInterval();
+        config.commitDialogCompletion = form.getCommitCompletionEnabled();
+        config.completionConfigs = form.getCommitCompletionConfigs();
         config.fireChanged(myProject);
     }
 
     @NotNull
     @Override
     public String getId() {
-        return "zielu.svntoolbox.prj.config";
+        return "zielu.gittoolbox.prj.config";
     }
 
     @Nullable

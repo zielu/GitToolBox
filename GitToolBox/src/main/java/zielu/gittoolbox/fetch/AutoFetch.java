@@ -15,9 +15,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.ConfigNotifier;
 import zielu.gittoolbox.GitToolBoxApp;
-import zielu.gittoolbox.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.ConfigNotifier;
+import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
 public class AutoFetch extends AbstractProjectComponent {
     private static final int DEFAULT_DELAY_MINUTES = 1;

@@ -7,7 +7,7 @@ import java.io.File;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class GtConfigTest {
+class GtConfigTest {
     private static GtConfig config;
 
     @BeforeAll

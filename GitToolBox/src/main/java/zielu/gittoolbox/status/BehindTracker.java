@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.event.HyperlinkEvent;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;

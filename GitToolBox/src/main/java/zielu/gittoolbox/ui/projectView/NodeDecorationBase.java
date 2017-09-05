@@ -6,7 +6,7 @@ import jodd.util.StringBand;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.ui.StatusPresenter;

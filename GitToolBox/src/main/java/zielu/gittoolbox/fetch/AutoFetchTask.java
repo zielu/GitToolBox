@@ -17,11 +17,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxConfigForProject;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
+import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.ui.util.AppUtil;
 
 public class AutoFetchTask implements Runnable {

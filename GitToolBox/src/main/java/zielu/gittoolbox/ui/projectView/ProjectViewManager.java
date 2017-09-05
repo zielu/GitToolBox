@@ -7,12 +7,12 @@ import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.ConfigNotifier;
-import zielu.gittoolbox.GitToolBoxConfig;
 import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.config.ConfigNotifier;
+import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.ui.util.AppUtil;
 
 public class ProjectViewManager implements Disposable, ProjectAware {

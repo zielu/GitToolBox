@@ -1,4 +1,4 @@
-package zielu.gittoolbox;
+package zielu.gittoolbox.config;
 
 import com.google.common.base.Objects;
 import com.intellij.openapi.application.ApplicationManager;
