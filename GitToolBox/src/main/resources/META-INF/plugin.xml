@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>172.0.0</version>
+  <version>173.0.0</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -44,6 +44,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <h3>Changes in 173.0.0</h3>
+      <ul>
+        <li>173.* compatibility</li>
+      </ul>
       <h3>Changes in 172.0.0</h3>
       <ul>
         <li>Restrict compatibility to 172.* (<a href="https://github.com/zielu/GitToolBox/issues/43">#46</a>)</li>
@@ -68,7 +72,7 @@
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="172" until-build="172.*"/>
+  <idea-version since-build="173" until-build="173.*"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
