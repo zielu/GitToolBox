@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>171.1.4</version>
+  <version>173.0.0</version>
   <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
 
   <description><![CDATA[
@@ -32,63 +32,33 @@
       <li><b>Behind tracker</b> -
         shows notification when behind count of current branch changes and is non-zero
       </li>
+      <li><b>Git Extender integration</b> -
+        can be selected as update action executed from behind tracker popup
+      </li>
     </ul>
     <h2>Configuration</h2>
-    Settings / Other Settings / Git ToolBox Global
     <ul>
-      <li><b>Git status display</b>
-        <ul>
-          <li>status bar and Project View can be toggled independently</li>
-          <li>3 display modes: arrows, arrow-heads, text</li>
-          <li>Project View
-            <ul>
-              <li>show status before location path or hide path entirely</li>
-              <li>customizable styling (color, bold/italics)</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-      <li><b>Behind tracker</b> -
-        toggle
-      </li>
-    </ul>
-    Settings / Other Settings / Git ToolBox Project
-    <ul>
-      <li><b>Auto fetch</b> -
-        toggle and interval (in minutes)
-      </li>
+      <li>Settings / Other Settings / Git ToolBox Global</li>
+      <li>Settings / Other Settings / Git ToolBox Project</li>
     </ul>
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes in 171.1.4</h3>
+      <h3>Changes in 173.0.0</h3>
       <ul>
-        <li>Fixed location path is null (<a href="https://github.com/zielu/GitToolBox/issues/39">#39</a>)</li>
-        <li>Fixed already disposed (<a href="https://github.com/zielu/GitToolBox/issues/42">#42</a>)</li>
+        <li>173.* compatibility</li>
       </ul>
-      <h3>Changes in 163.3.1</h3>
+      <h3>Changes in 172.0.0</h3>
       <ul>
-        <li>Fixed excessive auto-fetch queuing (<a href="https://github.com/zielu/GitToolBox/issues/33">#33</a>)</li>
-        <li>Do not auto-fetch when build in progress (<a href="https://github.com/zielu/GitToolBox/issues/34">#34</a>)</li>
-        <li>Improved Project View decoration performance</li>
-        <li>Fixed non-Idea IDEs compatibility (<a href="https://github.com/zielu/GitToolBox/issues/36">#36</a>)</li>
+        <li>Restrict compatibility to 172.* (<a href="https://github.com/zielu/GitToolBox/issues/43">#46</a>)</li>
       </ul>
-      <h3>Changes in 16.3.4</h3>
+      <h3>Changes in 171.3.0</h3>
       <ul>
-        <li>Fixed stale Project View decorations (<a href="https://github.com/zielu/GitToolBox/issues/25">#25</a>)</li>
-        <li>Added 'Refresh status' status bar action (<a href="https://github.com/zielu/GitToolBox/issues/25">#25</a>)</li>
+        <li>Restrict compatibility to 171.* (<a href="https://github.com/zielu/GitToolBox/issues/43">#46</a>)</li>
       </ul>
-      <h3>Changes in 13.5.4</h3>
+      <h3>Changes in 171.2.0</h3>
       <ul>
-        <li>Fixed NullPointer during auto-fetch</li>
-      </ul>
-      <h3>Changes in 13.1.1</h3>
-      <ul>
-        <li>Recompiled with 1.6 compatibility (<a href="https://github.com/zielu/GitToolBox/issues/2">#2</a>)</li>
-      </ul>
-      <h3>Changes in 13.0.2</h3>
-      <ul>
-        <li>133.x compatible release</li>
+        <li>Git Extender integration (<a href="https://github.com/zielu/GitToolBox/issues/43">#43</a>)</li>
       </ul>
       ]]>
   </change-notes>
@@ -100,8 +70,9 @@
   <depends>com.intellij.modules.lang</depends>
   <depends>Git4Idea</depends>
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
+  <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="171.2014.21" until-build="172.*"/>
+  <idea-version since-build="173" until-build="173.*"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
@@ -119,6 +90,9 @@
   <application-components>
     <component>
       <implementation-class>zielu.gittoolbox.GitToolBoxApp</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.GitToolBoxUpdateProjectApp</implementation-class>
     </component>
   </application-components>
 
@@ -154,9 +128,13 @@
     <extensionPoint name="autoFetchAllowed" beanClass="zielu.gittoolbox.extension.AutoFetchAllowedEP">
       <with attribute="provider" implements="zielu.gittoolbox.extension.AutoFetchAllowed"/>
     </extensionPoint>
+    <extensionPoint name="updateProjectAction" beanClass="zielu.gittoolbox.extension.UpdateProjectActionEP">
+      <with attribute="provider" implements="zielu.gittoolbox.extension.UpdateProjectAction"/>
+    </extensionPoint>
   </extensionPoints>
 
   <extensions defaultExtensionNs="zielu.gittoolbox">
     <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbMode"/>
+    <updateProjectAction provider="zielu.gittoolbox.ui.update.DefaultUpdateProjectAction"/>
   </extensions>
 </idea-plugin>

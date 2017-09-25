@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxConfig;
+import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.ResBundle;
 
 public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
@@ -45,6 +46,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
         form.setProjectViewStatusColor(config.getProjectViewStatusColor());
         form.setProjectViewStatusBold(config.projectViewStatusBold);
         form.setProjectViewStatusItalic(config.projectViewStatusItalic);
+        form.setUpdateProjectAction(GitToolBoxUpdateProjectApp.getInstance().getById(config.getUpdateProjectActionId()));
         form.afterStateSet();
     }
 
@@ -60,6 +62,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
         modified = modified || config.isProjectViewStatusCustomColorChanged(form.getProjectViewStatusColorEnabled());
         modified = modified || config.isProjectViewStatusBoldChanged(form.getProjectViewStatusBold());
         modified = modified || config.isProjectViewStatusItalicChanged(form.getProjectViewStatusItalic());
+        modified = modified || config.isUpdateProjectActionId(form.getUpdateProjectAction().getId());
         return modified;
     }
 
@@ -75,6 +78,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
         config.setProjectViewStatusColor(form.getProjectViewStatusColor());
         config.projectViewStatusBold = form.getProjectViewStatusBold();
         config.projectViewStatusItalic = form.getProjectViewStatusItalic();
+        config.updateProjectActionId = form.getUpdateProjectAction().getId();
         config.fireChanged();
     }
 

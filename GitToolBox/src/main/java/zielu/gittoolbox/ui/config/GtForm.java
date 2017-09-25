@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Vector;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -14,7 +15,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.extension.UpdateProjectAction;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.util.CheckBoxWithColorChooserEx;
@@ -32,6 +35,7 @@ public class GtForm implements GtFormUi {
     private CheckBoxWithColorChooserEx projectViewStatusColorChooser;
     private JCheckBox projectViewStatusBoldCheckBox;
     private JCheckBox projectViewStatusItalicCheckBox;
+    private JComboBox updateProjectAction;
 
     protected void createUIComponents() {
         projectViewStatusColorChooser = new CheckBoxWithColorChooserEx(ResBundle.getString("configurable.app.showProjectViewStatusColor.label"));
@@ -46,7 +50,7 @@ public class GtForm implements GtFormUi {
                 setText(presenter.getLabel());
             }
         });
-        presentationMode.setModel(new DefaultComboBoxModel(StatusPresenters.values()));
+        presentationMode.setModel(new DefaultComboBoxModel<>(StatusPresenters.values()));
         presentationMode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,6 +71,14 @@ public class GtForm implements GtFormUi {
                 onProjectViewStatusChange();
             }
         });
+        updateProjectAction.setRenderer(new ListCellRendererWrapper<UpdateProjectAction>() {
+
+            @Override
+            public void customize(JList list, UpdateProjectAction action, int index, boolean selected, boolean hasFocus) {
+                setText(action.getName());
+            }
+        });
+        updateProjectAction.setModel(new DefaultComboBoxModel<>(new Vector<>(GitToolBoxUpdateProjectApp.getInstance().getAll())));
     }
 
     @Override
@@ -188,5 +200,13 @@ public class GtForm implements GtFormUi {
 
     public boolean getProjectViewStatusItalic() {
         return projectViewStatusItalicCheckBox.isSelected();
+    }
+
+    public void setUpdateProjectAction(UpdateProjectAction action) {
+        updateProjectAction.setSelectedItem(action);
+    }
+
+    public UpdateProjectAction getUpdateProjectAction() {
+        return (UpdateProjectAction) updateProjectAction.getSelectedItem();
     }
 }

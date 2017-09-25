@@ -6,7 +6,7 @@ import com.intellij.openapi.components.ApplicationComponent;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-public class GitToolBoxApp extends ApplicationComponent.Adapter {
+public class GitToolBoxApp implements ApplicationComponent {
     private ScheduledExecutorService myAutoFetchExecutor;
 
     public static GitToolBoxApp getInstance() {
