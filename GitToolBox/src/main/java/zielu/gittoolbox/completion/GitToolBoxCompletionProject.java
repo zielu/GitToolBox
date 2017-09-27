@@ -5,15 +5,12 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.GitCompatUtil;
 import zielu.gittoolbox.config.ConfigNotifier;
@@ -77,8 +74,7 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent implem
     }
 
     private Collection<GitRepository> getRepositories(Project project, Collection<File> selectedFiles) {
-        List<VirtualFile> files = selectedFiles.stream().map(file -> VfsUtil.findFileByIoFile(file, false)).collect(Collectors.toList());
-        return GitCompatUtil.getRepositoriesForFiles(project, files);
+        return GitCompatUtil.getRepositoriesForFiles(project, selectedFiles);
     }
 
     public List<Formatter> getFormatters() {
