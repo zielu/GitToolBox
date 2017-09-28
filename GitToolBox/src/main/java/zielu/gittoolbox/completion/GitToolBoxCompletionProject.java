@@ -1,7 +1,6 @@
 package zielu.gittoolbox.completion;
 
 import com.google.common.collect.ImmutableList;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -19,7 +18,7 @@ import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.util.LogWatch;
 
-public class GitToolBoxCompletionProject extends AbstractProjectComponent implements Disposable {
+public class GitToolBoxCompletionProject extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
     private final List<File> myAffectedFiles = new ArrayList<>();
     private Collection<GitRepository> myAffectedRepositories;
@@ -32,7 +31,7 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent implem
 
     @Override
     public void initComponent() {
-        myConnection = myProject.getMessageBus().connect(this);
+        myConnection = myProject.getMessageBus().connect();
         myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new Adapter() {
             @Override
             public void configChanged(Project project, GitToolBoxConfigForProject config) {
@@ -89,11 +88,7 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent implem
     @Override
     public void disposeComponent() {
         myConnection.disconnect();
-        myFormatters = null;
-    }
-
-    @Override
-    public void dispose() {
         myConnection = null;
+        myFormatters = null;
     }
 }
