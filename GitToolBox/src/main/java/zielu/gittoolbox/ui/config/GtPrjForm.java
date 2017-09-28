@@ -28,6 +28,7 @@ import zielu.gittoolbox.ResIcons;
 import zielu.gittoolbox.config.CommitCompletionConfig;
 import zielu.gittoolbox.config.CommitCompletionType;
 import zielu.gittoolbox.fetch.AutoFetchParams;
+import zielu.gittoolbox.ui.util.AppUtil;
 import zielu.gittoolbox.ui.util.ButtonWithPopup;
 import zielu.gittoolbox.ui.util.SimpleAction;
 
@@ -126,6 +127,8 @@ public class GtPrjForm implements GtFormUi {
                 updateCompletionItemActions();
             }
         });
+
+        completionItemPatternForm.addPatternUpdate(text -> AppUtil.invokeLaterIfNeeded(() -> completionItemList.repaint()));
     }
 
     private void onCompletionItemSelected(CommitCompletionConfig config) {

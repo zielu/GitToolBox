@@ -1,11 +1,15 @@
 package zielu.gittoolbox.ui.config;
 
 import com.intellij.ui.DocumentAdapter;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.function.Consumer;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
+import org.apache.commons.lang.StringUtils;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.ResIcons;
 import zielu.gittoolbox.config.CommitCompletionConfig;
@@ -14,6 +18,8 @@ import zielu.gittoolbox.formatter.RegExpFormatter;
 import zielu.gittoolbox.ui.util.RegExpTextField;
 
 public class GtPatternFormatterForm implements GtFormUi {
+    private final Set<Consumer<String>> patternUpdates = new LinkedHashSet<>();
+
     private RegExpTextField commitCompletionPatternField;
     private JTextField commitCompletionPatternInput;
     private JTextField commitCompletionPatternOutput;
@@ -25,13 +31,20 @@ public class GtPatternFormatterForm implements GtFormUi {
 
     @Override
     public void init() {
-        commitCompletionPatternField.addTextConsumer(text -> updateCommitCompletionOutput());
+        commitCompletionPatternField.addTextConsumer(text -> {
+            updateCommitCompletionOutput();
+            patternUpdates.forEach(c -> c.accept(text));
+        });
         commitCompletionPatternInput.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(DocumentEvent e) {
                 updateCommitCompletionOutput();
             }
         });
+    }
+
+    void addPatternUpdate(Consumer<String> updateHandler) {
+        patternUpdates.add(updateHandler);
     }
 
     private void updateCommitCompletionOutput() {
@@ -52,11 +65,7 @@ public class GtPatternFormatterForm implements GtFormUi {
             commitCompletionPatternStatus.setToolTipText(ResBundle.getString("commit.dialog.completion.pattern.output.not.matched.label"));
         }
         config.pattern = pattern;
-        config.testInput = testInput;
-    }
-
-    public CommitCompletionConfig getCommitCompletionConfig() {
-        return config;
+        config.testInput = StringUtils.trimToNull(testInput);
     }
 
     public void setCommitCompletionConfig(CommitCompletionConfig config) {
@@ -81,5 +90,6 @@ public class GtPatternFormatterForm implements GtFormUi {
     public void dispose() {
         commitCompletionPatternField.dispose();
         config = null;
+        patternUpdates.clear();
     }
 }
