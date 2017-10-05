@@ -214,8 +214,8 @@ public class AutoFetch extends AbstractProjectComponent {
     @Override
     public void projectClosed() {
         synchronized (this) {
-            cancelCurrentTasks();
             myActive = false;
+            cancelCurrentTasks();
         }
     }
 

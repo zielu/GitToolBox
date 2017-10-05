@@ -2,7 +2,7 @@
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
   <version>173.0.0</version>
-  <vendor url="https://github.com/zielu/GitToolBox">Łukasz Zieliński</vendor>
+  <vendor url="https://github.com/zielu/GitToolBox">Lukasz Zielinski</vendor>
 
   <description><![CDATA[
     <h2>Enriches Git Integration with additional features</h2>

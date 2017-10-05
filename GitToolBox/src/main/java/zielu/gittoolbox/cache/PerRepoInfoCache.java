@@ -6,6 +6,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
@@ -16,6 +17,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.status.GitStatusCalculator;
@@ -62,7 +65,8 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
     private void update(GitRepository repository) {
         if (myActive.get()) {
-            myApplication.runReadAction(() -> get(repository).update(repository, myCalculator, info -> onRepoChanged(repository, info)));
+            DumbService dumbService = DumbService.getInstance(myProject);
+            dumbService.runReadActionInSmartMode(() -> get(repository).update(repository, myCalculator, info -> onRepoChanged(repository, info)));
         }
     }
 
@@ -156,9 +160,9 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     @Override
     public void opened() {
         if (myActive.compareAndSet(false,true)) {
-            ThreadFactoryBuilder threadBuilder = new ThreadFactoryBuilder();
+            ThreadFactoryBuilder threadBuilder = new ThreadFactoryBuilder().setDaemon(true);
             myUpdateExecutor = Executors.newSingleThreadExecutor(
-                    threadBuilder.setNameFormat(getClass().getSimpleName()+"-["+myProject.getName()+"]-%d").build()
+                threadBuilder.setNameFormat(getClass().getSimpleName()+"-["+myProject.getName()+"]-%d").build()
             );
         }
     }
@@ -166,7 +170,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     @Override
     public void closed() {
         if (myActive.compareAndSet(true, false)) {
-            myUpdateExecutor.shutdown();
+            myUpdateExecutor.shutdownNow().forEach(notStarted -> LOG.info("Task " + notStarted + " was never started"));
         }
     }
 
@@ -210,5 +214,12 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
         }
 
         abstract void runImpl();
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append("repository", myRepository)
+                .toString();
+        }
     }
 }

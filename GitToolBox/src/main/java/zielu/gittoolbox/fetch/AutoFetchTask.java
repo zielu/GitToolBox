@@ -14,6 +14,8 @@ import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxConfigForProject;
 import zielu.gittoolbox.GitToolBoxProject;
@@ -138,5 +140,12 @@ public class AutoFetchTask implements Runnable {
                 AppUtil.invokeLaterIfNeeded(this::finishedWithoutFetch);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+            .append("project", myProject)
+            .toString();
     }
 }
