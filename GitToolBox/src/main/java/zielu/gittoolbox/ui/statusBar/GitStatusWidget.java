@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.statusBar;
 
-import com.intellij.ide.ui.UISettings;
 import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
@@ -12,7 +11,6 @@ import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
 import git4idea.GitVcs;
-import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,6 +26,7 @@ import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.ui.util.AppUtil;
+import zielu.gittoolbox.util.GtUtil;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
             StatusBarWidget.MultipleTextValuesPresentation {
@@ -60,7 +59,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
 
     private void onCacheChange(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
         AppUtil.invokeLaterIfNeeded(() -> {
-            if (opened.get() && repository.equals(GitBranchUtil.getCurrentRepository(myProject))) {
+            if (opened.get() && repository.equals(GtUtil.getCurrentRepositoryQuick(myProject))) {
                 update(repository, info.count);
                 updateStatusBar();
             }
@@ -168,7 +167,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     private void runUpdate() {
         GitVcs git = GitVcs.getInstance(myProject);
         if (git != null) {
-            GitRepository repository = GitBranchUtil.getCurrentRepository(myProject);
+            GitRepository repository = GtUtil.getCurrentRepositoryQuick(myProject);
             GitAheadBehindCount aheadBehind = null;
             if (repository != null) {
                 GitToolBoxProject toolBox = GitToolBoxProject.getInstance(myProject);

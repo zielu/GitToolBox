@@ -7,9 +7,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ConfigNotifier;
@@ -21,7 +24,7 @@ public class AutoFetch extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
 
     private final AtomicLong myLastAutoFetch = new AtomicLong();
-    private transient boolean myActive;
+    private final AtomicBoolean myActive = new AtomicBoolean();
     private MessageBusConnection myConnection;
 
     private ScheduledExecutorService myExecutor;
@@ -55,61 +58,50 @@ public class AutoFetch extends AbstractProjectComponent {
     private void init() {
         GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project());
         if (config.autoFetch) {
-            synchronized (this) {
-                currentInterval = config.autoFetchIntervalMinutes;
-                scheduleInitTask();
-            }
+            currentInterval = config.autoFetchIntervalMinutes;
+            scheduleInitTask();
         }
     }
 
     private void cancelCurrentTasks() {
-        synchronized (this) {
-            List<ScheduledFuture<?>> tasks = Lists.newArrayList(myScheduledTasks);
-            myScheduledTasks.clear();
-            tasks.forEach(t -> t.cancel(true));
-        }
+        List<ScheduledFuture<?>> tasks = Lists.newArrayList(myScheduledTasks);
+        myScheduledTasks.clear();
+        tasks.forEach(t -> t.cancel(true));
     }
 
     private boolean cleanAndCheckTasks() {
-        synchronized (this) {
-            myScheduledTasks.removeIf(task -> task.isCancelled() || task.isDone());
-            return myScheduledTasks.isEmpty();
-        }
+        myScheduledTasks.removeIf(task -> task.isCancelled() || task.isDone());
+        return myScheduledTasks.isEmpty();
     }
 
     private void onConfigChange(GitToolBoxConfigForProject config) {
         if (config.autoFetch) {
             LOG.debug("Auto-fetch enabled");
-            synchronized (this) {
-                if (currentInterval != config.autoFetchIntervalMinutes) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Auto-fetch interval or state changed: enabled="
-                            + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
-                    }
-
-                    cancelCurrentTasks();
-                    LOG.debug("Existing task cancelled on auto-fetch change");
-                    if (currentInterval == 0) {
-                        //enable
-                        scheduleFastTask();
-                    } else {
-                        scheduleTask();
-                    }
-                    currentInterval = config.autoFetchIntervalMinutes;
+            if (currentInterval != config.autoFetchIntervalMinutes) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Auto-fetch interval or state changed: enabled="
+                        + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
+                }
+                cancelCurrentTasks();
+                LOG.debug("Existing task cancelled on auto-fetch change");
+                if (currentInterval == 0) {
+                    //enable
+                    scheduleFastTask();
                 } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Auto-fetch interval and state did not change: enabled="
-                            + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
-                    }
+                    scheduleTask();
+                }
+                currentInterval = config.autoFetchIntervalMinutes;
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Auto-fetch interval and state did not change: enabled="
+                        + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
                 }
             }
         } else {
             LOG.debug("Auto-fetch disabled");
-            synchronized (this) {
-                cancelCurrentTasks();
-                currentInterval = 0;
-                LOG.debug("Existing task cancelled on auto-fetch disable");
-            }
+            cancelCurrentTasks();
+            currentInterval = 0;
+            LOG.debug("Existing task cancelled on auto-fetch disable");
         }
     }
 
@@ -123,13 +115,11 @@ public class AutoFetch extends AbstractProjectComponent {
 
     private void scheduleFastTask(int seconds) {
         if (isActive()) {
-            synchronized (this) {
-                if (cleanAndCheckTasks()) {
-                    LOG.debug("Scheduling fast auto-fetch in ", seconds, " seconds");
-                    myScheduledTasks.add(myExecutor.schedule(AutoFetchTask.create(this), seconds, TimeUnit.SECONDS));
-                } else {
-                    LOG.debug("Tasks already scheduled (in fast auto-fetch)");
-                }
+            if (cleanAndCheckTasks()) {
+                LOG.debug("Scheduling fast auto-fetch in ", seconds, " seconds");
+                myScheduledTasks.add(myExecutor.schedule(AutoFetchTask.create(this), seconds, TimeUnit.SECONDS));
+            } else {
+                LOG.debug("Tasks already scheduled (in fast auto-fetch)");
             }
         }
     }
@@ -163,22 +153,18 @@ public class AutoFetch extends AbstractProjectComponent {
 
     private void scheduleTask(int delayMinutes) {
         if (isActive()) {
-            synchronized (this) {
-                if (cleanAndCheckTasks()) {
-                    LOG.debug("Scheduling regular auto-fetch in ", delayMinutes, "  minutes");
-                    myScheduledTasks.add(myExecutor.schedule(AutoFetchTask.create(this), delayMinutes, TimeUnit.MINUTES));
-                } else {
-                    LOG.debug("Tasks already scheduled (in regular auto-fetch)");
-                }
+            if (cleanAndCheckTasks()) {
+                LOG.debug("Scheduling regular auto-fetch in ", delayMinutes, "  minutes");
+                myScheduledTasks.add(myExecutor.schedule(AutoFetchTask.create(this), delayMinutes, TimeUnit.MINUTES));
+            } else {
+                LOG.debug("Tasks already scheduled (in regular auto-fetch)");
             }
         }
     }
 
     void scheduleNextTask() {
-        synchronized (this) {
-            if (isActive() && isAutoFetchEnabled()) {
-                scheduleTask();
-            }
+        if (isActive() && isAutoFetchEnabled()) {
+            scheduleTask();
         }
     }
 
@@ -191,7 +177,7 @@ public class AutoFetch extends AbstractProjectComponent {
     }
 
     private boolean isActive() {
-        return myActive;
+        return myActive.get();
     }
 
     public void updateLastAutoFetchDate() {
@@ -204,8 +190,7 @@ public class AutoFetch extends AbstractProjectComponent {
 
     @Override
     public void projectOpened() {
-        synchronized (this) {
-            myActive = true;
+        if (myActive.compareAndSet(false, true)) {
             myExecutor = GitToolBoxApp.getInstance().autoFetchExecutor();
             init();
         }
@@ -213,27 +198,35 @@ public class AutoFetch extends AbstractProjectComponent {
 
     @Override
     public void projectClosed() {
-        synchronized (this) {
-            myActive = false;
+        if (myActive.compareAndSet(true, false)) {
             cancelCurrentTasks();
         }
     }
 
     @Override
     public void disposeComponent() {
-        synchronized (this) {
-            if (myConnection != null) {
-                myConnection.disconnect();
-                myConnection = null;
-            }
+        if (myConnection != null) {
+            myConnection.disconnect();
+            myConnection = null;
         }
     }
 
     void runIfActive(Runnable task) {
-        synchronized (this) {
-            if (isActive()) {
-                task.run();
+        if (isActive()) {
+            task.run();
+        }
+    }
+
+    <T> Optional<T> callIfActive(Callable<T> task) {
+        if (isActive()) {
+            try {
+                return Optional.of(task.call());
+            } catch (Exception e) {
+                LOG.error("Error while calling if active", e);
+                return  Optional.empty();
             }
+        } else {
+            return Optional.empty();
         }
     }
 }
