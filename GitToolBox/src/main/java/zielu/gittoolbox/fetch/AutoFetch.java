@@ -58,50 +58,61 @@ public class AutoFetch extends AbstractProjectComponent {
     private void init() {
         GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project());
         if (config.autoFetch) {
-            currentInterval = config.autoFetchIntervalMinutes;
-            scheduleInitTask();
+            synchronized (this) {
+                currentInterval = config.autoFetchIntervalMinutes;
+                scheduleInitTask();
+            }
         }
     }
 
     private void cancelCurrentTasks() {
-        List<ScheduledFuture<?>> tasks = Lists.newArrayList(myScheduledTasks);
-        myScheduledTasks.clear();
-        tasks.forEach(t -> t.cancel(true));
+        synchronized (this) {
+            List<ScheduledFuture<?>> tasks = Lists.newArrayList(myScheduledTasks);
+            myScheduledTasks.clear();
+            tasks.forEach(t -> t.cancel(true));
+        }
     }
 
     private boolean cleanAndCheckTasks() {
-        myScheduledTasks.removeIf(task -> task.isCancelled() || task.isDone());
-        return myScheduledTasks.isEmpty();
+        synchronized (this) {
+            myScheduledTasks.removeIf(task -> task.isCancelled() || task.isDone());
+            return myScheduledTasks.isEmpty();
+        }
     }
 
     private void onConfigChange(GitToolBoxConfigForProject config) {
         if (config.autoFetch) {
             LOG.debug("Auto-fetch enabled");
-            if (currentInterval != config.autoFetchIntervalMinutes) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Auto-fetch interval or state changed: enabled="
-                        + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
-                }
-                cancelCurrentTasks();
-                LOG.debug("Existing task cancelled on auto-fetch change");
-                if (currentInterval == 0) {
-                    //enable
-                    scheduleFastTask();
+            synchronized (this) {
+                if (currentInterval != config.autoFetchIntervalMinutes) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Auto-fetch interval or state changed: enabled="
+                            + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
+                    }
+
+                    cancelCurrentTasks();
+                    LOG.debug("Existing task cancelled on auto-fetch change");
+                    if (currentInterval == 0) {
+                        //enable
+                        scheduleFastTask();
+                    } else {
+                        scheduleTask();
+                    }
+                    currentInterval = config.autoFetchIntervalMinutes;
                 } else {
-                    scheduleTask();
-                }
-                currentInterval = config.autoFetchIntervalMinutes;
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Auto-fetch interval and state did not change: enabled="
-                        + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Auto-fetch interval and state did not change: enabled="
+                            + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
+                    }
                 }
             }
         } else {
             LOG.debug("Auto-fetch disabled");
-            cancelCurrentTasks();
-            currentInterval = 0;
-            LOG.debug("Existing task cancelled on auto-fetch disable");
+            synchronized (this) {
+                cancelCurrentTasks();
+                currentInterval = 0;
+                LOG.debug("Existing task cancelled on auto-fetch disable");
+            }
         }
     }
 
@@ -115,11 +126,13 @@ public class AutoFetch extends AbstractProjectComponent {
 
     private void scheduleFastTask(int seconds) {
         if (isActive()) {
-            if (cleanAndCheckTasks()) {
-                LOG.debug("Scheduling fast auto-fetch in ", seconds, " seconds");
-                myScheduledTasks.add(myExecutor.schedule(AutoFetchTask.create(this), seconds, TimeUnit.SECONDS));
-            } else {
-                LOG.debug("Tasks already scheduled (in fast auto-fetch)");
+            synchronized (this) {
+                if (cleanAndCheckTasks()) {
+                    LOG.debug("Scheduling fast auto-fetch in ", seconds, " seconds");
+                    myScheduledTasks.add(myExecutor.schedule(AutoFetchTask.create(this), seconds, TimeUnit.SECONDS));
+                } else {
+                    LOG.debug("Tasks already scheduled (in fast auto-fetch)");
+                }
             }
         }
     }
@@ -153,18 +166,22 @@ public class AutoFetch extends AbstractProjectComponent {
 
     private void scheduleTask(int delayMinutes) {
         if (isActive()) {
-            if (cleanAndCheckTasks()) {
-                LOG.debug("Scheduling regular auto-fetch in ", delayMinutes, "  minutes");
-                myScheduledTasks.add(myExecutor.schedule(AutoFetchTask.create(this), delayMinutes, TimeUnit.MINUTES));
-            } else {
-                LOG.debug("Tasks already scheduled (in regular auto-fetch)");
+            synchronized (this) {
+                if (cleanAndCheckTasks()) {
+                    LOG.debug("Scheduling regular auto-fetch in ", delayMinutes, "  minutes");
+                    myScheduledTasks.add(myExecutor.schedule(AutoFetchTask.create(this), delayMinutes, TimeUnit.MINUTES));
+                } else {
+                    LOG.debug("Tasks already scheduled (in regular auto-fetch)");
+                }
             }
         }
     }
 
     void scheduleNextTask() {
-        if (isActive() && isAutoFetchEnabled()) {
-            scheduleTask();
+        synchronized (this) {
+            if (isActive() && isAutoFetchEnabled()) {
+                scheduleTask();
+            }
         }
     }
 
