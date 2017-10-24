@@ -85,9 +85,8 @@ public class AutoFetchTask implements Runnable {
                 indicator.setText(title);
                 indicator.setIndeterminate(true);
                 indicator.startNonCancelableSection();
-                try {
-                    doFetch(repos, indicator);
-                } finally {
+                result = doFetch(repos, indicator);
+                if (result) {
                     indicator.finishNonCancelableSection();
                     state.fetchFinish();
                     myParent.updateLastAutoFetchDate();
@@ -95,8 +94,8 @@ public class AutoFetchTask implements Runnable {
             } else {
                 LOG.info("Auto-fetch already in progress");
                 finishedWithoutFetch();
+                result = true;
             }
-            result = true;
         } else {
             LOG.debug("Auto-fetch inactive");
             finishedWithoutFetch();
@@ -104,16 +103,26 @@ public class AutoFetchTask implements Runnable {
         return result;
     }
 
-    private void doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
-        myParent.runIfActive(() -> {
+    private boolean doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
+        return myParent.callIfActive(() -> {
             LOG.debug("Auto-fetching...");
-            Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().build(myProject, indicator).fetchRoots(repos);
-            GitToolBoxProject.getInstance(myProject).perRepoStatusCache().refresh(fetched);
-            LOG.debug("Finished auto-fetch");
-            if (showNotifications) {
-                finishedNotification();
+            try {
+                Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().build(myProject, indicator).fetchRoots(repos);
+                GitToolBoxProject.getInstance(myProject).perRepoStatusCache().refresh(fetched);
+                LOG.debug("Finished auto-fetch");
+                if (showNotifications) {
+                    finishedNotification();
+                }
+            } catch (AssertionError error) {
+                if (myProject.isDisposed()) {
+                    LOG.debug("Project already disposed", error);
+                } else {
+                    LOG.error(error);
+                    return false;
+                }
             }
-        });
+            return true;
+        }).orElse(false);
     }
 
     @Override

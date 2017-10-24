@@ -1,14 +1,20 @@
 package zielu.gittoolbox.util;
 
 import com.intellij.dvcs.DvcsUtil;
+import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.HashImpl;
+import git4idea.GitUtil;
 import git4idea.GitVcs;
+import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.jetbrains.annotations.CalledInAwt;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public enum GtUtil {
     ;
@@ -35,5 +41,12 @@ public enum GtUtil {
 
     public static List<GitRepository> sort(Collection<GitRepository> repositories) {
         return DvcsUtil.sortRepositories(new ArrayList<>(repositories));
+    }
+
+    @Nullable
+    @CalledInAwt
+    public static GitRepository getCurrentRepositoryQuick(@NotNull Project myProject) {
+        GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
+        return DvcsUtil.guessCurrentRepositoryQuick(myProject, repositoryManager, GitVcsSettings.getInstance(myProject).getRecentRootPath());
     }
 }

@@ -7,9 +7,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ConfigNotifier;
@@ -21,7 +24,7 @@ public class AutoFetch extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
 
     private final AtomicLong myLastAutoFetch = new AtomicLong();
-    private transient boolean myActive;
+    private final AtomicBoolean myActive = new AtomicBoolean();
     private MessageBusConnection myConnection;
 
     private ScheduledExecutorService myExecutor;
@@ -191,7 +194,7 @@ public class AutoFetch extends AbstractProjectComponent {
     }
 
     private boolean isActive() {
-        return myActive;
+        return myActive.get();
     }
 
     public void updateLastAutoFetchDate() {
@@ -204,8 +207,7 @@ public class AutoFetch extends AbstractProjectComponent {
 
     @Override
     public void projectOpened() {
-        synchronized (this) {
-            myActive = true;
+        if (myActive.compareAndSet(false, true)) {
             myExecutor = GitToolBoxApp.getInstance().autoFetchExecutor();
             init();
         }
@@ -213,27 +215,35 @@ public class AutoFetch extends AbstractProjectComponent {
 
     @Override
     public void projectClosed() {
-        synchronized (this) {
-            myActive = false;
+        if (myActive.compareAndSet(true, false)) {
             cancelCurrentTasks();
         }
     }
 
     @Override
     public void disposeComponent() {
-        synchronized (this) {
-            if (myConnection != null) {
-                myConnection.disconnect();
-                myConnection = null;
-            }
+        if (myConnection != null) {
+            myConnection.disconnect();
+            myConnection = null;
         }
     }
 
     void runIfActive(Runnable task) {
-        synchronized (this) {
-            if (isActive()) {
-                task.run();
+        if (isActive()) {
+            task.run();
+        }
+    }
+
+    <T> Optional<T> callIfActive(Callable<T> task) {
+        if (isActive()) {
+            try {
+                return Optional.of(task.call());
+            } catch (Exception e) {
+                LOG.error("Error while calling if active", e);
+                return  Optional.empty();
             }
+        } else {
+            return Optional.empty();
         }
     }
 }
