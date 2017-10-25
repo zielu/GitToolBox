@@ -2,6 +2,7 @@ package zielu.gittoolbox.ui.config;
 
 import com.intellij.ui.DocumentAdapter;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.swing.JComponent;
@@ -23,15 +24,17 @@ public class GtPatternFormatterForm implements GtFormUi {
     private RegExpTextField commitCompletionPatternField;
     private JTextField commitCompletionPatternInput;
     private JTextField commitCompletionPatternOutput;
-    private JLabel commitCompletionPatternStatus;
+    private JLabel commitCompletionPatternMatchStatus;
     private JPanel content;
+    private JLabel commitCompletionPatternStatus;
 
     private CommitCompletionConfig config;
     private boolean updateEnabled;
 
     @Override
     public void init() {
-        commitCompletionPatternField.addTextConsumer(text -> {
+        commitCompletionPatternField.addTextConsumer((text, error) -> {
+            updateCommitCompletionStatus(error);
             updateCommitCompletionOutput();
             patternUpdates.forEach(c -> c.accept(text));
         });
@@ -47,6 +50,16 @@ public class GtPatternFormatterForm implements GtFormUi {
         patternUpdates.add(updateHandler);
     }
 
+    private void updateCommitCompletionStatus(Optional<String> error) {
+        if (error.isPresent()) {
+            commitCompletionPatternStatus.setIcon(ResIcons.Error);
+            commitCompletionPatternStatus.setToolTipText(error.get());
+        } else {
+            commitCompletionPatternStatus.setIcon(ResIcons.Ok);
+            commitCompletionPatternStatus.setToolTipText(null);
+        }
+    }
+
     private void updateCommitCompletionOutput() {
         if (updateEnabled) {
             updateCommitCompletionOutput(commitCompletionPatternField.getText(), commitCompletionPatternInput.getText());
@@ -58,11 +71,11 @@ public class GtPatternFormatterForm implements GtFormUi {
         commitCompletionPatternOutput.setText(formatted.text);
         boolean matches = formatted.matches;
         if (matches) {
-            commitCompletionPatternStatus.setIcon(ResIcons.Ok);
-            commitCompletionPatternStatus.setToolTipText(ResBundle.getString("commit.dialog.completion.pattern.output.matched.label"));
+            commitCompletionPatternMatchStatus.setIcon(ResIcons.Ok);
+            commitCompletionPatternMatchStatus.setToolTipText(ResBundle.getString("commit.dialog.completion.pattern.output.matched.label"));
         } else {
-            commitCompletionPatternStatus.setIcon(ResIcons.Warning);
-            commitCompletionPatternStatus.setToolTipText(ResBundle.getString("commit.dialog.completion.pattern.output.not.matched.label"));
+            commitCompletionPatternMatchStatus.setIcon(ResIcons.Warning);
+            commitCompletionPatternMatchStatus.setToolTipText(ResBundle.getString("commit.dialog.completion.pattern.output.not.matched.label"));
         }
         config.pattern = pattern;
         config.testInput = StringUtils.trimToNull(testInput);

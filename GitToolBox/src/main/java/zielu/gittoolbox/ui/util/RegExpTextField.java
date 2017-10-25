@@ -1,43 +1,46 @@
 package zielu.gittoolbox.ui.util;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.components.ValidatingTextField;
-import com.sun.media.jfxmediaimpl.MediaDisposer.Disposable;
+import com.intellij.ui.components.JBTextField;
+import org.apache.commons.lang.StringUtils;
+
+import javax.swing.event.DocumentEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.swing.event.DocumentEvent;
-import org.apache.commons.lang.StringUtils;
 
-public class RegExpTextField extends ValidatingTextField implements Disposable {
-    private final List<Consumer<String>> textConsumers = new ArrayList<>();
+public class RegExpTextField extends JBTextField implements Disposable {
+    private final List<BiConsumer<String, Optional<String>>> textConsumers = new ArrayList<>();
 
     public RegExpTextField() {
-        getMainComponent().getDocument().addDocumentListener(new DocumentAdapter() {
+        getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(DocumentEvent e) {
                 String text = getText();
-                textConsumers.forEach(c -> c.accept(text));
+                Optional<String> error = validateTextOnChange(text);
+                textConsumers.forEach(c -> c.accept(text, error));
             }
         });
     }
 
-    public void addTextConsumer(Consumer<String> textConsumer) {
+    public void addTextConsumer(BiConsumer<String, Optional<String>> textConsumer) {
         textConsumers.add(textConsumer);
     }
 
-    @Override
-    protected String validateTextOnChange(String text, DocumentEvent e) {
+    private Optional<String> validateTextOnChange(String text) {
         if (StringUtils.isBlank(text)) {
-            return "";
+            return Optional.empty();
         }
         try {
             Pattern.compile(text);
-            return "";
+            return Optional.empty();
         } catch (PatternSyntaxException exp) {
-            return exp.getMessage();
+            return Optional.of(exp.getMessage());
         }
     }
 
