@@ -46,7 +46,7 @@ version = "${version}"
 junitPlatform {
     filters {
         engines {
-            // include 'junit-jupiter', 'junit-vintage'
+            include 'junit-jupiter'
             // exclude 'custom-engine'
         }
         tags {
@@ -63,6 +63,7 @@ junitPlatform {
 dependencies {
     compile("org.jodd:jodd-core:${joddVersion}")
     compile("com.google.guava:guava:${guavaVersion}")
+    compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
 
     testCompile("org.mockito:mockito-core:${mockitoVersion}")
     // JUnit 5
@@ -72,4 +73,5 @@ dependencies {
     // Only needed to run tests in an IntelliJ IDEA that bundles an older version
     // testRuntime("org.junit.platform:junit-platform-launcher:${junitPlatformVersion}")
     // testRuntime("org.junit.vintage:junit-vintage-engine:${junitVintageEngineVersion}")
+    testCompile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
 }
