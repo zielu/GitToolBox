@@ -36,7 +36,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
                 GitRepository repo = decorableNode.getRepo();
                 if (repo != null) {
                     applyDecoration(project, repo, projectViewNode, presentation);
-                    decorateWatch.elapsed("Decoration ", "[", projectViewNode.getName() + "]");
+                    decorateWatch.elapsed("Decoration ", "[", projectViewNode.getName(), "]");
                 } else {
                     if (debug) {
                         LOG.debug("No git repo: " + projectViewNode);
@@ -54,8 +54,8 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
     private void applyDecoration(Project project, GitRepository repo, ProjectViewNode projectViewNode, PresentationData presentation) {
         final LogWatch decorateApplyWatch = LogWatch.createStarted(LOG, "Decorate apply");
         PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
-        GitAheadBehindCount countOptional = cache.getInfo(repo).count;
-        NodeDecoration decoration = decorationFactory.decorationFor(repo, countOptional);
+        GitAheadBehindCount count = cache.getInfo(repo).count;
+        NodeDecoration decoration = decorationFactory.decorationFor(repo, count);
         boolean applied = decoration.apply(projectViewNode, presentation);
         decorateApplyWatch.elapsed("for ", repo).finish();
         presentation.setChanged(applied);

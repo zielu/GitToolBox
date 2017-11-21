@@ -1,4 +1,4 @@
-package zielu.intellij.junit5;
+package zielu.junit5.intellij;
 
 import java.lang.annotation.*;
 

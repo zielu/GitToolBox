@@ -1,4 +1,4 @@
-package zielu.intellij.junit5;
+package zielu.junit5.intellij;
 
 import com.intellij.codeInsight.CodeInsightSettings;
 import com.intellij.openapi.Disposable;
@@ -9,7 +9,6 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.testFramework.RunAll;
 import com.intellij.testFramework.TestLoggerFactory;
-import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.util.ReflectionUtil;
 import com.intellij.util.ui.UIUtil;
 import org.jdom.Element;
