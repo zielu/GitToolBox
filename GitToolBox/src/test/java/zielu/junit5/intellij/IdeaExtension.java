@@ -19,6 +19,9 @@ import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import java.io.File;
 import java.util.*;
 
+/**
+ * Based on UsefulTestCase
+ */
 public class IdeaExtension implements BeforeAllCallback, AfterAllCallback, ParameterResolver {
     private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(IdeaExtension.class);
     private static final String ORIGINAL_TEMP_DIR = FileUtil.getTempDirectory();
@@ -78,7 +81,7 @@ public class IdeaExtension implements BeforeAllCallback, AfterAllCallback, Param
                 .map(ContainsTempFiles::value).orElse(false);
     }
 
-    private String getTestName(ExtensionContext context) {
+    protected final String getTestName(ExtensionContext context) {
         return context.getRequiredTestClass().getName();
     }
 

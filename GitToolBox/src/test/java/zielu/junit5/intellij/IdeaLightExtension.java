@@ -12,8 +12,10 @@ import org.junit.platform.commons.util.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class IdeaLightExtension extends IdeaExtension implements BeforeAllCallback, AfterAllCallback,
-        ParameterResolver {
+/**
+ * Based on LightPlatformTestCase
+ */
+public class IdeaLightExtension extends IdeaExtension {
     private static final Namespace NAMESPACE = Namespace.create(IdeaLightExtension.class);
 
     @Override
