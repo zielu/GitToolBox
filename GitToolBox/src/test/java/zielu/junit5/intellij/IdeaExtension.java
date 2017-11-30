@@ -103,7 +103,7 @@ public class IdeaExtension implements BeforeAllCallback, AfterAllCallback, Param
         ).run();
     }
 
-    private void disposeRootDisposable(ExtensionContext context) {
+    protected void disposeRootDisposable(ExtensionContext context) {
         Disposer.dispose(getTestRootDisposable(context));
     }
 

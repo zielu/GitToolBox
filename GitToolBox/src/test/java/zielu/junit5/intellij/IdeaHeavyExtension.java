@@ -5,7 +5,9 @@ import com.intellij.ide.highlighter.ProjectFileType;
 import com.intellij.ide.startup.impl.StartupManagerImpl;
 import com.intellij.idea.IdeaLogger;
 import com.intellij.idea.IdeaTestApplication;
+import com.intellij.mock.MockApplication;
 import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
@@ -24,9 +26,11 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.impl.VirtualFilePointerTracker;
+import com.intellij.openapi.vfs.impl.jar.JarFileSystemImpl;
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFS;
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl;
 import com.intellij.psi.codeStyle.CodeStyleSchemes;
@@ -50,6 +54,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import static com.intellij.testFramework.PlatformTestCase.createProject;
+import static com.intellij.testFramework.UsefulTestCase.doCheckForSettingsDamage;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Based on PlatformTestCase
@@ -68,7 +74,7 @@ public class IdeaHeavyExtension extends IdeaExtension {
     public void beforeAll(ExtensionContext context) throws Exception {
         super.beforeAll(context);
         Store store = getStore(context);
-        FilesToDelete filesToDelete = new FilesToDelete();
+        FilesToDelete filesToDelete = new FilesToDelete(getTestName(context));
         store.put(FilesToDelete.class, filesToDelete);
         File tempDir = new File(FileUtilRt.getTempDirectory());
         filesToDelete.add(tempDir);
@@ -111,18 +117,22 @@ public class IdeaHeavyExtension extends IdeaExtension {
     }
 
     private void initApplication(Store store) {
-        IdeaTestApplication application = store.get(IdeaTestApplication.class, IdeaTestApplication.class);
+        IdeaTestApplication application = getApplication(store);
         boolean firstTime = application == null;
         application = IdeaTestApplication.getInstance(null);
         DataProvider dataProvider = new HeavyTestDataProvider(store);
         store.put(DataProvider.class, dataProvider);
         application.setDataProvider(dataProvider);
-
+        store.put(IdeaTestApplication.class, application);
         if (firstTime) {
             cleanPersistedVFSContent();
         }
         // try to remember old sdks as soon as possible after the app instantiation
         store.put(SdkLeakTracker.class, new SdkLeakTracker());
+    }
+
+    private IdeaTestApplication getApplication(Store store) {
+        return store.get(IdeaTestApplication.class, IdeaTestApplication.class);
     }
 
     private void cleanPersistedVFSContent() {
@@ -151,7 +161,7 @@ public class IdeaHeavyExtension extends IdeaExtension {
     }
 
     private Project getProject(ExtensionContext context) {
-        return getStore(context).get(Project.class, Project.class);
+        return get(context, Project.class);
     }
 
     private File getIprFile(ExtensionContext context) throws IOException {
@@ -161,7 +171,7 @@ public class IdeaHeavyExtension extends IdeaExtension {
     }
 
     private FilesToDelete getFilesToDelete(ExtensionContext context) {
-        return getStore(context).get(FilesToDelete.class, FilesToDelete.class);
+        return get(context, FilesToDelete.class);
     }
 
     private Project doCreateProject(@NotNull File projectFile, String name) {
@@ -247,8 +257,77 @@ public class IdeaHeavyExtension extends IdeaExtension {
     }
 
     @Override
-    public void afterAll(ExtensionContext context) throws Exception {
-        super.afterAll(context);
+    public void afterAll(ExtensionContext context) {
+        Project project = getProject(context);
+
+        new RunAll()
+            .append(() -> disposeRootDisposable(context))
+            .append(() -> {
+                if (project != null) {
+                    IdeaTestApplication application = getApplication(getStore(context));
+                    LightPlatformTestCase.doTearDown(project, application);
+                }
+            })
+            .append(() -> PlatformTestCase.closeAndDisposeProjectAndCheckThatNoOpenProjects(project))
+            .append(UIUtil::dispatchAllInvocationEvents)
+            .append(() -> checkForSettingsDamage(context))
+            .append(() -> {
+                if (project != null) {
+                    InjectedLanguageManagerImpl.checkInjectorsAreDisposed(project);
+                }
+            })
+            .append(() -> {
+                ((JarFileSystemImpl) JarFileSystem.getInstance()).cleanupForNextTest();
+                FilesToDelete filesToDelete = remove(context, FilesToDelete.class);
+                filesToDelete.delete();
+            })
+            .append(() -> {
+                if (IdeaLogger.ourErrorsOccurred != null) {
+                    throw IdeaLogger.ourErrorsOccurred;
+                }
+            })
+            .append(() -> super.afterAll(context))
+            .append(() -> {
+                EditorListenerTracker tracker = remove(context, EditorListenerTracker.class);
+                if (tracker != null) {
+                    tracker.checkListenersLeak();
+                }
+            })
+            .append(() -> {
+                ThreadTracker tracker = remove(context, ThreadTracker.class);
+                if (tracker != null) {
+                    tracker.checkLeak();
+                }
+            })
+            .append(LightPlatformTestCase::checkEditorsReleased)
+            .append(() -> get(context, SdkLeakTracker.class).checkForJdkTableLeaks())
+            .append(() -> get(context, VirtualFilePointerTracker.class).assertPointersAreDisposed())
+            .append(() -> {
+                remove(context, Project.class);
+                remove(context, Module.class);
+            })
+            .run();
+    }
+
+    private void checkForSettingsDamage(ExtensionContext context) {
+        Application app = ApplicationManager.getApplication();
+        if (isStressTest() || app == null || app instanceof MockApplication) {
+            return;
+        }
+
+        CodeStyleSettings oldCodeStyleSettings = remove(context, CodeStyleSettings.class);
+        if (oldCodeStyleSettings == null) {
+            return;
+        }
+        doCheckForSettingsDamage(oldCodeStyleSettings, getCurrentCodeStyleSettings(context));
+    }
+
+    private <T> T get(ExtensionContext context, Class<T> type) {
+        return getStore(context).get(type, type);
+    }
+
+    private <T> T remove(ExtensionContext context, Class<T> type) {
+        return getStore(context).remove(type, type);
     }
 
     private static final class HeavyTestDataProvider implements DataProvider {
@@ -267,10 +346,25 @@ public class IdeaHeavyExtension extends IdeaExtension {
     }
 
     private static final class FilesToDelete implements Iterable<File> {
+        private final String testName;
         private final Collection<File> files = new THashSet<>();
+
+        private FilesToDelete(String testName) {
+            this.testName = testName;
+        }
 
         void add(File toDelete) {
             files.add(toDelete);
+        }
+
+        void delete() {
+            files.forEach(file -> {
+                boolean b = FileUtil.delete(file);
+                if (!b && file.exists()) {
+                    fail("Can't delete " + file.getAbsolutePath() + " in " + testName);
+                }
+            });
+            LocalFileSystem.getInstance().refreshIoFiles(files);
         }
 
         @NotNull
