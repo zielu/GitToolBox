@@ -6,6 +6,7 @@ import jodd.util.StringBand;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.Status;
@@ -14,32 +15,26 @@ import zielu.gittoolbox.ui.StatusPresenter;
 public abstract class NodeDecorationBase implements NodeDecoration {
     protected final GitToolBoxConfig config;
     protected final GitRepository repo;
-    protected final GitAheadBehindCount aheadBehind;
+    protected final RepoInfo repoInfo;
 
     public NodeDecorationBase(@NotNull GitToolBoxConfig config,
                               @NotNull GitRepository repo,
-                              @Nullable GitAheadBehindCount aheadBehind) {
+                              @NotNull RepoInfo repoInfo) {
         this.config = config;
         this.repo = repo;
-        this.aheadBehind = aheadBehind;
+        this.repoInfo = repoInfo;
     }
 
     @Nullable
-    protected final String getCountText() {
-        if (aheadBehind != null) {
-            if (aheadBehind.status() == Status.Success) {
-                StatusPresenter presenter = config.getPresenter();
-                String text = presenter.nonZeroAheadBehindStatus(aheadBehind.ahead.value(), aheadBehind.behind.value());
-                if (StringUtils.isNotBlank(text)) {
-                    return text;
-                }
-            }
-        }
-        return null;
+    private String getCountText() {
+        return repoInfo.count().filter(count -> count.status() == Status.Success).map(count -> {
+            StatusPresenter presenter = config.getPresenter();
+            return presenter.nonZeroAheadBehindStatus(count.ahead.value(), count.behind.value());
+        }).filter(StringUtils::isNotBlank).orElse(null);
     }
 
     @NotNull
-    protected final String getBranchText() {
+    private String getBranchText() {
         return GitBranchUtil.getDisplayableBranchText(repo);
     }
 

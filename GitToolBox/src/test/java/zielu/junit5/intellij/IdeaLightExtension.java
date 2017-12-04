@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.platform.commons.util.ReflectionUtils;
+import zielu.junit5.intellij.param.ExtensionContextParamResolver;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -17,6 +18,10 @@ import java.util.List;
  */
 public class IdeaLightExtension extends IdeaExtension {
     private static final Namespace NAMESPACE = Namespace.create(IdeaLightExtension.class);
+
+    private final ExtensionContextParamResolver paramResolver = new ExtensionContextParamResolver(NAMESPACE,
+            super.paramResolver,
+            IdeaProjectTestFixture.class);
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
@@ -43,15 +48,12 @@ public class IdeaLightExtension extends IdeaExtension {
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return supportsParameter(parameterContext, IdeaProjectTestFixture.class);
+        return paramResolver.supportsParameter(parameterContext, extensionContext);
     }
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        if (IdeaProjectTestFixture.class.isAssignableFrom(parameterContext.getParameter().getType())) {
-            return getStore(extensionContext).get(IdeaProjectTestFixture.class, IdeaProjectTestFixture.class);
-        }
-        return null;
+        return paramResolver.resolveParameter(parameterContext, extensionContext);
     }
 
     private LightProjectDescriptor getProjectDescriptor(ExtensionContext context) {

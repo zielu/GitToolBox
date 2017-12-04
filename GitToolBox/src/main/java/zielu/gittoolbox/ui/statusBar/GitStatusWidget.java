@@ -12,8 +12,6 @@ import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
-import java.awt.event.MouseEvent;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxProject;
@@ -23,10 +21,12 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig;
-import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.ui.util.AppUtil;
 import zielu.gittoolbox.util.GtUtil;
+
+import java.awt.event.MouseEvent;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
             StatusBarWidget.MultipleTextValuesPresentation {
@@ -60,7 +60,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     private void onCacheChange(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
         AppUtil.invokeLaterIfNeeded(() -> {
             if (opened.get() && repository.equals(GtUtil.getCurrentRepositoryQuick(myProject))) {
-                update(repository, info.count);
+                update(repository, info);
                 updateStatusBar();
             }
         });
@@ -154,36 +154,32 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         myText = "";
     }
 
-    private void updateData(@NotNull GitRepository repository, @Nullable GitAheadBehindCount aheadBehind) {
-        myToolTip.update(repository, aheadBehind);
-        if (aheadBehind != null) {
-            String statusText = StatusText.format(aheadBehind);
-            myText = ResBundle.getString("status.prefix") + " " + statusText;
-        } else {
-            myText = ResBundle.getString("status.prefix") + " " + ResBundle.getString("git.na");
-        }
+    private void updateData(@NotNull GitRepository repository, RepoInfo repoInfo) {
+        myToolTip.update(repository, repoInfo.count().orElse(null));
+        myText = ResBundle.getString("status.prefix") + " " + repoInfo.count().map(StatusText::format)
+                .orElse(ResBundle.getString("git.na"));
     }
 
     private void runUpdate() {
         GitVcs git = GitVcs.getInstance(myProject);
         if (git != null) {
             GitRepository repository = GtUtil.getCurrentRepositoryQuick(myProject);
-            GitAheadBehindCount aheadBehind = null;
+            RepoInfo repoInfo = RepoInfo.empty();
             if (repository != null) {
                 GitToolBoxProject toolBox = GitToolBoxProject.getInstance(myProject);
-                aheadBehind = toolBox.perRepoStatusCache().getInfo(repository).count;
+                repoInfo = toolBox.perRepoStatusCache().getInfo(repository);
             }
-            update(repository, aheadBehind);
+            update(repository, repoInfo);
         } else {
             empty();
         }
         updateStatusBar();
     }
 
-    private void update(@Nullable GitRepository repository, @Nullable GitAheadBehindCount aheadBehind) {
+    private void update(@Nullable GitRepository repository, RepoInfo repoInfo) {
         if (myVisible) {
             if (repository != null) {
-                updateData(repository, aheadBehind);
+                updateData(repository, repoInfo);
             } else {
                 empty();
             }

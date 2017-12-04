@@ -6,11 +6,6 @@ import com.intellij.util.text.DateFormatUtil;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +19,12 @@ import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class StatusToolTip {
     private final Project myProject;
@@ -62,9 +63,7 @@ public class StatusToolTip {
         if (repositories.size() == 1) {
             PerRepoInfoCache cache = GitToolBoxProject.getInstance(myProject).perRepoStatusCache();
             RepoInfo info = cache.getInfo(myCurrentRepository);
-            if (info.count != null) {
-                infoPart.append(StatusText.formatToolTip(info.count));
-            }
+            info.count().map(StatusText::formatToolTip).ifPresent(infoPart::append);
         } else if (repositories.size() > 2) {
             prepareMultiRepoTooltip(infoPart, repositories);
         }
@@ -77,14 +76,12 @@ public class StatusToolTip {
         Map<GitRepository, String> statuses = new LinkedHashMap<>();
         final AtomicReference<GitRepository> currentRepo = new AtomicReference<>();
         for (GitRepository repository : GtUtil.sort(repositories)) {
-            GitAheadBehindCount count = cache.getInfo(repository).count;
-            if (count != null) {
-                String statusText = StatusText.format(count);
+            cache.getInfo(repository).count().map(StatusText::format).ifPresent(statusText ->{
                 if (repository.equals(myCurrentRepository)) {
                     currentRepo.set(repository);
                 }
                 statuses.put(repository, statusText);
-            }
+            });
         }
         if (!statuses.isEmpty()) {
             if (infoPart.length() > 0) {

@@ -12,6 +12,7 @@ import java.util.Optional;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
@@ -19,8 +20,8 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
 
     public ColoredNodeDecoration(@NotNull GitToolBoxConfig config,
                                  @NotNull GitRepository repo,
-                                 @Nullable GitAheadBehindCount aheadBehind) {
-        super(config, repo, aheadBehind);
+                                 @NotNull RepoInfo repoInfo) {
+        super(config, repo, repoInfo);
     }
 
     private ColoredFragment makeStatusFragment(boolean prefix) {

@@ -7,6 +7,7 @@ import jodd.util.StringBand;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
@@ -14,8 +15,8 @@ public class LocationOnlyNodeDecoration extends NodeDecorationBase {
 
     public LocationOnlyNodeDecoration(@NotNull GitToolBoxConfig config,
                                       @NotNull GitRepository repo,
-                                      @Nullable GitAheadBehindCount aheadBehind) {
-        super(config, repo, aheadBehind);
+                                      @NotNull RepoInfo repoInfo) {
+        super(config, repo, repoInfo);
     }
 
     @Override

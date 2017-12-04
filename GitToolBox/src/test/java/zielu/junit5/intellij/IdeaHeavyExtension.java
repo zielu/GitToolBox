@@ -39,6 +39,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.impl.DocumentCommitThread;
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageManagerImpl;
 import com.intellij.testFramework.*;
+import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.util.ui.UIUtil;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
@@ -47,6 +48,9 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.jupiter.api.extension.ExtensionContext.Store;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import zielu.junit5.intellij.param.ExtensionContextParamResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +73,10 @@ public class IdeaHeavyExtension extends IdeaExtension {
             "Ruby",
             "Rider",
             "UltimateLangXml", "Idea", "PlatformLangXml" };
+
+    private final ExtensionContextParamResolver paramResolver = new ExtensionContextParamResolver(NAMESPACE,
+            super.paramResolver,
+            Project.class, Module.class);
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
@@ -307,6 +315,16 @@ public class IdeaHeavyExtension extends IdeaExtension {
                 remove(context, Module.class);
             })
             .run();
+    }
+
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        return paramResolver.supportsParameter(parameterContext, extensionContext);
+    }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        return paramResolver.resolveParameter(parameterContext, extensionContext);
     }
 
     private void checkForSettingsDamage(ExtensionContext context) {

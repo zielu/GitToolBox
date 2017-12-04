@@ -66,6 +66,7 @@ dependencies {
     compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
 
     testCompile("org.mockito:mockito-core:${mockitoVersion}")
+    testCompile("org.assertj:assertj-core:${assertjCoreVersion}")
     // JUnit 5
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
     testCompile("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")

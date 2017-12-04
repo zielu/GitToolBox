@@ -15,6 +15,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.extension.ExtensionContext.Store;
+import zielu.junit5.intellij.param.ExtensionContextParamResolver;
 
 import java.io.File;
 import java.util.*;
@@ -56,6 +57,9 @@ public class IdeaExtension implements BeforeAllCallback, AfterAllCallback, Param
         DELETE_ON_EXIT_HOOK_CLASS = aClass;
         DELETE_ON_EXIT_HOOK_DOT_FILES = files;
     }
+
+    protected final ExtensionContextParamResolver paramResolver = new ExtensionContextParamResolver(NAMESPACE,
+            TempFilesInfo.class);
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
@@ -142,19 +146,12 @@ public class IdeaExtension implements BeforeAllCallback, AfterAllCallback, Param
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return supportsParameter(parameterContext, TempFilesInfo.class);
-    }
-
-    final <T> boolean supportsParameter(ParameterContext parameterContext, Class<T> type) {
-        return type.isAssignableFrom(parameterContext.getParameter().getType());
+        return paramResolver.supportsParameter(parameterContext, extensionContext);
     }
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        if (TempFilesInfo.class.isAssignableFrom(parameterContext.getParameter().getType())) {
-            return getStore(extensionContext).get(TempFilesInfo.class, TempFilesInfo.class);
-        }
-        return null;
+        return paramResolver.resolveParameter(parameterContext, extensionContext);
     }
 
     protected class TestDisposable implements Disposable {

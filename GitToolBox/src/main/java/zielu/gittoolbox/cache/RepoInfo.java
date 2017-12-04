@@ -5,13 +5,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
+import java.util.Optional;
+
 public class RepoInfo {
     private static final RepoInfo empty = new RepoInfo(RepoStatus.empty(), null);
-
     @NotNull
-    public final RepoStatus status;
+    private final RepoStatus status;
     @Nullable
-    public final GitAheadBehindCount count;
+    private final GitAheadBehindCount count;
 
     private RepoInfo(@NotNull RepoStatus _status, @Nullable GitAheadBehindCount _count) {
         status = _status;
@@ -24,6 +25,14 @@ public class RepoInfo {
 
     public static RepoInfo empty() {
         return empty;
+    }
+
+    public RepoStatus status() {
+        return status;
+    }
+
+    public Optional<GitAheadBehindCount> count() {
+        return Optional.ofNullable(count);
     }
 
     @Override

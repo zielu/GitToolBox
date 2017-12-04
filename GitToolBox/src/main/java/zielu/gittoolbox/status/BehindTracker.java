@@ -9,24 +9,25 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import javax.swing.event.HyperlinkEvent;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.compat.Notifier;
+import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.ui.StatusMessages;
 import zielu.gittoolbox.ui.UpdateProject;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
+
+import javax.swing.event.HyperlinkEvent;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BehindTracker extends AbstractProjectComponent {
     private final Logger LOG = Logger.getInstance(getClass());
@@ -74,12 +75,9 @@ public class BehindTracker extends AbstractProjectComponent {
     private Optional<BehindMessage> prepareMessage() {
         Map<GitRepository, RevListCount> statuses = Maps.newHashMap();
         for (Entry<GitRepository, RepoInfo> entry : myState.entrySet()) {
-            RepoInfo value = entry.getValue();
-            if (value.count != null) {
-                if (value.count.isNotZeroBehind()) {
-                    statuses.put(entry.getKey(), value.count.behind);
-                }
-            }
+            entry.getValue().count().filter(GitAheadBehindCount::isNotZero).ifPresent(count -> {
+                statuses.put(entry.getKey(), count.behind);
+            });
         }
         if (!statuses.isEmpty()) {
             boolean manyReposInProject = myState.size() > 1;
@@ -108,11 +106,11 @@ public class BehindTracker extends AbstractProjectComponent {
     }
 
     private boolean isRemoteHashChanged(RepoInfo previous, RepoInfo current) {
-        return !previous.status.sameRemoteHash(current.status);
+        return !previous.status().sameRemoteHash(current.status());
     }
 
     private boolean isBranchSwitched(RepoInfo previous, RepoInfo current) {
-        return !previous.status.sameBranch(current.status);
+        return !previous.status().sameBranch(current.status());
     }
 
     private void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
@@ -122,7 +120,7 @@ public class BehindTracker extends AbstractProjectComponent {
         }
         ChangeType type = ChangeType.none;
         if (previousInfo != null) {
-            if (previousInfo.status.sameRemoteBranch(info.status)) {
+            if (previousInfo.status().sameRemoteBranch(info.status())) {
                 if (isBranchSwitched(previousInfo, info)) {
                     type = ChangeType.switched;
                 } else if (isRemoteHashChanged(previousInfo, info)) {
