@@ -1,4 +1,4 @@
-GitToolBox.zip
-GitToolBox_13.zip
 .gradle/
 build/
+testDataDynamic/
+out/
