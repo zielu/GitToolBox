@@ -1,6 +1,7 @@
 package zielu.gittoolbox.ui.projectView.node;
 
 import com.intellij.dvcs.repo.Repository;
+import com.intellij.dvcs.repo.VcsRepositoryManager;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
@@ -16,8 +17,21 @@ public abstract class AbstractDecorableNode implements DecorableNode {
         this.node = node;
     }
 
+    @Override
     @Nullable
-    protected GitRepository getGitRepo(Repository repo) {
+    public final GitRepository getRepo() {
+        Pair<Project, VirtualFile> projectAndFile = getProjectAndFile();
+        if (projectAndFile != null) {
+            VcsRepositoryManager repoManager = VcsRepositoryManager.getInstance(projectAndFile.getFirst());
+            return getGitRepo(getRepoFor(repoManager, projectAndFile.getSecond()));
+        }
+        return null;
+    }
+
+    protected abstract Repository getRepoFor(VcsRepositoryManager repoManager, VirtualFile file);
+
+    @Nullable
+    private GitRepository getGitRepo(Repository repo) {
         if (repo != null && GitVcs.NAME.equals(repo.getVcs().getName())) {
             return (GitRepository) repo;
         }
@@ -25,7 +39,7 @@ public abstract class AbstractDecorableNode implements DecorableNode {
     }
 
     @Nullable
-    protected Pair<Project, VirtualFile> getProjectAndFile() {
+    private Pair<Project, VirtualFile> getProjectAndFile() {
         Project project = node.getProject();
         VirtualFile file = node.getVirtualFile();
         if (project != null && file != null) {
