@@ -1,10 +1,26 @@
-GitToolBox
-==========
-Plugin for IntelliJ Idea expanding build-in Git integration.
+GitToolBox - plugin for Jetbrains IDEs
+======================================
+Plugin for family of Jetbrains IDEs that expands build-in `Git Integration`.
 
+## Features
+For list of features see [plugin.xml](./GitToolBox/src/main/resources/META-INF/plugin.xml)
+
+## Jetbrains plugin repository
 [Plugin repository page](https://plugins.jetbrains.com/plugin/7499)
 
-## Performance logging
+## Architecture decisions record
+Decisions are stored [here](./GitToolBox/doc/arch).
+
+## Logging
+Plugin can log additional diagnostic information to help with issues investigation.
+
+### Debug logging
+Set following in **Help > Debug Log Settings...**
+```
+#zielu.gittoolbox
+```
+
+### Performance logging
 Set following in **Help > Debug Log Settings...**
 ```
 #zielu.gittoolbox.perf:trace
