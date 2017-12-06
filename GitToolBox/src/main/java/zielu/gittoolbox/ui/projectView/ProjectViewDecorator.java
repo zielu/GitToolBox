@@ -14,6 +14,7 @@ import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.projectView.node.DecorableNode;
 import zielu.gittoolbox.ui.projectView.node.DecorableNodeFactory;
+import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.LogWatch;
 
 public class ProjectViewDecorator implements ProjectViewNodeDecorator {
@@ -24,18 +25,16 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
 
     @Override
     public void decorate(ProjectViewNode projectViewNode, PresentationData presentation) {
-        LogWatch decorateWatch = LogWatch.createStarted(LOG, "Decorate");
-        GitToolBoxConfig config = GitToolBoxConfig.getInstance();
-        Project project = projectViewNode.getProject();
-        if (config.showProjectViewStatus && project != null) {
+        LogWatch decorateWatch = LogWatch.createStarted("Decorate");
+        if (shouldDecorate(projectViewNode)) {
             final boolean debug = LOG.isDebugEnabled();
-            LogWatch decorationCheckWatch = LogWatch.createStarted(LOG, "Decoration check");
+            LogWatch decorationCheckWatch = LogWatch.createStarted("Decoration check");
             DecorableNode decorableNode = decorableNodeFactory.nodeFor(projectViewNode);
-            decorationCheckWatch.elapsed("[", projectViewNode.getName(), "]").finish();
+            decorationCheckWatch.elapsed("NodeFor [", projectViewNode.getName(), "]").finish();
             if (decorableNode != null)  {
                 GitRepository repo = decorableNode.getRepo();
                 if (repo != null) {
-                    applyDecoration(project, repo, projectViewNode, presentation);
+                    applyDecoration(projectViewNode.getProject(), repo, projectViewNode, presentation);
                     decorateWatch.elapsed("Decoration ", "[", projectViewNode.getName(), "]");
                 } else {
                     if (debug) {
@@ -51,8 +50,13 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
         decorateWatch.finish();
     }
 
+    private boolean shouldDecorate(ProjectViewNode projectViewNode) {
+        Project project = projectViewNode.getProject();
+        return projectViewNode.getName() != null && project != null && GtUtil.isNotDumb(project) && GitToolBoxConfig.getInstance().showProjectViewStatus;
+    }
+
     private void applyDecoration(Project project, GitRepository repo, ProjectViewNode projectViewNode, PresentationData presentation) {
-        final LogWatch decorateApplyWatch = LogWatch.createStarted(LOG, "Decorate apply");
+        final LogWatch decorateApplyWatch = LogWatch.createStarted("Decorate apply");
         PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
         GitAheadBehindCount count = cache.getInfo(repo).count;
         NodeDecoration decoration = decorationFactory.decorationFor(repo, count);

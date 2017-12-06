@@ -4,17 +4,16 @@ import com.google.common.base.Stopwatch;
 import com.intellij.openapi.diagnostic.Logger;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import jodd.util.StringBand;
 
 public class LogWatch {
-    private final Logger myLog;
+    private final Logger myLog = Logger.getInstance("#zielu.gittoolbox.perf");
     private final String myMessage;
     private final boolean myEnabled;
     private final Stopwatch myWatch;
 
-    private LogWatch(Logger log, String message) {
-        myLog = log;
-        myEnabled = myLog.isDebugEnabled();
+    private LogWatch(String message) {
+        myEnabled = myLog.isTraceEnabled();
         if (myEnabled) {
             myMessage = message;
             myWatch = Stopwatch.createUnstarted();
@@ -24,12 +23,12 @@ public class LogWatch {
         }
     }
 
-    public static LogWatch create(Logger log, String message) {
-        return new LogWatch(log, message);
+    public static LogWatch create(String message) {
+        return new LogWatch(message);
     }
 
-    public static LogWatch createStarted(Logger log, String message) {
-        return create(log, message).start();
+    public static LogWatch createStarted(String message) {
+        return create(message).start();
     }
 
     public LogWatch start() {
@@ -41,16 +40,24 @@ public class LogWatch {
 
     public LogWatch elapsed(String message, Object... rest) {
         if (myEnabled) {
-            String other = Arrays.stream(rest).map(String::valueOf).collect(Collectors.joining(""));
-            myLog.debug(myMessage + "/" + message +  other +  " [ms]: ", myWatch.elapsed(TimeUnit.MILLISECONDS));
+            StringBand messageToPrint = new StringBand(myMessage).append("|Elapsed/").append(message);
+            Arrays.stream(rest).map(String::valueOf).forEach(messageToPrint::append);
+            print(messageToPrint, myWatch.elapsed(TimeUnit.MILLISECONDS));
         }
         return this;
     }
 
-    public LogWatch finish() {
+    public void finish() {
         if (myEnabled && myWatch.isRunning()) {
-            myLog.debug(myMessage + " [ms]: ", myWatch.stop().elapsed(TimeUnit.MILLISECONDS));
+            StringBand messageToPrint = new StringBand(myMessage).append("|Finished");
+            print(messageToPrint, myWatch.stop().elapsed(TimeUnit.MILLISECONDS));
         }
-        return this;
+    }
+
+    private void print(StringBand message, long millis) {
+        if (millis > 0) {
+            StringBand messageToLog = message.append(" [th:").append(Thread.currentThread().getName()).append("][ms]: ").append(millis);
+            myLog.trace(messageToLog.toString());
+        }
     }
 }

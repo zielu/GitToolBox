@@ -27,7 +27,7 @@ public class CompletionCheckinHandler extends CheckinHandler {
     private void captureSelectedRepositories(CheckinProjectPanel panel) {
         GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(panel.getProject());
         if (config.commitDialogCompletion) {
-            LogWatch getAffectedWatch = LogWatch.createStarted(LOG, "Get affected");
+            LogWatch getAffectedWatch = LogWatch.createStarted("Get affected");
             Collection<File> affected = panel.getFiles();
             getAffectedWatch.finish();
             GitToolBoxCompletionProject.getInstance(panel.getProject()).updateAffected(affected);

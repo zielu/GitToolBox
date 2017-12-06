@@ -1,6 +1,7 @@
 package zielu.gittoolbox.util;
 
 import com.intellij.dvcs.DvcsUtil;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.HashImpl;
@@ -48,5 +49,9 @@ public enum GtUtil {
     public static GitRepository getCurrentRepositoryQuick(@NotNull Project myProject) {
         GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
         return DvcsUtil.guessCurrentRepositoryQuick(myProject, repositoryManager, GitVcsSettings.getInstance(myProject).getRecentRootPath());
+    }
+
+    public static boolean isNotDumb(Project project) {
+        return !DumbService.isDumb(project);
     }
 }

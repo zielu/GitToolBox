@@ -15,7 +15,7 @@ import zielu.gittoolbox.util.LogWatch;
 
 class CachedStatus {
     private static final Logger LOG = Logger.getInstance(CachedStatus.class);
-    private final LogWatch repoStatusCreateWatch = LogWatch.create(LOG, "Repo status create");
+    private final LogWatch repoStatusCreateWatch = LogWatch.create("Repo status create");
     private final AtomicBoolean myInvalid = new AtomicBoolean(true);
     private final AtomicBoolean myNew = new AtomicBoolean(true);
     private final AtomicReference<RepoInfo> myInfo = new AtomicReference<>(RepoInfo.empty());
@@ -46,7 +46,7 @@ class CachedStatus {
 
             if (!Objects.equal(myStatus, currentStatus)) {
                 GitAheadBehindCount oldCount = myCount;
-                LogWatch statusUpdateWatch = LogWatch.createStarted(LOG, "Status update");
+                LogWatch statusUpdateWatch = LogWatch.createStarted("Status update");
                 myCount = calculator.aheadBehindStatus(repo, currentStatus.localHash(), currentStatus.remoteHash());
                 statusUpdateWatch.finish();
                 if (debug) {
