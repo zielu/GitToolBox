@@ -148,12 +148,14 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     }
 
     public void refreshAll() {
-        LOG.info("Refreshing repositories statuses");
+        LOG.debug("Refreshing all repository statuses");
         refresh(GitUtil.getRepositories(myProject));
     }
 
     public void refresh(Iterable<GitRepository> repositories) {
-        LOG.info("Refreshing repositories statuses");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Refreshing repositories statuses: ", repositories);
+        }
         repositories.forEach(this::scheduleRefresh);
     }
 

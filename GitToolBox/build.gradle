@@ -60,6 +60,15 @@ junitPlatform {
     // logManager 'org.apache.logging.log4j.jul.LogManager'
 }
 
+//workaround for 'Path too long' on Windows (https://github.com/maiflai/gradle-scalatest/issues/42)
+junitPlatformTest {
+    doFirst {
+        def cp = CollectionUtils.join(File.pathSeparator, classpath.getFiles())
+        environment 'CLASSPATH', cp
+        classpath = classpath.filter { false }
+    }
+}
+
 dependencies {
     compile("org.jodd:jodd-core:${joddVersion}")
     compile("com.google.guava:guava:${guavaVersion}")

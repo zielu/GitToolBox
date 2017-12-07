@@ -65,7 +65,7 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent {
 
     public synchronized Collection<GitRepository> getAffected() {
         if (myAffectedRepositories == null){
-            LogWatch getRepositoriesWatch = LogWatch.createStarted(LOG,"Get repositories");
+            LogWatch getRepositoriesWatch = LogWatch.createStarted("Get repositories");
             myAffectedRepositories = getRepositories(myProject, myAffectedFiles);
             getRepositoriesWatch.finish();
         }
