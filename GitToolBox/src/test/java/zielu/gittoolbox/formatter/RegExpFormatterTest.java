@@ -3,13 +3,15 @@ package zielu.gittoolbox.formatter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import zielu.gittoolbox.formatter.RegExpFormatter;
 
+@Tag("fast")
 class RegExpFormatterTest {
-
     @DisplayName("Formatting with pattern")
     @ParameterizedTest(name = "''{1}'' formatted with ''{0}'' should return ''{2}''")
     @CsvSource({

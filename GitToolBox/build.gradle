@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.0"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.2"
     }
 }
 
@@ -50,7 +50,7 @@ junitPlatform {
             // exclude 'custom-engine'
         }
         tags {
-            // include 'fast'
+            include 'fast', 'integration'
             // exclude 'slow'
         }
         // includeClassNamePattern '.*Test'

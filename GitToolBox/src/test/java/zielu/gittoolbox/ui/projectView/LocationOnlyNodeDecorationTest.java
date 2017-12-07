@@ -9,6 +9,7 @@ import git4idea.GitLocalBranch;
 import git4idea.repo.GitRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,6 +21,7 @@ import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.junit5.mockito.MockitoExtension;
 
+@Tag("fast")
 @ExtendWith(MockitoExtension.class)
 class LocationOnlyNodeDecorationTest {
     private static final String LOCATION = "/var/log/project";
