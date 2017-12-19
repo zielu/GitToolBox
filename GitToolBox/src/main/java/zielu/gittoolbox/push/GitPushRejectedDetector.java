@@ -9,47 +9,49 @@ import java.util.regex.Pattern;
 
 public class GitPushRejectedDetector implements GitLineHandlerListener {
 
-    private static final Pattern REJECTED_PATTERN = Pattern.compile("\\s+! \\[rejected\\]\\s+(\\S+) -> (\\S+) .*");
+  private static final Pattern REJECTED_PATTERN = Pattern.compile("\\s+! \\[rejected\\]\\s+(\\S+) -> (\\S+) .*");
 
-    private final Collection<RejectedRef> myRejectedRefs = new ArrayList<RejectedRef>();
+  private final Collection<RejectedRef> rejectedRefs = new ArrayList<RejectedRef>();
 
-    @Override
-    public void onLineAvailable(String line, Key outputType) {
-        Matcher matcher = REJECTED_PATTERN.matcher(line);
-        if (matcher.matches()) {
-            String src = matcher.group(1);
-            String dst = matcher.group(2);
-            myRejectedRefs.add(new RejectedRef(src, dst));
-        }
+  @Override
+  public void onLineAvailable(String line, Key outputType) {
+    Matcher matcher = REJECTED_PATTERN.matcher(line);
+    if (matcher.matches()) {
+      String src = matcher.group(1);
+      String dst = matcher.group(2);
+      rejectedRefs.add(new RejectedRef(src, dst));
     }
+  }
 
-    @Override
-    public void processTerminated(int exitCode) {
+  @Override
+  public void processTerminated(int exitCode) {
+    //do nothing
+  }
+
+  @Override
+  public void startFailed(Throwable exception) {
+    //do nothing
+  }
+
+  public boolean rejected() {
+    return !rejectedRefs.isEmpty();
+  }
+
+  public Collection<String> getRejectedBranches() {
+    Collection<String> branches = new ArrayList<String>(rejectedRefs.size());
+    for (RejectedRef rejectedRef : rejectedRefs) {
+      branches.add(rejectedRef.source);
     }
+    return branches;
+  }
 
-    @Override
-    public void startFailed(Throwable exception) {
+  static class RejectedRef {
+    private final String source;
+    private final String destination;
+
+    RejectedRef(String source, String destination) {
+      this.destination = destination;
+      this.source = source;
     }
-
-    public boolean rejected() {
-        return !myRejectedRefs.isEmpty();
-    }
-
-    public Collection<String> getRejectedBranches() {
-        Collection<String> branches = new ArrayList<String>(myRejectedRefs.size());
-        for (RejectedRef rejectedRef : myRejectedRefs) {
-            branches.add(rejectedRef.mySource);
-        }
-        return branches;
-    }
-
-    static class RejectedRef {
-        private final String mySource;
-        private final String myDestination;
-
-        RejectedRef(String source, String destination) {
-            myDestination = destination;
-            mySource = source;
-        }
-    }
+  }
 }

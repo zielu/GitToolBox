@@ -17,60 +17,63 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 
 public class GitTagCalculator {
-    private static final Pattern singleTagPattern = Pattern.compile(".*?\\(tag: (.+?)\\).*");
-    private static final Pattern tagPattern = Pattern.compile("tag: (.+?)");
+  private static final Pattern SINGLE_TAG_PATTERN = Pattern.compile(".*?\\(tag: (.+?)\\).*");
+  private static final Pattern TAG_PATTERN = Pattern.compile("tag: (.+?)");
 
-    private final Project myProject;
+  private final Project project;
 
-    private GitTagCalculator(Project project) {
-        myProject = project;
+  private GitTagCalculator(Project project) {
+    this.project = project;
+  }
+
+  public static GitTagCalculator create(@NotNull Project project) {
+    return new GitTagCalculator(Preconditions.checkNotNull(project));
+  }
+
+  public List<String> tagsForBranch(@NotNull VirtualFile gitRoot, @NotNull String branch) {
+    GitSimpleHandler h = new GitSimpleHandler(project, Preconditions.checkNotNull(gitRoot), GitCommand.LOG);
+    h.addParameters("--simplify-by-decoration", "--pretty=format:%d", "--encoding=UTF-8",
+        Preconditions.checkNotNull(branch));
+    h.setSilent(true);
+    String getTagsLabel = ResBundle.getString("tag.getting.existing.tags");
+    String output = GitHandlerUtil.doSynchronously(h, getTagsLabel, h.printableCommandLine());
+    List<String> tags = Lists.newArrayList();
+    for (StringScanner s = new StringScanner(output); s.hasMoreData(); ) {
+      String line = s.line();
+      Matcher match = SINGLE_TAG_PATTERN.matcher(line);
+      if (match.matches()) {
+        tags.add(match.group(1));
+      } else if (line.contains("tag: ")) {
+        tags.addAll(parseMultipleTags(line));
+      }
     }
+    return tags;
+  }
 
-    public static GitTagCalculator create(@NotNull Project project) {
-        return new GitTagCalculator(Preconditions.checkNotNull(project));
+  private List<String> parseMultipleTags(String line) {
+    List<String> tags = Lists.newArrayList();
+    for (String spec : Splitter.on(", ").split(line)) {
+      Matcher match = TAG_PATTERN.matcher(spec);
+      if (match.matches()) {
+        tags.add(match.group(1));
+      }
     }
+    return tags;
+  }
 
-    public List<String> tagsForBranch(@NotNull VirtualFile gitRoot, @NotNull String branch) {
-        GitSimpleHandler h = new GitSimpleHandler(myProject, Preconditions.checkNotNull(gitRoot), GitCommand.LOG);
-        h.addParameters("--simplify-by-decoration", "--pretty=format:%d", "--encoding=UTF-8", Preconditions.checkNotNull(branch));
-        h.setSilent(true);
-        String output = GitHandlerUtil.doSynchronously(h, ResBundle.getString("tag.getting.existing.tags"), h.printableCommandLine());
-        List<String> tags = Lists.newArrayList();
-        for (StringScanner s = new StringScanner(output); s.hasMoreData(); ) {
-            String line = s.line();
-            Matcher match = singleTagPattern.matcher(line);
-            if (match.matches()) {
-                tags.add(match.group(1));
-            } else if (line.contains("tag: ")) {
-                tags.addAll(parseMultipleTags(line));
-            }
-        }
-        return tags;
+  public List<String> allTags(@NotNull VirtualFile gitRoot) {
+    GitSimpleHandler h = new GitSimpleHandler(project, Preconditions.checkNotNull(gitRoot), GitCommand.TAG);
+    h.setSilent(true);
+    String output = GitHandlerUtil.doSynchronously(h, ResBundle.getString("tag.getting.tags.for.branch"),
+        h.printableCommandLine());
+    LinkedList<String> tags = Lists.newLinkedList();
+    for (StringScanner s = new StringScanner(output); s.hasMoreData(); ) {
+      String line = s.line();
+      if (line.length() == 0) {
+        continue;
+      }
+      tags.addFirst(line);
     }
-
-    private List<String> parseMultipleTags(String line) {
-        List<String> tags = Lists.newArrayList();
-        for (String spec : Splitter.on(", ").split(line)) {
-            Matcher match = tagPattern.matcher(spec);
-            if (match.matches()) {
-                tags.add(match.group(1));
-            }
-        }
-        return tags;
-    }
-
-    public List<String> allTags(@NotNull VirtualFile gitRoot) {
-        GitSimpleHandler h = new GitSimpleHandler(myProject, Preconditions.checkNotNull(gitRoot), GitCommand.TAG);
-        h.setSilent(true);
-        String output = GitHandlerUtil.doSynchronously(h, ResBundle.getString("tag.getting.tags.for.branch"), h.printableCommandLine());
-        LinkedList<String> tags = Lists.newLinkedList();
-        for (StringScanner s = new StringScanner(output); s.hasMoreData(); ) {
-            String line = s.line();
-            if (line.length() == 0) {
-                continue;
-            }
-            tags.addFirst(line);
-        }
-        return Lists.newArrayList(tags);
-    }
+    return Lists.newArrayList(tags);
+  }
 }

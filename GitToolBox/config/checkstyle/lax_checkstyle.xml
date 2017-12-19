@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+<module name="Checker">
+    <!-- Root Checks -->
+    <module name="RegexpHeader">
+        <property name="fileExtensions" value="java" />
+    </module>
+    <module name="NewlineAtEndOfFile">
+        <property name="lineSeparator" value="lf"/>
+    </module>
+
+    <module name="SuppressionFilter">
+        <property name="file" value="${suppressionFile}"/>
+    </module>
+
+    <module name="TreeWalker">
+
+        <!-- Annotations -->
+        <module name="AnnotationUseStyle">
+            <property name="elementStyle" value="compact" />
+        </module>
+        <module name="MissingOverride" />
+        <module name="PackageAnnotation" />
+        <module name="AnnotationLocation">
+            <property name="allowSamelineSingleParameterlessAnnotation"
+                      value="false" />
+        </module>
+
+        <!-- Block Checks -->
+        <module name="EmptyBlock">
+            <property name="option" value="text" />
+        </module>
+        <module name="LeftCurly" />
+        <module name="RightCurly" />
+        <module name="NeedBraces" />
+        <module name="AvoidNestedBlocks" />
+
+        <!-- Class Design -->
+        <module name="FinalClass" />
+        <!--<module name="InterfaceIsType" />-->
+        <module name="HideUtilityClassConstructor" />
+        <module name="MutableException" />
+        <module name="InnerTypeLast" />
+        <module name="OneTopLevelClass" />
+
+        <!-- Coding -->
+        <module name="Indentation"/>
+        <module name="LineLength">
+            <property name="max" value="160"/>
+        </module>
+        <module name="EmptyCatchBlock">
+            <property name="commentFormat" value="This is expected"/>
+        </module>
+        <module name="CovariantEquals" />
+        <module name="EmptyStatement" />
+        <module name="EqualsHashCode" />
+        <module name="InnerAssignment" />
+        <module name="SimplifyBooleanExpression" />
+        <module name="SimplifyBooleanReturn" />
+        <module name="StringLiteralEquality" />
+        <module name="NestedForDepth">
+            <property name="max" value="3" />
+        </module>
+        <module name="NestedIfDepth">
+            <property name="max" value="3" />
+        </module>
+        <module name="NestedTryDepth">
+            <property name="max" value="3" />
+        </module>
+        <module name="MultipleVariableDeclarations" />
+        <module name="RequireThis">
+            <property name="checkMethods" value="false" />
+            <property name="checkFields" value="false" />
+        </module>
+        <module name="OneStatementPerLine" />
+        <module name="ExplicitInitialization"/>
+
+        <!-- Imports -->
+        <module name="AvoidStarImport"/>
+        <module name="FallThrough"/>
+        <module name="RedundantImport"/>
+        <module name="ReturnCount">
+            <property name="max" value="0"/>
+            <property name="tokens" value="CTOR_DEF"/>
+        </module>
+        <module name="ReturnCount">
+            <property name="max" value="2"/>
+            <property name="tokens" value="LAMBDA"/>
+        </module>
+        <module name="ReturnCount">
+            <property name="max" value="4"/>
+            <property name="tokens" value="METHOD_DEF"/>
+        </module>
+        <module name="UnusedImports"/>
+
+        <!-- Miscellaneous -->
+        <module name="CommentsIndentation" />
+        <module name="UpperEll" />
+        <module name="ArrayTypeStyle" />
+        <module name="OuterTypeFilename" />
+
+        <!-- Modifiers -->
+        <module name="RedundantModifier" />
+
+        <!-- Regexp -->
+        <module name="Regexp">
+            <property name="format" value="[ \t]+$" />
+            <property name="illegalPattern" value="true" />
+            <property name="message" value="Trailing whitespace" />
+        </module>
+
+        <!-- Whitespace -->
+        <module name="GenericWhitespace" />
+        <module name="MethodParamPad" />
+        <module name="NoWhitespaceAfter" >
+            <property name="tokens" value="BNOT, DEC, DOT, INC, LNOT, UNARY_MINUS, UNARY_PLUS, ARRAY_DECLARATOR"/>
+        </module>
+        <module name="NoWhitespaceBefore" />
+        <module name="ParenPad" />
+        <module name="TypecastParenPad" />
+        <module name="WhitespaceAfter" />
+        <module name="WhitespaceAround" />
+    </module>
+</module>

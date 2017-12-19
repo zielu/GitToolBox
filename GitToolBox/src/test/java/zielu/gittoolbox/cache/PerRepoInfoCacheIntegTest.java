@@ -1,5 +1,9 @@
 package zielu.gittoolbox.cache;
 
+import static com.intellij.testFramework.UsefulTestCase.refreshRecursively;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
 import com.google.common.base.Charsets;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
@@ -14,85 +18,82 @@ import com.intellij.util.messages.MessageBusConnection;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
-import org.assertj.core.api.Assertions;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import zielu.gittoolbox.GitToolBoxProject;
-import zielu.gittoolbox.status.Status;
-import zielu.junit5.intellij.PlatformTestCaseExtension;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
-
-import static com.intellij.testFramework.UsefulTestCase.refreshRecursively;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import org.assertj.core.api.Assertions;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import zielu.gittoolbox.GitToolBoxProject;
+import zielu.gittoolbox.status.Status;
+import zielu.junit5.intellij.PlatformTestCaseExtension;
 
 @Tag("integration")
 @ExtendWith(PlatformTestCaseExtension.class)
 class PerRepoInfoCacheIntegTest {
-    private static Path myTestDataPath;
+  private static Path myTestDataPath;
 
-    @BeforeAll
-    static void beforeAll() throws Exception{
-        myTestDataPath = Paths.get(".", "testDataDynamic", "it", PerRepoInfoCacheIntegTest.class.getSimpleName());
-        FileUtil.delete(myTestDataPath.toFile());
-        initGit(myTestDataPath);
-    }
+  @BeforeAll
+  static void beforeAll() throws Exception {
+    myTestDataPath = Paths.get(".", "testDataDynamic", "it", PerRepoInfoCacheIntegTest.class.getSimpleName());
+    FileUtil.delete(myTestDataPath.toFile());
+    initGit(myTestDataPath);
+  }
 
-    private static void initGit(Path testDataDir) throws Exception {
-        Git git = Git.init().setDirectory(testDataDir.toFile()).setBare(false).call();
-        StoredConfig config = git.getRepository().getConfig();
-        config.load();
-        config.setString("user", null, "name", "Jon Snow");
-        config.setString("user", null, "email", "JonSnow@email.com");
-        config.save();
-        Files.write(testDataDir.resolve("file.txt"), Collections.singleton("abc"), Charsets.UTF_8);
-        git.add().addFilepattern("file.txt").call();
-        git.commit().setMessage("Initial commit").call();
-        git.close();
-    }
+  private static void initGit(Path testDataDir) throws Exception {
+    Git git = Git.init().setDirectory(testDataDir.toFile()).setBare(false).call();
+    StoredConfig config = git.getRepository().getConfig();
+    config.load();
+    config.setString("user", null, "name", "Jon Snow");
+    config.setString("user", null, "email", "JonSnow@email.com");
+    config.save();
+    Files.write(testDataDir.resolve("file.txt"), Collections.singleton("abc"), Charsets.UTF_8);
+    git.add().addFilepattern("file.txt").call();
+    git.commit().setMessage("Initial commit").call();
+    git.close();
+  }
 
-    @Test
-    void repositoryMappingAdded(Project project, Module module) throws Exception {
-        VirtualFile root = module.getModuleFile().getParent();
-        FileUtil.copyDir(myTestDataPath.toFile(), VfsUtil.virtualToIoFile(root));
-        refreshRecursively(root);
-        WriteCommandAction.runWriteCommandAction(project, () -> {
-            ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
-            vcsManager.setDirectoryMapping(root.getPath(), GitVcs.NAME);
-            assertThat(LocalFileSystem.getInstance().findFileByPath(root.getPath())).isNotNull();
-            GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
-            assertThat(repository).isNotNull();
-            PsiTestUtil.addContentRoot(module, root);
-        });
-        GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
-        GitToolBoxProject.getInstance(project).perRepoStatusCache().getInfo(repository);
-        MessageBusConnection connect = project.getMessageBus().connect();
-        Exchanger<RepoInfo> exchange = new Exchanger<>();
-        connect.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
-            @Override
-            public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-                try {
-                    exchange.exchange(info);
-                } catch (InterruptedException e) {
-                    Assertions.fail(e.getMessage(), e);
-                }
-            }
-        });
-        RepoInfo info = exchange.exchange(null, 10, TimeUnit.SECONDS);
-        assertSoftly(softly -> {
-            softly.assertThat(info).isNotNull();
-            softly.assertThat(info.count()).isNotEmpty();
-            softly.assertThat(info.count().get().status()).isEqualTo(Status.NoRemote);
-        });
+  @Test
+  void repositoryMappingAdded(Project project, Module module) throws Exception {
+    VirtualFile root = module.getModuleFile().getParent();
+    FileUtil.copyDir(myTestDataPath.toFile(), VfsUtil.virtualToIoFile(root));
+    refreshRecursively(root);
+    WriteCommandAction.runWriteCommandAction(project, () -> {
+      ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
+      vcsManager.setDirectoryMapping(root.getPath(), GitVcs.NAME);
+      assertThat(LocalFileSystem.getInstance().findFileByPath(root.getPath())).isNotNull();
+      GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
+      assertThat(repository).isNotNull();
+      PsiTestUtil.addContentRoot(module, root);
+    });
+    GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
+    GitToolBoxProject.getInstance(project).perRepoStatusCache().getInfo(repository);
+    MessageBusConnection connect = project.getMessageBus().connect();
+    Exchanger<RepoInfo> exchange = new Exchanger<>();
+    connect.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+      @Override
+      public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
+        try {
+          exchange.exchange(info);
+        } catch (InterruptedException e) {
+          Assertions.fail(e.getMessage(), e);
+        }
+      }
+    });
+    RepoInfo info = exchange.exchange(null, 10, TimeUnit.SECONDS);
+    assertSoftly(softly -> {
+      softly.assertThat(info).isNotNull();
+      softly.assertThat(info.count()).isNotEmpty();
+      softly.assertThat(info.count().get().status()).isEqualTo(Status.NO_REMOTE);
+    });
 
-    }
+  }
 }

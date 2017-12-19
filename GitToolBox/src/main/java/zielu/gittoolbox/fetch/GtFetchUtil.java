@@ -12,21 +12,21 @@ import zielu.gittoolbox.ResBundle;
 
 public class GtFetchUtil {
 
-    private GtFetchUtil() {}
+  private GtFetchUtil() {
+  }
 
-    /**
-     * Fetch for single repository
-     *
-     * Taken from {@link git4idea.actions.GitFetch}
-     *
-     * @param repository
-     */
-    public static void fetch(GitRepository repository) {
-        Project project = repository.getProject();
-        GitVcs.runInBackground(new Backgroundable(project, ResBundle.getString("message.fetching"), true) {
-            public void run(@NotNull ProgressIndicator indicator) {
-                (new GitFetcher(project, indicator, true)).fetchRootsAndNotify(Collections.singleton(repository), null, true);
-            }
-        });
-    }
+  /**
+   * Fetch for single repository.
+   * Taken from {@link git4idea.actions.GitFetch}
+   *
+   * @param repository repository to fetch
+   */
+  public static void fetch(GitRepository repository) {
+    Project project = repository.getProject();
+    GitVcs.runInBackground(new Backgroundable(project, ResBundle.getString("message.fetching"), true) {
+      public void run(@NotNull ProgressIndicator indicator) {
+        (new GitFetcher(project, indicator, true)).fetchRootsAndNotify(Collections.singleton(repository), null, true);
+      }
+    });
+  }
 }

@@ -87,7 +87,7 @@
 
     <applicationConfigurable instance="zielu.gittoolbox.ui.config.GtConfigurable" id="zielu.gittoolbox.app.config"/>
     <projectConfigurable instance="zielu.gittoolbox.ui.config.GtProjectConfigurable" id="zielu.svntoolbox.prj.config"/>
-    <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectView.ProjectViewDecorator"/>
+    <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator"/>
 
     <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.completion.CompletionCheckinHandlerFactory"/>
     <completion.contributor language="TEXT"

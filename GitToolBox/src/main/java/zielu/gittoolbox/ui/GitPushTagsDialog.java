@@ -39,211 +39,210 @@ import zielu.gittoolbox.tag.TagsPushSpec;
 import zielu.gittoolbox.tag.TagsPushSpec.Builder;
 
 public class GitPushTagsDialog extends DialogWrapper {
-    private JPanel myPanel;
-    private ComboBox myGitRootComboBox;
-    private JLabel myCurrentBranch;
-    private CheckBoxList<String> myTagsList;
-    private JLabel mySelectedCountLabel;
-    private JBCheckBox myForceCheckbox;
+  private final LinkedList<String> existingTags = Lists.newLinkedList();
+  private final Project project;
+  private final GitTagCalculator tagCalculator;
+  private JPanel panel;
+  private ComboBox gitRootComboBox;
+  private JLabel currentBranch;
+  private CheckBoxList<String> tagsList;
+  private JLabel selectedCountLabel;
+  private JBCheckBox forceCheckbox;
+  private int selectedCount;
 
-    private final LinkedList<String> myExistingTags = Lists.newLinkedList();
-    private final Project myProject;
-    private final GitTagCalculator myTagCalculator;
-    private int mySelectedCount;
+  public GitPushTagsDialog(Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
+    super(project, true);
+    this.project = project;
+    tagCalculator = GitTagCalculator.create(this.project);
+    initGui();
+    GitUIUtil.setupRootChooser(this.project, roots, defaultRoot, gitRootComboBox, null);
+    updateRepositoryState();
+    init();
+  }
 
-    public GitPushTagsDialog(Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
-        super(project, true);
-        myProject = project;
-        myTagCalculator = GitTagCalculator.create(myProject);
-        initGui();
-        GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRootComboBox, null);
+  private void initGui() {
+    setTitle(ResBundle.getString("push.tags.title"));
+    setOKButtonText(ResBundle.getString("push.tags.ok.button"));
+    panel = new JPanel(new MigLayout("fill, top, insets 0", "[]10[grow, fill]"));
+    gitRootComboBox = new ComboBox();
+    gitRootComboBox.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
         updateRepositoryState();
-        init();
-    }
-
-    private void initGui() {
-        setTitle(ResBundle.getString("push.tags.title"));
-        setOKButtonText(ResBundle.getString("push.tags.ok.button"));
-        myPanel = new JPanel(new MigLayout("fill, top, insets 0", "[]10[grow, fill]"));
-        myGitRootComboBox = new ComboBox();
-        myGitRootComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateRepositoryState();
-            }
-        });
-        myPanel.add(new JBLabel(ResBundle.getString("git.root")));
-        myPanel.add(myGitRootComboBox, "spanx, wrap");
-        myCurrentBranch = new JBLabel();
-        myPanel.add(new JBLabel(ResBundle.getString("current.branch")));
-        myPanel.add(myCurrentBranch, "spanx, wrap");
-        myPanel.add(new JBLabel(ResBundle.getString("force.tags.push.label")));
-        myForceCheckbox = new JBCheckBox(ResBundle.getString("force.tags.push.text"));
-        myPanel.add(myForceCheckbox, "spanx, wrap");
-        myTagsList = new CheckBoxList<String>(new CheckBoxListListener() {
-            @Override
-            public void checkBoxSelectionChanged(int index, boolean value) {
-                if (value) {
-                    mySelectedCount++;
-                } else {
-                    mySelectedCount--;
-                }
-                updateSelectedCount();
-            }
-        });
-        myPanel.add(ScrollPaneFactory.createScrollPane(myTagsList), "gaptop 10, span, grow, push, wrap");
-        JPanel selectPanel = new JPanel(new MigLayout("fill, insets 0", "[]5[]10[grow]"));
-        myPanel.add(selectPanel, "spanx, growx, pushx, wrap");
-        selectPanel.add(new LinkLabel(ResBundle.getString("select.all"), null, new LinkListener() {
-            @Override
-            public void linkSelected(LinkLabel aSource, Object aLinkData) {
-                changeItemsSelection(true);
-            }
-        }));
-        selectPanel.add(new LinkLabel(ResBundle.getString("select.none"), null, new LinkListener() {
-            @Override
-            public void linkSelected(LinkLabel aSource, Object aLinkData) {
-                changeItemsSelection(false);
-            }
-        }));
-        mySelectedCountLabel = new JBLabel();
-        selectPanel.add(mySelectedCountLabel, "spanx, pushx, right");
-        getOKAction().putValue(DEFAULT_ACTION, true);
-    }
-
-    private void changeItemsSelection(boolean selected) {
-        for (String tag : myExistingTags) {
-            myTagsList.setItemSelected(tag, selected);
+      }
+    });
+    panel.add(new JBLabel(ResBundle.getString("git.root")));
+    panel.add(gitRootComboBox, "spanx, wrap");
+    currentBranch = new JBLabel();
+    panel.add(new JBLabel(ResBundle.getString("current.branch")));
+    panel.add(currentBranch, "spanx, wrap");
+    panel.add(new JBLabel(ResBundle.getString("force.tags.push.label")));
+    forceCheckbox = new JBCheckBox(ResBundle.getString("force.tags.push.text"));
+    panel.add(forceCheckbox, "spanx, wrap");
+    tagsList = new CheckBoxList<String>(new CheckBoxListListener() {
+      @Override
+      public void checkBoxSelectionChanged(int index, boolean value) {
+        if (value) {
+          selectedCount++;
+        } else {
+          selectedCount--;
         }
-        myTagsList.repaint();
-        mySelectedCount = selected ? myExistingTags.size() : 0;
         updateSelectedCount();
-    }
+      }
+    });
+    panel.add(ScrollPaneFactory.createScrollPane(tagsList), "gaptop 10, span, grow, push, wrap");
+    JPanel selectPanel = new JPanel(new MigLayout("fill, insets 0", "[]5[]10[grow]"));
+    panel.add(selectPanel, "spanx, growx, pushx, wrap");
+    selectPanel.add(new LinkLabel(ResBundle.getString("select.all"), null, new LinkListener() {
+      @Override
+      public void linkSelected(LinkLabel source, Object linkData) {
+        changeItemsSelection(true);
+      }
+    }));
+    selectPanel.add(new LinkLabel(ResBundle.getString("select.none"), null, new LinkListener() {
+      @Override
+      public void linkSelected(LinkLabel source, Object linkData) {
+        changeItemsSelection(false);
+      }
+    }));
+    selectedCountLabel = new JBLabel();
+    selectPanel.add(selectedCountLabel, "spanx, pushx, right");
+    getOKAction().putValue(DEFAULT_ACTION, true);
+  }
 
-    @Nullable
-    @Override
-    protected JComponent createCenterPanel() {
-        return myPanel;
+  private void changeItemsSelection(boolean selected) {
+    for (String tag : existingTags) {
+      tagsList.setItemSelected(tag, selected);
     }
+    tagsList.repaint();
+    selectedCount = selected ? existingTags.size() : 0;
+    updateSelectedCount();
+  }
 
-    private VirtualFile getGitRoot() {
-        return (VirtualFile) myGitRootComboBox.getSelectedItem();
-    }
+  @Nullable
+  @Override
+  protected JComponent createCenterPanel() {
+    return panel;
+  }
 
-    @Nullable
-    @Override
-    protected String getDimensionServiceKey() {
-        return getClass().getName();
-    }
+  private VirtualFile getGitRoot() {
+    return (VirtualFile) gitRootComboBox.getSelectedItem();
+  }
 
-    private int countFormatWidth() {
-        return myExistingTags.isEmpty() ? 1 : String.valueOf(myExistingTags.size()).length();
-    }
+  @Nullable
+  @Override
+  protected String getDimensionServiceKey() {
+    return getClass().getName();
+  }
 
-    private String makeCountFormat() {
-        int width = countFormatWidth();
-        return "%1$" + width + "d/%2$" + width + "d";
-    }
+  private int countFormatWidth() {
+    return existingTags.isEmpty() ? 1 : String.valueOf(existingTags.size()).length();
+  }
 
-    private String makeSelectedCountMessage() {
-        String format = makeCountFormat();
-        return String.format(format, mySelectedCount, myExistingTags.size());
-    }
+  private String makeCountFormat() {
+    int width = countFormatWidth();
+    return "%1$" + width + "d/%2$" + width + "d";
+  }
 
-    private void updateSelectedCount() {
-        String message = makeSelectedCountMessage();
-        mySelectedCountLabel.setText(message);
-    }
+  private String makeSelectedCountMessage() {
+    String format = makeCountFormat();
+    return String.format(format, selectedCount, existingTags.size());
+  }
 
-    private void fetchTags() {
-        myExistingTags.clear();
-        Optional<GitLocalBranch> current = currentBranch();
-        if (current.isPresent()) {
-            List<String> newTags = myTagCalculator.tagsForBranch(getGitRoot(), current.get().getName());
-            myExistingTags.addAll(newTags);
-        }
-    }
+  private void updateSelectedCount() {
+    String message = makeSelectedCountMessage();
+    selectedCountLabel.setText(message);
+  }
 
-    private void updateRepositoryState() {
-        fetchTags();
-        myTagsList.setStringItems(Maps.toMap(myExistingTags, Functions.constant(true)));
-        mySelectedCount = myExistingTags.size();
-        updateCurrentBranch();
-        updateSelectedCount();
-        validatePushAvailable();
+  private void fetchTags() {
+    existingTags.clear();
+    Optional<GitLocalBranch> current = currentBranch();
+    if (current.isPresent()) {
+      List<String> newTags = tagCalculator.tagsForBranch(getGitRoot(), current.get().getName());
+      existingTags.addAll(newTags);
     }
+  }
 
-    private void updateCurrentBranch() {
-        Optional<GitLocalBranch> current = currentBranch();
-        if (current.isPresent()) {
-            Optional<GitBranchTrackInfo> remote = remoteForCurrentBranch();
-            if (remote.isPresent()) {
-                myCurrentBranch.setText(remote.get().toString());
-            } else {
-                myCurrentBranch.setText(current.get().getName());
-            }
-        } else {
-            myCurrentBranch.setText(GitUIUtil.NO_CURRENT_BRANCH);
-        }
-    }
+  private void updateRepositoryState() {
+    fetchTags();
+    tagsList.setStringItems(Maps.toMap(existingTags, Functions.constant(true)));
+    selectedCount = existingTags.size();
+    updateCurrentBranch();
+    updateSelectedCount();
+    validatePushAvailable();
+  }
 
-    private Optional<GitLocalBranch> currentBranch() {
-        GitRepository repository = getRepository();
-        return Optional.ofNullable(repository.getCurrentBranch());
+  private void updateCurrentBranch() {
+    Optional<GitLocalBranch> current = currentBranch();
+    if (current.isPresent()) {
+      Optional<GitBranchTrackInfo> remote = remoteForCurrentBranch();
+      if (remote.isPresent()) {
+        currentBranch.setText(remote.get().toString());
+      } else {
+        currentBranch.setText(current.get().getName());
+      }
+    } else {
+      currentBranch.setText(GitUIUtil.NO_CURRENT_BRANCH);
     }
+  }
 
-    private GitRepository getRepository() {
-        return Preconditions.checkNotNull(GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(getGitRoot()));
-    }
+  private Optional<GitLocalBranch> currentBranch() {
+    GitRepository repository = getRepository();
+    return Optional.ofNullable(repository.getCurrentBranch());
+  }
 
-    private Optional<GitBranchTrackInfo> remoteForCurrentBranch() {
-        GitRepository repository = getRepository();
-        return Optional.ofNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
-    }
+  private GitRepository getRepository() {
+    return Preconditions.checkNotNull(GitUtil.getRepositoryManager(project).getRepositoryForRoot(getGitRoot()));
+  }
 
-    private void validatePushAvailable() {
-        Optional<GitBranchTrackInfo> tracking = remoteForCurrentBranch();
-        calculateOkActionState(tracking);
-        if (tracking.isPresent()) {
-            setErrorText(null);
-        } else {
-            setErrorText(ResBundle.getString("message.cannot.push.without.tracking"));
-        }
-    }
+  private Optional<GitBranchTrackInfo> remoteForCurrentBranch() {
+    GitRepository repository = getRepository();
+    return Optional.ofNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
+  }
 
-    private void calculateOkActionState(Optional<GitBranchTrackInfo> tracking) {
-        getOKAction().setEnabled(tracking.isPresent() && mySelectedCount > 0);
+  private void validatePushAvailable() {
+    Optional<GitBranchTrackInfo> tracking = remoteForCurrentBranch();
+    calculateOkActionState(tracking);
+    if (tracking.isPresent()) {
+      setErrorText(null);
+    } else {
+      setErrorText(ResBundle.getString("message.cannot.push.without.tracking"));
     }
+  }
 
-    private ImmutableList<String> getSelectedTags() {
-        return ImmutableList.copyOf(Collections2.filter(myExistingTags, new Predicate<String>() {
-            @Override
-            public boolean apply(String tag) {
-                return myTagsList.isItemSelected(tag);
-            }
-        }));
-    }
+  private void calculateOkActionState(Optional<GitBranchTrackInfo> tracking) {
+    getOKAction().setEnabled(tracking.isPresent() && selectedCount > 0);
+  }
 
-    private boolean isAnythingSelected() {
-        return mySelectedCount > 0;
-    }
+  private ImmutableList<String> getSelectedTags() {
+    return ImmutableList.copyOf(Collections2.filter(existingTags, new Predicate<String>() {
+      @Override
+      public boolean apply(String tag) {
+        return tagsList.isItemSelected(tag);
+      }
+    }));
+  }
 
-    private Builder pushSpecBuilder() {
-        Builder builder = TagsPushSpec.builder();
-        if (mySelectedCount != myExistingTags.size()) {
-            builder.tags(getSelectedTags());
-        }
-        if (myForceCheckbox.isSelected()) {
-            builder.force();
-        }
-        return builder;
-    }
+  private boolean isAnythingSelected() {
+    return selectedCount > 0;
+  }
 
-    public java.util.Optional<TagsPushSpec> getPushSpec() {
-        if (isAnythingSelected()) {
-            return Optional.of(pushSpecBuilder().build(getGitRoot()));
-        } else {
-            return Optional.empty();
-        }
+  private Builder pushSpecBuilder() {
+    Builder builder = TagsPushSpec.builder();
+    if (selectedCount != existingTags.size()) {
+      builder.tags(getSelectedTags());
     }
+    if (forceCheckbox.isSelected()) {
+      builder.force();
+    }
+    return builder;
+  }
+
+  public java.util.Optional<TagsPushSpec> getPushSpec() {
+    if (isAnythingSelected()) {
+      return Optional.of(pushSpecBuilder().build(getGitRoot()));
+    } else {
+      return Optional.empty();
+    }
+  }
 }

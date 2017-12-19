@@ -8,44 +8,50 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.extension.UpdateProjectAction;
 import zielu.gittoolbox.extension.UpdateProjectActionEP;
 
 public class GitToolBoxUpdateProjectApp implements ApplicationComponent {
-    private UpdateProjectAction myDefaultAction;
-    private final List<UpdateProjectAction> myUpdateActions = new ArrayList<>();
+  private final List<UpdateProjectAction> updateActions = new ArrayList<>();
+  private UpdateProjectAction defaultAction;
 
-    public static GitToolBoxUpdateProjectApp getInstance() {
-        return ApplicationManager.getApplication().getComponent(GitToolBoxUpdateProjectApp.class);
-    }
+  public static GitToolBoxUpdateProjectApp getInstance() {
+    return ApplicationManager.getApplication().getComponent(GitToolBoxUpdateProjectApp.class);
+  }
 
-    public UpdateProjectAction getDefault() {
-        return myDefaultAction;
-    }
+  public UpdateProjectAction getDefault() {
+    return defaultAction;
+  }
 
-    public List<UpdateProjectAction> getAll() {
-        return myUpdateActions;
-    }
+  public List<UpdateProjectAction> getAll() {
+    return updateActions;
+  }
 
-    public UpdateProjectAction getById(String id) {
-        return myUpdateActions.stream().filter(a -> Objects.equals(id, a.getId())).findFirst().orElse(myDefaultAction);
-    }
+  public UpdateProjectAction getById(String id) {
+    return updateActions.stream().filter(a -> Objects.equals(id, a.getId())).findFirst().orElse(defaultAction);
+  }
 
-    public boolean hasId(String id) {
-        return myUpdateActions.stream().anyMatch(a -> Objects.equals(id, a.getId()));
-    }
+  public boolean hasId(String id) {
+    return updateActions.stream().anyMatch(a -> Objects.equals(id, a.getId()));
+  }
 
-    @Override
-    public void initComponent() {
-        List<UpdateProjectActionEP> updateProjectEPs = Arrays.asList(Extensions.getExtensions(UpdateProjectActionEP.POINT_NAME));
-        updateProjectEPs.stream().map(UpdateProjectActionEP::instantiate).forEach(myUpdateActions::add);
-        myUpdateActions.stream().filter(UpdateProjectAction::isDefault).findFirst().ifPresent(a -> myDefaultAction = a);
-        Preconditions.checkState(myDefaultAction != null);
-    }
+  @Override
+  public void initComponent() {
+    List<UpdateProjectActionEP> updateProjectEPs = getUpdateProjectExtensionPoints();
+    updateProjectEPs.stream().map(UpdateProjectActionEP::instantiate).forEach(updateActions::add);
+    updateActions.stream().filter(UpdateProjectAction::isDefault).findFirst().ifPresent(a -> defaultAction = a);
+    Preconditions.checkState(defaultAction != null);
+  }
 
-    @Override
-    public void disposeComponent() {
-        myUpdateActions.clear();
-        myDefaultAction = null;
-    }
+  @NotNull
+  private List<UpdateProjectActionEP> getUpdateProjectExtensionPoints() {
+    return Arrays.asList(Extensions.getExtensions(UpdateProjectActionEP.POINT_NAME));
+  }
+
+  @Override
+  public void disposeComponent() {
+    updateActions.clear();
+    defaultAction = null;
+  }
 }

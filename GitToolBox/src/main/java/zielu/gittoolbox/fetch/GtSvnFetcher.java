@@ -9,16 +9,16 @@ import zielu.gittoolbox.repo.GtConfig;
 import zielu.gittoolbox.repo.GtRepositoryManager;
 
 public class GtSvnFetcher {
-    private final Project myProject;
+  private final Project project;
 
-    public GtSvnFetcher(Project project) {
-        myProject = project;
-    }
+  public GtSvnFetcher(Project project) {
+    this.project = project;
+  }
 
-    public GitFetchResult fetch(@NotNull GitRepository repository) {
-        GtRepositoryManager manager = GtRepositoryManager.getInstance(myProject);
-        Optional<GtConfig> config = manager.configFor(repository);
+  public GitFetchResult fetch(@NotNull GitRepository repository) {
+    GtRepositoryManager manager = GtRepositoryManager.getInstance(project);
+    Optional<GtConfig> config = manager.configFor(repository);
 
-        return GitFetchResult.success();
-    }
+    return GitFetchResult.success();
+  }
 }

@@ -24,204 +24,204 @@ import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.status.GitStatusCalculator;
 
 public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable, ProjectAware {
-    public static final Topic<PerRepoStatusCacheListener> CACHE_CHANGE = Topic.create("Status cache change", PerRepoStatusCacheListener.class);
+  public static final Topic<PerRepoStatusCacheListener> CACHE_CHANGE = Topic.create("Status cache change",
+      PerRepoStatusCacheListener.class);
 
-    private final Logger LOG = Logger.getInstance(getClass());
+  private final Logger log = Logger.getInstance(getClass());
+  private final AtomicBoolean active = new AtomicBoolean();
+  private final ConcurrentMap<GitRepository, CachedStatus> behindStatuses = Maps.newConcurrentMap();
+  private final ConcurrentMap<GitRepository, Boolean> scheduledRepositories = Maps.newConcurrentMap();
+  private final Application application;
+  private final Project project;
+  private final GitStatusCalculator calculator;
+  private final MessageBusConnection connection;
+  private ExecutorService updateExecutor;
 
-    private ExecutorService myUpdateExecutor;
+  private PerRepoInfoCache(@NotNull Application application, @NotNull Project project) {
+    this.application = application;
+    this.project = project;
+    calculator = GitStatusCalculator.create(project);
+    connection = this.project.getMessageBus().connect();
+    connection.subscribe(GitRepository.GIT_REPO_CHANGE, this);
+  }
 
-    private final AtomicBoolean myActive = new AtomicBoolean();
-    private final ConcurrentMap<GitRepository, CachedStatus> myBehindStatuses = Maps.newConcurrentMap();
-    private final ConcurrentMap<GitRepository, Boolean> myScheduledRepositories = Maps.newConcurrentMap();
-    private final Application myApplication;
-    private final Project myProject;
-    private final GitStatusCalculator myCalculator;
-    private final MessageBusConnection myRepoChangeConnection;
+  public static PerRepoInfoCache create(@NotNull Project project) {
+    return new PerRepoInfoCache(ApplicationManager.getApplication(), project);
+  }
 
-    private PerRepoInfoCache(@NotNull Application application, @NotNull Project project) {
-        myApplication = application;
-        myProject = project;
-        myCalculator = GitStatusCalculator.create(project);
-        myRepoChangeConnection = myProject.getMessageBus().connect();
-        myRepoChangeConnection.subscribe(GitRepository.GIT_REPO_CHANGE, this);
+  private CachedStatus get(final GitRepository repository) {
+    CachedStatus cachedStatus = behindStatuses.get(repository);
+    if (cachedStatus == null) {
+      CachedStatus newStatus = CachedStatus.create(repository);
+      CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
+      cachedStatus = foundStatus != null ? foundStatus : newStatus;
+      if (cachedStatus.isNew()) {
+        scheduleUpdate(repository);
+      }
     }
+    return cachedStatus;
+  }
 
-    public static PerRepoInfoCache create(@NotNull Project project) {
-        return new PerRepoInfoCache(ApplicationManager.getApplication(), project);
+  private void update(GitRepository repository) {
+    if (active.get()) {
+      DumbService dumbService = DumbService.getInstance(project);
+      Runnable update = () -> get(repository).update(repository, calculator, info -> onRepoChanged(repository, info));
+      dumbService.runReadActionInSmartMode(update);
     }
+  }
 
-    private CachedStatus get(final GitRepository repository) {
-        CachedStatus cachedStatus = myBehindStatuses.get(repository);
-        if (cachedStatus == null) {
-            CachedStatus newStatus = CachedStatus.create(repository);
-            CachedStatus foundStatus = myBehindStatuses.putIfAbsent(repository, newStatus);
-            cachedStatus = foundStatus != null ? foundStatus : newStatus;
-            if (cachedStatus.isNew()) {
-                scheduleUpdate(repository);
-            }
-        }
-        return cachedStatus;
+  @NotNull
+  public RepoInfo getInfo(GitRepository repository) {
+    CachedStatus cachedStatus = get(repository);
+    return cachedStatus.get();
+  }
+
+  @Override
+  public void dispose() {
+    connection.disconnect();
+    behindStatuses.clear();
+    updateExecutor = null;
+    scheduledRepositories.clear();
+  }
+
+  private void scheduleRefresh(@NotNull GitRepository repository) {
+    final boolean debug = log.isDebugEnabled();
+    if (active.get()) {
+      if (debug) {
+        log.debug("Scheduled refresh for: " + repository);
+      }
+      scheduleTask(new RefreshTask(repository));
+    } else {
+      if (debug) {
+        log.debug("Inactive - ignored scheduling refresh for " + repository);
+      }
     }
+  }
 
-    private void update(GitRepository repository) {
-        if (myActive.get()) {
-            DumbService dumbService = DumbService.getInstance(myProject);
-            dumbService.runReadActionInSmartMode(() -> get(repository).update(repository, myCalculator, info -> onRepoChanged(repository, info)));
-        }
+  private void scheduleUpdate(@NotNull GitRepository repository) {
+    final boolean debug = log.isDebugEnabled();
+    if (active.get()) {
+      if (debug) {
+        log.debug("Scheduled update for: " + repository);
+      }
+      scheduleTask(new UpdateTask(repository));
+    } else {
+      if (debug) {
+        log.debug("Inactive - ignored updating refresh for " + repository);
+      }
     }
+  }
 
-    @NotNull
-    public RepoInfo getInfo(GitRepository repository) {
-        CachedStatus cachedStatus = get(repository);
-        return cachedStatus.get();
+  private void scheduleTask(CacheTask task) {
+    if (scheduledRepositories.putIfAbsent(task.repository, Boolean.TRUE) == null) {
+      updateExecutor.submit(task);
+      log.debug("Scheduled ", task);
+    } else {
+      log.debug("Task for ", task.repository, " already scheduled");
+    }
+  }
+
+  @Override
+  public void repositoryChanged(@NotNull GitRepository repository) {
+    if (log.isDebugEnabled()) {
+      log.debug("Got repo changed event: " + repository);
+    }
+    scheduleRefresh(repository);
+  }
+
+  private void onRepoChanged(GitRepository repo, RepoInfo info) {
+    if (active.get()) {
+      project.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
+      if (log.isDebugEnabled()) {
+        log.debug("Published cache changed event: " + repo);
+      }
+    }
+  }
+
+  private void refreshSync(GitRepository repository) {
+    get(repository).invalidate();
+    update(repository);
+  }
+
+  private void updateSync(GitRepository repository) {
+    update(repository);
+  }
+
+  public void refreshAll() {
+    log.debug("Refreshing all repository statuses");
+    refresh(GitUtil.getRepositories(project));
+  }
+
+  public void refresh(Iterable<GitRepository> repositories) {
+    if (log.isDebugEnabled()) {
+      log.debug("Refreshing repositories statuses: ", repositories);
+    }
+    repositories.forEach(this::scheduleRefresh);
+  }
+
+  @Override
+  public void opened() {
+    if (active.compareAndSet(false, true)) {
+      ThreadFactoryBuilder threadBuilder = new ThreadFactoryBuilder().setDaemon(true);
+      updateExecutor = Executors.newSingleThreadExecutor(
+          threadBuilder.setNameFormat(getClass().getSimpleName() + "-[" + project.getName() + "]-%d").build()
+      );
+    }
+  }
+
+  @Override
+  public void closed() {
+    if (active.compareAndSet(true, false)) {
+      updateExecutor.shutdownNow().forEach(notStarted -> log.info("Task " + notStarted + " was never started"));
+    }
+  }
+
+  private class RefreshTask extends CacheTask {
+
+    private RefreshTask(@NotNull GitRepository repository) {
+      super(repository);
     }
 
     @Override
-    public void dispose() {
-        myRepoChangeConnection.disconnect();
-        myBehindStatuses.clear();
-        myUpdateExecutor = null;
-        myScheduledRepositories.clear();
+    public void runImpl() {
+      refreshSync(repository);
     }
+  }
 
-    private void scheduleRefresh(@NotNull GitRepository repository) {
-        final boolean debug = LOG.isDebugEnabled();
-        if (myActive.get()) {
-            if (debug) {
-                LOG.debug("Scheduled refresh for: " + repository);
-            }
-            scheduleTask(new RefreshTask(repository));
-        } else {
-            if (debug) {
-                LOG.debug("Inactive - ignored scheduling refresh for " + repository);
-            }
-        }
-    }
+  private class UpdateTask extends CacheTask {
 
-    private void scheduleUpdate(@NotNull GitRepository repository) {
-        final boolean debug = LOG.isDebugEnabled();
-        if (myActive.get()) {
-            if (debug) {
-                LOG.debug("Scheduled update for: " + repository);
-            }
-            scheduleTask(new UpdateTask(repository));
-        } else {
-            if (debug) {
-                LOG.debug("Inactive - ignored updating refresh for " + repository);
-            }
-        }
-    }
-
-    private void scheduleTask(CacheTask task) {
-        if (myScheduledRepositories.putIfAbsent(task.myRepository, Boolean.TRUE) == null) {
-            myUpdateExecutor.submit(task);
-            LOG.debug("Scheduled ", task);
-        } else {
-            LOG.debug("Task for ", task.myRepository, " already scheduled");
-        }
+    private UpdateTask(@NotNull GitRepository repository) {
+      super(repository);
     }
 
     @Override
-    public void repositoryChanged(@NotNull GitRepository repository) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Got repo changed event: " + repository);
-        }
-        scheduleRefresh(repository);
+    public void runImpl() {
+      updateSync(repository);
     }
+  }
 
-    private void onRepoChanged(GitRepository repo, RepoInfo info) {
-        if (myActive.get()) {
-            myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Published cache changed event: " + repo);
-            }
-        }
-    }
+  private abstract class CacheTask implements Runnable {
+    final GitRepository repository;
 
-    private void refreshSync(GitRepository repository) {
-        get(repository).invalidate();
-        update(repository);
-    }
-
-    private void updateSync(GitRepository repository) {
-        update(repository);
-    }
-
-    public void refreshAll() {
-        LOG.debug("Refreshing all repository statuses");
-        refresh(GitUtil.getRepositories(myProject));
-    }
-
-    public void refresh(Iterable<GitRepository> repositories) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Refreshing repositories statuses: ", repositories);
-        }
-        repositories.forEach(this::scheduleRefresh);
+    CacheTask(GitRepository repository) {
+      this.repository = repository;
     }
 
     @Override
-    public void opened() {
-        if (myActive.compareAndSet(false,true)) {
-            ThreadFactoryBuilder threadBuilder = new ThreadFactoryBuilder().setDaemon(true);
-            myUpdateExecutor = Executors.newSingleThreadExecutor(
-                threadBuilder.setNameFormat(getClass().getSimpleName()+"-["+myProject.getName()+"]-%d").build()
-            );
-        }
+    public void run() {
+      if (active.get()) {
+        runImpl();
+        scheduledRepositories.remove(repository);
+      }
     }
+
+    abstract void runImpl();
 
     @Override
-    public void closed() {
-        if (myActive.compareAndSet(true, false)) {
-            myUpdateExecutor.shutdownNow().forEach(notStarted -> LOG.info("Task " + notStarted + " was never started"));
-        }
+    public String toString() {
+      return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+          .append("repository", repository)
+          .toString();
     }
-
-    private class RefreshTask extends CacheTask {
-
-        private RefreshTask(@NotNull GitRepository myRepository) {
-            super(myRepository);
-        }
-
-        @Override
-        public void runImpl() {
-            refreshSync(myRepository);
-        }
-    }
-
-    private class UpdateTask extends CacheTask {
-
-        private UpdateTask(@NotNull GitRepository myRepository) {
-            super(myRepository);
-        }
-
-        @Override
-        public void runImpl() {
-            updateSync(myRepository);
-        }
-    }
-
-    private abstract class CacheTask implements Runnable {
-        final GitRepository myRepository;
-
-        CacheTask(GitRepository repository) {
-            this.myRepository = repository;
-        }
-
-        @Override
-        public void run() {
-            if (myActive.get()) {
-                runImpl();
-                myScheduledRepositories.remove(myRepository);
-            }
-        }
-
-        abstract void runImpl();
-
-        @Override
-        public String toString() {
-            return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("repository", myRepository)
-                .toString();
-        }
-    }
+  }
 }

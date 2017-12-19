@@ -5,12 +5,12 @@ import javax.swing.Icon;
 import org.jdesktop.swingx.action.AbstractActionExt;
 
 public class SimpleAction extends AbstractActionExt {
+  public SimpleAction(Icon icon) {
+    super("", icon);
+  }
 
-    public SimpleAction(Icon icon) {
-        super("", icon);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-    }
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    //do nothing
+  }
 }

@@ -21,62 +21,62 @@ import zielu.gittoolbox.formatter.Formatter;
     storages = @Storage("git_toolbox_prj.xml")
 )
 public class GitToolBoxConfigForProject implements PersistentStateComponent<GitToolBoxConfigForProject> {
-    public boolean autoFetch = true;
-    public int autoFetchIntervalMinutes = AutoFetchParams.defaultIntervalMinutes;
-    public String autoFetchStrategy = AutoFetchStrategy.RepoWithRemotes.key();
-    public boolean commitDialogCompletion = true;
-    public List<CommitCompletionConfig> completionConfigs = Lists.newArrayList(new CommitCompletionConfig());
+  public boolean autoFetch = true;
+  public int autoFetchIntervalMinutes = AutoFetchParams.defaultIntervalMinutes;
+  public String autoFetchStrategy = AutoFetchStrategy.REPO_WITH_REMOTES.key();
+  public boolean commitDialogCompletion = true;
+  public List<CommitCompletionConfig> completionConfigs = Lists.newArrayList(new CommitCompletionConfig());
 
-    @Transient
-    public AutoFetchStrategy getAutoFetchStrategy() {
-        return AutoFetchStrategy.forKey(autoFetchStrategy);
-    }
+  public static GitToolBoxConfigForProject getInstance(Project project) {
+    return ServiceManager.getService(project, GitToolBoxConfigForProject.class);
+  }
 
-    public void setAutoFetchStrategy(AutoFetchStrategy strategy) {
-        autoFetchStrategy = strategy.key();
-    }
+  @Transient
+  public AutoFetchStrategy getAutoFetchStrategy() {
+    return AutoFetchStrategy.forKey(autoFetchStrategy);
+  }
 
-    public boolean isAutoFetchStrategyChanged(AutoFetchStrategy strategy) {
-        return !autoFetchStrategy.equals(strategy.key());
-    }
+  public void setAutoFetchStrategy(AutoFetchStrategy strategy) {
+    autoFetchStrategy = strategy.key();
+  }
 
-    public boolean isAutoFetchChanged(boolean autoFetch) {
-        return this.autoFetch != autoFetch;
-    }
+  public boolean isAutoFetchStrategyChanged(AutoFetchStrategy strategy) {
+    return !autoFetchStrategy.equals(strategy.key());
+  }
 
-    public boolean isAutoFetchIntervalMinutesChanged(int autoFetchIntervalMinutes) {
-        return this.autoFetchIntervalMinutes != autoFetchIntervalMinutes;
-    }
+  public boolean isAutoFetchChanged(boolean autoFetch) {
+    return this.autoFetch != autoFetch;
+  }
 
-    public boolean isCommitDialogCompletionChanged(boolean commitDialogCompletion) {
-        return this.commitDialogCompletion != commitDialogCompletion;
-    }
+  public boolean isAutoFetchIntervalMinutesChanged(int autoFetchIntervalMinutes) {
+    return this.autoFetchIntervalMinutes != autoFetchIntervalMinutes;
+  }
 
-    public boolean isCommitDialogCompletionConfigsChanged(List<CommitCompletionConfig> completionConfigs) {
-        return !this.completionConfigs.equals(completionConfigs);
-    }
+  public boolean isCommitDialogCompletionChanged(boolean commitDialogCompletion) {
+    return this.commitDialogCompletion != commitDialogCompletion;
+  }
 
-    public void fireChanged(@NotNull Project project) {
-        project.getMessageBus().syncPublisher(ConfigNotifier.CONFIG_TOPIC).configChanged(project, this);
-    }
+  public boolean isCommitDialogCompletionConfigsChanged(List<CommitCompletionConfig> completionConfigs) {
+    return !this.completionConfigs.equals(completionConfigs);
+  }
 
-    @Transient
-    public List<Formatter> getCompletionFormatters() {
-        return completionConfigs.stream().map(CommitCompletionConfig::createFormatter).collect(Collectors.toList());
-    }
+  public void fireChanged(@NotNull Project project) {
+    project.getMessageBus().syncPublisher(ConfigNotifier.CONFIG_TOPIC).configChanged(project, this);
+  }
 
-    @Nullable
-    @Override
-    public GitToolBoxConfigForProject getState() {
-        return this;
-    }
+  @Transient
+  public List<Formatter> getCompletionFormatters() {
+    return completionConfigs.stream().map(CommitCompletionConfig::createFormatter).collect(Collectors.toList());
+  }
 
-    @Override
-    public void loadState(GitToolBoxConfigForProject state) {
-        XmlSerializerUtil.copyBean(state, this);
-    }
+  @Nullable
+  @Override
+  public GitToolBoxConfigForProject getState() {
+    return this;
+  }
 
-    public static GitToolBoxConfigForProject getInstance(Project project) {
-        return ServiceManager.getService(project, GitToolBoxConfigForProject.class);
-    }
+  @Override
+  public void loadState(GitToolBoxConfigForProject state) {
+    XmlSerializerUtil.copyBean(state, this);
+  }
 }

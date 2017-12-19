@@ -4,12 +4,12 @@ import com.intellij.openapi.application.ApplicationManager;
 
 public interface AppUtil {
 
-    static void invokeLater(Runnable task) {
-        ApplicationManager.getApplication().invokeLater(task);
-    }
+  static void invokeLater(Runnable task) {
+    ApplicationManager.getApplication().invokeLater(task);
+  }
 
-    static void invokeLaterIfNeeded(Runnable task) {
-        invokeLater(task);
-    }
+  static void invokeLaterIfNeeded(Runnable task) {
+    invokeLater(task);
+  }
 
 }

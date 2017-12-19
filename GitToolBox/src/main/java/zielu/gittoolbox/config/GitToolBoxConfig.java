@@ -22,112 +22,112 @@ import zielu.gittoolbox.ui.update.DefaultUpdateProjectAction;
     storages = @Storage("git_toolbox.xml")
 )
 public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConfig> {
-    public String presentationMode = StatusPresenters.arrows.key();
-    public boolean behindTracker = true;
-    public boolean showStatusWidget = true;
-    public boolean showProjectViewStatus = true;
-    public boolean showProjectViewLocationPath = true;
-    public boolean showProjectViewStatusBeforeLocation = false;
-    public String projectViewStatusColorHex = ColorUtil.toHex(UIUtil.getInactiveTextColor());
-    public boolean projectViewStatusCustomColor = false;
-    public boolean projectViewStatusBold = false;
-    public boolean projectViewStatusItalic = false;
-    public String updateProjectActionId = DefaultUpdateProjectAction.ID;
+  public String presentationMode = StatusPresenters.arrows.key();
+  public boolean behindTracker = true;
+  public boolean showStatusWidget = true;
+  public boolean showProjectViewStatus = true;
+  public boolean showProjectViewLocationPath = true;
+  public boolean showProjectViewStatusBeforeLocation = false;
+  public String projectViewStatusColorHex = ColorUtil.toHex(UIUtil.getInactiveTextColor());
+  public boolean projectViewStatusCustomColor = false;
+  public boolean projectViewStatusBold = false;
+  public boolean projectViewStatusItalic = false;
+  public String updateProjectActionId = DefaultUpdateProjectAction.ID;
 
-    @Transient
-    public StatusPresenter getPresenter() {
-        return StatusPresenters.forKey(presentationMode);
-    }
+  public static GitToolBoxConfig getInstance() {
+    return ServiceManager.getService(GitToolBoxConfig.class);
+  }
 
-    public void setPresenter(StatusPresenter presenter) {
-        presentationMode = presenter.key();
-    }
+  @Transient
+  public StatusPresenter getPresenter() {
+    return StatusPresenters.forKey(presentationMode);
+  }
 
-    public boolean isPresenterChanged(StatusPresenter presenter) {
-        return !presentationMode.equals(presenter.key());
-    }
+  public void setPresenter(StatusPresenter presenter) {
+    presentationMode = presenter.key();
+  }
 
-    public boolean isShowStatusWidgetChanged(boolean showStatusWidget) {
-        return this.showStatusWidget != showStatusWidget;
-    }
+  public boolean isPresenterChanged(StatusPresenter presenter) {
+    return !presentationMode.equals(presenter.key());
+  }
 
-    public boolean isShowProjectViewStatusChanged(boolean showProjectViewStatus) {
-        return this.showProjectViewStatus != showProjectViewStatus;
-    }
+  public boolean isShowStatusWidgetChanged(boolean showStatusWidget) {
+    return this.showStatusWidget != showStatusWidget;
+  }
 
-    public boolean isShowProjectViewLocationPathChanged(boolean showProjectViewLocationPath) {
-        return this.showProjectViewLocationPath != showProjectViewLocationPath;
-    }
+  public boolean isShowProjectViewStatusChanged(boolean showProjectViewStatus) {
+    return this.showProjectViewStatus != showProjectViewStatus;
+  }
 
-    public boolean isShowProjectViewStatusBeforeLocationChanged(boolean showProjectViewStatusBeforeLocation) {
-        return this.showProjectViewStatusBeforeLocation != showProjectViewStatusBeforeLocation;
-    }
+  public boolean isShowProjectViewLocationPathChanged(boolean showProjectViewLocationPath) {
+    return this.showProjectViewLocationPath != showProjectViewLocationPath;
+  }
 
-    @Transient
-    @NotNull
-    public Color getProjectViewStatusColor() {
-        return ColorUtil.fromHex(projectViewStatusColorHex);
-    }
+  public boolean isShowProjectViewStatusBeforeLocationChanged(boolean showProjectViewStatusBeforeLocation) {
+    return this.showProjectViewStatusBeforeLocation != showProjectViewStatusBeforeLocation;
+  }
 
-    public void setProjectViewStatusColor(@NotNull Color color) {
-        projectViewStatusColorHex = ColorUtil.toHex(color);
-    }
+  @Transient
+  @NotNull
+  public Color getProjectViewStatusColor() {
+    return ColorUtil.fromHex(projectViewStatusColorHex);
+  }
 
-    public boolean isProjectViewStatusColorChanged(@NotNull Color color) {
-        Color current = getProjectViewStatusColor();
-        return !Objects.equal(current, color);
-    }
+  public void setProjectViewStatusColor(@NotNull Color color) {
+    projectViewStatusColorHex = ColorUtil.toHex(color);
+  }
 
-    public boolean isProjectViewStatusBoldChanged(boolean bold) {
-        return projectViewStatusBold != bold;
-    }
+  public boolean isProjectViewStatusColorChanged(@NotNull Color color) {
+    Color current = getProjectViewStatusColor();
+    return !Objects.equal(current, color);
+  }
 
-    public boolean isProjectViewStatusItalicChanged(boolean italic) {
-        return projectViewStatusItalic != italic;
-    }
+  public boolean isProjectViewStatusBoldChanged(boolean bold) {
+    return projectViewStatusBold != bold;
+  }
 
-    public boolean isProjectViewStatusCustomColorChanged(boolean enabled) {
-        return projectViewStatusCustomColor != enabled;
-    }
+  public boolean isProjectViewStatusItalicChanged(boolean italic) {
+    return projectViewStatusItalic != italic;
+  }
 
-    @Transient
-    public boolean isProjectViewStatusDecorated() {
-        return projectViewStatusCustomColor || projectViewStatusBold || projectViewStatusItalic;
-    }
+  public boolean isProjectViewStatusCustomColorChanged(boolean enabled) {
+    return projectViewStatusCustomColor != enabled;
+  }
 
-    public boolean isBehindTrackerChanged(boolean behindTracker) {
-        return this.behindTracker != behindTracker;
-    }
+  @Transient
+  public boolean isProjectViewStatusDecorated() {
+    return projectViewStatusCustomColor || projectViewStatusBold || projectViewStatusItalic;
+  }
 
-    public void setUpdateProjectActionId(String id) {
-        updateProjectActionId = id;
-    }
+  public boolean isBehindTrackerChanged(boolean behindTracker) {
+    return this.behindTracker != behindTracker;
+  }
 
-    public String getUpdateProjectActionId() {
-        return updateProjectActionId;
-    }
+  public String getUpdateProjectActionId() {
+    return updateProjectActionId;
+  }
 
-    public boolean isUpdateProjectActionId(@NotNull String id) {
-        return !updateProjectActionId.equals(id);
-    }
+  public void setUpdateProjectActionId(String id) {
+    updateProjectActionId = id;
+  }
 
-    @Nullable
-    @Override
-    public GitToolBoxConfig getState() {
-        return this;
-    }
+  public boolean isUpdateProjectActionId(@NotNull String id) {
+    return !updateProjectActionId.equals(id);
+  }
 
-    public void fireChanged() {
-        ApplicationManager.getApplication().getMessageBus().
-            syncPublisher(ConfigNotifier.CONFIG_TOPIC).configChanged(this);
-    }
+  @Nullable
+  @Override
+  public GitToolBoxConfig getState() {
+    return this;
+  }
 
-    @Override
-    public void loadState(GitToolBoxConfig state) {
-        XmlSerializerUtil.copyBean(state, this);
-    }
+  public void fireChanged() {
+    ApplicationManager.getApplication().getMessageBus().syncPublisher(ConfigNotifier.CONFIG_TOPIC)
+        .configChanged(this);
+  }
 
-    public static GitToolBoxConfig getInstance() {
-        return ServiceManager.getService(GitToolBoxConfig.class);
-    }
+  @Override
+  public void loadState(GitToolBoxConfig state) {
+    XmlSerializerUtil.copyBean(state, this);
+  }
 }

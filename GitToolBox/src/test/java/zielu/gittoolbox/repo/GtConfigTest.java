@@ -10,22 +10,22 @@ import org.junit.jupiter.api.Test;
 
 @Tag("fast")
 class GtConfigTest {
-    private static GtConfig config;
+  private static GtConfig config;
 
-    @BeforeAll
-    static void beforeClass() {
-        File currentDir = new File(".").getAbsoluteFile();
-        File testConfig = new File(currentDir, "testData"+File.separator+"GtConfig"+File.separator+"config");
-        config = GtConfig.load(testConfig);
-    }
+  @BeforeAll
+  static void beforeClass() {
+    File currentDir = new File(".").getAbsoluteFile();
+    File testConfig = new File(currentDir, "testData" + File.separator + "GtConfig" + File.separator + "config");
+    config = GtConfig.load(testConfig);
+  }
 
-    @Test
-    void isSvnRemote() throws Exception {
-        assertTrue(config.isSvnRemote("svn"));
-    }
+  @Test
+  void isSvnRemote() throws Exception {
+    assertTrue(config.isSvnRemote("svn"));
+  }
 
-    @Test
-    void isRegularRemote() throws Exception {
-        assertFalse(config.isSvnRemote("origin"));
-    }
+  @Test
+  void isRegularRemote() throws Exception {
+    assertFalse(config.isSvnRemote("origin"));
+  }
 }

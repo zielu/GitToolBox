@@ -11,40 +11,40 @@ import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.util.LogWatch;
 
 public class CompletionCheckinHandler extends CheckinHandler {
-    private final Logger LOG = Logger.getInstance(getClass());
-    private final CheckinProjectPanel myPanel;
+  private final Logger log = Logger.getInstance(getClass());
+  private final CheckinProjectPanel panel;
 
-    public CompletionCheckinHandler(CheckinProjectPanel panel) {
-        this.myPanel = panel;
-        captureSelectedRepositories(myPanel);
-    }
+  public CompletionCheckinHandler(CheckinProjectPanel panel) {
+    this.panel = panel;
+    captureSelectedRepositories(this.panel);
+  }
 
-    @Override
-    public void includedChangesChanged() {
-        captureSelectedRepositories(myPanel);
-    }
+  @Override
+  public void includedChangesChanged() {
+    captureSelectedRepositories(panel);
+  }
 
-    private void captureSelectedRepositories(CheckinProjectPanel panel) {
-        GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(panel.getProject());
-        if (config.commitDialogCompletion) {
-            LogWatch getAffectedWatch = LogWatch.createStarted("Get affected");
-            Collection<File> affected = panel.getFiles();
-            getAffectedWatch.finish();
-            GitToolBoxCompletionProject.getInstance(panel.getProject()).updateAffected(affected);
-        }
+  private void captureSelectedRepositories(CheckinProjectPanel panel) {
+    GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(panel.getProject());
+    if (config.commitDialogCompletion) {
+      LogWatch getAffectedWatch = LogWatch.createStarted("Get affected");
+      Collection<File> affected = panel.getFiles();
+      getAffectedWatch.finish();
+      GitToolBoxCompletionProject.getInstance(panel.getProject()).updateAffected(affected);
     }
+  }
 
-    @Override
-    public void checkinSuccessful() {
-        dispose();
-    }
+  @Override
+  public void checkinSuccessful() {
+    dispose();
+  }
 
-    @Override
-    public void checkinFailed(List<VcsException> exception) {
-        dispose();
-    }
+  @Override
+  public void checkinFailed(List<VcsException> exception) {
+    dispose();
+  }
 
-    private void dispose() {
-        GitToolBoxCompletionProject.getInstance(myPanel.getProject()).clearAffected();
-    }
+  private void dispose() {
+    GitToolBoxCompletionProject.getInstance(panel.getProject()).clearAffected();
+  }
 }

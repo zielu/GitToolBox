@@ -7,32 +7,32 @@ import java.util.ResourceBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
 
-public class ResBundle {
-    private static Reference<ResourceBundle> myBundle;
+public final class ResBundle {
+  @NonNls
+  private static final String BUNDLE_NAME = "zielu.gittoolbox.ResourceBundle";
+  private static Reference<ResourceBundle> bundle;
 
-    @NonNls
-    private static final String BUNDLE = "zielu.gittoolbox.ResourceBundle";
+  private ResBundle() {
+    throw new IllegalStateException();
+  }
 
-    private ResBundle() {
+  public static String message(@PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {
+    return CommonBundle.message(getBundle(), key, params);
+  }
+
+  public static String getString(@PropertyKey(resourceBundle = BUNDLE_NAME) String key) {
+    return getBundle().getString(key);
+  }
+
+  private static ResourceBundle getBundle() {
+    ResourceBundle bundle = null;
+    if (ResBundle.bundle != null) {
+      bundle = ResBundle.bundle.get();
     }
-
-    public static String message(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
-        return CommonBundle.message(getBundle(), key, params);
+    if (bundle == null) {
+      bundle = ResourceBundle.getBundle(BUNDLE_NAME);
+      ResBundle.bundle = new SoftReference<>(bundle);
     }
-
-    public static String getString(@PropertyKey(resourceBundle = BUNDLE) String key) {
-        return getBundle().getString(key);
-    }
-
-    private static java.util.ResourceBundle getBundle() {
-        ResourceBundle bundle = null;
-        if (myBundle != null) {
-            bundle = myBundle.get();
-        }
-        if (bundle == null) {
-            bundle = ResourceBundle.getBundle(BUNDLE);
-            myBundle = new SoftReference<ResourceBundle>(bundle);
-        }
-        return bundle;
-    }
+    return bundle;
+  }
 }

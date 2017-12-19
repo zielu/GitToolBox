@@ -10,45 +10,45 @@ import java.util.Map.Entry;
 import zielu.gittoolbox.compat.Notifier;
 
 public class FetchResultsPerRoot {
-    private final Map<GitRepository, FetchResult> errorsPerRoot = Maps.newLinkedHashMap();
-    private boolean anyProblems;
+  private final Map<GitRepository, FetchResult> errorsPerRoot = Maps.newLinkedHashMap();
+  private boolean anyProblems;
 
-    public void add(GitRepository repository, FetchResult result) {
-        Preconditions.checkState(errorsPerRoot.put(repository, result) == null);
-        if (!result.result().isSuccess()) {
-            anyProblems = true;
+  public void add(GitRepository repository, FetchResult result) {
+    Preconditions.checkState(errorsPerRoot.put(repository, result) == null);
+    if (!result.result().isSuccess()) {
+      anyProblems = true;
+    }
+  }
+
+  private boolean executableValid(GitRepository repository) {
+    GitVcs instance = GitVcs.getInstance(repository.getProject());
+    return instance != null && instance.getExecutableValidator().isExecutableValid();
+  }
+
+  public void showProblems(Notifier notifier) {
+    if (anyProblems) {
+      boolean anyNotAuthorized = false;
+      boolean anyError = false;
+      StringBuilder message = new StringBuilder();
+      for (Entry<GitRepository, FetchResult> entry : errorsPerRoot.entrySet()) {
+        message.append(Html.BR);
+        String boldName = GitUIUtil.bold(GtUtil.name(entry.getKey()));
+        FetchResult entryResult = entry.getValue();
+        if (entryResult.result().isCancelled()) {
+          message.append(boldName).append(": cancelled by user").append(entryResult.result().getAdditionalInfo());
+        } else if (entryResult.result().isNotAuthorized()) {
+          message.append(boldName).append(": couldn't authorize").append(entryResult.result().getAdditionalInfo());
+          anyNotAuthorized = true;
+        } else if (entryResult.result().isError() && executableValid(entry.getKey())) {
+          message.append(boldName).append(": fetch failed").append(entryResult.result().getAdditionalInfo());
+          anyError = true;
         }
+      }
+      if (anyError || anyNotAuthorized) {
+        notifier.notifyWeakError("Fetch problems:" + Html.BR + message.toString());
+      } else {
+        notifier.notifyMinorWarning("Fetch problems:", message.toString());
+      }
     }
-
-    private boolean executableValid(GitRepository repository) {
-        GitVcs instance = GitVcs.getInstance(repository.getProject());
-        return instance != null && instance.getExecutableValidator().isExecutableValid();
-    }
-
-    public void showProblems(Notifier notifier) {
-        if (anyProblems) {
-            boolean anyNotAuthorized = false;
-            boolean anyError = false;
-            StringBuilder message = new StringBuilder();
-            for (Entry<GitRepository, FetchResult> entry : errorsPerRoot.entrySet()) {
-                message.append(Html.br);
-                String boldName = GitUIUtil.bold(GtUtil.name(entry.getKey()));
-                FetchResult entryResult = entry.getValue();
-                if (entryResult.result().isCancelled()) {
-                    message.append(boldName).append(": cancelled by user").append(entryResult.result().getAdditionalInfo());
-                } else if (entryResult.result().isNotAuthorized()) {
-                    message.append(boldName).append(": couldn't authorize").append(entryResult.result().getAdditionalInfo());
-                    anyNotAuthorized = true;
-                } else if (entryResult.result().isError() && executableValid(entry.getKey())) {
-                    message.append(boldName).append(": fetch failed").append(entryResult.result().getAdditionalInfo());
-                    anyError = true;
-                }
-            }
-            if (anyError || anyNotAuthorized) {
-                notifier.notifyWeakError("Fetch problems:" + Html.br + message.toString());
-            } else {
-                notifier.notifyMinorWarning("Fetch problems:", message.toString());
-            }
-        }
-    }
+  }
 }

@@ -8,75 +8,75 @@ import com.intellij.util.ui.UIUtil;
 import javax.swing.JComponent;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class GtConfigurableBase
-    <FORM extends GtFormUi, CONFIG extends PersistentStateComponent> extends BaseConfigurable {
+public abstract class GtConfigurableBase<F extends GtFormUi, C extends PersistentStateComponent> extends
+    BaseConfigurable {
 
-    private volatile FORM form;
+  private volatile F form;
 
-    protected abstract FORM createForm();
+  protected abstract F createForm();
 
-    protected abstract CONFIG getConfig();
+  protected abstract C getConfig();
 
-    protected abstract void setFormState(FORM form, CONFIG config);
+  protected abstract void setFormState(F form, C config);
 
-    protected abstract boolean checkModified(FORM form, CONFIG config);
+  protected abstract boolean checkModified(F form, C config);
 
-    protected abstract void doApply(FORM form, CONFIG config) throws ConfigurationException;
+  protected abstract void doApply(F form, C config) throws ConfigurationException;
 
-    protected void dispose() {
-    }
+  protected void dispose() {
+  }
 
-    protected final FORM getForm() {
-        return form;
-    }
+  protected final F getForm() {
+    return form;
+  }
 
-    private synchronized void initComponent() {
-        if (form == null) {
-            form = UIUtil.invokeAndWaitIfNeeded(new Computable<FORM>() {
-                @Override
-                public FORM compute() {
-                    FORM form = createForm();
-                    form.init();
-                    return form;
-                }
-            });
+  private synchronized void initComponent() {
+    if (form == null) {
+      form = UIUtil.invokeAndWaitIfNeeded(new Computable<F>() {
+        @Override
+        public F compute() {
+          F form = createForm();
+          form.init();
+          return form;
         }
+      });
     }
+  }
 
-    @Nullable
-    @Override
-    public final JComponent createComponent() {
-        initComponent();
-        FORM form = getForm();
-        setFormState(form, getConfig());
-        form.afterStateSet();
-        return form.getContent();
-    }
+  @Nullable
+  @Override
+  public final JComponent createComponent() {
+    initComponent();
+    F currentForm = getForm();
+    setFormState(currentForm, getConfig());
+    currentForm.afterStateSet();
+    return currentForm.getContent();
+  }
 
-    @Override
-    public final boolean isModified() {
-        setModified(checkModified(getForm(), getConfig()));
-        return super.isModified();
-    }
+  @Override
+  public final boolean isModified() {
+    setModified(checkModified(getForm(), getConfig()));
+    return super.isModified();
+  }
 
-    @Override
-    public final void apply() throws ConfigurationException {
-        initComponent();
-        doApply(getForm(), getConfig());
-    }
+  @Override
+  public final void apply() throws ConfigurationException {
+    initComponent();
+    doApply(getForm(), getConfig());
+  }
 
-    @Override
-    public final void reset() {
-        initComponent();
-        setFormState(getForm(), getConfig());
-    }
+  @Override
+  public final void reset() {
+    initComponent();
+    setFormState(getForm(), getConfig());
+  }
 
-    @Override
-    public synchronized void disposeUIResources() {
-        dispose();
-        if (form != null) {
-            form.dispose();
-        }
-        form = null;
+  @Override
+  public synchronized void disposeUIResources() {
+    dispose();
+    if (form != null) {
+      form.dispose();
     }
+    form = null;
+  }
 }

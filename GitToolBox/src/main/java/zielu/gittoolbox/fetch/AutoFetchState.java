@@ -5,90 +5,87 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.extension.AutoFetchAllowed;
 import zielu.gittoolbox.extension.AutoFetchAllowedEP;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
 public class AutoFetchState extends AbstractProjectComponent {
-    private final Logger LOG = Logger.getInstance(getClass());
+  private final Logger log = Logger.getInstance(getClass());
 
-    private final AtomicBoolean myFetchRunning = new AtomicBoolean();
-    private final AtomicBoolean myActive = new AtomicBoolean();
-    private final List<AutoFetchAllowed> myFetchAllowed = new ArrayList<>();
-    private MessageBusConnection myConnection;
+  private final AtomicBoolean fetchRunning = new AtomicBoolean();
+  private final AtomicBoolean active = new AtomicBoolean();
+  private final List<AutoFetchAllowed> extensions = new ArrayList<>();
+  private MessageBusConnection connection;
 
-    public AutoFetchState(Project project) {
-        super(project);
+  public AutoFetchState(Project project) {
+    super(project);
+  }
+
+  public static AutoFetchState getInstance(@NotNull Project project) {
+    return project.getComponent(AutoFetchState.class);
+  }
+
+  @Override
+  public void initComponent() {
+    extensions.addAll(getExtensionPoints().map(this::instantiate).collect(Collectors.toList()));
+    connection = myProject.getMessageBus().connect();
+    connection.subscribe(AutoFetchAllowed.TOPIC, allowed -> fireStateChanged());
+  }
+
+  private Stream<AutoFetchAllowedEP> getExtensionPoints() {
+    return Stream.of(Extensions.getExtensions(AutoFetchAllowedEP.POINT_NAME));
+  }
+
+  private AutoFetchAllowed instantiate(AutoFetchAllowedEP extensionPoint) {
+    AutoFetchAllowed extension = extensionPoint.instantiate();
+    extension.initialize(myProject);
+    log.debug("Extension created: ", extension);
+    return extension;
+  }
+
+  @Override
+  public void projectOpened() {
+    active.compareAndSet(false, true);
+  }
+
+  private void fireStateChanged() {
+    myProject.getMessageBus().syncPublisher(AutoFetchNotifier.TOPIC).stateChanged(this);
+  }
+
+  @Override
+  public void projectClosed() {
+    active.compareAndSet(true, false);
+  }
+
+  @Override
+  public void disposeComponent() {
+    if (connection != null) {
+      connection.disconnect();
+      connection = null;
     }
+    List<AutoFetchAllowed> allowed = new ArrayList<>(extensions);
+    extensions.clear();
+    allowed.forEach(AutoFetchAllowed::dispose);
+  }
 
-    public static AutoFetchState getInstance(@NotNull Project project) {
-        return project.getComponent(AutoFetchState.class);
-    }
+  private boolean isFetchAllowed() {
+    return active.get() && extensions.stream().allMatch(AutoFetchAllowed::isAllowed);
+  }
 
-    @Override
-    public void initComponent() {
-        List<AutoFetchAllowedEP> autoFetchAllowedEPs = Arrays.asList(Extensions.getExtensions(AutoFetchAllowedEP.POINT_NAME));
-        myFetchAllowed.addAll(autoFetchAllowedEPs.stream().map(ep -> {
-            AutoFetchAllowed fetchAllowed = ep.instantiate();
-            fetchAllowed.initialize(myProject);
-            LOG.debug("Added auto fetch allowed: ", fetchAllowed);
-            return fetchAllowed;
-        }).collect(Collectors.toList()));
-        myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(AutoFetchAllowed.TOPIC, allowed -> fireStateChanged());
-    }
+  public boolean canAutoFetch() {
+    return isFetchAllowed() && !fetchRunning.get();
+  }
 
-    @Override
-    public void projectOpened() {
-        myActive.compareAndSet(false, true);
-    }
+  public boolean fetchStart() {
+    return fetchRunning.compareAndSet(false, true);
+  }
 
-    private void fireStateChanged() {
-        myProject.getMessageBus().syncPublisher(AutoFetchNotifier.TOPIC).stateChanged(this);
-    }
-
-    @Override
-    public void projectClosed() {
-        myActive.compareAndSet(true, false);
-    }
-
-    @Override
-    public void disposeComponent() {
-        if (myConnection != null) {
-            myConnection.disconnect();
-            myConnection = null;
-        }
-        List<AutoFetchAllowed> allowed = new ArrayList<>(myFetchAllowed);
-        myFetchAllowed.clear();
-        allowed.forEach(AutoFetchAllowed::dispose);
-    }
-
-    private boolean isFetchAllowed() {
-        boolean allowed = myActive.get();
-        for (AutoFetchAllowed fetchAllowed : myFetchAllowed) {
-            if (!fetchAllowed.isAllowed()) {
-                allowed = false;
-                break;
-            }
-        }
-        return allowed;
-    }
-
-    public boolean canAutoFetch() {
-        return isFetchAllowed() && !myFetchRunning.get();
-    }
-
-    public boolean fetchStart() {
-        return myFetchRunning.compareAndSet(false, true);
-    }
-
-    public void fetchFinish() {
-        myFetchRunning.compareAndSet(true, false);
-    }
+  public void fetchFinish() {
+    fetchRunning.compareAndSet(true, false);
+  }
 }

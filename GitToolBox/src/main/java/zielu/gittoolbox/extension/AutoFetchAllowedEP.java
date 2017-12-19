@@ -6,18 +6,18 @@ import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.util.xmlb.annotations.Attribute;
 
 public class AutoFetchAllowedEP extends AbstractExtensionPointBean {
-    public final static ExtensionPointName<AutoFetchAllowedEP>
-            POINT_NAME = ExtensionPointName.create("zielu.gittoolbox.autoFetchAllowed");
+  public static final ExtensionPointName<AutoFetchAllowedEP>
+      POINT_NAME = ExtensionPointName.create("zielu.gittoolbox.autoFetchAllowed");
 
-    @Attribute("provider")
-    public String provider;
+  @Attribute("provider")
+  public String provider;
 
-    public AutoFetchAllowed instantiate() {
-        try {
-            return instantiate(provider, ApplicationManager.getApplication().getPicoContainer());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+  public AutoFetchAllowed instantiate() {
+    try {
+      return instantiate(provider, ApplicationManager.getApplication().getPicoContainer());
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
     }
+  }
 
 }

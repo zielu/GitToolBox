@@ -1,7 +1,7 @@
 package zielu.gittoolbox;
 
 public interface ProjectAware {
-    void opened();
+  void opened();
 
-    void closed();
+  void closed();
 }

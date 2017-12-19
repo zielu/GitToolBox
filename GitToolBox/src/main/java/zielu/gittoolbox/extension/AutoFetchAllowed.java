@@ -4,18 +4,19 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.Topic;
 
 public interface AutoFetchAllowed {
-    Topic<Notifier> TOPIC = Topic.create("Git ToolBox Auto Fetch Allowed", Notifier.class);
+  Topic<Notifier> TOPIC = Topic.create("Git ToolBox Auto Fetch Allowed", Notifier.class);
 
-    boolean isAllowed();
+  boolean isAllowed();
 
-    void initialize(Project project);
-    void dispose();
+  void initialize(Project project);
 
-    interface Notifier {
-        void stateChanged(AutoFetchAllowed allowed);
-    }
+  void dispose();
 
-    default void fireStateChanged(Project project) {
-        project.getMessageBus().syncPublisher(TOPIC).stateChanged(this);
-    }
+  default void fireStateChanged(Project project) {
+    project.getMessageBus().syncPublisher(TOPIC).stateChanged(this);
+  }
+
+  interface Notifier {
+    void stateChanged(AutoFetchAllowed allowed);
+  }
 }

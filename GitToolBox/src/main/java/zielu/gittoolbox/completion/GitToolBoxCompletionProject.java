@@ -19,76 +19,76 @@ import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.util.LogWatch;
 
 public class GitToolBoxCompletionProject extends AbstractProjectComponent {
-    private final Logger LOG = Logger.getInstance(getClass());
-    private final List<File> myAffectedFiles = new ArrayList<>();
-    private Collection<GitRepository> myAffectedRepositories;
-    private MessageBusConnection myConnection;
-    private List<Formatter> myFormatters = ImmutableList.of();
+  private final Logger log = Logger.getInstance(getClass());
+  private final List<File> affectedFiles = new ArrayList<>();
+  private Collection<GitRepository> affectedRepositories;
+  private MessageBusConnection connection;
+  private List<Formatter> formatters = ImmutableList.of();
 
-    public GitToolBoxCompletionProject(@NotNull Project project) {
-        super(project);
-    }
+  public GitToolBoxCompletionProject(@NotNull Project project) {
+    super(project);
+  }
 
-    @Override
-    public void initComponent() {
-        myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new Adapter() {
-            @Override
-            public void configChanged(Project project, GitToolBoxConfigForProject config) {
-                fillFormatters(config);
-            }
-        });
-    }
+  public static GitToolBoxCompletionProject getInstance(@NotNull Project project) {
+    return project.getComponent(GitToolBoxCompletionProject.class);
+  }
 
-    private void fillFormatters(GitToolBoxConfigForProject config) {
-        myFormatters = ImmutableList.copyOf(config.getCompletionFormatters());
-    }
+  @Override
+  public void initComponent() {
+    connection = myProject.getMessageBus().connect();
+    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new Adapter() {
+      @Override
+      public void configChanged(Project project, GitToolBoxConfigForProject config) {
+        fillFormatters(config);
+      }
+    });
+  }
 
-    @Override
-    public void projectOpened() {
-        fillFormatters(GitToolBoxConfigForProject.getInstance(myProject));
-    }
+  private void fillFormatters(GitToolBoxConfigForProject config) {
+    formatters = ImmutableList.copyOf(config.getCompletionFormatters());
+  }
 
-    public static GitToolBoxCompletionProject getInstance(@NotNull Project project) {
-        return project.getComponent(GitToolBoxCompletionProject.class);
-    }
+  @Override
+  public void projectOpened() {
+    fillFormatters(GitToolBoxConfigForProject.getInstance(myProject));
+  }
 
-    public synchronized void updateAffected(Collection<File> affected){
-        clearAffected();
-        myAffectedFiles.addAll(affected);
-    }
+  public synchronized void updateAffected(Collection<File> affected) {
+    clearAffected();
+    affectedFiles.addAll(affected);
+  }
 
-    public synchronized void clearAffected() {
-        myAffectedRepositories = null;
-        myAffectedFiles.clear();
-    }
+  public synchronized void clearAffected() {
+    affectedRepositories = null;
+    affectedFiles.clear();
+  }
 
-    public synchronized Collection<GitRepository> getAffected() {
-        if (myAffectedRepositories == null){
-            LogWatch getRepositoriesWatch = LogWatch.createStarted("Get repositories");
-            myAffectedRepositories = getRepositories(myProject, myAffectedFiles);
-            getRepositoriesWatch.finish();
-        }
-        return myAffectedRepositories;
+  public synchronized Collection<GitRepository> getAffected() {
+    if (affectedRepositories == null) {
+      LogWatch getRepositoriesWatch = LogWatch.createStarted("Get repositories");
+      affectedRepositories = getRepositories(myProject, affectedFiles);
+      getRepositoriesWatch.finish();
     }
+    return affectedRepositories;
+  }
 
-    private Collection<GitRepository> getRepositories(Project project, Collection<File> selectedFiles) {
-        return GitCompatUtil.getRepositoriesForFiles(project, selectedFiles);
-    }
+  private Collection<GitRepository> getRepositories(Project project, Collection<File> selectedFiles) {
+    return GitCompatUtil.getRepositoriesForFiles(project, selectedFiles);
+  }
 
-    public List<Formatter> getFormatters() {
-        return myFormatters;
-    }
+  public List<Formatter> getFormatters() {
+    return formatters;
+  }
 
-    @Override
-    public void projectClosed() {
-        clearAffected();
-    }
+  @Override
+  public void projectClosed() {
+    clearAffected();
+  }
 
-    @Override
-    public void disposeComponent() {
-        myConnection.disconnect();
-        myConnection = null;
-        myFormatters = null;
-    }
+  @Override
+  public void disposeComponent() {
+    connection.disconnect();
+    connection = null;
+    formatters = null;
+  }
 }

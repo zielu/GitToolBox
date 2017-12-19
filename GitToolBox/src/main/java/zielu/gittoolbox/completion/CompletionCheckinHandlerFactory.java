@@ -8,13 +8,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class CompletionCheckinHandlerFactory extends VcsCheckinHandlerFactory {
 
-    public CompletionCheckinHandlerFactory() {
-        super(GitVcs.getKey());
-    }
+  public CompletionCheckinHandlerFactory() {
+    super(GitVcs.getKey());
+  }
 
-    @NotNull
-    @Override
-    protected CheckinHandler createVcsHandler(CheckinProjectPanel panel) {
-        return new CompletionCheckinHandler(panel);
-    }
+  @NotNull
+  @Override
+  protected CheckinHandler createVcsHandler(CheckinProjectPanel panel) {
+    return new CompletionCheckinHandler(panel);
+  }
 }

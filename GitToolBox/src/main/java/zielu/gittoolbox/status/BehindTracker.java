@@ -9,6 +9,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.swing.event.HyperlinkEvent;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
@@ -22,167 +28,159 @@ import zielu.gittoolbox.ui.UpdateProject;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
-import javax.swing.event.HyperlinkEvent;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public class BehindTracker extends AbstractProjectComponent {
-    private final Logger LOG = Logger.getInstance(getClass());
-    private final AtomicBoolean myActive = new AtomicBoolean();
-    private final Map<GitRepository, RepoInfo> myState = new ConcurrentHashMap<GitRepository, RepoInfo>();
-    private final NotificationListener updateProjectListener;
+  private final Logger log = Logger.getInstance(getClass());
+  private final AtomicBoolean active = new AtomicBoolean();
+  private final Map<GitRepository, RepoInfo> state = new ConcurrentHashMap<>();
+  private final NotificationListener updateProjectListener;
 
-    private MessageBusConnection myConnection;
+  private MessageBusConnection connection;
 
-    public BehindTracker(Project project) {
-        super(project);
-        updateProjectListener = new NotificationListener.Adapter() {
-            @Override
-            protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent hyperlinkEvent) {
-                UpdateProject.create(myProject).execute();
-            }
-        };
-    }
+  public BehindTracker(Project project) {
+    super(project);
+    updateProjectListener = new NotificationListener.Adapter() {
+      @Override
+      protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent hyperlinkEvent) {
+        UpdateProject.create(myProject).execute();
+      }
+    };
+  }
 
-    public static BehindTracker getInstance(@NotNull Project project) {
-        return project.getComponent(BehindTracker.class);
-    }
+  public static BehindTracker getInstance(@NotNull Project project) {
+    return project.getComponent(BehindTracker.class);
+  }
 
-    @Override
-    public void initComponent() {
-        myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
-            @Override
-            public void stateChanged(@NotNull RepoInfo info,
-                                     @NotNull GitRepository repository) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("State changed [" + GtUtil.name(repository) + "]: " + info);
-                }
-                onRepoChange(info, repository);
-            }
-        });
-    }
-
-    private void onRepoChange(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-        if (myActive.get()) {
-            onStateChange(repository, info);
+  @Override
+  public void initComponent() {
+    connection = myProject.getMessageBus().connect();
+    connection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+      @Override
+      public void stateChanged(@NotNull RepoInfo info,
+                               @NotNull GitRepository repository) {
+        if (log.isDebugEnabled()) {
+          log.debug("State changed [" + GtUtil.name(repository) + "]: " + info);
         }
-    }
+        onRepoChange(info, repository);
+      }
+    });
+  }
 
-    private Optional<BehindMessage> prepareMessage() {
-        Map<GitRepository, RevListCount> statuses = Maps.newHashMap();
-        for (Entry<GitRepository, RepoInfo> entry : myState.entrySet()) {
-            entry.getValue().count().filter(GitAheadBehindCount::isNotZero).ifPresent(count -> {
-                statuses.put(entry.getKey(), count.behind);
-            });
+  private void onRepoChange(@NotNull RepoInfo info, @NotNull GitRepository repository) {
+    if (active.get()) {
+      onStateChange(repository, info);
+    }
+  }
+
+  private Optional<BehindMessage> prepareMessage() {
+    Map<GitRepository, RevListCount> statuses = Maps.newHashMap();
+    for (Entry<GitRepository, RepoInfo> entry : state.entrySet()) {
+      entry.getValue().count().filter(GitAheadBehindCount::isNotZero)
+          .ifPresent(count -> statuses.put(entry.getKey(), count.behind));
+    }
+    if (!statuses.isEmpty()) {
+      boolean manyReposInProject = state.size() > 1;
+      BehindMessage message = new BehindMessage(StatusMessages.getInstance()
+          .prepareBehindMessage(statuses, manyReposInProject), statuses.size() > 1);
+      return Optional.of(message);
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  private void showNotification(@NotNull ChangeType changeType) {
+    Optional<BehindMessage> messageOption = prepareMessage();
+    if (messageOption.isPresent() && active.get()) {
+      BehindMessage message = messageOption.get();
+      StringBand finalMessage = new StringBand(GitUIUtil.bold(changeType.title()))
+          .append(" (").append(Html.link("update", ResBundle.getString("update.project")))
+          .append(")").append(Html.BR).append(message.text);
+
+      Notifier.getInstance(myProject).notifySuccess(finalMessage.toString(), updateProjectListener);
+    }
+  }
+
+  private boolean isNotificationEnabled() {
+    return GitToolBoxConfig.getInstance().behindTracker;
+  }
+
+  private boolean isRemoteHashChanged(RepoInfo previous, RepoInfo current) {
+    return !previous.status().sameRemoteHash(current.status());
+  }
+
+  private boolean isBranchSwitched(RepoInfo previous, RepoInfo current) {
+    return !previous.status().sameBranch(current.status());
+  }
+
+  private void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
+    RepoInfo previousInfo = state.put(repository, info);
+    if (log.isDebugEnabled()) {
+      log.debug("Info update [" + GtUtil.name(repository) + "]: " + previousInfo + " > " + info);
+    }
+    ChangeType type = ChangeType.NONE;
+    if (previousInfo != null) {
+      if (previousInfo.status().sameRemoteBranch(info.status())) {
+        if (isBranchSwitched(previousInfo, info)) {
+          type = ChangeType.SWITCHED;
+        } else if (isRemoteHashChanged(previousInfo, info)) {
+          type = ChangeType.FETCHED;
         }
-        if (!statuses.isEmpty()) {
-            boolean manyReposInProject = myState.size() > 1;
-            BehindMessage message = new BehindMessage(StatusMessages.getInstance()
-                .prepareBehindMessage(statuses, manyReposInProject), statuses.size() > 1);
-            return Optional.of(message);
-        } else {
-            return Optional.empty();
-        }
+      } else {
+        type = ChangeType.SWITCHED;
+      }
+    }
+    if (type.isVisible() && isNotificationEnabled()) {
+      showNotification(type);
+    }
+  }
+
+  @Override
+  public void disposeComponent() {
+    state.clear();
+  }
+
+  @Override
+  public void projectOpened() {
+    active.compareAndSet(false, true);
+  }
+
+  @Override
+  public void projectClosed() {
+    if (active.compareAndSet(true, false)) {
+      connection.disconnect();
+      state.clear();
+    }
+  }
+
+  private enum ChangeType {
+    NONE(false, "NONE"),
+    HIDDEN(false, "HIDDEN"),
+    FETCHED(true, ResBundle.getString("message.fetch.done")),
+    SWITCHED(true, ResBundle.getString("message.switched"));
+
+    private final boolean myVisible;
+    private final String myTitle;
+
+    ChangeType(boolean visible, String title) {
+      myVisible = visible;
+      this.myTitle = title;
     }
 
-    private void showNotification(@NotNull ChangeType changeType) {
-        Optional<BehindMessage> messageOption = prepareMessage();
-        if (messageOption.isPresent() && myActive.get()) {
-            BehindMessage message = messageOption.get();
-            StringBand finalMessage = new StringBand(GitUIUtil.bold(changeType.title()))
-                .append(" (").append(Html.link("update", ResBundle.getString("update.project")))
-                .append(")").append(Html.br).append(message.text);
-
-            Notifier.getInstance(myProject).notifySuccess(finalMessage.toString(), updateProjectListener);
-        }
+    boolean isVisible() {
+      return myVisible;
     }
 
-    private boolean isNotificationEnabled() {
-        return GitToolBoxConfig.getInstance().behindTracker;
+    String title() {
+      return myTitle;
     }
+  }
 
-    private boolean isRemoteHashChanged(RepoInfo previous, RepoInfo current) {
-        return !previous.status().sameRemoteHash(current.status());
+  private static class BehindMessage {
+    public final String text;
+    public final boolean manyRepos;
+
+    private BehindMessage(String text, boolean manyRepos) {
+      this.text = text;
+      this.manyRepos = manyRepos;
     }
-
-    private boolean isBranchSwitched(RepoInfo previous, RepoInfo current) {
-        return !previous.status().sameBranch(current.status());
-    }
-
-    private void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
-        RepoInfo previousInfo = myState.put(repository, info);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Info update [" + GtUtil.name(repository) + "]: " + previousInfo + " > " + info);
-        }
-        ChangeType type = ChangeType.none;
-        if (previousInfo != null) {
-            if (previousInfo.status().sameRemoteBranch(info.status())) {
-                if (isBranchSwitched(previousInfo, info)) {
-                    type = ChangeType.switched;
-                } else if (isRemoteHashChanged(previousInfo, info)) {
-                    type = ChangeType.fetched;
-                }
-            } else {
-                type = ChangeType.switched;
-            }
-        }
-        if (type.isVisible() && isNotificationEnabled()) {
-            showNotification(type);
-        }
-    }
-
-    @Override
-    public void disposeComponent() {
-        myState.clear();
-    }
-
-    @Override
-    public void projectOpened() {
-        myActive.compareAndSet(false, true);
-    }
-
-    @Override
-    public void projectClosed() {
-        if (myActive.compareAndSet(true, false)) {
-            myConnection.disconnect();
-            myState.clear();
-        }
-    }
-
-    private static class BehindMessage {
-        public final String text;
-        public final boolean manyRepos;
-
-        private BehindMessage(String text, boolean manyRepos) {
-            this.text = text;
-            this.manyRepos = manyRepos;
-        }
-    }
-
-    private enum ChangeType {
-        none(false, "NONE"),
-        hidden(false, "HIDDEN"),
-        fetched(true, ResBundle.getString("message.fetch.done")),
-        switched(true, ResBundle.getString("message.switched"));
-
-        private final boolean myVisible;
-        private final String myTitle;
-
-        ChangeType(boolean visible, String title) {
-            myVisible = visible;
-            this.myTitle = title;
-        }
-
-        boolean isVisible() {
-            return myVisible;
-        }
-
-        String title() {
-            return myTitle;
-        }
-    }
+  }
 }

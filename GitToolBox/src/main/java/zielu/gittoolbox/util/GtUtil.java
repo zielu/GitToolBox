@@ -17,41 +17,40 @@ import org.jetbrains.annotations.CalledInAwt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public enum GtUtil {
-    ;
+public final class GtUtil {
+  private GtUtil() {
+    throw new IllegalStateException();
+  }
 
-    public static String name(@NotNull GitRepository repository) {
-        return DvcsUtil.getShortRepositoryName(repository);
-    }
+  public static String name(@NotNull GitRepository repository) {
+    return DvcsUtil.getShortRepositoryName(repository);
+  }
 
-    public static GitVcs vcs(@NotNull GitRepository repository) {
-        return (GitVcs) repository.getVcs();
-    }
+  public static GitVcs vcs(@NotNull GitRepository repository) {
+    return repository.getVcs();
+  }
 
-    public static GitLock lock(@NotNull GitRepository repository) {
-        return new GitLock(vcs(repository));
-    }
+  public static Hash hash(String hash) {
+    return HashImpl.build(hash);
+  }
 
-    public static Hash hash(String hash) {
-        return HashImpl.build(hash);
-    }
+  public static boolean hasRemotes(@NotNull GitRepository repository) {
+    return !repository.getRemotes().isEmpty();
+  }
 
-    public static boolean hasRemotes(@NotNull GitRepository repository) {
-        return !repository.getRemotes().isEmpty();
-    }
+  public static List<GitRepository> sort(Collection<GitRepository> repositories) {
+    return DvcsUtil.sortRepositories(new ArrayList<>(repositories));
+  }
 
-    public static List<GitRepository> sort(Collection<GitRepository> repositories) {
-        return DvcsUtil.sortRepositories(new ArrayList<>(repositories));
-    }
+  @Nullable
+  @CalledInAwt
+  public static GitRepository getCurrentRepositoryQuick(@NotNull Project project) {
+    GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
+    return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, GitVcsSettings.getInstance(project)
+        .getRecentRootPath());
+  }
 
-    @Nullable
-    @CalledInAwt
-    public static GitRepository getCurrentRepositoryQuick(@NotNull Project myProject) {
-        GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
-        return DvcsUtil.guessCurrentRepositoryQuick(myProject, repositoryManager, GitVcsSettings.getInstance(myProject).getRecentRootPath());
-    }
-
-    public static boolean isNotDumb(Project project) {
-        return !DumbService.isDumb(project);
-    }
+  public static boolean isNotDumb(Project project) {
+    return !DumbService.isDumb(project);
+  }
 }

@@ -13,40 +13,40 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
 public class GtRepositoryManager extends AbstractProjectComponent implements GitRepositoryChangeListener {
-    private final Map<GitRepository, GtConfig> myConfigs = new ConcurrentHashMap<GitRepository, GtConfig>();
-    private MessageBusConnection myConnection;
+  private final Map<GitRepository, GtConfig> configs = new ConcurrentHashMap<GitRepository, GtConfig>();
+  private MessageBusConnection connection;
 
-    public GtRepositoryManager(Project project) {
-        super(project);
-    }
+  public GtRepositoryManager(Project project) {
+    super(project);
+  }
 
-    @Override
-    public void repositoryChanged(@NotNull GitRepository repository) {
-        File configFile = new File(VfsUtilCore.virtualToIoFile(repository.getGitDir()), "config");
-        GtConfig config = GtConfig.load(configFile);
-        myConfigs.put(repository, config);
-    }
+  public static GtRepositoryManager getInstance(@NotNull Project project) {
+    return project.getComponent(GtRepositoryManager.class);
+  }
 
-    public java.util.Optional<GtConfig> configFor(GitRepository repository) {
-        return Optional.ofNullable(myConfigs.get(repository));
-    }
+  @Override
+  public void repositoryChanged(@NotNull GitRepository repository) {
+    File configFile = new File(VfsUtilCore.virtualToIoFile(repository.getGitDir()), "config");
+    GtConfig config = GtConfig.load(configFile);
+    configs.put(repository, config);
+  }
 
-    @Override
-    public void initComponent() {
-        myConnection = myProject.getMessageBus().connect();
-        myConnection.subscribe(GitRepository.GIT_REPO_CHANGE, this);
-    }
+  public java.util.Optional<GtConfig> configFor(GitRepository repository) {
+    return Optional.ofNullable(configs.get(repository));
+  }
 
-    @Override
-    public void disposeComponent() {
-        if (myConnection != null) {
-            myConnection.disconnect();
-            myConnection = null;
-        }
-        myConfigs.clear();
-    }
+  @Override
+  public void initComponent() {
+    connection = myProject.getMessageBus().connect();
+    connection.subscribe(GitRepository.GIT_REPO_CHANGE, this);
+  }
 
-    public static GtRepositoryManager getInstance(@NotNull Project project) {
-        return project.getComponent(GtRepositoryManager.class);
+  @Override
+  public void disposeComponent() {
+    if (connection != null) {
+      connection.disconnect();
+      connection = null;
     }
+    configs.clear();
+  }
 }

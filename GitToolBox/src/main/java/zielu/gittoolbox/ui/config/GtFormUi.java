@@ -3,11 +3,11 @@ package zielu.gittoolbox.ui.config;
 import javax.swing.JComponent;
 
 public interface GtFormUi {
-    void init();
+  void init();
 
-    JComponent getContent();
+  JComponent getContent();
 
-    void afterStateSet();
+  void afterStateSet();
 
-    void dispose();
+  void dispose();
 }

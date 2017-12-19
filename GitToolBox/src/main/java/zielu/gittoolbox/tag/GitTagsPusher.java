@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Computable;
 import git4idea.GitUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
@@ -22,72 +21,69 @@ import zielu.gittoolbox.push.GitPushRejectedDetector;
 import zielu.gittoolbox.push.GtPushResult;
 
 public class GitTagsPusher {
-    private final Project myProject;
-    private final ProgressIndicator myProgress;
-    private final Git myGit;
+  private final Project project;
+  private final ProgressIndicator progressIndicator;
+  private final Git git;
 
-    private GitTagsPusher(Project project, ProgressIndicator progress) {
-        myProject = project;
-        myProgress = progress;
-        myGit = ServiceManager.getService(Git.class);
-    }
+  private GitTagsPusher(Project project, ProgressIndicator progress) {
+    this.project = project;
+    progressIndicator = progress;
+    git = ServiceManager.getService(Git.class);
+  }
 
-    public static GitTagsPusher create(@NotNull Project project, @NotNull ProgressIndicator progress) {
-        return new GitTagsPusher(Preconditions.checkNotNull(project), Preconditions.checkNotNull(progress));
-    }
+  public static GitTagsPusher create(@NotNull Project project, @NotNull ProgressIndicator progress) {
+    return new GitTagsPusher(Preconditions.checkNotNull(project), Preconditions.checkNotNull(progress));
+  }
 
-    @NotNull
-    public GtPushResult push(@NotNull TagsPushSpec pushSpec) {
-        Preconditions.checkNotNull(pushSpec);
-        GitRepository repository = GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(pushSpec.gitRoot());
-        Optional<GitBranchTrackInfo> trackInfo = Optional.ofNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
-        if (trackInfo.isPresent()) {
-            GitRemote remote = trackInfo.get().getRemote();
-            Optional<String> url = Optional.ofNullable(remote.getFirstUrl());
-            if (url.isPresent()) {
-                return push(pushSpec, repository, remote, url.get());
-            } else {
-                return GtPushResult.error(ResBundle.message("message.no.remote.url", remote.getName()));
-            }
-        } else {
-            return GtPushResult.error(ResBundle.getString("message.cannot.push.without.tracking"));
-        }
+  @NotNull
+  public GtPushResult push(@NotNull TagsPushSpec pushSpec) {
+    Preconditions.checkNotNull(pushSpec);
+    GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(pushSpec.gitRoot());
+    Optional<GitBranchTrackInfo> trackInfo = Optional.ofNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
+    if (trackInfo.isPresent()) {
+      GitRemote remote = trackInfo.get().getRemote();
+      Optional<String> url = Optional.ofNullable(remote.getFirstUrl());
+      if (url.isPresent()) {
+        return push(pushSpec, repository, remote, url.get());
+      } else {
+        return GtPushResult.error(ResBundle.message("message.no.remote.url", remote.getName()));
+      }
+    } else {
+      return GtPushResult.error(ResBundle.getString("message.cannot.push.without.tracking"));
     }
+  }
 
-    private GtPushResult push(final TagsPushSpec pushSpec, final GitRepository repository,
-                              final GitRemote remote, final String url) {
-        final GitLineHandlerListener progressListener = GitStandardProgressAnalyzer.createListener(myProgress);
-        final GitPushRejectedDetector rejectedDetector = new GitPushRejectedDetector();
-        GitCommandResult result = myGit.runCommand(new Computable<GitLineHandler>() {
-            @Override
-            public GitLineHandler compute() {
-                final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(),
-                    GitCommand.PUSH);
-                h.setUrl(url);
-                h.setSilent(false);
-                h.setStdoutSuppressed(false);
-                h.addLineListener(progressListener);
-                h.addLineListener(rejectedDetector);
-                h.addProgressParameter();
-                h.addParameters(remote.getName());
-                h.addParameters(pushSpec.specs());
-                return h;
-            }
-        });
-        if (rejectedDetector.rejected()) {
-            return GtPushResult.reject(rejectedDetector.getRejectedBranches());
-        } else {
-            return translate(result);
-        }
+  private GtPushResult push(final TagsPushSpec pushSpec, final GitRepository repository,
+                            final GitRemote remote, final String url) {
+    final GitLineHandlerListener progressListener = GitStandardProgressAnalyzer.createListener(progressIndicator);
+    final GitPushRejectedDetector rejectedDetector = new GitPushRejectedDetector();
+    GitCommandResult result = git.runCommand(() -> {
+      final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(),
+          GitCommand.PUSH);
+      h.setUrl(url);
+      h.setSilent(false);
+      h.setStdoutSuppressed(false);
+      h.addLineListener(progressListener);
+      h.addLineListener(rejectedDetector);
+      h.addProgressParameter();
+      h.addParameters(remote.getName());
+      h.addParameters(pushSpec.specs());
+      return h;
+    });
+    if (rejectedDetector.rejected()) {
+      return GtPushResult.reject(rejectedDetector.getRejectedBranches());
+    } else {
+      return translate(result);
     }
+  }
 
-    private GtPushResult translate(GitCommandResult result) {
-        if (result.success()) {
-            return GtPushResult.success();
-        } else if (result.cancelled()) {
-            return GtPushResult.cancel();
-        } else {
-            return GtPushResult.error(result.getErrorOutputAsJoinedString());
-        }
+  private GtPushResult translate(GitCommandResult result) {
+    if (result.success()) {
+      return GtPushResult.success();
+    } else if (result.cancelled()) {
+      return GtPushResult.cancel();
+    } else {
+      return GtPushResult.error(result.getErrorOutputAsJoinedString());
     }
+  }
 }

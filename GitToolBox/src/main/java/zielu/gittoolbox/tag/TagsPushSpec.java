@@ -8,72 +8,72 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 public class TagsPushSpec {
-    private final VirtualFile myGitRoot;
-    private final boolean myAll;
-    private final ImmutableList<String> myTags;
-    private final boolean myForce;
+  private final VirtualFile gitRoot;
+  private final boolean all;
+  private final ImmutableList<String> tags;
+  private final boolean force;
 
-    private TagsPushSpec(VirtualFile gitRoot, Builder builder) {
-        myGitRoot = gitRoot;
-        if (builder.myTags == null) {
-            myAll = true;
-            myTags = ImmutableList.of();
-        } else {
-            myAll = false;
-            myTags = builder.myTags;
-        }
-        myForce = builder.force;
+  private TagsPushSpec(VirtualFile gitRoot, Builder builder) {
+    this.gitRoot = gitRoot;
+    if (builder.tags == null) {
+      all = true;
+      tags = ImmutableList.of();
+    } else {
+      all = false;
+      tags = builder.tags;
+    }
+    force = builder.force;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public VirtualFile gitRoot() {
+    return gitRoot;
+  }
+
+  private List<String> initSpec() {
+    List<String> spec = Lists.newArrayListWithCapacity(tags.size() * 2 + 2);
+    if (force) {
+      spec.add("--force");
+    }
+    return spec;
+  }
+
+  public List<String> specs() {
+    List<String> spec = initSpec();
+    if (all) {
+      spec.add("--tags");
+    } else {
+      for (String tag : tags) {
+        spec.add("tag");
+        spec.add(tag);
+      }
+      return spec;
+    }
+    return spec;
+  }
+
+  public static class Builder {
+    private ImmutableList<String> tags;
+    private boolean force;
+
+    private Builder() {
     }
 
-    public VirtualFile gitRoot() {
-        return myGitRoot;
+    public Builder tags(Iterable<String> tags) {
+      this.tags = ImmutableList.copyOf(tags);
+      return this;
     }
 
-    private List<String> initSpec() {
-        List<String> spec = Lists.newArrayListWithCapacity(myTags.size() * 2 + 2);
-        if (myForce) {
-            spec.add("--force");
-        }
-        return spec;
+    public Builder force() {
+      force = true;
+      return this;
     }
 
-    public List<String> specs() {
-        List<String> spec = initSpec();
-        if (myAll) {
-            spec.add("--tags");
-        } else {
-            for (String tag : myTags) {
-                spec.add("tag");
-                spec.add(tag);
-            }
-            return spec;
-        }
-        return spec;
+    public TagsPushSpec build(@NotNull VirtualFile gitRoot) {
+      return new TagsPushSpec(Preconditions.checkNotNull(gitRoot), this);
     }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private ImmutableList<String> myTags;
-        private boolean force;
-
-        private Builder() {
-        }
-
-        public Builder tags(Iterable<String> tags) {
-            myTags = ImmutableList.copyOf(tags);
-            return this;
-        }
-
-        public Builder force() {
-            force = true;
-            return this;
-        }
-
-        public TagsPushSpec build(@NotNull VirtualFile gitRoot) {
-            return new TagsPushSpec(Preconditions.checkNotNull(gitRoot), this);
-        }
-    }
+  }
 }

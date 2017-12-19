@@ -19,90 +19,98 @@ import zielu.gittoolbox.formatter.RegExpFormatter;
 import zielu.gittoolbox.ui.util.RegExpTextField;
 
 public class GtPatternFormatterForm implements GtFormUi {
-    private final Set<Consumer<String>> patternUpdates = new LinkedHashSet<>();
+  private final Set<Consumer<String>> patternUpdates = new LinkedHashSet<>();
 
-    private RegExpTextField commitCompletionPatternField;
-    private JTextField commitCompletionPatternInput;
-    private JTextField commitCompletionPatternOutput;
-    private JLabel commitCompletionPatternMatchStatus;
-    private JPanel content;
-    private JLabel commitCompletionPatternStatus;
+  private RegExpTextField commitCompletionPatternField;
+  private JTextField commitCompletionPatternInput;
+  private JTextField commitCompletionPatternOutput;
+  private JLabel commitCompletionPatternMatchStatus;
+  private JPanel content;
+  private JLabel commitCompletionPatternStatus;
 
-    private CommitCompletionConfig config;
-    private boolean updateEnabled;
+  private CommitCompletionConfig config;
+  private boolean updateEnabled;
 
-    @Override
-    public void init() {
-        commitCompletionPatternField.addTextConsumer((text, error) -> {
-            updateCommitCompletionStatus(error);
-            updateCommitCompletionOutput();
-            patternUpdates.forEach(c -> c.accept(text));
-        });
-        commitCompletionPatternInput.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(DocumentEvent e) {
-                updateCommitCompletionOutput();
-            }
-        });
-    }
-
-    void addPatternUpdate(Consumer<String> updateHandler) {
-        patternUpdates.add(updateHandler);
-    }
-
-    private void updateCommitCompletionStatus(Optional<String> error) {
-        if (error.isPresent()) {
-            commitCompletionPatternStatus.setIcon(ResIcons.Error);
-            commitCompletionPatternStatus.setToolTipText(error.get());
-        } else {
-            commitCompletionPatternStatus.setIcon(ResIcons.Ok);
-            commitCompletionPatternStatus.setToolTipText(null);
-        }
-    }
-
-    private void updateCommitCompletionOutput() {
-        if (updateEnabled) {
-            updateCommitCompletionOutput(commitCompletionPatternField.getText(), commitCompletionPatternInput.getText());
-        }
-    }
-
-    private void updateCommitCompletionOutput(String pattern, String testInput) {
-        Formatted formatted = RegExpFormatter.create(pattern).format(testInput);
-        commitCompletionPatternOutput.setText(formatted.text);
-        boolean matches = formatted.matches;
-        if (matches) {
-            commitCompletionPatternMatchStatus.setIcon(ResIcons.Ok);
-            commitCompletionPatternMatchStatus.setToolTipText(ResBundle.getString("commit.dialog.completion.pattern.output.matched.label"));
-        } else {
-            commitCompletionPatternMatchStatus.setIcon(ResIcons.Warning);
-            commitCompletionPatternMatchStatus.setToolTipText(ResBundle.getString("commit.dialog.completion.pattern.output.not.matched.label"));
-        }
-        config.pattern = pattern;
-        config.testInput = StringUtils.trimToNull(testInput);
-    }
-
-    public void setCommitCompletionConfig(CommitCompletionConfig config) {
-        this.config = config;
-    }
-
-    @Override
-    public JComponent getContent() {
-        return content;
-    }
-
-    @Override
-    public void afterStateSet() {
-        updateEnabled = false;
-        commitCompletionPatternField.setText(config.pattern);
-        commitCompletionPatternInput.setText(config.testInput);
-        updateEnabled = true;
+  @Override
+  public void init() {
+    commitCompletionPatternField.addTextConsumer((text, error) -> {
+      updateCommitCompletionStatus(error);
+      updateCommitCompletionOutput();
+      patternUpdates.forEach(c -> c.accept(text));
+    });
+    commitCompletionPatternInput.getDocument().addDocumentListener(new DocumentAdapter() {
+      @Override
+      protected void textChanged(DocumentEvent e) {
         updateCommitCompletionOutput();
-    }
+      }
+    });
+  }
 
-    @Override
-    public void dispose() {
-        commitCompletionPatternField.dispose();
-        config = null;
-        patternUpdates.clear();
+  void addPatternUpdate(Consumer<String> updateHandler) {
+    patternUpdates.add(updateHandler);
+  }
+
+  private void updateCommitCompletionStatus(Optional<String> error) {
+    if (error.isPresent()) {
+      commitCompletionPatternStatus.setIcon(ResIcons.Error);
+      commitCompletionPatternStatus.setToolTipText(error.get());
+    } else {
+      commitCompletionPatternStatus.setIcon(ResIcons.Ok);
+      commitCompletionPatternStatus.setToolTipText(null);
     }
+  }
+
+  private void updateCommitCompletionOutput() {
+    if (updateEnabled) {
+      updateCommitCompletionOutput(commitCompletionPatternField.getText(), commitCompletionPatternInput.getText());
+    }
+  }
+
+  private void updateCommitCompletionOutput(String pattern, String testInput) {
+    Formatted formatted = RegExpFormatter.create(pattern).format(testInput);
+    commitCompletionPatternOutput.setText(formatted.text);
+    boolean matches = formatted.matches;
+    if (matches) {
+      commitCompletionPatternMatchStatus.setIcon(ResIcons.Ok);
+      commitCompletionPatternMatchStatus.setToolTipText(getMatchedToolTip());
+    } else {
+      commitCompletionPatternMatchStatus.setIcon(ResIcons.Warning);
+      commitCompletionPatternMatchStatus.setToolTipText(getNotMatchedToolTip());
+    }
+    config.pattern = pattern;
+    config.testInput = StringUtils.trimToNull(testInput);
+  }
+
+  private String getMatchedToolTip() {
+    return ResBundle.getString("commit.dialog.completion.pattern.output.matched.label");
+  }
+
+  private String getNotMatchedToolTip() {
+    return ResBundle.getString("commit.dialog.completion.pattern.output.not.matched.label");
+  }
+
+  public void setCommitCompletionConfig(CommitCompletionConfig config) {
+    this.config = config;
+  }
+
+  @Override
+  public JComponent getContent() {
+    return content;
+  }
+
+  @Override
+  public void afterStateSet() {
+    updateEnabled = false;
+    commitCompletionPatternField.setText(config.pattern);
+    commitCompletionPatternInput.setText(config.testInput);
+    updateEnabled = true;
+    updateCommitCompletionOutput();
+  }
+
+  @Override
+  public void dispose() {
+    commitCompletionPatternField.dispose();
+    config = null;
+    patternUpdates.clear();
+  }
 }

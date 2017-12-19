@@ -1,5 +1,5 @@
 package zielu.gittoolbox.formatter;
 
 public interface Formatter {
-    Formatted format(String input);
+  Formatted format(String input);
 }
