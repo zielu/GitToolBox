@@ -69,10 +69,28 @@ junitPlatformTest {
     }
 }
 
+apply plugin: 'findbugs'
+findbugs {
+    toolVersion = "3.0.1"
+    ignoreFailures = false
+}
+
+apply plugin: 'checkstyle'
+checkstyle {
+    maxErrors = 0
+    maxWarnings = 0
+    configFile = project(':').file('config/checkstyle/lax_checkstyle.xml')
+    configProperties = [ "suppressionFile" : project(':').file('config/checkstyle/lax_suppressions.xml')]
+}
+
 dependencies {
+    checkstyle 'com.puppycrawl.tools:checkstyle:8.5'
+
     compile("org.jodd:jodd-core:${joddVersion}")
     compile("com.google.guava:guava:${guavaVersion}")
     compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
+
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
 
     testCompile("org.mockito:mockito-core:${mockitoVersion}")
     testCompile("org.assertj:assertj-core:${assertjCoreVersion}")
