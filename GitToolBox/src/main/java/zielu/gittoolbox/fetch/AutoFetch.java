@@ -5,6 +5,7 @@ import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,8 @@ public class AutoFetch extends AbstractProjectComponent {
     super(project);
   }
 
+  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
+  @NotNull
   public static AutoFetch getInstance(@NotNull Project project) {
     return project.getComponent(AutoFetch.class);
   }
@@ -207,7 +210,9 @@ public class AutoFetch extends AbstractProjectComponent {
   @Override
   public void projectOpened() {
     if (active.compareAndSet(false, true)) {
-      executor = GitToolBoxApp.getInstance().autoFetchExecutor();
+      synchronized (this) {
+        executor = GitToolBoxApp.getInstance().autoFetchExecutor();
+      }
       init();
     }
   }

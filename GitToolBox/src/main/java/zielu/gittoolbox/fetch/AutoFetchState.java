@@ -5,6 +5,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,6 +27,8 @@ public class AutoFetchState extends AbstractProjectComponent {
     super(project);
   }
 
+  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
+  @NotNull
   public static AutoFetchState getInstance(@NotNull Project project) {
     return project.getComponent(AutoFetchState.class);
   }
@@ -68,9 +71,8 @@ public class AutoFetchState extends AbstractProjectComponent {
       connection.disconnect();
       connection = null;
     }
-    List<AutoFetchAllowed> allowed = new ArrayList<>(extensions);
+    extensions.forEach(AutoFetchAllowed::dispose);
     extensions.clear();
-    allowed.forEach(AutoFetchAllowed::dispose);
   }
 
   private boolean isFetchAllowed() {

@@ -1,3 +1,5 @@
+import java.util.stream.Collectors
+
 buildscript {
     repositories {
         maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
@@ -68,6 +70,9 @@ junitPlatform {
 test {
     //prevent running extensions as Junit 3 tests because of naming convention with TestCase
     exclude('zielu/junit5/**')
+    reports {
+        html.enabled = false
+    }
 }
 
 apply plugin: 'jacoco'
@@ -77,8 +82,9 @@ jacoco {
 
 junitPlatformTest {
     doFirst {
+        def toString = { item -> String.valueOf(item) }
         //workaround for 'Path too long' on Windows (https://github.com/maiflai/gradle-scalatest/issues/42)
-        def cp = CollectionUtils.join(File.pathSeparator, classpath.getFiles())
+        def cp = classpath.getFiles().stream().map(toString).collect(Collectors.joining(File.pathSeparator))
         environment 'CLASSPATH', cp
         classpath = classpath.filter { false }
         //workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
@@ -89,8 +95,8 @@ junitPlatformTest {
 apply plugin: 'findbugs'
 findbugs {
     toolVersion = "3.0.1"
-    ignoreFailures = false
-    effort = 'max'
+    ignoreFailures = true
+    effort = 'default'
 }
 
 apply plugin: 'checkstyle'
@@ -110,6 +116,7 @@ dependencies {
     compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
 
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    compile group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
     testCompile("org.mockito:mockito-core:${mockitoVersion}")
     testCompile("org.assertj:assertj-core:${assertjCoreVersion}")

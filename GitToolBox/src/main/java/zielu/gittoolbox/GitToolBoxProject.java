@@ -3,6 +3,7 @@ package zielu.gittoolbox;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.ui.projectview.ProjectViewManager;
@@ -20,6 +21,8 @@ public class GitToolBoxProject extends AbstractProjectComponent {
     super(project);
   }
 
+  @NotNull
+  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH", "NP_NONNULL_RETURN_VIOLATION"})
   public static GitToolBoxProject getInstance(@NotNull Project project) {
     return project.getComponent(GitToolBoxProject.class);
   }

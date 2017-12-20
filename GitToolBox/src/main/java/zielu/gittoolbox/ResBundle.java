@@ -5,6 +5,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
 public final class ResBundle {
@@ -16,11 +17,13 @@ public final class ResBundle {
     throw new IllegalStateException();
   }
 
-  public static String message(@PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {
+  @NotNull
+  public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {
     return CommonBundle.message(getBundle(), key, params);
   }
 
-  public static String getString(@PropertyKey(resourceBundle = BUNDLE_NAME) String key) {
+  @NotNull
+  public static String getString(@NotNull @PropertyKey(resourceBundle = BUNDLE_NAME) String key) {
     return getBundle().getString(key);
   }
 

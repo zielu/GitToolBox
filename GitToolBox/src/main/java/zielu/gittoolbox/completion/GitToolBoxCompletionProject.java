@@ -5,6 +5,7 @@ import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.repo.GitRepository;
 import java.io.File;
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent {
     super(project);
   }
 
+  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
+  @NotNull
   public static GitToolBoxCompletionProject getInstance(@NotNull Project project) {
     return project.getComponent(GitToolBoxCompletionProject.class);
   }

@@ -10,6 +10,7 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
@@ -37,6 +38,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
   private final MessageBusConnection connection;
   private ExecutorService updateExecutor;
 
+  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   private PerRepoInfoCache(@NotNull Application application, @NotNull Project project) {
     this.application = application;
     this.project = project;

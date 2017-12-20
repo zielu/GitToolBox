@@ -3,6 +3,7 @@ package zielu.gittoolbox.compat;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.io.File;
@@ -17,6 +18,7 @@ public final class GitCompatUtil {
     throw new IllegalStateException();
   }
 
+  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   public static Collection<GitRepository> getRepositoriesForFiles(@NotNull Project project,
                                                                   @NotNull Collection<File> files) {
     List<GitRepoInfo> repositories = getRepos(project);

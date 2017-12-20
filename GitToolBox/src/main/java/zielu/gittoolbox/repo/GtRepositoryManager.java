@@ -4,6 +4,7 @@ import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.util.messages.MessageBusConnection;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import java.io.File;
@@ -20,10 +21,13 @@ public class GtRepositoryManager extends AbstractProjectComponent implements Git
     super(project);
   }
 
+  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
+  @NotNull
   public static GtRepositoryManager getInstance(@NotNull Project project) {
     return project.getComponent(GtRepositoryManager.class);
   }
 
+  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   @Override
   public void repositoryChanged(@NotNull GitRepository repository) {
     File configFile = new File(VfsUtilCore.virtualToIoFile(repository.getGitDir()), "config");

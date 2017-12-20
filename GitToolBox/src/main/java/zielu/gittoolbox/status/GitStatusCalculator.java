@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
 import git4idea.commands.GitCommand;
@@ -28,11 +29,13 @@ public class GitStatusCalculator {
   private final Project project;
   private final ProgressIndicator indicator;
 
-  private GitStatusCalculator(Project project, ProgressIndicator indicator) {
+  private GitStatusCalculator(@NotNull Project project, @NotNull ProgressIndicator indicator) {
     this.project = Preconditions.checkNotNull(project);
     this.indicator = Preconditions.checkNotNull(indicator);
   }
 
+  @SuppressFBWarnings({"NP_NULL_PARAM_DEREF"})
+  @NotNull
   public static GitStatusCalculator create(@NotNull Project project, @NotNull ProgressIndicator indicator) {
     return new GitStatusCalculator(project, indicator);
   }

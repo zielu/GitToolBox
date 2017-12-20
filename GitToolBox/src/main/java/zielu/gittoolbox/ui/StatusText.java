@@ -1,13 +1,17 @@
 package zielu.gittoolbox.ui;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.Status;
 
-public enum StatusText {
-  ;
+public final class StatusText {
+  private StatusText() {
+    throw new IllegalStateException();
+  }
 
+  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   public static String format(@NotNull GitAheadBehindCount aheadBehind) {
     Status status = aheadBehind.status();
     if (status.isValid()) {
@@ -21,6 +25,7 @@ public enum StatusText {
     }
   }
 
+  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   public static String formatToolTip(@NotNull GitAheadBehindCount aheadBehind) {
     if (aheadBehind.status() == Status.SUCCESS) {
       return "";
