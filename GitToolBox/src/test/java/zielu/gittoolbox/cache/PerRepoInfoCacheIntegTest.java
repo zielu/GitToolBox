@@ -88,7 +88,7 @@ class PerRepoInfoCacheIntegTest {
         }
       }
     });
-    RepoInfo info = exchange.exchange(null, 10, TimeUnit.SECONDS);
+    RepoInfo info = exchange.exchange(null, 30, TimeUnit.SECONDS);
     assertSoftly(softly -> {
       softly.assertThat(info).isNotNull();
       softly.assertThat(info.count()).isNotEmpty();
