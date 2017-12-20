@@ -101,6 +101,7 @@ findbugs {
 
 apply plugin: 'checkstyle'
 checkstyle {
+    toolVersion = '8.5'
     maxErrors = 0
     maxWarnings = 0
     /*configFile = project(':').file('config/checkstyle/lax_checkstyle.xml')*/
@@ -124,6 +125,7 @@ dependencies {
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
     testCompile("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    testCompileOnly('org.apiguardian:apiguardian-api:1.0.0')
     // Only needed to run tests in an IntelliJ IDEA that bundles an older version
     // testRuntime("org.junit.platform:junit-platform-launcher:${junitPlatformVersion}")
     // testRuntime("org.junit.vintage:junit-vintage-engine:${junitVintageEngineVersion}")

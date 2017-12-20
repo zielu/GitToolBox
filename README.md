@@ -11,6 +11,20 @@ For list of features see [plugin.xml](./GitToolBox/src/main/resources/META-INF/p
 ## Architecture decisions record
 Decisions are stored [here](./GitToolBox/doc/arch).
 
+## Building & running
+Release build
+```
+gradle clean check jacocoTestReport buildPlugin
+```
+Verify build
+```
+gradle clean check jacocoTestReport
+```
+Run configuration - to debug from IDE execute configuration with debug action
+```
+gradle clean runIde
+```
+
 ## Logging
 Plugin can log additional diagnostic information to help with issues investigation.
 
