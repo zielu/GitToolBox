@@ -1,3 +1,5 @@
+*.iml
+
 .idea/
 GitToolBox.jar
 testRun/

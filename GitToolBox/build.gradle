@@ -23,6 +23,11 @@ apply plugin: 'org.junit.platform.gradle.plugin'
 sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
 
+configurations {
+    testAgent {
+        transitive = false
+    }
+}
 
 intellij {
     version ideaVersion
@@ -55,17 +60,29 @@ junitPlatform {
         }
         // includeClassNamePattern '.*Test'
     }
-    // enableStandardTestTask true
+    enableStandardTestTask true
     // reportsDir file('build/test-results/junit-platform') // this is the default
     // logManager 'org.apache.logging.log4j.jul.LogManager'
 }
 
-//workaround for 'Path too long' on Windows (https://github.com/maiflai/gradle-scalatest/issues/42)
+test {
+    //prevent running extensions as Junit 3 tests because of naming convention with TestCase
+    exclude('zielu/junit5/**')
+}
+
+apply plugin: 'jacoco'
+jacoco {
+    toolVersion = "0.7.9"
+}
+
 junitPlatformTest {
     doFirst {
+        //workaround for 'Path too long' on Windows (https://github.com/maiflai/gradle-scalatest/issues/42)
         def cp = CollectionUtils.join(File.pathSeparator, classpath.getFiles())
         environment 'CLASSPATH', cp
         classpath = classpath.filter { false }
+        //workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
+        jvmArgs "-javaagent:${configurations.testAgent.singleFile}=destfile=${project.buildDir.name}/jacoco/test.exec"
     }
 }
 
@@ -86,6 +103,7 @@ checkstyle {
 
 dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:8.5'
+    testAgent("org.jacoco:org.jacoco.agent:0.7.9:runtime")
 
     compile("org.jodd:jodd-core:${joddVersion}")
     compile("com.google.guava:guava:${guavaVersion}")
@@ -104,3 +122,8 @@ dependencies {
     // testRuntime("org.junit.vintage:junit-vintage-engine:${junitVintageEngineVersion}")
     testCompile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
 }
+
+
+/*task('release') {
+    dependsOn clean, test, jacocoTestReport, buildPlugin
+}*/
