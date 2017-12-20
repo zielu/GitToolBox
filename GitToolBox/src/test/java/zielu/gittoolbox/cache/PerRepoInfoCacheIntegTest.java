@@ -2,6 +2,7 @@ package zielu.gittoolbox.cache;
 
 import static com.intellij.testFramework.UsefulTestCase.refreshRecursively;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import com.google.common.base.Charsets;
@@ -24,7 +25,6 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
-import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.jetbrains.annotations.NotNull;
@@ -61,8 +61,7 @@ class PerRepoInfoCacheIntegTest {
     git.close();
   }
 
-  @Test
-  void repositoryMappingAdded(Project project, Module module) throws Exception {
+  private VirtualFile populateTestData(Project project, Module module) throws Exception {
     VirtualFile root = module.getModuleFile().getParent();
     FileUtil.copyDir(myTestDataPath.toFile(), VfsUtil.virtualToIoFile(root));
     refreshRecursively(root);
@@ -74,6 +73,12 @@ class PerRepoInfoCacheIntegTest {
       assertThat(repository).isNotNull();
       PsiTestUtil.addContentRoot(module, root);
     });
+    return root;
+  }
+
+  @Test
+  void repositoryMappingAdded(Project project, Module module) throws Exception {
+    VirtualFile root = populateTestData(project, module);
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
     GitToolBoxProject.getInstance(project).perRepoStatusCache().getInfo(repository);
     MessageBusConnection connect = project.getMessageBus().connect();
@@ -84,7 +89,7 @@ class PerRepoInfoCacheIntegTest {
         try {
           exchange.exchange(info);
         } catch (InterruptedException e) {
-          Assertions.fail(e.getMessage(), e);
+          fail(e.getMessage(), e);
         }
       }
     });
@@ -94,6 +99,5 @@ class PerRepoInfoCacheIntegTest {
       softly.assertThat(info.count()).isNotEmpty();
       softly.assertThat(info.count().get().status()).isEqualTo(Status.NO_REMOTE);
     });
-
   }
 }
