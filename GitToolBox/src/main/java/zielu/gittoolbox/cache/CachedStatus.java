@@ -42,23 +42,8 @@ class CachedStatus {
       if (debug) {
         LOG.debug("State update [" + repoName + "]:\nnew=" + currentStatus + "\nold=" + status);
       }
-
       if (!Objects.equal(status, currentStatus)) {
-        GitAheadBehindCount oldCount = count;
-        LogWatch statusUpdateWatch = LogWatch.createStarted("Status update");
-        count = calculator.aheadBehindStatus(repo, currentStatus.localHash(), currentStatus.remoteHash());
-        statusUpdateWatch.finish();
-        if (debug) {
-          LOG.debug("Updated stale status [" + repoName + "]: " + oldCount + " > " + count);
-        }
-        if (!currentStatus.sameHashes(count)) {
-          LOG.warn("Hash mismatch between count and status: " + count + " <> " + currentStatus);
-        }
-        status = currentStatus;
-        RepoInfo newInfo = RepoInfo.create(status, count);
-        repoInfo.set(newInfo);
-        invalid.set(false);
-        infoConsumer.accept(newInfo);
+        updateStatus(repo, calculator, infoConsumer, currentStatus);
       } else {
         if (debug) {
           LOG.debug("Status did not change [" + repoName + "]: " + count);
@@ -69,6 +54,26 @@ class CachedStatus {
         LOG.debug("Status is still valid [" + repoName + "]: " + count);
       }
     }
+  }
+
+  private void updateStatus(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
+                            @NotNull Consumer<RepoInfo> infoConsumer, RepoStatus currentStatus) {
+    boolean debug = LOG.isDebugEnabled();
+    GitAheadBehindCount oldCount = count;
+    LogWatch statusUpdateWatch = LogWatch.createStarted("Status update");
+    count = calculator.aheadBehindStatus(repo, currentStatus.localHash(), currentStatus.remoteHash());
+    statusUpdateWatch.finish();
+    if (debug) {
+      LOG.debug("Updated stale status [" + repoName + "]: " + oldCount + " > " + count);
+    }
+    if (!currentStatus.sameHashes(count)) {
+      LOG.warn("Hash mismatch between count and status: " + count + " <> " + currentStatus);
+    }
+    status = currentStatus;
+    RepoInfo newInfo = RepoInfo.create(status, count);
+    repoInfo.set(newInfo);
+    invalid.set(false);
+    infoConsumer.accept(newInfo);
   }
 
   private RepoStatus createStatus(GitRepository repository) {

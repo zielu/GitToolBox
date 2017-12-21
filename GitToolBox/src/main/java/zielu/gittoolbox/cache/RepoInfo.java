@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
 public class RepoInfo {
-  private static final RepoInfo empty = new RepoInfo(RepoStatus.empty(), null);
+  private static final RepoInfo EMPTY = new RepoInfo(RepoStatus.empty(), null);
   @NotNull
   private final RepoStatus status;
   @Nullable
@@ -25,7 +25,7 @@ public class RepoInfo {
   }
 
   public static RepoInfo empty() {
-    return empty;
+    return EMPTY;
   }
 
   public RepoStatus status() {

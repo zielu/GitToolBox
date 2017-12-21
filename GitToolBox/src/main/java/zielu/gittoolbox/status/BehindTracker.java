@@ -61,7 +61,7 @@ public class BehindTracker extends AbstractProjectComponent {
       public void stateChanged(@NotNull RepoInfo info,
                                @NotNull GitRepository repository) {
         if (log.isDebugEnabled()) {
-          log.debug("State changed [" + GtUtil.name(repository) + "]: " + info);
+          log.debug("State changed [", GtUtil.name(repository), "]: ", info);
         }
         onRepoChange(info, repository);
       }
@@ -117,7 +117,7 @@ public class BehindTracker extends AbstractProjectComponent {
   private void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
     RepoInfo previousInfo = state.put(repository, info);
     if (log.isDebugEnabled()) {
-      log.debug("Info update [" + GtUtil.name(repository) + "]: " + previousInfo + " > " + info);
+      log.debug("Info update [", GtUtil.name(repository), "]: ", previousInfo, " > ", info);
     }
     ChangeType type = ChangeType.NONE;
     if (previousInfo != null) {

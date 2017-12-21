@@ -101,7 +101,6 @@ public class GitStatusCalculator {
 
   @NotNull
   private GitAheadBehindCount doRevListLeftRight(String localRef, String remoteRef, GitRepository repository) {
-    final boolean debug = log.isDebugEnabled();
     String branches = localRef + "..." + remoteRef;
     final GitLineHandler handler = new GitLineHandler(project, repository.getRoot(), GitCommand.REV_LIST);
     handler.addParameters(branches, "--left-right");
@@ -110,9 +109,7 @@ public class GitStatusCalculator {
     GitTask task = new GitTask(project, handler, branches);
     task.setProgressIndicator(indicator);
     final AtomicReference<GitAheadBehindCount> result = new AtomicReference<GitAheadBehindCount>();
-    if (debug) {
-      log.debug("Executing count with refs: '" + branches + "'");
-    }
+    log.debug("Executing count with refs: '", branches, "'");
     task.execute(true, false, new GitTaskResultHandlerAdapter() {
       @Override
       protected void onSuccess() {

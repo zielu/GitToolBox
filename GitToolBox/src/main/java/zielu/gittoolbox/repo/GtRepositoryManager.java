@@ -35,7 +35,7 @@ public class GtRepositoryManager extends AbstractProjectComponent implements Git
     configs.put(repository, config);
   }
 
-  public java.util.Optional<GtConfig> configFor(GitRepository repository) {
+  public Optional<GtConfig> configFor(GitRepository repository) {
     return Optional.ofNullable(configs.get(repository));
   }
 

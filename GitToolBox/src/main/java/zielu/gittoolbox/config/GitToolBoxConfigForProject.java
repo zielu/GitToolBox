@@ -23,7 +23,7 @@ import zielu.gittoolbox.formatter.Formatter;
 )
 public class GitToolBoxConfigForProject implements PersistentStateComponent<GitToolBoxConfigForProject> {
   public boolean autoFetch = true;
-  public int autoFetchIntervalMinutes = AutoFetchParams.defaultIntervalMinutes;
+  public int autoFetchIntervalMinutes = AutoFetchParams.DEFAULT_INTERVAL_MINUTES;
   public String autoFetchStrategy = AutoFetchStrategy.REPO_WITH_REMOTES.key();
   public boolean commitDialogCompletion = true;
   public List<CommitCompletionConfig> completionConfigs = Lists.newArrayList(new CommitCompletionConfig());

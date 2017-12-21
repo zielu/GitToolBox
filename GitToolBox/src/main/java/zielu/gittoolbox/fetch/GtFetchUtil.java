@@ -10,9 +10,10 @@ import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 
-public class GtFetchUtil {
+public final class GtFetchUtil {
 
   private GtFetchUtil() {
+    throw new IllegalStateException();
   }
 
   /**

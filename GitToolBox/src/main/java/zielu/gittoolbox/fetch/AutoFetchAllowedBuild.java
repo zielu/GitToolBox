@@ -26,11 +26,12 @@ public class AutoFetchAllowedBuild implements AutoFetchAllowed {
     connection.subscribe(BuildManagerListener.TOPIC, new BuildManagerListener() {
       @Override
       public void beforeBuildProcessStarted(Project project, UUID sessionId) {
+        //do nothing
       }
 
       @Override
       public void buildStarted(Project currentProject, UUID sessionId, boolean isAutomake) {
-        log.debug("Build start");
+        log.debug("Build started");
         if (Objects.equals(project, currentProject)) {
           buildRunning.set(true);
         }

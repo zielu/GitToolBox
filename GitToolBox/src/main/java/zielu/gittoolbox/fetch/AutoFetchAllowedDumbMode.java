@@ -24,13 +24,13 @@ public class AutoFetchAllowedDumbMode implements AutoFetchAllowed {
     connection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
       @Override
       public void enteredDumbMode() {
-        log.debug("Enter dumb mode");
+        log.debug("Entered dumb mode");
         dumbMode.set(true);
       }
 
       @Override
       public void exitDumbMode() {
-        log.debug("Exit dumb mode");
+        log.debug("Exited dumb mode");
         dumbMode.set(false);
         fireStateChanged(project);
       }

@@ -51,7 +51,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     return new PerRepoInfoCache(ApplicationManager.getApplication(), project);
   }
 
-  private CachedStatus get(final GitRepository repository) {
+  private CachedStatus get(GitRepository repository) {
     CachedStatus cachedStatus = behindStatuses.get(repository);
     if (cachedStatus == null) {
       CachedStatus newStatus = CachedStatus.create(repository);
@@ -101,16 +101,11 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
   }
 
   private void scheduleUpdate(@NotNull GitRepository repository) {
-    final boolean debug = log.isDebugEnabled();
     if (active.get()) {
-      if (debug) {
-        log.debug("Scheduled update for: " + repository);
-      }
+      log.debug("Scheduled update for: ", repository);
       scheduleTask(new UpdateTask(repository));
     } else {
-      if (debug) {
-        log.debug("Inactive - ignored updating refresh for " + repository);
-      }
+      log.debug("Inactive - ignored updating refresh for ", repository);
     }
   }
 
@@ -125,18 +120,14 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
 
   @Override
   public void repositoryChanged(@NotNull GitRepository repository) {
-    if (log.isDebugEnabled()) {
-      log.debug("Got repo changed event: " + repository);
-    }
+    log.debug("Got repo changed event: ", repository);
     scheduleRefresh(repository);
   }
 
   private void onRepoChanged(GitRepository repo, RepoInfo info) {
     if (active.get()) {
       project.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
-      if (log.isDebugEnabled()) {
-        log.debug("Published cache changed event: " + repo);
-      }
+      log.debug("Published cache changed event: ", repo);
     }
   }
 
@@ -155,9 +146,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
   }
 
   public void refresh(Iterable<GitRepository> repositories) {
-    if (log.isDebugEnabled()) {
-      log.debug("Refreshing repositories statuses: ", repositories);
-    }
+    log.debug("Refreshing repositories statuses: ", repositories);
     repositories.forEach(this::scheduleRefresh);
   }
 

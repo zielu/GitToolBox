@@ -26,7 +26,6 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   public void decorate(ProjectViewNode projectViewNode, PresentationData presentation) {
     LogWatch decorateWatch = LogWatch.createStarted("Decorate");
     if (shouldDecorate(projectViewNode)) {
-      final boolean debug = log.isDebugEnabled();
       LogWatch decorationCheckWatch = LogWatch.createStarted("Decoration check");
       DecorableNode decorableNode = decorableNodeFactory.nodeFor(projectViewNode);
       decorationCheckWatch.elapsed("NodeFor [", projectViewNode.getName(), "]").finish();
@@ -36,14 +35,10 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
           applyDecoration(projectViewNode.getProject(), repo, projectViewNode, presentation);
           decorateWatch.elapsed("Decoration ", "[", projectViewNode.getName(), "]");
         } else {
-          if (debug) {
-            log.debug("No git repo: ", projectViewNode);
-          }
+          log.debug("No git repo: ", projectViewNode);
         }
       } else {
-        if (debug) {
-          log.debug("Not decorable node: ", projectViewNode);
-        }
+        log.debug("Not decorable node: ", projectViewNode);
       }
     }
     decorateWatch.finish();
@@ -52,9 +47,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   @Override
   public void decorate(PackageDependenciesNode packageDependenciesNode,
                        ColoredTreeCellRenderer coloredTreeCellRenderer) {
-    if (log.isDebugEnabled()) {
-      log.debug("Decorate package dependencies");
-    }
+    log.debug("Decorate package dependencies");
   }
 
   private boolean shouldDecorate(ProjectViewNode projectViewNode) {

@@ -87,11 +87,8 @@ public class AutoFetch extends AbstractProjectComponent {
       log.debug("Auto-fetch enabled");
       synchronized (this) {
         if (currentInterval != config.autoFetchIntervalMinutes) {
-          if (log.isDebugEnabled()) {
-            log.debug("Auto-fetch interval or state changed: enabled="
-                + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
-          }
-
+          log.debug("Auto-fetch interval or state changed: enabled=", config.autoFetch,
+              ", interval=", config.autoFetchIntervalMinutes);
           cancelCurrentTasks();
           log.debug("Existing task cancelled on auto-fetch change");
           if (currentInterval == 0) {
@@ -102,10 +99,8 @@ public class AutoFetch extends AbstractProjectComponent {
           }
           currentInterval = config.autoFetchIntervalMinutes;
         } else {
-          if (log.isDebugEnabled()) {
-            log.debug("Auto-fetch interval and state did not change: enabled="
-                + config.autoFetch + ", interval=" + config.autoFetchIntervalMinutes);
-          }
+          log.debug("Auto-fetch interval and state did not change: enabled=", config.autoFetch,
+              ", interval=", config.autoFetchIntervalMinutes);
         }
       }
     } else {

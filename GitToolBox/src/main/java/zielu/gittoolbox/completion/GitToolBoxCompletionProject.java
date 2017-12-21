@@ -90,8 +90,10 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent {
 
   @Override
   public void disposeComponent() {
-    connection.disconnect();
-    connection = null;
+    if (connection != null) {
+      connection.disconnect();
+      connection = null;
+    }
     formatters = null;
   }
 }

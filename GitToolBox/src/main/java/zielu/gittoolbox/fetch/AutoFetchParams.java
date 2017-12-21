@@ -1,8 +1,11 @@
 package zielu.gittoolbox.fetch;
 
-public enum AutoFetchParams {
-  ;
-  public static final int defaultIntervalMinutes = 15;
-  public static final int intervalMinMinutes = 5;
-  public static final int intervalMaxMinutes = 180;
+public final class AutoFetchParams {
+  public static final int DEFAULT_INTERVAL_MINUTES = 15;
+  public static final int INTERVAL_MIN_MINUTES = 5;
+  public static final int INTERVAL_MAX_MINUTES = 180;
+
+  private AutoFetchParams() {
+    throw new IllegalStateException();
+  }
 }

@@ -142,9 +142,7 @@ public class AutoFetchTask implements Runnable {
         }
       }));
     } else {
-      if (log.isDebugEnabled()) {
-        log.debug("Fetched skipped");
-      }
+      log.debug("Fetched skipped");
       if (showNotifications) {
         AppUtil.invokeLaterIfNeeded(this::finishedWithoutFetch);
       }

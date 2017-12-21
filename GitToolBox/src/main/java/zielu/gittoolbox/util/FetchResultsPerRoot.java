@@ -7,6 +7,7 @@ import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Map;
 import java.util.Map.Entry;
+import jodd.util.StringBand;
 import zielu.gittoolbox.compat.Notifier;
 
 public class FetchResultsPerRoot {
@@ -29,7 +30,7 @@ public class FetchResultsPerRoot {
     if (anyProblems) {
       boolean anyNotAuthorized = false;
       boolean anyError = false;
-      StringBuilder message = new StringBuilder();
+      StringBand message = new StringBand();
       for (Entry<GitRepository, FetchResult> entry : errorsPerRoot.entrySet()) {
         message.append(Html.BR);
         String boldName = GitUIUtil.bold(GtUtil.name(entry.getKey()));

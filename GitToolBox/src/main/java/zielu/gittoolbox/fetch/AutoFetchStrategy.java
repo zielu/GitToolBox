@@ -23,7 +23,7 @@ public enum AutoFetchStrategy {
           fetchable.add(repository);
         } else {
           if (log.isDebugEnabled()) {
-            log.debug("Skip repo " + GtUtil.name(repository) + " - no remotes");
+            log.debug("Skip repo ", GtUtil.name(repository), " - no remotes");
           }
         }
       }
@@ -43,7 +43,7 @@ public enum AutoFetchStrategy {
           fetchable.add(repository);
         } else {
           if (log.isDebugEnabled()) {
-            log.debug("Skip repo " + GtUtil.name(repository) + " - no remote branch");
+            log.debug("Skip repo ", GtUtil.name(repository), " - no remote branch");
           }
         }
       }

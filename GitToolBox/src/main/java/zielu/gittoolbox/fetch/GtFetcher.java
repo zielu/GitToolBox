@@ -68,15 +68,10 @@ public class GtFetcher {
     Map<VirtualFile, String> additionalInfos = Maps.newHashMapWithExpectedSize(repositories.size());
     FetchResultsPerRoot errorsPerRoot = new FetchResultsPerRoot();
     ImmutableList.Builder<GitRepository> resultBuilder = ImmutableList.builder();
-    final boolean debug = log.isDebugEnabled();
     for (GitRepository repository : repositories) {
-      if (debug) {
-        log.debug("Fetching " + repository);
-      }
+      log.debug("Fetching ", repository);
       GitFetchResult result = fetcher.fetch(repository);
-      if (debug) {
-        log.debug("Fetched " + repository + ": success=" + result.isSuccess() + ", error=" + result.isError());
-      }
+      log.debug("Fetched ", repository, ": success=", result.isSuccess(), ", error=", result.isError());
       String ai = result.getAdditionalInfo();
       if (!StringUtil.isEmptyOrSpaces(ai)) {
         additionalInfos.put(repository.getRoot(), ai);

@@ -2,13 +2,12 @@ package zielu.gittoolbox.push;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
-import java.util.Collections;
 
 public class GtPushResult {
 
   private final Type type;
   private final String output;
-  private Collection<String> branches;
+  private Collection<String> branches = ImmutableList.of();
 
   private GtPushResult(Type type, String output) {
     this.type = type;
@@ -42,11 +41,7 @@ public class GtPushResult {
   }
 
   public Collection<String> getRejectedBranches() {
-    if (branches != null) {
-      return branches;
-    } else {
-      return Collections.emptyList();
-    }
+    return branches;
   }
 
   public enum Type {

@@ -87,9 +87,9 @@ public class GtPrjForm implements GtFormUi {
     completionItemPatternForm.getContent().setVisible(false);
 
     autoFetchIntervalSpinner.setModel(new SpinnerNumberModel(
-        AutoFetchParams.defaultIntervalMinutes,
-        AutoFetchParams.intervalMinMinutes,
-        AutoFetchParams.intervalMaxMinutes,
+        AutoFetchParams.DEFAULT_INTERVAL_MINUTES,
+        AutoFetchParams.INTERVAL_MIN_MINUTES,
+        AutoFetchParams.INTERVAL_MAX_MINUTES,
         1
     ));
     autoFetchIntervalSpinner.setEnabled(false);

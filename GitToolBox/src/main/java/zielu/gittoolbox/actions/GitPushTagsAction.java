@@ -12,9 +12,10 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitVcs;
 import git4idea.actions.GitRepositoryAction;
-import java.util.EnumSet;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.push.GtPushResult;
@@ -24,6 +25,16 @@ import zielu.gittoolbox.tag.TagsPushSpec;
 import zielu.gittoolbox.ui.GitPushTagsDialog;
 
 public class GitPushTagsAction extends GitRepositoryAction {
+  private final EnumMap<Type, BiConsumer<VcsNotifier, GtPushResult>> errorResultHandlers = new EnumMap<>(Type.class);
+
+  public GitPushTagsAction() {
+    errorResultHandlers.put(ERROR, (notifier, result) ->
+        notifier.notifyError("Push failed", result.getOutput()));
+    errorResultHandlers.put(REJECTED, (notifier, result) ->
+        notifier.notifyWeakError("Push rejected: " + Joiner.on(" ").join(result.getRejectedBranches())));
+    errorResultHandlers.put(NOT_AUTHORIZED, (notifier, result) ->
+        notifier.notifyError("Not authorized", result.getOutput()));
+  }
 
   @NotNull
   @Override
@@ -51,23 +62,13 @@ public class GitPushTagsAction extends GitRepositoryAction {
     }
   }
 
-  private void handleResult(Project project, GtPushResult result) {
-    if (result.getType() == Type.SUCCESS) {
-      VcsNotifier.getInstance(project).notifySuccess(ResBundle.getString("message.tags.pushed"));
-    } else if (EnumSet.of(ERROR, REJECTED, Type.NOT_AUTHORIZED).contains(result.getType())) {
-      showError(project, result);
-    }
-  }
-
-  private void showError(Project project, GtPushResult result) {
-    VcsNotifier notifier = VcsNotifier.getInstance(project);
-    Type type = result.getType();
-    if (type == ERROR) {
-      notifier.notifyError("Push failed", result.getOutput());
-    } else if (type == REJECTED) {
-      notifier.notifyWeakError("Push rejected: " + Joiner.on(" ").join(result.getRejectedBranches()));
-    } else if (type == NOT_AUTHORIZED) {
-      notifier.notifyError("Not authorized", result.getOutput());
+  private void handleResult(Project project, GtPushResult pushResult) {
+    VcsNotifier vcsNotifier = VcsNotifier.getInstance(project);
+    if (pushResult.getType() == Type.SUCCESS) {
+      vcsNotifier.notifySuccess(ResBundle.getString("message.tags.pushed"));
+    } else {
+      errorResultHandlers.getOrDefault(pushResult.getType(), (notifier, result) -> { /*do nothing*/ })
+        .accept(vcsNotifier, pushResult);
     }
   }
 }
