@@ -8,12 +8,17 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.ProjectLevelVcsManager;
+import com.intellij.openapi.vcs.VcsListener;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
+import git4idea.repo.GitRepositoryManager;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,14 +29,14 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.status.GitStatusCalculator;
 
-public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable, ProjectAware {
+public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable, ProjectAware, VcsListener {
   public static final Topic<PerRepoStatusCacheListener> CACHE_CHANGE = Topic.create("Status cache change",
       PerRepoStatusCacheListener.class);
 
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final ConcurrentMap<GitRepository, CachedStatus> behindStatuses = Maps.newConcurrentMap();
-  private final ConcurrentMap<GitRepository, Boolean> scheduledRepositories = Maps.newConcurrentMap();
+  private final ConcurrentMap<GitRepository, CacheTask> scheduledRepositories = Maps.newConcurrentMap();
   private final Application application;
   private final Project project;
   private final GitStatusCalculator calculator;
@@ -45,6 +50,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     calculator = GitStatusCalculator.create(project);
     connection = this.project.getMessageBus().connect();
     connection.subscribe(GitRepository.GIT_REPO_CHANGE, this);
+    connection.subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this);
   }
 
   public static PerRepoInfoCache create(@NotNull Project project) {
@@ -110,7 +116,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
   }
 
   private void scheduleTask(CacheTask task) {
-    if (scheduledRepositories.putIfAbsent(task.repository, Boolean.TRUE) == null) {
+    if (scheduledRepositories.putIfAbsent(task.repository, task) == null) {
       updateExecutor.submit(task);
       log.debug("Scheduled ", task);
     } else {
@@ -122,6 +128,20 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
   public void repositoryChanged(@NotNull GitRepository repository) {
     log.debug("Got repo changed event: ", repository);
     scheduleRefresh(repository);
+  }
+
+  @Override
+  public void directoryMappingChanged() {
+    Set<GitRepository> removed = new HashSet<>(behindStatuses.keySet());
+    removed.removeAll(GitRepositoryManager.getInstance(project).getRepositories());
+    removed.forEach(removedRepo -> {
+      behindStatuses.remove(removedRepo);
+      CacheTask task = scheduledRepositories.remove(removedRepo);
+      if (task != null) {
+        task.kill();
+      }
+    });
+    project.getMessageBus().syncPublisher(CACHE_CHANGE).evicted(removed);
   }
 
   private void onRepoChanged(GitRepository repo, RepoInfo info) {
@@ -192,15 +212,20 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
   }
 
   private abstract class CacheTask implements Runnable {
+    private final AtomicBoolean taskActive = new AtomicBoolean(true);
     final GitRepository repository;
 
     CacheTask(GitRepository repository) {
       this.repository = repository;
     }
 
+    void kill() {
+      taskActive.set(false);
+    }
+
     @Override
     public void run() {
-      if (active.get()) {
+      if (active.get() && taskActive.get()) {
         runImpl();
         scheduledRepositories.remove(repository);
       }

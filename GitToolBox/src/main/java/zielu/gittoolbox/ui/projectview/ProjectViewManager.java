@@ -5,6 +5,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ProjectAware;
@@ -16,9 +17,9 @@ import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.ui.util.AppUtil;
 
 public class ProjectViewManager implements Disposable, ProjectAware {
-  private final AtomicBoolean opened = new AtomicBoolean();
+  private final AtomicBoolean active = new AtomicBoolean();
   private final Project project;
-  private final MessageBusConnection connection;
+  private MessageBusConnection connection;
 
   private ProjectViewManager(Project project) {
     this.project = project;
@@ -35,6 +36,11 @@ public class ProjectViewManager implements Disposable, ProjectAware {
                                @NotNull final GitRepository repository) {
         refreshProjectView();
       }
+
+      @Override
+      public void evicted(@NotNull Collection<GitRepository> repositories) {
+        refreshProjectView();
+      }
     });
   }
 
@@ -43,9 +49,9 @@ public class ProjectViewManager implements Disposable, ProjectAware {
   }
 
   private void refreshProjectView() {
-    if (opened.get()) {
+    if (active.get()) {
       AppUtil.invokeLaterIfNeeded(() -> {
-        if (opened.get()) {
+        if (active.get()) {
           ProjectView.getInstance(project).refresh();
         }
       });
@@ -54,16 +60,19 @@ public class ProjectViewManager implements Disposable, ProjectAware {
 
   @Override
   public void opened() {
-    opened.compareAndSet(false, true);
+    active.compareAndSet(false, true);
   }
 
   @Override
   public void closed() {
-    opened.compareAndSet(true, false);
+    active.compareAndSet(true, false);
   }
 
   @Override
   public void dispose() {
-    connection.disconnect();
+    if (connection != null) {
+      connection.disconnect();
+      connection = null;
+    }
   }
 }
