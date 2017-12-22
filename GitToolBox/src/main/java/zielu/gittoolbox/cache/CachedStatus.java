@@ -35,37 +35,27 @@ class CachedStatus {
 
   public synchronized void update(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
                                   @NotNull Consumer<RepoInfo> infoConsumer) {
-    final boolean debug = LOG.isDebugEnabled();
     newStatus.set(false);
     if (invalid.get()) {
       RepoStatus currentStatus = createStatus(repo);
-      if (debug) {
-        LOG.debug("State update [" + repoName + "]:\nnew=" + currentStatus + "\nold=" + status);
-      }
+      LOG.debug("State update [", repoName, "]:\nnew=", currentStatus, "\nold=", status);
       if (!Objects.equal(status, currentStatus)) {
         updateStatus(repo, calculator, infoConsumer, currentStatus);
       } else {
-        if (debug) {
-          LOG.debug("Status did not change [" + repoName + "]: " + count);
-        }
+        LOG.debug("Status did not change [", repoName, "]: ", count);
       }
     } else {
-      if (debug) {
-        LOG.debug("Status is still valid [" + repoName + "]: " + count);
-      }
+      LOG.debug("Status is still valid [", repoName, "]: ", count);
     }
   }
 
   private void updateStatus(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
                             @NotNull Consumer<RepoInfo> infoConsumer, RepoStatus currentStatus) {
-    boolean debug = LOG.isDebugEnabled();
     GitAheadBehindCount oldCount = count;
     LogWatch statusUpdateWatch = LogWatch.createStarted("Status update");
     count = calculator.aheadBehindStatus(repo, currentStatus.localHash(), currentStatus.remoteHash());
     statusUpdateWatch.finish();
-    if (debug) {
-      LOG.debug("Updated stale status [" + repoName + "]: " + oldCount + " > " + count);
-    }
+    LOG.debug("Updated stale status [", repoName, "]: ", oldCount, " > ", count);
     if (!currentStatus.sameHashes(count)) {
       LOG.warn("Hash mismatch between count and status: " + count + " <> " + currentStatus);
     }

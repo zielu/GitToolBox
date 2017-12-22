@@ -41,8 +41,8 @@ public class GtConfig {
 
       try {
         ini.load(configFile);
-      } catch (IOException var8) {
-        LOG.warn(new RepoStateException("Couldn\'t load .git/config file at " + configFile.getPath(), var8));
+      } catch (IOException exception) {
+        LOG.warn(new RepoStateException("Couldn\'t load .git/config file at " + configFile.getPath(), exception));
         return EMPTY;
       }
       ImmutableSet.Builder<String> svnRemotes = ImmutableSet.builder();

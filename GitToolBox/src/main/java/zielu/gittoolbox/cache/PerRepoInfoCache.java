@@ -18,6 +18,7 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import git4idea.repo.GitRepositoryManager;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -93,16 +94,11 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
   }
 
   private void scheduleRefresh(@NotNull GitRepository repository) {
-    final boolean debug = log.isDebugEnabled();
     if (active.get()) {
-      if (debug) {
-        log.debug("Scheduled refresh for: " + repository);
-      }
+      log.debug("Scheduled refresh for: ", repository);
       scheduleTask(new RefreshTask(repository));
     } else {
-      if (debug) {
-        log.debug("Inactive - ignored scheduling refresh for " + repository);
-      }
+      log.debug("Inactive - ignored scheduling refresh for ", repository);
     }
   }
 
@@ -136,10 +132,7 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
     removed.removeAll(GitRepositoryManager.getInstance(project).getRepositories());
     removed.forEach(removedRepo -> {
       behindStatuses.remove(removedRepo);
-      CacheTask task = scheduledRepositories.remove(removedRepo);
-      if (task != null) {
-        task.kill();
-      }
+      Optional.ofNullable(scheduledRepositories.remove(removedRepo)).ifPresent(CacheTask::kill);
     });
     project.getMessageBus().syncPublisher(CACHE_CHANGE).evicted(removed);
   }
@@ -188,7 +181,6 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
   }
 
   private class RefreshTask extends CacheTask {
-
     private RefreshTask(@NotNull GitRepository repository) {
       super(repository);
     }
@@ -200,7 +192,6 @@ public class PerRepoInfoCache implements GitRepositoryChangeListener, Disposable
   }
 
   private class UpdateTask extends CacheTask {
-
     private UpdateTask(@NotNull GitRepository repository) {
       super(repository);
     }

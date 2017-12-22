@@ -1,9 +1,15 @@
 package zielu.gittoolbox.ui;
 
+import static zielu.gittoolbox.status.Status.CANCEL;
+import static zielu.gittoolbox.status.Status.FAILURE;
+import static zielu.gittoolbox.status.Status.NO_REMOTE;
+import static zielu.gittoolbox.status.Status.SUCCESS;
+
 import com.google.common.collect.Iterables;
 import com.intellij.openapi.components.ServiceManager;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import jodd.util.StringBand;
@@ -16,6 +22,13 @@ import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
 public class StatusMessages {
+  private final EnumMap<Status, String> commonStatuses = new EnumMap<>(Status.class);
+
+  public StatusMessages() {
+    commonStatuses.put(CANCEL, ResBundle.getString("message.cancelled"));
+    commonStatuses.put(FAILURE, ResBundle.getString("message.failure"));
+    commonStatuses.put(NO_REMOTE, ResBundle.getString("message.no.remote"));
+  }
 
   public static StatusMessages getInstance() {
     return ServiceManager.getService(StatusMessages.class);
@@ -26,50 +39,31 @@ public class StatusMessages {
   }
 
   public String behindStatus(RevListCount behindCount) {
-    switch (behindCount.status()) {
-      case SUCCESS: {
-        if (behindCount.value() > 0) {
-          return presenter().behindStatus(behindCount.value());
-        } else {
-          return ResBundle.getString("message.up.to.date");
-        }
+    if (SUCCESS == behindCount.status()) {
+      if (behindCount.value() > 0) {
+        return presenter().behindStatus(behindCount.value());
+      } else {
+        return ResBundle.getString("message.up.to.date");
       }
-      default: {
-        return commonStatus(behindCount.status());
-      }
+    } else {
+      return commonStatus(behindCount.status());
     }
   }
 
   public String aheadBehindStatus(GitAheadBehindCount count) {
-    switch (count.status()) {
-      case SUCCESS: {
-        if (count.isNotZero()) {
-          return presenter().aheadBehindStatus(count.ahead.value(), count.behind.value());
-        } else {
-          return ResBundle.getString("message.up.to.date");
-        }
+    if (SUCCESS == count.status()) {
+      if (count.isNotZero()) {
+        return presenter().aheadBehindStatus(count.ahead.value(), count.behind.value());
+      } else {
+        return ResBundle.getString("message.up.to.date");
       }
-      default: {
-        return commonStatus(count.status());
-      }
+    } else {
+      return commonStatus(count.status());
     }
   }
 
   private String commonStatus(Status status) {
-    switch (status) {
-      case CANCEL: {
-        return ResBundle.getString("message.cancelled");
-      }
-      case FAILURE: {
-        return ResBundle.getString("message.failure");
-      }
-      case NO_REMOTE: {
-        return ResBundle.getString("message.no.remote");
-      }
-      default: {
-        return ResBundle.getString("message.unknown");
-      }
-    }
+    return commonStatuses.getOrDefault(status, ResBundle.getString("message.unknown"));
   }
 
   private String repoNamePrefix(GitRepository repository) {

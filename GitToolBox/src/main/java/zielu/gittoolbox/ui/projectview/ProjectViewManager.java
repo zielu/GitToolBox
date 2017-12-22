@@ -32,8 +32,7 @@ public class ProjectViewManager implements Disposable, ProjectAware {
     });
     connection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
-      public void stateChanged(@NotNull final RepoInfo info,
-                               @NotNull final GitRepository repository) {
+      public void stateChanged(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
         refreshProjectView();
       }
 
