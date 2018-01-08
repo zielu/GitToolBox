@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +26,7 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
   public boolean autoFetch = true;
   public int autoFetchIntervalMinutes = AutoFetchParams.DEFAULT_INTERVAL_MINUTES;
   public String autoFetchStrategy = AutoFetchStrategy.REPO_WITH_REMOTES.key();
+  public List<String> autoFetchExclusions = new ArrayList<>();
   public boolean commitDialogCompletion = true;
   public List<CommitCompletionConfig> completionConfigs = Lists.newArrayList(new CommitCompletionConfig());
 
@@ -59,6 +61,10 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
 
   public boolean isCommitDialogCompletionConfigsChanged(List<CommitCompletionConfig> completionConfigs) {
     return !this.completionConfigs.equals(completionConfigs);
+  }
+
+  public boolean isAutoFetchExclusionsChanged(List<String> autoFetchExclusions) {
+    return !this.autoFetchExclusions.equals(autoFetchExclusions);
   }
 
   @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})

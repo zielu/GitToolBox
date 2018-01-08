@@ -45,6 +45,8 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     form.setAutoFetchInterval(config.autoFetchIntervalMinutes);
     form.setCommitCompletionEnabled(config.commitDialogCompletion);
     form.setCommitCompletionConfigs(config.completionConfigs);
+    form.setAutoFetchExclusions(config.autoFetchExclusions);
+    form.setProject(project);
   }
 
   @Override
@@ -53,6 +55,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     modified = modified || config.isAutoFetchIntervalMinutesChanged(form.getAutoFetchInterval());
     modified = modified || config.isCommitDialogCompletionChanged(form.getCommitCompletionEnabled());
     modified = modified || config.isCommitDialogCompletionConfigsChanged(form.getCommitCompletionConfigs());
+    modified = modified || config.isAutoFetchExclusionsChanged(form.getAutoFetchExclusions());
     return modified;
   }
 
@@ -62,6 +65,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     config.autoFetchIntervalMinutes = form.getAutoFetchInterval();
     config.commitDialogCompletion = form.getCommitCompletionEnabled();
     config.completionConfigs = form.getCommitCompletionConfigs();
+    config.autoFetchExclusions = form.getAutoFetchExclusions();
     config.fireChanged(project);
   }
 

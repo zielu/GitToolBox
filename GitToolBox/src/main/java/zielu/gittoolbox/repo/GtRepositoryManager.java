@@ -3,8 +3,10 @@ package zielu.gittoolbox.repo;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBusConnection;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import java.io.File;
@@ -30,9 +32,12 @@ public class GtRepositoryManager extends AbstractProjectComponent implements Git
   @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   @Override
   public void repositoryChanged(@NotNull GitRepository repository) {
-    File configFile = new File(VfsUtilCore.virtualToIoFile(repository.getGitDir()), "config");
-    GtConfig config = GtConfig.load(configFile);
-    configs.put(repository, config);
+    VirtualFile gitDir = GitUtil.findGitDir(repository.getRoot());
+    Optional.ofNullable(gitDir)
+        .map(dir -> dir.findChild("config"))
+        .map(VfsUtilCore::virtualToIoFile)
+        .map(GtConfig::load)
+        .ifPresent(config -> configs.put(repository, config));
   }
 
   public Optional<GtConfig> configFor(GitRepository repository) {

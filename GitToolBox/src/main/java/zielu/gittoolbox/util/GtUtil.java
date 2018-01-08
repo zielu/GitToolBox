@@ -3,6 +3,10 @@ package zielu.gittoolbox.util;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VfsUtilCore;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.HashImpl;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -14,6 +18,9 @@ import git4idea.repo.GitRepositoryManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.CalledInAwt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,5 +63,22 @@ public final class GtUtil {
 
   public static boolean isNotDumb(Project project) {
     return !DumbService.isDumb(project);
+  }
+
+  public static List<GitRepository> getRepositoriesForRoots(@NotNull Project project, Collection<String> roots) {
+    GitRepositoryManager manager = GitRepositoryManager.getInstance(project);
+    VirtualFileManager vfManager = VirtualFileManager.getInstance();
+    return roots.stream()
+        .map(vfManager::findFileByUrl)
+        .filter(Objects::nonNull)
+        .map(manager::getRepositoryForRoot)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
+  }
+
+  public static Optional<GitRepository> getRepositoryForRoot(@NotNull Project project, String root) {
+    GitRepositoryManager manager = GitRepositoryManager.getInstance(project);
+    VirtualFileManager vfManager = VirtualFileManager.getInstance();
+    return Optional.ofNullable(root).map(vfManager::findFileByUrl).map(manager::getRepositoryForRoot);
   }
 }

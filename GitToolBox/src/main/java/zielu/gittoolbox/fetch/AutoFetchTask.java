@@ -12,8 +12,12 @@ import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
@@ -72,7 +76,20 @@ public class AutoFetchTask implements Runnable {
         toFetch.add(repository);
       }
     }
-    return toFetch;
+    log.debug("Repos to fetch: ", toFetch);
+    List<GitRepository> fetchWithoutExclusions = skipExclusions(toFetch);
+    log.debug("Repos to fetch without exclusions: ", fetchWithoutExclusions);
+    return fetchWithoutExclusions;
+  }
+
+  private List<GitRepository> skipExclusions(List<GitRepository> repositories) {
+    GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project);
+    Set<String> exclusions = new HashSet<>(config.autoFetchExclusions);
+    return repositories.stream().filter(rootExcluded(exclusions).negate()).collect(Collectors.toList());
+  }
+
+  private Predicate<GitRepository> rootExcluded(Set<String> exclusions) {
+    return repo -> exclusions.contains(repo.getRoot().getUrl());
   }
 
   private boolean doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
