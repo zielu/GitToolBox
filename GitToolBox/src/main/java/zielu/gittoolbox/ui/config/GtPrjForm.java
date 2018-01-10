@@ -185,7 +185,7 @@ public class GtPrjForm implements GtFormUi {
     GtRepoChooser chooser = new GtRepoChooser(project, content);
     List<GitRepository> excluded = GtUtil.getRepositoriesForRoots(project, autoFetchExclusionsModel.getItems());
     chooser.setSelectedRepositories(excluded);
-    if (chooser.showAndGet()){
+    if (chooser.showAndGet()) {
       List<GitRepository> selectedRepositories = chooser.getSelectedRepositories();
       selectedRepositories = GtUtil.sort(selectedRepositories);
       List<String> selectedRoots = selectedRepositories.stream()
