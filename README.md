@@ -16,13 +16,21 @@ Release build
 ```
 gradle clean check jacocoTestReport buildPlugin
 ```
-Verify build
+Full verification of build
 ```
 gradle clean check jacocoTestReport
+```
+Quick verification of build
+```
+gradle clean test jacocoTestReport
 ```
 Run configuration - to debug from IDE execute configuration with debug action
 ```
 gradle clean runIde
+```
+Update gradlew version
+```
+gradle wrapper --gradle-version 4.4.1 --distribution-type ALL
 ```
 
 ## Logging
