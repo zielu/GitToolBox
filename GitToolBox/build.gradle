@@ -79,6 +79,9 @@ apply plugin: 'jacoco'
 jacoco {
     toolVersion = "0.7.9"
 }
+jacocoTestReport {
+    executionData = files("${project.buildDir.name}/jacoco-junit5/test.exec")
+}
 
 junitPlatformTest {
     doFirst {
@@ -88,7 +91,8 @@ junitPlatformTest {
         environment 'CLASSPATH', cp
         classpath = classpath.filter { false }
         //workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
-        jvmArgs "-javaagent:${configurations.testAgent.singleFile}=destfile=${project.buildDir.name}/jacoco/test.exec"
+        jvmArgs "-javaagent:${configurations.testAgent.singleFile}=destfile=${project.buildDir.name}" +
+                "/jacoco-junit5/test.exec"
     }
 }
 
