@@ -47,9 +47,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <h3>Changes in 173.1.2</h3>
+      <h3>Changes in 173.2.0</h3>
       <ul>
-        <li>Fixed ProjectView hang (<a href="https://github.com/zielu/GitToolBox/issues/54">#54</a>)</li>
+        <li>Auto fetch exclusions (<a href="https://github.com/zielu/GitToolBox/issues/62">#62</a>)</li>
       </ul>
       <h3>Changes in 172.1.0</h3>
       <ul>
