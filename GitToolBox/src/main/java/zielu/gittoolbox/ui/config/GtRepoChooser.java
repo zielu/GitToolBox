@@ -26,6 +26,7 @@ class GtRepoChooser extends DialogWrapper {
   private final Project project;
   private JPanel centerPanel;
   private JBList<GitRepository> repoList;
+  private List<GitRepository> repositories = new ArrayList<>();
   private List<GitRepository> selectedRepositories = new ArrayList<>();
 
   GtRepoChooser(@NotNull Project project, @Nullable Component parentComponent) {
@@ -51,10 +52,10 @@ class GtRepoChooser extends DialogWrapper {
   }
 
   private void fillData() {
-    List<GitRepository> repositories = GitRepositoryManager.getInstance(project).getRepositories();
-    repositories.removeAll(selectedRepositories);
-    repositories = GtUtil.sort(repositories);
-    repoList.setModel(new CollectionListModel<>(repositories));
+    List<GitRepository> repositoriesToShow = new ArrayList<>(repositories);
+    repositoriesToShow.removeAll(selectedRepositories);
+    repositoriesToShow = GtUtil.sort(repositoriesToShow);
+    repoList.setModel(new CollectionListModel<>(repositoriesToShow));
   }
 
   @Nullable
@@ -69,6 +70,10 @@ class GtRepoChooser extends DialogWrapper {
 
   public void setSelectedRepositories(List<GitRepository> repositories) {
     selectedRepositories = new ArrayList<>(repositories);
+  }
+
+  public void setRepositories(List<GitRepository> repositories) {
+    this.repositories = new ArrayList<>(repositories);
   }
 
   @Override

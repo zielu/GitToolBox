@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.config;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import org.jetbrains.annotations.Nls;
@@ -11,6 +12,7 @@ import zielu.gittoolbox.config.GitToolBoxConfig;
 
 public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     implements SearchableConfigurable {
+  private final Logger log = Logger.getInstance(getClass());
 
   @Nls
   @Override
@@ -36,6 +38,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
 
   @Override
   protected void setFormState(GtForm form, GitToolBoxConfig config) {
+    log.debug("Set form state");
     form.setPresenter(config.getPresenter());
     form.setShowGitStatus(config.showStatusWidget);
     form.setShowProjectViewStatus(config.showProjectViewStatus);
@@ -63,6 +66,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     modified = modified || config.isProjectViewStatusBoldChanged(form.getProjectViewStatusBold());
     modified = modified || config.isProjectViewStatusItalicChanged(form.getProjectViewStatusItalic());
     modified = modified || config.isUpdateProjectActionId(form.getUpdateProjectAction().getId());
+    log.debug("Modified: ", modified);
     return modified;
   }
 
@@ -80,6 +84,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     config.projectViewStatusItalic = form.getProjectViewStatusItalic();
     config.updateProjectActionId = form.getUpdateProjectAction().getId();
     config.fireChanged();
+    log.debug("Applied");
   }
 
   @NotNull

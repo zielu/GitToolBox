@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.config;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
@@ -11,6 +12,7 @@ import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
 public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitToolBoxConfigForProject> implements
     SearchableConfigurable {
+  private final Logger log = Logger.getInstance(getClass());
   private final Project project;
 
   public GtProjectConfigurable(@NotNull Project project) {
@@ -41,6 +43,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
 
   @Override
   protected void setFormState(GtPrjForm form, GitToolBoxConfigForProject config) {
+    log.debug("Set form state");
     form.setAutoFetchEnabled(config.autoFetch);
     form.setAutoFetchInterval(config.autoFetchIntervalMinutes);
     form.setCommitCompletionEnabled(config.commitDialogCompletion);
@@ -56,6 +59,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     modified = modified || config.isCommitDialogCompletionChanged(form.getCommitCompletionEnabled());
     modified = modified || config.isCommitDialogCompletionConfigsChanged(form.getCommitCompletionConfigs());
     modified = modified || config.isAutoFetchExclusionsChanged(form.getAutoFetchExclusions());
+    log.debug("Modified: ", modified);
     return modified;
   }
 
@@ -67,6 +71,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     config.completionConfigs = form.getCommitCompletionConfigs();
     config.autoFetchExclusions = form.getAutoFetchExclusions();
     config.fireChanged(project);
+    log.debug("Applied");
   }
 
   @NotNull

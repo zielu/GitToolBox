@@ -1,12 +1,14 @@
 package zielu.gittoolbox.ui.config;
 
 import com.intellij.icons.AllIcons.General;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.components.JBList;
 import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryManager;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ import zielu.gittoolbox.ui.util.SimpleAction;
 import zielu.gittoolbox.util.GtUtil;
 
 public class GtPrjForm implements GtFormUi {
+  private final Logger log = Logger.getInstance(getClass());
+
   private JPanel content;
   private JCheckBox autoFetchEnabledCheckBox;
   private JSpinner autoFetchIntervalSpinner;
@@ -182,10 +186,14 @@ public class GtPrjForm implements GtFormUi {
   }
 
   private void onAddAutoFetchExclusion() {
+    log.debug("Add exclusions...");
     GtRepoChooser chooser = new GtRepoChooser(project, content);
     List<GitRepository> excluded = GtUtil.getRepositoriesForRoots(project, autoFetchExclusionsModel.getItems());
+    log.debug("Currently excluded: ", excluded);
     chooser.setSelectedRepositories(excluded);
+    chooser.setRepositories(GitRepositoryManager.getInstance(project).getRepositories());
     if (chooser.showAndGet()) {
+      log.debug("Exclusions about to change");
       List<GitRepository> selectedRepositories = chooser.getSelectedRepositories();
       selectedRepositories = GtUtil.sort(selectedRepositories);
       List<String> selectedRoots = selectedRepositories.stream()
@@ -194,12 +202,16 @@ public class GtPrjForm implements GtFormUi {
           .collect(Collectors.toList());
       List<String> newContent = autoFetchExclusionsModel.toList();
       newContent.addAll(selectedRoots);
+      log.debug("New exclusions: ", newContent);
       replaceAutoFetchExclusions(newContent);
+    } else {
+      log.debug("Exclusions change cancelled");
     }
   }
 
   private void onRemoveAutoFetchExclusion() {
     List<String> selectedValues = autoFetchExclusionsList.getSelectedValuesList();
+    log.debug("Removing exclusions: ", selectedValues);
     selectedValues.forEach(autoFetchExclusionsModel::remove);
   }
 
