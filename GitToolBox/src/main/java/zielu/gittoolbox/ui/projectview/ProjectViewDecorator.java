@@ -11,8 +11,6 @@ import git4idea.repo.GitRepository;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.config.GitToolBoxConfig;
-import zielu.gittoolbox.ui.projectview.node.DecorableNode;
-import zielu.gittoolbox.ui.projectview.node.DecorableNodeFactory;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.LogWatch;
 
@@ -20,25 +18,20 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   private final Logger log = Logger.getInstance(getClass());
 
   private final NodeDecorationFactory decorationFactory = NodeDecorationFactory.getInstance();
-  private final DecorableNodeFactory decorableNodeFactory = new DecorableNodeFactory();
+  private final GitRepositoryFinder repoFinder = new GitRepositoryFinder();
 
   @Override
-  public void decorate(ProjectViewNode projectViewNode, PresentationData presentation) {
+  public void decorate(ProjectViewNode node, PresentationData presentation) {
     LogWatch decorateWatch = LogWatch.createStarted("Decorate");
-    if (shouldDecorate(projectViewNode)) {
-      LogWatch decorationCheckWatch = LogWatch.createStarted("Decoration check");
-      DecorableNode decorableNode = decorableNodeFactory.nodeFor(projectViewNode);
-      decorationCheckWatch.elapsed("NodeFor [", projectViewNode.getName(), "]").finish();
-      if (decorableNode != null) {
-        GitRepository repo = decorableNode.getRepo();
-        if (repo != null) {
-          applyDecoration(projectViewNode.getProject(), repo, projectViewNode, presentation);
-          decorateWatch.elapsed("Decoration ", "[", projectViewNode.getName(), "]");
-        } else {
-          log.debug("No git repo: ", projectViewNode);
-        }
+    if (shouldDecorate(node)) {
+      LogWatch getRepoWatch = LogWatch.createStarted("Get repo [" + node.getName() + "]");
+      GitRepository repo = repoFinder.getRepoFor(node);
+      getRepoWatch.finish();
+      if (repo != null) {
+        applyDecoration(node.getProject(), repo, node, presentation);
+        decorateWatch.elapsed("Decoration ", "[", node.getName(), "]");
       } else {
-        log.debug("Not decorable node: ", projectViewNode);
+        log.debug("No git repo: ", node);
       }
     }
     decorateWatch.finish();
