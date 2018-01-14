@@ -38,12 +38,12 @@ import zielu.junit5.intellij.PlatformTestCaseExtension;
 
 @Tag("integration")
 @ExtendWith(PlatformTestCaseExtension.class)
-class PerRepoInfoCacheIntegTest {
+class PerRepoInfoCacheImplIntegTest {
   private static Path myTestDataPath;
 
   @BeforeAll
   static void beforeAll() throws Exception {
-    myTestDataPath = Paths.get(".", "testDataDynamic", "it", PerRepoInfoCacheIntegTest.class.getSimpleName());
+    myTestDataPath = Paths.get(".", "testDataDynamic", "it", PerRepoInfoCacheImplIntegTest.class.getSimpleName());
     FileUtil.delete(myTestDataPath.toFile());
     initGit(myTestDataPath);
   }
@@ -83,7 +83,7 @@ class PerRepoInfoCacheIntegTest {
     GitToolBoxProject.getInstance(project).perRepoStatusCache().getInfo(repository);
     MessageBusConnection connect = project.getMessageBus().connect();
     Exchanger<RepoInfo> exchange = new Exchanger<>();
-    connect.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+    connect.subscribe(PerRepoInfoCacheImpl.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
         try {
