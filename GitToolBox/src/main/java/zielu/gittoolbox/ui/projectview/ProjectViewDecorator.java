@@ -52,7 +52,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   private void applyDecoration(Project project, GitRepository repo, ProjectViewNode projectViewNode,
                                PresentationData presentation) {
     final LogWatch decorateApplyWatch = LogWatch.createStarted("Decorate apply");
-    PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
+    PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
     NodeDecoration decoration = decorationFactory.decorationFor(repo, cache.getInfo(repo));
     boolean applied = decoration.apply(projectViewNode, presentation);
     decorateApplyWatch.elapsed("for ", repo).finish();

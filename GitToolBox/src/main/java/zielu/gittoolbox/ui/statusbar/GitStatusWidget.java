@@ -16,8 +16,8 @@ import java.awt.event.MouseEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoInfoCacheImpl;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
@@ -166,8 +166,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
       GitRepository repository = GtUtil.getCurrentRepositoryQuick(myProject);
       RepoInfo repoInfo = RepoInfo.empty();
       if (repository != null) {
-        GitToolBoxProject toolBox = GitToolBoxProject.getInstance(myProject);
-        repoInfo = toolBox.perRepoStatusCache().getInfo(repository);
+        repoInfo = PerRepoInfoCache.getInstance(myProject).getInfo(repository);
       }
       update(repository, repoInfo);
     } else {

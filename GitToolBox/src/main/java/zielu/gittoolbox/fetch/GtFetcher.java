@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.util.FetchResult;
 import zielu.gittoolbox.util.FetchResultsPerRoot;
+import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
 public class GtFetcher {
@@ -65,13 +66,23 @@ public class GtFetcher {
 
   @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"}) //TODO: separate FB suppression
   public ImmutableCollection<GitRepository> fetchRoots(@NotNull Collection<GitRepository> repositories) {
+    final float fraction = 100f / repositories.size();
     Map<VirtualFile, String> additionalInfos = Maps.newHashMapWithExpectedSize(repositories.size());
     FetchResultsPerRoot errorsPerRoot = new FetchResultsPerRoot();
     ImmutableList.Builder<GitRepository> resultBuilder = ImmutableList.builder();
+    float done = fraction;
     for (GitRepository repository : repositories) {
+      if (progressIndicator.isCanceled()) {
+        break;
+      }
       log.debug("Fetching ", repository);
+      progressIndicator.startNonCancelableSection();
+      progressIndicator.setText2(GtUtil.name(repository));
       GitFetchResult result = fetcher.fetch(repository);
+      progressIndicator.setFraction(done);
+      progressIndicator.finishNonCancelableSection();
       log.debug("Fetched ", repository, ": success=", result.isSuccess(), ", error=", result.isError());
+      done += fraction;
       String ai = result.getAdditionalInfo();
       if (!StringUtil.isEmptyOrSpaces(ai)) {
         additionalInfos.put(repository.getRoot(), ai);

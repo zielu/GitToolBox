@@ -35,7 +35,7 @@ public enum AutoFetchStrategy {
 
     @Override
     public List<GitRepository> fetchableRepositories(List<GitRepository> repositories, Project project) {
-      PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
+      PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
       List<GitRepository> fetchable = Lists.newArrayListWithCapacity(repositories.size());
       for (GitRepository repository : repositories) {
         RepoInfo info = cache.getInfo(repository);

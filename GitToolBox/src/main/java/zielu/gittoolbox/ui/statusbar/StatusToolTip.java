@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.RepoInfo;
@@ -59,7 +58,7 @@ public class StatusToolTip {
     StringBand infoPart = new StringBand();
     Collection<GitRepository> repositories = GitUtil.getRepositories(project);
     if (repositories.size() == 1) {
-      PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
+      PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
       RepoInfo info = cache.getInfo(currentRepository);
       info.count().map(StatusText::formatToolTip).ifPresent(infoPart::append);
     } else if (repositories.size() > 2) {
@@ -70,7 +69,7 @@ public class StatusToolTip {
 
 
   private void prepareMultiRepoTooltip(StringBand infoPart, Collection<GitRepository> repositories) {
-    PerRepoInfoCache cache = GitToolBoxProject.getInstance(project).perRepoStatusCache();
+    PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
     Map<GitRepository, String> statuses = new LinkedHashMap<>();
     final AtomicReference<GitRepository> currentRepo = new AtomicReference<>();
     for (GitRepository repository : GtUtil.sort(repositories)) {

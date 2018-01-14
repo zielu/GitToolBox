@@ -110,6 +110,13 @@
       <implementation-class>zielu.gittoolbox.GitToolBoxProject</implementation-class>
     </component>
     <component>
+      <interface-class>zielu.gittoolbox.cache.PerRepoInfoCache</interface-class>
+      <implementation-class>zielu.gittoolbox.cache.PerRepoInfoCacheImpl</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.cache.CacheSubscriber</implementation-class>
+    </component>
+    <component>
       <implementation-class>zielu.gittoolbox.fetch.AutoFetch</implementation-class>
     </component>
     <component>

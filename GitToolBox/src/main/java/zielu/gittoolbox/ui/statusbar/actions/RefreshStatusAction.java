@@ -5,6 +5,7 @@ import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.cache.PerRepoInfoCache;
 
 public class RefreshStatusAction extends DumbAwareAction {
 
@@ -16,8 +17,8 @@ public class RefreshStatusAction extends DumbAwareAction {
   public void actionPerformed(AnActionEvent event) {
     Project project = getEventProject(event);
     if (project != null) {
+      PerRepoInfoCache.getInstance(project).refreshAll();
       GitToolBoxProject gitProject = GitToolBoxProject.getInstance(project);
-      gitProject.perRepoStatusCache().refreshAll();
     }
   }
 }

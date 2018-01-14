@@ -80,7 +80,6 @@ class PerRepoInfoCacheImplIntegTest {
   void repositoryMappingAdded(Project project, Module module) throws Exception {
     VirtualFile root = populateTestData(project, module);
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
-    GitToolBoxProject.getInstance(project).perRepoStatusCache().getInfo(repository);
     MessageBusConnection connect = project.getMessageBus().connect();
     Exchanger<RepoInfo> exchange = new Exchanger<>();
     connect.subscribe(PerRepoInfoCacheImpl.CACHE_CHANGE, new PerRepoStatusCacheListener() {
@@ -93,6 +92,7 @@ class PerRepoInfoCacheImplIntegTest {
         }
       }
     });
+    PerRepoInfoCache.getInstance(project).getInfo(repository);
     RepoInfo info = exchange.exchange(null, 30, TimeUnit.SECONDS);
     assertSoftly(softly -> {
       softly.assertThat(info).isNotNull();

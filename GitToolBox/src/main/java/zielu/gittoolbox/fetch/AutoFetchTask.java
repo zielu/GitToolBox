@@ -23,6 +23,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
@@ -100,11 +101,8 @@ public class AutoFetchTask implements Runnable {
       log.debug("Can auto-fetch");
       if (state.fetchStart()) {
         indicator.setText(title);
-        indicator.setIndeterminate(true);
-        indicator.startNonCancelableSection();
         result = doFetch(repos, indicator);
         if (result) {
-          indicator.finishNonCancelableSection();
           state.fetchFinish();
           parent.updateLastAutoFetchDate();
         }
@@ -125,7 +123,7 @@ public class AutoFetchTask implements Runnable {
       log.debug("Auto-fetching...");
       try {
         Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().build(project, indicator).fetchRoots(repos);
-        GitToolBoxProject.getInstance(project).perRepoStatusCache().refresh(fetched);
+        PerRepoInfoCache.getInstance(project).refresh(fetched);
         log.debug("Finished auto-fetch");
         if (showNotifications) {
           finishedNotification();
@@ -148,7 +146,7 @@ public class AutoFetchTask implements Runnable {
     boolean shouldFetch = !repos.isEmpty();
     if (shouldFetch) {
       AppUtil.invokeLaterIfNeeded(() -> GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project),
-          ResBundle.getString("message.autoFetching"), false) {
+          ResBundle.getString("message.autoFetching")) {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
           parent.runIfActive(() -> {
