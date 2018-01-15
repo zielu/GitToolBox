@@ -1,3 +1,4 @@
+import java.text.SimpleDateFormat
 import java.util.stream.Collectors
 
 buildscript {
@@ -49,6 +50,9 @@ idea {
 }
 
 version = "${version}"
+if (version.endsWith('-dev')) {
+    version += ".${getDateTime()}"
+}
 
 junitPlatform {
     filters {
@@ -137,6 +141,11 @@ dependencies {
     testCompile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
 }
 
+def static getDateTime() {
+    def df = new SimpleDateFormat("yyyyMMdd.HHmmss")
+    df.setTimeZone(TimeZone.getTimeZone("UTC"))
+    return df.format(new Date())
+}
 
 /*task('release') {
     dependsOn clean, test, jacocoTestReport, buildPlugin
