@@ -1,7 +1,7 @@
 package zielu.gittoolbox.fetch;
 
 import com.google.common.collect.Lists;
-import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
@@ -20,19 +20,20 @@ import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
-public class AutoFetch extends AbstractProjectComponent {
+public class AutoFetch implements ProjectComponent {
   private static final int DEFAULT_DELAY_MINUTES = 1;
   private final Logger log = Logger.getInstance(getClass());
 
   private final AtomicLong lastAutoFetchTimestamp = new AtomicLong();
   private final AtomicBoolean active = new AtomicBoolean();
   private final List<ScheduledFuture<?>> scheduledTasks = new LinkedList<>();
+  private final Project project;
   private MessageBusConnection connection;
   private ScheduledExecutorService executor;
   private int currentInterval;
 
-  public AutoFetch(Project project) {
-    super(project);
+  public AutoFetch(@NotNull Project project) {
+    this.project = project;
   }
 
   @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
@@ -47,7 +48,7 @@ public class AutoFetch extends AbstractProjectComponent {
 
   @Override
   public void initComponent() {
-    connection = myProject.getMessageBus().connect();
+    connection = project.getMessageBus().connect();
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
       @Override
       public void configChanged(Project project, GitToolBoxConfigForProject config) {
@@ -187,7 +188,7 @@ public class AutoFetch extends AbstractProjectComponent {
   }
 
   public Project project() {
-    return myProject;
+    return project;
   }
 
   private boolean isActive() {

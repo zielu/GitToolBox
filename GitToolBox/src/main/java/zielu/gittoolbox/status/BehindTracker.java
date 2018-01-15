@@ -3,7 +3,7 @@ package zielu.gittoolbox.status;
 import com.google.common.collect.Maps;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
@@ -29,20 +29,21 @@ import zielu.gittoolbox.ui.UpdateProject;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
-public class BehindTracker extends AbstractProjectComponent {
+public class BehindTracker implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final Map<GitRepository, RepoInfo> state = new ConcurrentHashMap<>();
+  private final Project project;
   private final NotificationListener updateProjectListener;
 
   private MessageBusConnection connection;
 
-  public BehindTracker(Project project) {
-    super(project);
+  public BehindTracker(@NotNull Project project) {
+    this.project = project;
     updateProjectListener = new NotificationListener.Adapter() {
       @Override
       protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent hyperlinkEvent) {
-        UpdateProject.create(myProject).execute();
+        UpdateProject.create(project).execute();
       }
     };
   }
@@ -55,7 +56,7 @@ public class BehindTracker extends AbstractProjectComponent {
 
   @Override
   public void initComponent() {
-    connection = myProject.getMessageBus().connect();
+    connection = project.getMessageBus().connect();
     connection.subscribe(PerRepoInfoCacheImpl.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info,
@@ -98,7 +99,7 @@ public class BehindTracker extends AbstractProjectComponent {
           .append(" (").append(Html.link("update", ResBundle.getString("update.project")))
           .append(")").append(Html.BR).append(message.text);
 
-      Notifier.getInstance(myProject).notifySuccess(finalMessage.toString(), updateProjectListener);
+      Notifier.getInstance(project).notifySuccess(finalMessage.toString(), updateProjectListener);
     }
   }
 

@@ -1,7 +1,7 @@
 package zielu.gittoolbox.cache;
 
 import com.google.common.collect.ImmutableList;
-import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.util.messages.MessageBus;
@@ -12,16 +12,17 @@ import git4idea.repo.GitRepositoryManager;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 
-public class CacheSubscriber extends AbstractProjectComponent {
+public class CacheSubscriber implements ProjectComponent {
   public static final Topic<CacheSubscriptionListener> SUBSCRIBER_CHANGE = Topic.create(
       "Cache subscriber change", CacheSubscriptionListener.class);
   private final AtomicBoolean active = new AtomicBoolean();
+  private final Project project;
   private final MessageBus messageBus;
   private final MessageBusConnection connection;
 
-  public CacheSubscriber(Project project) {
-    super(project);
-    messageBus = myProject.getMessageBus();
+  public CacheSubscriber(@NotNull Project project) {
+    this.project = project;
+    messageBus = project.getMessageBus();
     connection = messageBus.connect();
     connection.subscribe(GitRepository.GIT_REPO_CHANGE, this::repoChanged);
     connection.subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this::dirMappingChanged);
@@ -50,7 +51,7 @@ public class CacheSubscriber extends AbstractProjectComponent {
 
   private void dirMappingChanged() {
     if (active.get()) {
-      GitRepositoryManager gitManager = GitRepositoryManager.getInstance(myProject);
+      GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
       ImmutableList<GitRepository> repositories = ImmutableList.copyOf(gitManager.getRepositories());
       messageBus.syncPublisher(SUBSCRIBER_CHANGE).dirMappingChanged(repositories);
     }

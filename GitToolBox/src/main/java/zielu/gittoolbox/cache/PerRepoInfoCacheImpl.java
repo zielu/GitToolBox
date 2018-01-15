@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
@@ -23,7 +24,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.status.GitStatusCalculator;
 
-public class PerRepoInfoCacheImpl extends AbstractProjectComponent implements PerRepoInfoCache {
+public class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   public static final Topic<PerRepoStatusCacheListener> CACHE_CHANGE = Topic.create("Status cache change",
       PerRepoStatusCacheListener.class);
 
@@ -31,14 +32,15 @@ public class PerRepoInfoCacheImpl extends AbstractProjectComponent implements Pe
   private final AtomicBoolean active = new AtomicBoolean();
   private final ConcurrentMap<GitRepository, CachedStatus> behindStatuses = Maps.newConcurrentMap();
   private final ConcurrentMap<GitRepository, CacheTask> scheduledRepositories = Maps.newConcurrentMap();
+  private final Project project;
   private final GitStatusCalculator calculator;
   private final MessageBusConnection connection;
   private ExecutorService updateExecutor;
 
   public PerRepoInfoCacheImpl(@NotNull Project project) {
-    super(project);
+    this.project = project;
     calculator = GitStatusCalculator.create(project);
-    connection = myProject.getMessageBus().connect();
+    connection = project.getMessageBus().connect();
     connection.subscribe(CacheSubscriber.SUBSCRIBER_CHANGE, new CacheSubscriptionListener() {
       @Override
       public void repoChanged(@NotNull GitRepository repository) {
@@ -67,7 +69,7 @@ public class PerRepoInfoCacheImpl extends AbstractProjectComponent implements Pe
 
   private void update(GitRepository repository) {
     if (active.get()) {
-      DumbService dumbService = DumbService.getInstance(myProject);
+      DumbService dumbService = DumbService.getInstance(project);
       Runnable update = () -> get(repository).update(repository, calculator, info -> onRepoChanged(repository, info));
       dumbService.runReadActionInSmartMode(update);
     }
@@ -127,12 +129,12 @@ public class PerRepoInfoCacheImpl extends AbstractProjectComponent implements Pe
       behindStatuses.remove(removedRepo);
       Optional.ofNullable(scheduledRepositories.remove(removedRepo)).ifPresent(CacheTask::kill);
     });
-    myProject.getMessageBus().syncPublisher(CACHE_CHANGE).evicted(removed);
+    project.getMessageBus().syncPublisher(CACHE_CHANGE).evicted(removed);
   }
 
   private void onRepoChanged(GitRepository repo, RepoInfo info) {
     if (active.get()) {
-      myProject.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
+      project.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
       log.debug("Published cache changed event: ", repo);
     }
   }
@@ -149,7 +151,7 @@ public class PerRepoInfoCacheImpl extends AbstractProjectComponent implements Pe
   @Override
   public void refreshAll() {
     log.debug("Refreshing all repository statuses");
-    refresh(GitUtil.getRepositories(myProject));
+    refresh(GitUtil.getRepositories(project));
   }
 
   @Override
@@ -163,7 +165,7 @@ public class PerRepoInfoCacheImpl extends AbstractProjectComponent implements Pe
     if (active.compareAndSet(false, true)) {
       ThreadFactoryBuilder threadBuilder = new ThreadFactoryBuilder().setDaemon(true);
       updateExecutor = Executors.newSingleThreadExecutor(
-          threadBuilder.setNameFormat(getClass().getSimpleName() + "-[" + myProject.getName() + "]-%d").build()
+          threadBuilder.setNameFormat(getClass().getSimpleName() + "-[" + project.getName() + "]-%d").build()
       );
     }
   }
