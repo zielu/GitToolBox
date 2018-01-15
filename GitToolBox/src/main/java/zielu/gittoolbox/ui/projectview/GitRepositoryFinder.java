@@ -12,6 +12,7 @@ import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import java.util.function.BiFunction;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.cache.VirtualFileRepoCache;
 
 public class GitRepositoryFinder {
   private final Logger log = Logger.getInstance(getClass());
@@ -29,29 +30,20 @@ public class GitRepositoryFinder {
   }
 
   private GitRepository findForModule(ProjectViewNode node) {
-    return findRepo(node, (manager, file) -> manager.getRepositoryForFile(file, true));
+    return findRepo(node, VirtualFileRepoCache::getRepoForDir);
   }
 
   private GitRepository findForDirectory(ProjectViewNode node) {
-    return findRepo(node, VcsRepositoryManager::getRepositoryForRootQuick);
+    return findRepo(node, VirtualFileRepoCache::getRepoForRoot);
   }
 
   private GitRepository findRepo(ProjectViewNode node,
-                                 BiFunction<VcsRepositoryManager, VirtualFile, Repository> finder) {
+                                 BiFunction<VirtualFileRepoCache, VirtualFile, GitRepository> finder) {
     Project project = node.getProject();
     VirtualFile file = node.getVirtualFile();
     if (project != null && file != null) {
-      VcsRepositoryManager repoManager = VcsRepositoryManager.getInstance(project);
-      Repository repository = finder.apply(repoManager, file);
-      return getGitRepo(repository);
-    }
-    return null;
-  }
-
-  @Nullable
-  private GitRepository getGitRepo(Repository repo) {
-    if (repo != null && GitVcs.NAME.equals(repo.getVcs().getName())) {
-      return (GitRepository) repo;
+      VirtualFileRepoCache cache = VirtualFileRepoCache.getInstance(project);
+      return finder.apply(cache, file);
     }
     return null;
   }
