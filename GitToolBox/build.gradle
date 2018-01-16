@@ -50,8 +50,8 @@ idea {
 }
 
 version = "${version}"
-if (version.endsWith('-dev')) {
-    version += ".${getDateTime()}"
+if (version.endsWith("-dev")) {
+    version += ".${buildTime()}"
 }
 
 junitPlatform {
@@ -141,7 +141,8 @@ dependencies {
     testCompile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
 }
 
-def static getDateTime() {
+
+def static buildTime() {
     def df = new SimpleDateFormat("yyyyMMdd.HHmmss")
     df.setTimeZone(TimeZone.getTimeZone("UTC"))
     return df.format(new Date())

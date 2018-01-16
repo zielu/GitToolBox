@@ -12,6 +12,12 @@ For list of features see [plugin.xml](./GitToolBox/src/main/resources/META-INF/p
 Decisions are stored [here](./GitToolBox/doc/arch).
 
 ## Building & running
+
+## Development builds
+If version set in [gradle.properties](./GitToolBox/gradle.properties) ends with `-dev` then build datetime in UTC timezone will be appended.
+For example dev build on `2018-01-13 13:06:12 CET` will produce version `173.1.2-dev.20180113.120612`
+
+### Useful build commands
 Release build
 ```
 gradle clean check jacocoTestReport buildPlugin
@@ -24,26 +30,35 @@ Quick verification of build
 ```
 gradle clean test jacocoTestReport
 ```
-Run configuration - to debug from IDE execute configuration with debug action
-```
-gradle clean runIde
-```
 Update gradlew version
 ```
 gradle wrapper --gradle-version 4.4.1 --distribution-type ALL
 ```
 
+### Useful run commands
+Run with previous sandbox contents
+```
+gradle runIde
+```
+Run with fresh sandbox
+```
+gradle clean runIde
+```
+
+### Plugin debugging
+To debug the plugin execute Gradle run configuration with `runIde` task using IDE **Debug action**.
+
 ## Logging
-Plugin can log additional diagnostic information to help with issues investigation.
+Plugin can log additional diagnostic information to help with issues investigation. All categories can be used in any combination.
 
 ### Debug logging
-Set following in **Help > Debug Log Settings...**
+Add following line to **Help > Debug Log Settings...**
 ```
 #zielu.gittoolbox
 ```
 
 ### Performance logging
-Set following in **Help > Debug Log Settings...**
+Add following line to **Help > Debug Log Settings...**
 ```
 #zielu.gittoolbox.perf:trace
 ```
