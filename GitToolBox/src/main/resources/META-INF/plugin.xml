@@ -45,10 +45,10 @@
       <li>File / Settings / Other Settings / Git ToolBox Global</li>
       <li>File / Settings / Other Settings / Git ToolBox Project</li>
     </ul>
-    <b>Mac OS:</b>
+    <b>Mac OS (with project open):</b>
     <ul>
-      <li>Preferences / Other Settings / Git ToolBox Global</li>
-      <li>Preferences / Other Settings / Git ToolBox Project</li>
+      <li>IntelliJ IDEA / Preferences... / Other Settings / Git ToolBox Global</li>
+      <li>IntelliJ IDEA / Preferences... / Other Settings / Git ToolBox Project</li>
     </ul>
     ]]></description>
 
