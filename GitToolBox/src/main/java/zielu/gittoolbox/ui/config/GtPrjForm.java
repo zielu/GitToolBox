@@ -217,8 +217,13 @@ public class GtPrjForm implements GtFormUi {
   public void afterStateSet() {
     updateCompletionItemActions();
     autoFetchExclusionsList.setCellRenderer(new GitRepositoryRenderer(project));
-    addAutoFetchExclusionAction.setEnabled(!project.isDefault());
-    removeAutoFetchExclusionAction.setEnabled(!project.isDefault());
+    boolean defaultProject = project.isDefault();
+    log.debug("Project.isDefault={}", defaultProject);
+    addAutoFetchExclusionAction.setEnabled(!defaultProject);
+    removeAutoFetchExclusionAction.setEnabled(!defaultProject);
+    if (defaultProject) {
+      autoFetchExclusionsList.setEmptyText(ResBundle.getString("configurable.prj.default.na"));
+    }
   }
 
   @Override
