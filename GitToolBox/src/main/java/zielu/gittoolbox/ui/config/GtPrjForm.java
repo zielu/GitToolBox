@@ -59,9 +59,7 @@ public class GtPrjForm implements GtFormUi {
 
   private GtPatternFormatterForm completionItemPatternForm;
 
-  private Map<CommitCompletionType, Icon> completionIcons = new HashMap<>();
   private Action addSimpleCompletionAction;
-  private Action addPatternCompletionAction;
   private Action addAutoFetchExclusionAction;
   private Action removeAutoFetchExclusionAction;
 
