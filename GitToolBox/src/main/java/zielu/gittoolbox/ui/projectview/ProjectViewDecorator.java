@@ -8,10 +8,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.packageDependencies.ui.PackageDependenciesNode;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import git4idea.repo.GitRepository;
-import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.config.GitToolBoxConfig;
-import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.LogWatch;
 
 public class ProjectViewDecorator implements ProjectViewNodeDecorator {
@@ -45,8 +43,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
 
   private boolean shouldDecorate(ProjectViewNode projectViewNode) {
     Project project = projectViewNode.getProject();
-    return projectViewNode.getName() != null && project != null && GtUtil.isNotDumb(project)
-        && GitToolBoxConfig.getInstance().showProjectViewStatus;
+    return project != null && GitToolBoxConfig.getInstance().showProjectViewStatus;
   }
 
   private void applyDecoration(Project project, GitRepository repo, ProjectViewNode projectViewNode,

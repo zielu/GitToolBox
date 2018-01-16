@@ -1,14 +1,12 @@
 package zielu.gittoolbox.ui.projectview;
 
-import com.intellij.dvcs.repo.Repository;
-import com.intellij.dvcs.repo.VcsRepositoryManager;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.impl.ProjectRootsUtil;
+import com.intellij.ide.projectView.impl.nodes.AbstractModuleNode;
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import java.util.function.BiFunction;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +18,7 @@ public class GitRepositoryFinder {
   @Nullable
   public GitRepository getRepoFor(ProjectViewNode node) {
     GitRepository repository = null;
-    if (isModuleNode(node)) {
+    if (node instanceof AbstractModuleNode && isModuleNode(node)) {
       repository = findForModule(node);
     } else if (node instanceof PsiDirectoryNode) {
       repository = findForDirectory(node);
@@ -30,7 +28,7 @@ public class GitRepositoryFinder {
   }
 
   private GitRepository findForModule(ProjectViewNode node) {
-    return findRepo(node, VirtualFileRepoCache::getRepoForDir);
+    return findRepo(node, VirtualFileRepoCache::getRepoForRoot);
   }
 
   private GitRepository findForDirectory(ProjectViewNode node) {

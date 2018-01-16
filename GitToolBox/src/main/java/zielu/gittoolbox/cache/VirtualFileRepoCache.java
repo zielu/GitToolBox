@@ -16,7 +16,4 @@ public interface VirtualFileRepoCache {
 
   @Nullable
   GitRepository getRepoForRoot(@NotNull VirtualFile root);
-
-  @Nullable
-  GitRepository getRepoForDir(@NotNull VirtualFile dir);
 }

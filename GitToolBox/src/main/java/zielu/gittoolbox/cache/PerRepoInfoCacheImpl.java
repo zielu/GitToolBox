@@ -34,12 +34,16 @@ public class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache 
   private final ConcurrentMap<GitRepository, CacheTask> scheduledRepositories = Maps.newConcurrentMap();
   private final Project project;
   private final GitStatusCalculator calculator;
-  private final MessageBusConnection connection;
+  private MessageBusConnection connection;
   private ExecutorService updateExecutor;
 
   public PerRepoInfoCacheImpl(@NotNull Project project) {
     this.project = project;
     calculator = GitStatusCalculator.create(project);
+  }
+
+  @Override
+  public void initComponent() {
     connection = project.getMessageBus().connect();
     connection.subscribe(CacheSubscriber.SUBSCRIBER_CHANGE, new CacheSubscriptionListener() {
       @Override
@@ -85,6 +89,7 @@ public class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache 
   @Override
   public void disposeComponent() {
     connection.disconnect();
+    connection = null;
     behindStatuses.clear();
     updateExecutor = null;
     scheduledRepositories.clear();
