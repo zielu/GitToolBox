@@ -219,6 +219,8 @@ public class GtPrjForm implements GtFormUi {
   public void afterStateSet() {
     updateCompletionItemActions();
     autoFetchExclusionsList.setCellRenderer(new GitRepositoryRenderer(project));
+    addAutoFetchExclusionAction.setEnabled(!project.isDefault());
+    removeAutoFetchExclusionAction.setEnabled(!project.isDefault());
   }
 
   @Override
