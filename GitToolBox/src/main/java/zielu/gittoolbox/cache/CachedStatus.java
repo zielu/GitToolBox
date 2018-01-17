@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.util.GtUtil;
-import zielu.gittoolbox.util.LogWatch;
+import zielu.gittoolbox.util.diagnostics.LogWatch;
 
 class CachedStatus {
   private static final Logger LOG = Logger.getInstance(CachedStatus.class);

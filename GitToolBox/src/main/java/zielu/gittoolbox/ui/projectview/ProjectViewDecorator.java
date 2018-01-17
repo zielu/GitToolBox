@@ -10,7 +10,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import git4idea.repo.GitRepository;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.config.GitToolBoxConfig;
-import zielu.gittoolbox.util.LogWatch;
+import zielu.gittoolbox.util.diagnostics.LogWatch;
 
 public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   private final Logger log = Logger.getInstance(getClass());
@@ -22,7 +22,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   public void decorate(ProjectViewNode node, PresentationData presentation) {
     LogWatch decorateWatch = LogWatch.createStarted("Decorate");
     if (shouldDecorate(node)) {
-      LogWatch getRepoWatch = LogWatch.createStarted("Get repo [" + node.getName() + "]");
+      LogWatch getRepoWatch = LogWatch.createStarted("Get repo [", node.getName(), "]");
       GitRepository repo = repoFinder.getRepoFor(node);
       getRepoWatch.finish();
       if (repo != null) {

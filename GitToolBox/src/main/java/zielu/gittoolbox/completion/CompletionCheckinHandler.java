@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
-import zielu.gittoolbox.util.LogWatch;
+import zielu.gittoolbox.util.diagnostics.LogWatch;
 
 public class CompletionCheckinHandler extends CheckinHandler {
   private final Logger log = Logger.getInstance(getClass());

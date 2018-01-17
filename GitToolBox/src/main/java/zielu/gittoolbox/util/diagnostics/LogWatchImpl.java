@@ -1,19 +1,17 @@
-package zielu.gittoolbox.util;
+package zielu.gittoolbox.util.diagnostics;
 
 import com.google.common.base.Stopwatch;
-import com.intellij.openapi.diagnostic.Logger;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import jodd.util.StringBand;
 
-public class LogWatch {
-  private final Logger log = Logger.getInstance("#zielu.gittoolbox.perf");
+class LogWatchImpl implements LogWatch {
   private final String message;
   private final boolean enabled;
   private final Stopwatch stopwatch;
 
-  private LogWatch(String message) {
-    enabled = log.isTraceEnabled();
+  LogWatchImpl(String message) {
+    enabled = LogWatchUtil.isPerfEnabled();
     if (enabled) {
       this.message = message;
       stopwatch = Stopwatch.createUnstarted();
@@ -23,14 +21,7 @@ public class LogWatch {
     }
   }
 
-  public static LogWatch create(String message) {
-    return new LogWatch(message);
-  }
-
-  public static LogWatch createStarted(String message) {
-    return create(message).start();
-  }
-
+  @Override
   public LogWatch start() {
     if (enabled && !stopwatch.isRunning()) {
       stopwatch.start();
@@ -38,15 +29,17 @@ public class LogWatch {
     return this;
   }
 
+  @Override
   public LogWatch elapsed(String message, Object... rest) {
     if (enabled) {
       StringBand messageToPrint = new StringBand(this.message).append("|Elapsed/").append(message);
-      Arrays.stream(rest).map(String::valueOf).forEach(messageToPrint::append);
+      Arrays.stream(rest).forEach(messageToPrint::append);
       print(messageToPrint, stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
     return this;
   }
 
+  @Override
   public void finish() {
     if (enabled && stopwatch.isRunning()) {
       StringBand messageToPrint = new StringBand(message).append("|Finished");
@@ -58,7 +51,7 @@ public class LogWatch {
     if (millis > 0) {
       StringBand messageToLog = message.append(" [th:").append(Thread.currentThread().getName()).append("][ms]: ")
           .append(millis);
-      log.trace(messageToLog.toString());
+      LogWatchUtil.log(messageToLog);
     }
   }
 }

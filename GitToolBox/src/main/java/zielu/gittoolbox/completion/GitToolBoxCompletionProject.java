@@ -17,7 +17,7 @@ import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.ConfigNotifier.Adapter;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatter;
-import zielu.gittoolbox.util.LogWatch;
+import zielu.gittoolbox.util.diagnostics.LogWatch;
 
 public class GitToolBoxCompletionProject extends AbstractProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
