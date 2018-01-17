@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Vector;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -84,7 +85,7 @@ public class GtForm implements GtFormUi {
   }
 
   @NotNull
-  private DefaultComboBoxModel<UpdateProjectAction> getUpdateModeModel() {
+  private ComboBoxModel<UpdateProjectAction> getUpdateModeModel() {
     return new DefaultComboBoxModel<>(new Vector<>(GitToolBoxUpdateProjectApp.getInstance().getAll()));
   }
 
@@ -116,6 +117,7 @@ public class GtForm implements GtFormUi {
     } else {
       showStatusBeforeLocationCheckBox.setEnabled(false);
     }
+    updateProjectAction.setEnabled(updateProjectAction.getItemCount() > 1);
   }
 
   @Override
