@@ -66,7 +66,7 @@ public class GtFetcher {
 
   @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"}) //TODO: separate FB suppression
   public ImmutableCollection<GitRepository> fetchRoots(@NotNull Collection<GitRepository> repositories) {
-    final float fraction = 100f / repositories.size();
+    final float fraction = 1f / repositories.size();
     Map<VirtualFile, String> additionalInfos = Maps.newHashMapWithExpectedSize(repositories.size());
     FetchResultsPerRoot errorsPerRoot = new FetchResultsPerRoot();
     ImmutableList.Builder<GitRepository> resultBuilder = ImmutableList.builder();
