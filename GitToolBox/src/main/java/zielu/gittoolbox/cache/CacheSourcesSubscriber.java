@@ -2,6 +2,7 @@ package zielu.gittoolbox.cache;
 
 import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.util.messages.MessageBus;
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 
 class CacheSourcesSubscriber implements ProjectComponent {
+  private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final Project project;
   private List<DirMappingAware> dirMappingAwares = new ArrayList<>();
@@ -57,15 +59,19 @@ class CacheSourcesSubscriber implements ProjectComponent {
 
   private void repoChanged(@NotNull GitRepository repository) {
     if (active.get()) {
+      log.debug("Repo changed: ", repository);
       repoChangeAwares.forEach(aware -> aware.repoChanged(repository));
+      log.debug("Repo changed notification done: ", repository);
     }
   }
 
   private void dirMappingChanged() {
     if (active.get()) {
+      log.debug("Dir mappings changed");
       GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
       ImmutableList<GitRepository> repositories = ImmutableList.copyOf(gitManager.getRepositories());
       dirMappingAwares.forEach(aware -> aware.updatedRepoList(repositories));
+      log.debug("Dir mappings change notification done");
     }
   }
 }

@@ -74,18 +74,28 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
       cachedRepo = calculateRepoForDir(dir);
       calculateWatch.finish();
       dirsCache.putIfAbsent(dir, cachedRepo);
-      log.debug("Cached repo {} for dir {}", cachedRepo, dir);
+      log.debug("Cached repo ", cachedRepo, " for dir ", dir);
     }
     return cachedRepo.orElse(null);
   }
 
   private Optional<GitRepository> calculateRepoForDir(@NotNull VirtualFile dir) {
     GitRepository foundRepo = null;
+    boolean movedUp = false;
     for (VirtualFile currentDir = dir; currentDir != null; currentDir = currentDir.getParent()) {
-      //TODO: could try to reuse existing dirCache data to avoid going through whole FS hierarchy
+      if (movedUp) {
+        Optional<GitRepository> existingRepo = dirsCache.get(currentDir);
+        if (existingRepo != null) {
+          foundRepo = existingRepo.orElse(null);
+          break;
+        }
+      }
       foundRepo = rootsCache.get(currentDir);
       if (foundRepo != null) {
         break;
+      }
+      if (!movedUp) {
+        movedUp = true;
       }
     }
     return Optional.ofNullable(foundRepo);
@@ -111,14 +121,21 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
   }
 
   private void rebuildRootsCache(RepoListUpdate update) {
-    update.removedRoots.forEach(rootsCache::remove);
-    update.forEachAdded(rootsCache::put);
+    update.removedRoots.stream()
+        .peek(removed -> log.debug("Root removed: ", removed))
+        .forEach(rootsCache::remove);
+    update.forEachAdded((root, repo) -> {
+      log.debug("Root added: ", root);
+      rootsCache.put(root, repo);
+    });
   }
 
   private void purgeDirsCache(RepoListUpdate update) {
     Set<VirtualFile> dirsToPurge = new HashSet<>(dirsCache.keySet());
     dirsToPurge.removeIf(update::isAncestorKept);
-    dirsToPurge.forEach(dirsCache::remove);
+    dirsToPurge.stream()
+        .peek(purged -> log.debug("Purge dir: ", purged))
+        .forEach(dirsCache::remove);
   }
 
   private static final class RepoListUpdate {
