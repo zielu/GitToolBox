@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 
-public class CacheSourcesSubscriber implements ProjectComponent {
+class CacheSourcesSubscriber implements ProjectComponent {
   private final AtomicBoolean active = new AtomicBoolean();
   private final Project project;
   private List<DirMappingAware> dirMappingAwares = new ArrayList<>();
   private List<RepoChangeAware> repoChangeAwares = new ArrayList<>();
   private MessageBusConnection connection;
 
-  public CacheSourcesSubscriber(@NotNull Project project) {
+  CacheSourcesSubscriber(@NotNull Project project) {
     this.project = project;
   }
 

@@ -32,7 +32,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.status.Status;
 import zielu.junit5.intellij.PlatformTestCaseExtension;
 
@@ -82,7 +81,7 @@ class PerRepoInfoCacheImplIntegTest {
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
     MessageBusConnection connect = project.getMessageBus().connect();
     Exchanger<RepoInfo> exchange = new Exchanger<>();
-    connect.subscribe(PerRepoInfoCacheImpl.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+    connect.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
         try {

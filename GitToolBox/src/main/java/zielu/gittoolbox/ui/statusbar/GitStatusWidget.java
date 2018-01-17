@@ -18,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
-import zielu.gittoolbox.cache.PerRepoInfoCacheImpl;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.ConfigNotifier;
@@ -41,7 +40,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     super(project);
     toolTip = new StatusToolTip(project);
     rootActions = new RootActions(project);
-    myConnection.subscribe(PerRepoInfoCacheImpl.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+    myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
         onCacheChange(info, repository);

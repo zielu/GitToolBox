@@ -9,9 +9,10 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ProjectAware;
-import zielu.gittoolbox.cache.PerRepoInfoCacheImpl;
+import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.ui.util.AppUtil;
@@ -30,7 +31,7 @@ public class ProjectViewManager implements Disposable, ProjectAware {
         refreshProjectView();
       }
     });
-    connection.subscribe(PerRepoInfoCacheImpl.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+    connection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
         refreshProjectView();
@@ -41,6 +42,7 @@ public class ProjectViewManager implements Disposable, ProjectAware {
         refreshProjectView();
       }
     });
+    connection.subscribe(VirtualFileRepoCache.CACHE_CHANGE, this::refreshProjectView);
   }
 
   public static ProjectViewManager create(Project project) {

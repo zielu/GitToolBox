@@ -19,7 +19,7 @@ import javax.swing.event.HyperlinkEvent;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.cache.PerRepoInfoCacheImpl;
+import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.compat.Notifier;
@@ -57,7 +57,7 @@ public class BehindTracker implements ProjectComponent {
   @Override
   public void initComponent() {
     connection = project.getMessageBus().connect();
-    connection.subscribe(PerRepoInfoCacheImpl.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+    connection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info,
                                @NotNull GitRepository repository) {

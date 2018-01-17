@@ -7,8 +7,8 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.messages.Topic;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import java.util.HashSet;
@@ -23,22 +23,24 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.status.GitStatusCalculator;
 
-public class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
-  public static final Topic<PerRepoStatusCacheListener> CACHE_CHANGE = Topic.create("Status cache change",
-      PerRepoStatusCacheListener.class);
-
+class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final ConcurrentMap<GitRepository, CachedStatus> behindStatuses = Maps.newConcurrentMap();
   private final ConcurrentMap<GitRepository, CacheTask> scheduledRepositories = Maps.newConcurrentMap();
   private final Project project;
   private final GitStatusCalculator calculator;
-  private MessageBusConnection connection;
   private ExecutorService updateExecutor;
+  private MessageBus messageBus;
 
-  public PerRepoInfoCacheImpl(@NotNull Project project) {
+  PerRepoInfoCacheImpl(@NotNull Project project) {
     this.project = project;
     calculator = GitStatusCalculator.create(project);
+  }
+
+  @Override
+  public void initComponent() {
+    messageBus = project.getMessageBus();
   }
 
   private CachedStatus get(GitRepository repository) {
@@ -71,8 +73,7 @@ public class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache 
 
   @Override
   public void disposeComponent() {
-    connection.disconnect();
-    connection = null;
+    messageBus = null;
     behindStatuses.clear();
     updateExecutor = null;
     scheduledRepositories.clear();
@@ -119,12 +120,12 @@ public class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache 
       behindStatuses.remove(removedRepo);
       Optional.ofNullable(scheduledRepositories.remove(removedRepo)).ifPresent(CacheTask::kill);
     });
-    project.getMessageBus().syncPublisher(CACHE_CHANGE).evicted(removed);
+    messageBus.syncPublisher(CACHE_CHANGE).evicted(removed);
   }
 
   private void onRepoChanged(GitRepository repo, RepoInfo info) {
     if (active.get()) {
-      project.getMessageBus().syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
+      messageBus.syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
       log.debug("Published cache changed event: ", repo);
     }
   }
