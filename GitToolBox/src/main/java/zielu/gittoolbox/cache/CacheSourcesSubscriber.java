@@ -6,23 +6,34 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 
-public class CacheSubscriber implements ProjectComponent {
-  public static final Topic<CacheSubscriptionListener> SUBSCRIBER_CHANGE = Topic.create(
-      "Cache subscriber change", CacheSubscriptionListener.class);
+public class CacheSourcesSubscriber implements ProjectComponent {
   private final AtomicBoolean active = new AtomicBoolean();
   private final Project project;
-  private final MessageBus messageBus;
-  private final MessageBusConnection connection;
+  private List<DirMappingAware> dirMappingAwares = new ArrayList<>();
+  private List<RepoChangeAware> repoChangeAwares = new ArrayList<>();
+  private MessageBusConnection connection;
 
-  public CacheSubscriber(@NotNull Project project) {
+  public CacheSourcesSubscriber(@NotNull Project project) {
     this.project = project;
-    messageBus = project.getMessageBus();
+  }
+
+  @Override
+  public void initComponent() {
+    //order is significant
+    VirtualFileRepoCache repoCache = VirtualFileRepoCache.getInstance(project);
+    dirMappingAwares.add(repoCache);
+    PerRepoInfoCache infoCache = PerRepoInfoCache.getInstance(project);
+    dirMappingAwares.add(infoCache);
+    repoChangeAwares.add(infoCache);
+
+    MessageBus messageBus = project.getMessageBus();
     connection = messageBus.connect();
     connection.subscribe(GitRepository.GIT_REPO_CHANGE, this::repoChanged);
     connection.subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this::dirMappingChanged);
@@ -41,11 +52,12 @@ public class CacheSubscriber implements ProjectComponent {
   @Override
   public void disposeComponent() {
     connection.disconnect();
+    connection = null;
   }
 
   private void repoChanged(@NotNull GitRepository repository) {
     if (active.get()) {
-      messageBus.syncPublisher(SUBSCRIBER_CHANGE).repoChanged(repository);
+      repoChangeAwares.forEach(aware -> aware.repoChanged(repository));
     }
   }
 
@@ -53,7 +65,7 @@ public class CacheSubscriber implements ProjectComponent {
     if (active.get()) {
       GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
       ImmutableList<GitRepository> repositories = ImmutableList.copyOf(gitManager.getRepositories());
-      messageBus.syncPublisher(SUBSCRIBER_CHANGE).dirMappingChanged(repositories);
+      dirMappingAwares.forEach(aware -> aware.updatedRepoList(repositories));
     }
   }
 }

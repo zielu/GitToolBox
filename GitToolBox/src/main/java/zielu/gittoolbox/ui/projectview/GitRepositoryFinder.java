@@ -28,7 +28,7 @@ public class GitRepositoryFinder {
   }
 
   private GitRepository findForModule(ProjectViewNode node) {
-    return findRepo(node, VirtualFileRepoCache::getRepoForRoot);
+    return findRepo(node, VirtualFileRepoCache::getRepoForDir);
   }
 
   private GitRepository findForDirectory(ProjectViewNode node) {

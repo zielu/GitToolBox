@@ -3,7 +3,6 @@ package zielu.gittoolbox.cache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbService;
@@ -40,22 +39,6 @@ public class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache 
   public PerRepoInfoCacheImpl(@NotNull Project project) {
     this.project = project;
     calculator = GitStatusCalculator.create(project);
-  }
-
-  @Override
-  public void initComponent() {
-    connection = project.getMessageBus().connect();
-    connection.subscribe(CacheSubscriber.SUBSCRIBER_CHANGE, new CacheSubscriptionListener() {
-      @Override
-      public void repoChanged(@NotNull GitRepository repository) {
-        repositoryChanged(repository);
-      }
-
-      @Override
-      public void dirMappingChanged(ImmutableList<GitRepository> repositories) {
-        directoryMappingChanged(repositories);
-      }
-    });
   }
 
   private CachedStatus get(GitRepository repository) {
@@ -122,12 +105,14 @@ public class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache 
     }
   }
 
-  private void repositoryChanged(@NotNull GitRepository repository) {
+  @Override
+  public void repoChanged(@NotNull GitRepository repository) {
     log.debug("Got repo changed event: ", repository);
     scheduleRefresh(repository);
   }
 
-  private void directoryMappingChanged(ImmutableList<GitRepository> repositories) {
+  @Override
+  public void updatedRepoList(ImmutableList<GitRepository> repositories) {
     Set<GitRepository> removed = new HashSet<>(behindStatuses.keySet());
     removed.removeAll(repositories);
     removed.forEach(removedRepo -> {

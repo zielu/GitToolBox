@@ -7,7 +7,7 @@ import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface VirtualFileRepoCache {
+public interface VirtualFileRepoCache extends DirMappingAware {
   @NotNull
   @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH", "NP_NONNULL_RETURN_VIOLATION"})
   static VirtualFileRepoCache getInstance(@NotNull Project project) {
@@ -16,4 +16,7 @@ public interface VirtualFileRepoCache {
 
   @Nullable
   GitRepository getRepoForRoot(@NotNull VirtualFile root);
+
+  @Nullable
+  GitRepository getRepoForDir(@NotNull VirtualFile dir);
 }

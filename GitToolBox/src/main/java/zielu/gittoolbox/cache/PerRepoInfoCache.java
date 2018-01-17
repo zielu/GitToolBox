@@ -5,7 +5,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 
-public interface PerRepoInfoCache {
+public interface PerRepoInfoCache extends DirMappingAware, RepoChangeAware {
   @NotNull
   RepoInfo getInfo(GitRepository repository);
 

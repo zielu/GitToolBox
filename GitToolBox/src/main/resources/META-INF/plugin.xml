@@ -126,7 +126,7 @@
       <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheImpl</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.cache.CacheSubscriber</implementation-class>
+      <implementation-class>zielu.gittoolbox.cache.CacheSourcesSubscriber</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.fetch.AutoFetch</implementation-class>
