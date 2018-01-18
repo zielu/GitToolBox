@@ -10,7 +10,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import git4idea.repo.GitRepository;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.config.GitToolBoxConfig;
-import zielu.gittoolbox.util.diagnostics.LogWatch;
+import zielu.gittoolbox.util.diagnostics.PerfWatch;
 
 public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   private final Logger log = Logger.getInstance(getClass());
@@ -20,9 +20,9 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
 
   @Override
   public void decorate(ProjectViewNode node, PresentationData presentation) {
-    LogWatch decorateWatch = LogWatch.createStarted("Decorate");
+    PerfWatch decorateWatch = PerfWatch.createStarted("Decorate");
     if (shouldDecorate(node)) {
-      LogWatch getRepoWatch = LogWatch.createStarted("Get repo [", node.getName(), "]");
+      PerfWatch getRepoWatch = PerfWatch.createStarted("Get repo [", node.getName(), "]");
       GitRepository repo = repoFinder.getRepoFor(node);
       getRepoWatch.finish();
       if (repo != null) {
@@ -48,7 +48,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
 
   private void applyDecoration(Project project, GitRepository repo, ProjectViewNode projectViewNode,
                                PresentationData presentation) {
-    final LogWatch decorateApplyWatch = LogWatch.createStarted("Decorate apply");
+    final PerfWatch decorateApplyWatch = PerfWatch.createStarted("Decorate apply");
     PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
     NodeDecoration decoration = decorationFactory.decorationFor(repo, cache.getInfo(repo));
     boolean applied = decoration.apply(projectViewNode, presentation);

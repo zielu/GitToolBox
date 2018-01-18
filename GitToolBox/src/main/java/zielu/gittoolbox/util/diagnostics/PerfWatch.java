@@ -3,24 +3,24 @@ package zielu.gittoolbox.util.diagnostics;
 import java.util.Arrays;
 import jodd.util.StringBand;
 
-public interface LogWatch {
-  static LogWatch create(String message, Object... rest) {
+public interface PerfWatch {
+  static PerfWatch create(String message, Object... rest) {
     if (LogWatchUtil.isPerfEnabled()) {
       StringBand initialMessage = new StringBand(message);
       Arrays.stream(rest).forEach(initialMessage::append);
-      return new LogWatchImpl(initialMessage.toString());
+      return new PerfWatchImpl(initialMessage.toString());
     } else {
-      return NoopLogWatch.INSTANCE;
+      return NoopPerfWatch.INSTANCE;
     }
   }
 
-  static LogWatch createStarted(String message, Object... rest) {
+  static PerfWatch createStarted(String message, Object... rest) {
     return create(message, rest).start();
   }
 
-  LogWatch start();
+  PerfWatch start();
 
-  LogWatch elapsed(String message, Object... rest);
+  PerfWatch elapsed(String message, Object... rest);
 
   void finish();
 }

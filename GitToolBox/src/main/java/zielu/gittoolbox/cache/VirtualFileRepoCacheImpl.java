@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.util.diagnostics.LogWatch;
+import zielu.gittoolbox.util.diagnostics.PerfWatch;
 
 class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -70,7 +70,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
   private GitRepository findRepoForDir(@NotNull VirtualFile dir) {
     Optional<GitRepository> cachedRepo = dirsCache.get(dir);
     if (cachedRepo == null) {
-      LogWatch calculateWatch = LogWatch.createStarted("Calculate repo for dir [", dir, "]");
+      PerfWatch calculateWatch = PerfWatch.createStarted("Calculate repo for dir [", dir, "]");
       cachedRepo = calculateRepoForDir(dir);
       calculateWatch.finish();
       dirsCache.putIfAbsent(dir, cachedRepo);

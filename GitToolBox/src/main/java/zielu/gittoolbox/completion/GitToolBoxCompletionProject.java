@@ -17,7 +17,7 @@ import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.ConfigNotifier.Adapter;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatter;
-import zielu.gittoolbox.util.diagnostics.LogWatch;
+import zielu.gittoolbox.util.diagnostics.PerfWatch;
 
 public class GitToolBoxCompletionProject extends AbstractProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -68,7 +68,7 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent {
 
   public synchronized Collection<GitRepository> getAffected() {
     if (affectedRepositories == null) {
-      LogWatch getRepositoriesWatch = LogWatch.createStarted("Get repositories");
+      PerfWatch getRepositoriesWatch = PerfWatch.createStarted("Get repositories");
       affectedRepositories = getRepositories(myProject, affectedFiles);
       getRepositoriesWatch.finish();
     }

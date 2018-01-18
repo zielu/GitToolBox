@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import jodd.util.StringBand;
 
-class LogWatchImpl implements LogWatch {
+class PerfWatchImpl implements PerfWatch {
   private final String message;
   private final boolean enabled;
   private final Stopwatch stopwatch;
 
-  LogWatchImpl(String message) {
+  PerfWatchImpl(String message) {
     enabled = LogWatchUtil.isPerfEnabled();
     if (enabled) {
       this.message = message;
@@ -22,7 +22,7 @@ class LogWatchImpl implements LogWatch {
   }
 
   @Override
-  public LogWatch start() {
+  public PerfWatch start() {
     if (enabled && !stopwatch.isRunning()) {
       stopwatch.start();
     }
@@ -30,7 +30,7 @@ class LogWatchImpl implements LogWatch {
   }
 
   @Override
-  public LogWatch elapsed(String message, Object... rest) {
+  public PerfWatch elapsed(String message, Object... rest) {
     if (enabled) {
       StringBand messageToPrint = new StringBand(this.message).append("|Elapsed/").append(message);
       Arrays.stream(rest).forEach(messageToPrint::append);

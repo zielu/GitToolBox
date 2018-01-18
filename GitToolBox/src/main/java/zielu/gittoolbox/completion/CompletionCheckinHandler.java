@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
-import zielu.gittoolbox.util.diagnostics.LogWatch;
+import zielu.gittoolbox.util.diagnostics.PerfWatch;
 
 public class CompletionCheckinHandler extends CheckinHandler {
   private final Logger log = Logger.getInstance(getClass());
@@ -27,7 +27,7 @@ public class CompletionCheckinHandler extends CheckinHandler {
   private void captureSelectedRepositories(CheckinProjectPanel panel) {
     GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(panel.getProject());
     if (config.commitDialogCompletion) {
-      LogWatch getAffectedWatch = LogWatch.createStarted("Get affected");
+      PerfWatch getAffectedWatch = PerfWatch.createStarted("Get affected");
       Collection<File> affected = panel.getFiles();
       getAffectedWatch.finish();
       GitToolBoxCompletionProject.getInstance(panel.getProject()).updateAffected(affected);
