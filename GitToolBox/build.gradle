@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.2"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.3"
     }
 }
 
@@ -81,7 +81,7 @@ test {
 
 apply plugin: 'jacoco'
 jacoco {
-    toolVersion = "0.7.9"
+    toolVersion = "${jacocoVersion}"
 }
 jacocoTestReport {
     //workaround for skipped task as running test task cleans generated report
@@ -110,7 +110,7 @@ findbugs {
 
 apply plugin: 'checkstyle'
 checkstyle {
-    toolVersion = '8.5'
+    toolVersion = "${checkstyleVersion}"
     maxErrors = 0
     maxWarnings = 0
     /*configFile = project(':').file('config/checkstyle/lax_checkstyle.xml')*/
@@ -118,8 +118,8 @@ checkstyle {
 }
 
 dependencies {
-    checkstyle 'com.puppycrawl.tools:checkstyle:8.5'
-    testAgent("org.jacoco:org.jacoco.agent:0.7.9:runtime")
+    checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
+    testAgent("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
 
     compile("org.jodd:jodd-core:${joddVersion}")
     compile("com.google.guava:guava:${guavaVersion}")
