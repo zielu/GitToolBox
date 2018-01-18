@@ -103,7 +103,8 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
     RepoListUpdate update = buildUpdate(repositories);
     rebuildRootsCache(update);
     purgeDirsCache(update);
-    messageBus.syncPublisher(CACHE_CHANGE).updated();
+    VirtualFileCacheListener publisher = messageBus.syncPublisher(CACHE_CHANGE);
+    publisher.updated();
   }
 
   private RepoListUpdate buildUpdate(ImmutableList<GitRepository> repositories) {
