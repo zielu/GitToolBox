@@ -13,6 +13,7 @@ import git4idea.repo.GitRepository;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,6 +21,7 @@ import zielu.junit5.intellij.IdeaMocks;
 import zielu.junit5.intellij.IdeaMocksExtension;
 import zielu.junit5.mockito.MockitoExtension;
 
+@Tag("fast")
 @ExtendWith({MockitoExtension.class, IdeaMocksExtension.class})
 class VirtualFileRepoCacheImplTest {
   @Mock
@@ -48,7 +50,7 @@ class VirtualFileRepoCacheImplTest {
   @Test
   void getRepoForRootShouldReturnRepositoryForRoot() {
     cache.updatedRepoList(ImmutableList.of(repository));
-    assertThat(cache.getRepoForRoot(repositoryRoot)).isSameAs(repository);
+    assertThat(cache.getRepoForRoot(repositoryRoot)).isEqualTo(repository);
   }
 
   @Test
@@ -60,7 +62,16 @@ class VirtualFileRepoCacheImplTest {
   void getRepoForDirShouldReturnRepositoryForDirInRoot() {
     cache.updatedRepoList(ImmutableList.of(repository));
     MockVirtualFile dirInRoot = createDir(repositoryRoot,"dirInRoot");
-    assertThat(cache.getRepoForDir(dirInRoot)).isSameAs(repository);
+    assertThat(cache.getRepoForDir(dirInRoot)).isEqualTo(repository);
+  }
+
+  @Test
+  void getRepoForDirShouldReturnSameRepositoryForDirInRootIfCalledMoreThanOnce() {
+    cache.updatedRepoList(ImmutableList.of(repository));
+    MockVirtualFile dirInRoot = createDir(repositoryRoot,"dirInRoot");
+    GitRepository repo1 = cache.getRepoForDir(dirInRoot);
+    GitRepository repo2 = cache.getRepoForDir(dirInRoot);
+    assertThat(repo1).isEqualTo(repo2);
   }
 
   @Test
@@ -68,7 +79,7 @@ class VirtualFileRepoCacheImplTest {
     cache.updatedRepoList(ImmutableList.of(repository));
     MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
     MockVirtualFile dirInDirInRoot = createDir(dirInRoot, "dirInDirInRoot");
-    assertThat(cache.getRepoForDir(dirInDirInRoot)).isSameAs(repository);
+    assertThat(cache.getRepoForDir(dirInDirInRoot)).isEqualTo(repository);
   }
 
   @Test
@@ -77,8 +88,8 @@ class VirtualFileRepoCacheImplTest {
     MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
     MockVirtualFile dirInDirInRoot = createDir(dirInRoot, "dirInDirInRoot");
     assertSoftly(softly -> {
-      softly.assertThat(cache.getRepoForDir(dirInRoot)).isSameAs(repository);
-      softly.assertThat(cache.getRepoForDir(dirInDirInRoot)).isSameAs(repository);
+      softly.assertThat(cache.getRepoForDir(dirInRoot)).isEqualTo(repository);
+      softly.assertThat(cache.getRepoForDir(dirInDirInRoot)).isEqualTo(repository);
     });
 
   }
