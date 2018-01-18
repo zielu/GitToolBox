@@ -2,7 +2,6 @@ package zielu.gittoolbox.fetch;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
@@ -14,6 +13,7 @@ import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.compat.NotificationHandle;
@@ -48,39 +47,46 @@ public class AutoFetchTask implements Runnable {
   }
 
   private void finishedNotification() {
-    NotificationHandle toCancel = lastNotification.getAndSet(null);
-    if (toCancel != null) {
-      toCancel.expire();
-    }
+    cancelLastNotification();
+    notifyFinished();
+  }
 
-    NotificationHandle notification = Notifier.getInstance(project).notifyLogOnly(
+  private void cancelLastNotification() {
+    Optional.ofNullable(lastNotification.getAndSet(null)).ifPresent(NotificationHandle::expire);
+  }
+
+  private void notifyFinished() {
+    lastNotification.set(showFinishedNotification());
+  }
+
+  private NotificationHandle showFinishedNotification() {
+    return Notifier.getInstance(project).notifyLogOnly(
         ResBundle.getString("message.autoFetch"),
         ResBundle.getString("message.finished"));
-    lastNotification.set(notification);
   }
 
   private void finishedWithoutFetch() {
-    NotificationHandle toCancel = lastNotification.getAndSet(null);
-    if (toCancel != null) {
-      toCancel.expire();
-    }
+    cancelLastNotification();
   }
 
   private List<GitRepository> reposForFetch() {
-    GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
-    ImmutableList<GitRepository> allRepos = ImmutableList.copyOf(repositoryManager.getRepositories());
-    AutoFetchStrategy strategy = GitToolBoxConfigForProject.getInstance(project).getAutoFetchStrategy();
-    List<GitRepository> fetchable = strategy.fetchableRepositories(allRepos, project);
-    List<GitRepository> toFetch = Lists.newArrayListWithCapacity(fetchable.size());
-    for (GitRepository repository : fetchable) {
-      if (repository.getRoot().exists() && !repository.isRebaseInProgress()) {
-        toFetch.add(repository);
-      }
-    }
+    List<GitRepository> toFetch = findReposToFetch();
     log.debug("Repos to fetch: ", toFetch);
     List<GitRepository> fetchWithoutExclusions = skipExclusions(toFetch);
     log.debug("Repos to fetch without exclusions: ", fetchWithoutExclusions);
     return fetchWithoutExclusions;
+  }
+
+  private List<GitRepository> findReposToFetch() {
+    GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
+    ImmutableList<GitRepository> allRepos = ImmutableList.copyOf(repositoryManager.getRepositories());
+    AutoFetchStrategy strategy = GitToolBoxConfigForProject.getInstance(project).getAutoFetchStrategy();
+    List<GitRepository> fetchable = strategy.fetchableRepositories(allRepos, project);
+    return fetchable.stream().filter(this::isFetchAllowed).collect(Collectors.toList());
+  }
+
+  private boolean isFetchAllowed(@NotNull GitRepository repository) {
+    return repository.getRoot().exists() && !repository.isRebaseInProgress();
   }
 
   private List<GitRepository> skipExclusions(List<GitRepository> repositories) {
@@ -93,24 +99,13 @@ public class AutoFetchTask implements Runnable {
     return repo -> exclusions.contains(repo.getRoot().getUrl());
   }
 
-  private boolean doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
+  private boolean tryToFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
     log.debug("Starting auto-fetch...");
     boolean result = false;
     AutoFetchState state = AutoFetchState.getInstance(project);
     if (state.canAutoFetch()) {
       log.debug("Can auto-fetch");
-      if (state.fetchStart()) {
-        indicator.setText(title);
-        result = doFetch(repos, indicator);
-        if (result) {
-          state.fetchFinish();
-          parent.updateLastAutoFetchDate();
-        }
-      } else {
-        log.info("Auto-fetch already in progress");
-        finishedWithoutFetch();
-        result = true;
-      }
+      result = doFetch(repos, indicator, title);
     } else {
       log.debug("Auto-fetch inactive");
       finishedWithoutFetch();
@@ -118,12 +113,29 @@ public class AutoFetchTask implements Runnable {
     return result;
   }
 
-  private boolean doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
+  private boolean doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
+    boolean result;
+    AutoFetchState state = AutoFetchState.getInstance(project);
+    if (state.fetchStart()) {
+      indicator.setText(title);
+      result = tryExecuteFetch(repos, indicator);
+      if (result) {
+        state.fetchFinish();
+        fetchSuccessful();
+      }
+    } else {
+      log.info("Auto-fetch already in progress");
+      finishedWithoutFetch();
+      result = true;
+    }
+    return result;
+  }
+
+  private boolean tryExecuteFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
     return parent.callIfActive(() -> {
       log.debug("Auto-fetching...");
       try {
-        Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().build(project, indicator).fetchRoots(repos);
-        PerRepoInfoCache.getInstance(project).refresh(fetched);
+        executeFetch(repos, indicator);
         log.debug("Finished auto-fetch");
         if (showNotifications) {
           finishedNotification();
@@ -140,6 +152,15 @@ public class AutoFetchTask implements Runnable {
     }).orElse(false);
   }
 
+  private void executeFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
+    Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().build(project, indicator).fetchRoots(repos);
+    PerRepoInfoCache.getInstance(project).refresh(fetched);
+  }
+
+  private void fetchSuccessful() {
+    parent.updateLastAutoFetchDate();
+  }
+
   @Override
   public void run() {
     final List<GitRepository> repos = reposForFetch();
@@ -150,7 +171,7 @@ public class AutoFetchTask implements Runnable {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
           parent.runIfActive(() -> {
-            if (doFetch(repos, indicator, getTitle())) {
+            if (tryToFetch(repos, indicator, getTitle())) {
               parent.scheduleNextTask();
             }
           });

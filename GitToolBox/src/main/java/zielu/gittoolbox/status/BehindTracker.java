@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.event.HyperlinkEvent;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
@@ -56,6 +57,10 @@ public class BehindTracker implements ProjectComponent {
 
   @Override
   public void initComponent() {
+    connectToMessageBus();
+  }
+
+  private void connectToMessageBus() {
     connection = project.getMessageBus().connect();
     connection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
@@ -76,43 +81,59 @@ public class BehindTracker implements ProjectComponent {
   }
 
   private Optional<BehindMessage> prepareMessage() {
+    Map<GitRepository, RevListCount> statuses = mapStateAsStatuses();
+    if (statuses.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(createBehindMessage(statuses));
+    }
+  }
+
+  private Map<GitRepository, RevListCount> mapStateAsStatuses() {
     Map<GitRepository, RevListCount> statuses = Maps.newHashMap();
     for (Entry<GitRepository, RepoInfo> entry : state.entrySet()) {
       entry.getValue().count().filter(GitAheadBehindCount::isNotZero)
           .ifPresent(count -> statuses.put(entry.getKey(), count.behind));
     }
-    if (!statuses.isEmpty()) {
-      boolean manyReposInProject = state.size() > 1;
-      BehindMessage message = new BehindMessage(StatusMessages.getInstance()
-          .prepareBehindMessage(statuses, manyReposInProject), statuses.size() > 1);
-      return Optional.of(message);
-    } else {
-      return Optional.empty();
-    }
+    return statuses;
+  }
+
+  private BehindMessage createBehindMessage(Map<GitRepository, RevListCount> statuses) {
+    boolean manyReposInProject = hasManyReposInProject();
+    boolean manyReposInStatuses = statuses.size() > 1;
+    return new BehindMessage(StatusMessages.getInstance().prepareBehindMessage(statuses, manyReposInProject),
+        manyReposInStatuses);
+  }
+
+  private boolean hasManyReposInProject() {
+    return state.size() > 1;
   }
 
   private void showNotification(@NotNull ChangeType changeType) {
     Optional<BehindMessage> messageOption = prepareMessage();
     if (messageOption.isPresent() && active.get()) {
-      BehindMessage message = messageOption.get();
-      StringBand finalMessage = new StringBand(GitUIUtil.bold(changeType.title()))
-          .append(" (").append(Html.link("update", ResBundle.getString("update.project")))
-          .append(")").append(Html.BR).append(message.text);
-
-      Notifier.getInstance(project).notifySuccess(finalMessage.toString(), updateProjectListener);
+      showNotification(messageOption.get(), changeType);
     }
+  }
+
+  private void showNotification(@NotNull BehindMessage message, @NotNull ChangeType changeType) {
+    StringBand finalMessage = formatMessage(message, changeType);
+    displaySuccessNotification(finalMessage);
+  }
+
+  private void displaySuccessNotification(StringBand message) {
+    Notifier.getInstance(project).notifySuccess(message.toString(), updateProjectListener);
+  }
+
+  @NotNull
+  private StringBand formatMessage(@NotNull BehindMessage message, @NotNull ChangeType changeType) {
+    return new StringBand(GitUIUtil.bold(changeType.title()))
+        .append(" (").append(Html.link("update", ResBundle.getString("update.project")))
+        .append(")").append(Html.BR).append(message.text);
   }
 
   private boolean isNotificationEnabled() {
     return GitToolBoxConfig.getInstance().behindTracker;
-  }
-
-  private boolean isRemoteHashChanged(RepoInfo previous, RepoInfo current) {
-    return !previous.status().sameRemoteHash(current.status());
-  }
-
-  private boolean isBranchSwitched(RepoInfo previous, RepoInfo current) {
-    return !previous.status().sameBranch(current.status());
   }
 
   private void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
@@ -120,21 +141,53 @@ public class BehindTracker implements ProjectComponent {
     if (log.isDebugEnabled()) {
       log.debug("Info update [", GtUtil.name(repository), "]: ", previousInfo, " > ", info);
     }
-    ChangeType type = ChangeType.NONE;
-    if (previousInfo != null) {
-      if (previousInfo.status().sameRemoteBranch(info.status())) {
-        if (isBranchSwitched(previousInfo, info)) {
-          type = ChangeType.SWITCHED;
-        } else if (isRemoteHashChanged(previousInfo, info)) {
-          type = ChangeType.FETCHED;
-        }
-      } else {
-        type = ChangeType.SWITCHED;
-      }
-    }
-    if (type.isVisible() && isNotificationEnabled()) {
+    ChangeType type = detectChangeType(previousInfo, info);
+    if (shouldShowNotification(type)) {
       showNotification(type);
     }
+  }
+
+  private ChangeType detectChangeType(@Nullable RepoInfo previous, @NotNull RepoInfo current) {
+    ChangeType type = ChangeType.NONE;
+    if (previous != null) {
+      type = detectChangeTypeIfBothPresent(previous, current);
+    }
+    return type;
+  }
+
+  @NotNull
+  private ChangeType detectChangeTypeIfBothPresent(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    if (isSameRemoteBranch(previous, current)) {
+      return detectChangeTypeIfSameRemoteBranch(previous, current);
+    } else {
+      return ChangeType.SWITCHED;
+    }
+  }
+
+  private ChangeType detectChangeTypeIfSameRemoteBranch(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    if (isLocalBranchSwitched(previous, current)) {
+      return ChangeType.SWITCHED;
+    } else if (isRemoteHashChanged(previous, current)) {
+      return ChangeType.FETCHED;
+    } else {
+      return ChangeType.NONE;
+    }
+  }
+
+  private boolean isSameRemoteBranch(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    return previous.status().sameRemoteBranch(current.status());
+  }
+
+  private boolean isRemoteHashChanged(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    return !previous.status().sameRemoteHash(current.status());
+  }
+
+  private boolean isLocalBranchSwitched(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    return !previous.status().sameLocalBranch(current.status());
+  }
+
+  private boolean shouldShowNotification(ChangeType changeType) {
+    return changeType.isVisible() && isNotificationEnabled();
   }
 
   @Override
@@ -150,9 +203,13 @@ public class BehindTracker implements ProjectComponent {
   @Override
   public void projectClosed() {
     if (active.compareAndSet(true, false)) {
-      connection.disconnect();
+      disconnectFromMessageBus();
       state.clear();
     }
+  }
+
+  private void disconnectFromMessageBus() {
+    connection.disconnect();
   }
 
   private enum ChangeType {

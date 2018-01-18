@@ -1,7 +1,7 @@
 package zielu.gittoolbox.completion;
 
 import com.google.common.collect.ImmutableList;
-import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
@@ -19,15 +19,16 @@ import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.util.diagnostics.PerfWatch;
 
-public class GitToolBoxCompletionProject extends AbstractProjectComponent {
+public class GitToolBoxCompletionProject implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final List<File> affectedFiles = new ArrayList<>();
+  private final Project project;
   private Collection<GitRepository> affectedRepositories;
   private MessageBusConnection connection;
   private List<Formatter> formatters = ImmutableList.of();
 
   public GitToolBoxCompletionProject(@NotNull Project project) {
-    super(project);
+    this.project = project;
   }
 
   @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
@@ -38,13 +39,21 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent {
 
   @Override
   public void initComponent() {
-    connection = myProject.getMessageBus().connect();
+    connectToMessageBus();
+  }
+
+  private void connectToMessageBus() {
+    connection = project.getMessageBus().connect();
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new Adapter() {
       @Override
       public void configChanged(Project project, GitToolBoxConfigForProject config) {
-        fillFormatters(config);
+        onConfigChanged(config);
       }
     });
+  }
+
+  private void onConfigChanged(GitToolBoxConfigForProject config) {
+    fillFormatters(config);
   }
 
   private void fillFormatters(GitToolBoxConfigForProject config) {
@@ -53,7 +62,7 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent {
 
   @Override
   public void projectOpened() {
-    fillFormatters(GitToolBoxConfigForProject.getInstance(myProject));
+    fillFormatters(GitToolBoxConfigForProject.getInstance(project));
   }
 
   public synchronized void updateAffected(Collection<File> affected) {
@@ -68,11 +77,16 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent {
 
   public synchronized Collection<GitRepository> getAffected() {
     if (affectedRepositories == null) {
-      PerfWatch getRepositoriesWatch = PerfWatch.createStarted("Get repositories");
-      affectedRepositories = getRepositories(myProject, affectedFiles);
-      getRepositoriesWatch.finish();
+      affectedRepositories = findAffectedRepositories();
     }
     return affectedRepositories;
+  }
+
+  private Collection<GitRepository> findAffectedRepositories() {
+    PerfWatch getRepositoriesWatch = PerfWatch.createStarted("Get repositories");
+    Collection<GitRepository> repositories = getRepositories(project, affectedFiles);
+    getRepositoriesWatch.finish();
+    return repositories;
   }
 
   private Collection<GitRepository> getRepositories(Project project, Collection<File> selectedFiles) {
@@ -90,10 +104,19 @@ public class GitToolBoxCompletionProject extends AbstractProjectComponent {
 
   @Override
   public void disposeComponent() {
+    disconnectFromMessageBus();
+    clearFormatters();
+    clearAffected();
+  }
+
+  private void disconnectFromMessageBus() {
     if (connection != null) {
       connection.disconnect();
       connection = null;
     }
+  }
+
+  private void clearFormatters() {
     formatters = null;
   }
 }

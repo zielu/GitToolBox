@@ -11,10 +11,9 @@ import org.jetbrains.annotations.Nullable;
 
 
 public class RevListCount {
-
-  private static final RevListCount cancel = new RevListCount(Status.CANCEL, null, null);
-  private static final RevListCount failure = new RevListCount(Status.FAILURE, null, null);
-  private static final RevListCount noRemote = new RevListCount(Status.NO_REMOTE, null, null);
+  private static final RevListCount CANCEL = new RevListCount(Status.CANCEL, null, null);
+  private static final RevListCount FAILURE = new RevListCount(Status.FAILURE, null, null);
+  private static final RevListCount NO_REMOTE = new RevListCount(Status.NO_REMOTE, null, null);
 
   private final Integer value;
   private final Hash top;
@@ -31,15 +30,15 @@ public class RevListCount {
   }
 
   public static RevListCount cancel() {
-    return cancel;
+    return CANCEL;
   }
 
   public static RevListCount failure() {
-    return failure;
+    return FAILURE;
   }
 
   public static RevListCount noRemote() {
-    return noRemote;
+    return NO_REMOTE;
   }
 
   public int value() {

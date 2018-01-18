@@ -17,10 +17,14 @@ public class GitPushRejectedDetector implements GitLineHandlerListener {
   public void onLineAvailable(String line, Key outputType) {
     Matcher matcher = REJECTED_PATTERN.matcher(line);
     if (matcher.matches()) {
-      String src = matcher.group(1);
-      String dst = matcher.group(2);
-      rejectedRefs.add(new RejectedRef(src, dst));
+      rejectedRefs.add(createRejected(matcher));
     }
+  }
+
+  private RejectedRef createRejected(Matcher matcher) {
+    String src = matcher.group(1);
+    String dst = matcher.group(2);
+    return new RejectedRef(src, dst);
   }
 
   @Override

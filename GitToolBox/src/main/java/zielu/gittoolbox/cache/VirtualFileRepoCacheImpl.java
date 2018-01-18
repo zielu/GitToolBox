@@ -52,33 +52,30 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
   @Override
   public GitRepository getRepoForRoot(@NotNull VirtualFile root) {
     Preconditions.checkArgument(root.isDirectory(), "%s is not a dir", root);
-    return findRepoForRoot(root);
-  }
-
-  @Nullable
-  private GitRepository findRepoForRoot(@NotNull VirtualFile root) {
     return rootsCache.get(root);
   }
 
   @Nullable
   @Override
   public GitRepository getRepoForDir(@NotNull VirtualFile dir) {
-    return findRepoForDir(dir);
-  }
-
-  @Nullable
-  private GitRepository findRepoForDir(@NotNull VirtualFile dir) {
     Optional<GitRepository> cachedRepo = dirsCache.get(dir);
     if (cachedRepo == null) {
-      PerfWatch calculateWatch = PerfWatch.createStarted("Calculate repo for dir [", dir, "]");
-      cachedRepo = calculateRepoForDir(dir);
-      calculateWatch.finish();
+      cachedRepo = findRepoForDir(dir);
       dirsCache.putIfAbsent(dir, cachedRepo);
       log.debug("Cached repo ", cachedRepo, " for dir ", dir);
     }
     return cachedRepo.orElse(null);
   }
 
+  @NotNull
+  private Optional<GitRepository> findRepoForDir(@NotNull VirtualFile dir) {
+    PerfWatch calculateWatch = PerfWatch.createStarted("Calculate repo for dir [", dir, "]");
+    Optional<GitRepository> repo = calculateRepoForDir(dir);
+    calculateWatch.finish();
+    return repo;
+  }
+
+  @NotNull
   private Optional<GitRepository> calculateRepoForDir(@NotNull VirtualFile dir) {
     GitRepository foundRepo = null;
     boolean movedUp = false;
@@ -121,9 +118,17 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
   }
 
   private void rebuildRootsCache(RepoListUpdate update) {
+    purgeRemovedRoots(update);
+    addRoots(update);
+  }
+
+  private void purgeRemovedRoots(RepoListUpdate update) {
     update.removedRoots.stream()
         .peek(removed -> log.debug("Root removed: ", removed))
         .forEach(rootsCache::remove);
+  }
+
+  private void addRoots(RepoListUpdate update) {
     update.forEachAdded((root, repo) -> {
       log.debug("Root added: ", root);
       rootsCache.put(root, repo);

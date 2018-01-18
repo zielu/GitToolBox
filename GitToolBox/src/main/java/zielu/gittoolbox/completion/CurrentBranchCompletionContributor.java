@@ -40,13 +40,17 @@ public class CurrentBranchCompletionContributor extends CompletionContributor {
     protected void addCompletions(@NotNull CompletionParameters parameters, ProcessingContext context,
                                   @NotNull CompletionResultSet result) {
       if (shouldComplete(parameters)) {
-        Project project = getProject(parameters);
-        List<Formatter> formatters = getFormatters(project);
-        getBranchInfo(project).forEach(branchInfo -> {
-          String branchName = branchInfo.getFirst();
-          formatters.forEach(formatter -> addCompletion(result, formatter, branchName, branchInfo.getSecond()));
-        });
+        setupCompletions(parameters, result);
       }
+    }
+
+    private void setupCompletions(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
+      Project project = getProject(parameters);
+      List<Formatter> formatters = getFormatters(project);
+      getBranchInfo(project).forEach(branchInfo -> {
+        String branchName = branchInfo.getFirst();
+        formatters.forEach(formatter -> addCompletion(result, formatter, branchName, branchInfo.getSecond()));
+      });
     }
 
     private void addCompletion(CompletionResultSet result, Formatter formatter, String branchName, String repoName) {

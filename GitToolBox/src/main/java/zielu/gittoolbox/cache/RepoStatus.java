@@ -18,13 +18,13 @@ import zielu.gittoolbox.status.GitAheadBehindCount;
 public class RepoStatus {
   private static final RepoStatus empty = new RepoStatus(null, null, null, null);
 
-  private final GitLocalBranch branch;
+  private final GitLocalBranch localBranch;
   private final Hash localHash;
   private final GitRemoteBranch remoteBranch;
   private final Hash remoteHash;
 
-  private RepoStatus(GitLocalBranch branch, Hash localHash, GitRemoteBranch remoteBranch, Hash remoteHash) {
-    this.branch = branch;
+  private RepoStatus(GitLocalBranch localBranch, Hash localHash, GitRemoteBranch remoteBranch, Hash remoteHash) {
+    this.localBranch = localBranch;
     this.localHash = localHash;
     this.remoteBranch = remoteBranch;
     this.remoteHash = remoteHash;
@@ -35,15 +35,15 @@ public class RepoStatus {
     GitRemoteBranch remote = null;
     Hash remoteHash = null;
 
-    GitLocalBranch branch = getLocalBranch(repository);
-    if (branch != null) {
+    GitLocalBranch localBranch = getLocalBranch(repository);
+    if (localBranch != null) {
       GitRepoInfo repoInfo = repository.getInfo();
-      localHash = repoInfo.getLocalBranchesWithHashes().get(branch);
-      remote = branch.findTrackedBranch(repository);
+      localHash = repoInfo.getLocalBranchesWithHashes().get(localBranch);
+      remote = localBranch.findTrackedBranch(repository);
       remoteHash = repoInfo.getRemoteBranchesWithHashes().get(remote);
     }
 
-    return new RepoStatus(branch, localHash, remote, remoteHash);
+    return new RepoStatus(localBranch, localHash, remote, remoteHash);
   }
 
   @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
@@ -65,8 +65,8 @@ public class RepoStatus {
     return remoteHash;
   }
 
-  public boolean sameBranch(RepoStatus other) {
-    return Objects.equal(branch, other.branch);
+  public boolean sameLocalBranch(RepoStatus other) {
+    return Objects.equal(localBranch, other.localBranch);
   }
 
   public boolean sameRemoteHash(RepoStatus other) {
@@ -95,7 +95,7 @@ public class RepoStatus {
     }
     RepoStatus that = (RepoStatus) o;
     return new EqualsBuilder()
-        .append(branch, that.branch)
+        .append(localBranch, that.localBranch)
         .append(localHash, that.localHash)
         .append(remoteBranch, that.remoteBranch)
         .append(remoteHash, that.remoteHash)
@@ -104,7 +104,7 @@ public class RepoStatus {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(branch, localHash, remoteBranch, remoteHash);
+    return Objects.hashCode(localBranch, localHash, remoteBranch, remoteHash);
   }
 
   @Override
@@ -112,7 +112,7 @@ public class RepoStatus {
     return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
         .append("localHash", localHash)
         .append("remoteHash", remoteHash)
-        .append("localBranch", branch)
+        .append("localBranch", localBranch)
         .append("remoteBranch", remoteBranch)
         .build();
   }

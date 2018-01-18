@@ -101,15 +101,25 @@ public class GitStatusCalculator {
 
   @NotNull
   private GitAheadBehindCount doRevListLeftRight(String localRef, String remoteRef, GitRepository repository) {
+    GitLineHandler handler = prepareLineHandler(localRef, remoteRef, repository);
+    return executeRevListCount(handler);
+  }
+
+  private GitLineHandler prepareLineHandler(String localRef, String remoteRef, GitRepository repository) {
     String branches = localRef + "..." + remoteRef;
     final GitLineHandler handler = new GitLineHandler(project, repository.getRoot(), GitCommand.REV_LIST);
     handler.addParameters(branches, "--left-right");
-    final GitRevListLeftRightCounter counter = new GitRevListLeftRightCounter();
+    log.debug("Prepared count with refs: '", branches, "'");
+    return handler;
+  }
+
+  private GitAheadBehindCount executeRevListCount(GitLineHandler handler) {
+    GitRevListLeftRightCounter counter = new GitRevListLeftRightCounter();
     handler.addLineListener(counter);
-    GitTask task = new GitTask(project, handler, branches);
+    //TODO: GitTagCalculator, GitTagsPusher (especially second one) have examples how to do this.
+    GitTask task = new GitTask(project, handler, "rev-list count");
     task.setProgressIndicator(indicator);
-    final AtomicReference<GitAheadBehindCount> result = new AtomicReference<GitAheadBehindCount>();
-    log.debug("Executing count with refs: '", branches, "'");
+    AtomicReference<GitAheadBehindCount> result = new AtomicReference<GitAheadBehindCount>();
     task.execute(true, false, new GitTaskResultHandlerAdapter() {
       @Override
       protected void onSuccess() {

@@ -46,13 +46,16 @@ public class TagsPushSpec {
     if (all) {
       spec.add("--tags");
     } else {
-      for (String tag : tags) {
-        spec.add("tag");
-        spec.add(tag);
-      }
-      return spec;
+      addSpecsForTags(spec);
     }
     return spec;
+  }
+
+  private void addSpecsForTags(List<String> spec) {
+    for (String tag : tags) {
+      spec.add("tag");
+      spec.add(tag);
+    }
   }
 
   public static class Builder {

@@ -6,7 +6,6 @@ import static com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.ui.ColoredListCellRenderer;
-import com.intellij.ui.SimpleTextAttributes;
 import git4idea.repo.GitRepository;
 import java.util.Optional;
 import javax.swing.JList;
@@ -26,15 +25,22 @@ public class GitRepositoryRenderer extends ColoredListCellRenderer<String> {
                                        boolean selected, boolean hasFocus) {
     Optional<GitRepository> repository = GtUtil.getRepositoryForRoot(project, value);
     if (repository.isPresent()) {
-      GitRepository repo = repository.get();
-      append(GtUtil.name(repo));
-      StringBand url = new StringBand(" (");
-      url.append(repo.getRoot().getPresentableUrl());
-      url.append(")");
-      append(url.toString(), GRAYED_ATTRIBUTES);
+      render(repository.get());
     } else {
-      String path = VfsUtilCore.urlToPath(value);
-      append(path, ERROR_ATTRIBUTES);
+      renderMissing(value);
     }
+  }
+
+  private void render(GitRepository repository) {
+    append(GtUtil.name(repository));
+    StringBand url = new StringBand(" (");
+    url.append(repository.getRoot().getPresentableUrl());
+    url.append(")");
+    append(url.toString(), GRAYED_ATTRIBUTES);
+  }
+
+  private void renderMissing(String value) {
+    String path = VfsUtilCore.urlToPath(value);
+    append(path, ERROR_ATTRIBUTES);
   }
 }

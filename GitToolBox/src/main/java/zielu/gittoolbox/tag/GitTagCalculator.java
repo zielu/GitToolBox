@@ -9,11 +9,13 @@ import git4idea.commands.GitCommand;
 import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.util.StringScanner;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 
 public class GitTagCalculator {
@@ -37,6 +39,14 @@ public class GitTagCalculator {
     h.setSilent(true);
     String getTagsLabel = ResBundle.getString("tag.getting.existing.tags");
     String output = GitHandlerUtil.doSynchronously(h, getTagsLabel, h.printableCommandLine());
+    return handleOutput(output);
+  }
+
+  private List<String> handleOutput(@Nullable String output) {
+    return Optional.ofNullable(output).map(this::parseTags).orElseGet(ArrayList::new);
+  }
+
+  private List<String> parseTags(String output) {
     List<String> tags = Lists.newArrayList();
     for (StringScanner s = new StringScanner(output); s.hasMoreData(); ) {
       String line = s.line();
@@ -59,21 +69,5 @@ public class GitTagCalculator {
       }
     }
     return tags;
-  }
-
-  public List<String> allTags(@NotNull VirtualFile gitRoot) {
-    GitSimpleHandler h = new GitSimpleHandler(project, Preconditions.checkNotNull(gitRoot), GitCommand.TAG);
-    h.setSilent(true);
-    String output = GitHandlerUtil.doSynchronously(h, ResBundle.getString("tag.getting.tags.for.branch"),
-        h.printableCommandLine());
-    LinkedList<String> tags = Lists.newLinkedList();
-    for (StringScanner s = new StringScanner(output); s.hasMoreData(); ) {
-      String line = s.line();
-      if (line.length() == 0) {
-        continue;
-      }
-      tags.addFirst(line);
-    }
-    return Lists.newArrayList(tags);
   }
 }

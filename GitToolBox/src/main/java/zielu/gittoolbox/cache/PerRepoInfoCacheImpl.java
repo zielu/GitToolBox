@@ -8,9 +8,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
-import com.intellij.util.messages.MessageBusConnection;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -43,25 +43,39 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     messageBus = project.getMessageBus();
   }
 
-  private CachedStatus get(GitRepository repository) {
+  @NotNull
+  private CachedStatus get(@NotNull GitRepository repository) {
     CachedStatus cachedStatus = behindStatuses.get(repository);
     if (cachedStatus == null) {
-      CachedStatus newStatus = CachedStatus.create(repository);
-      CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
-      cachedStatus = foundStatus != null ? foundStatus : newStatus;
-      if (cachedStatus.isNew()) {
-        scheduleUpdate(repository);
-      }
+      cachedStatus = prepareCachedStatus(repository);
     }
     return cachedStatus;
   }
 
-  private void update(GitRepository repository) {
-    if (active.get()) {
-      DumbService dumbService = DumbService.getInstance(project);
-      Runnable update = () -> get(repository).update(repository, calculator, info -> onRepoChanged(repository, info));
-      dumbService.runReadActionInSmartMode(update);
+  private CachedStatus prepareCachedStatus(@NotNull GitRepository repository) {
+    CachedStatus status = createCachedStatus(repository);
+    if (status.isNew()) {
+      scheduleUpdate(repository);
     }
+    return status;
+  }
+
+  private CachedStatus createCachedStatus(@NotNull GitRepository repository) {
+    CachedStatus newStatus = CachedStatus.create(repository);
+    CachedStatus foundStatus = behindStatuses.putIfAbsent(repository, newStatus);
+    return foundStatus != null ? foundStatus : newStatus;
+  }
+
+  private void update(@NotNull GitRepository repository) {
+    if (active.get()) {
+      updateRepositoryStatus(repository);
+    }
+  }
+
+  private void updateRepositoryStatus(@NotNull GitRepository repository) {
+    DumbService dumbService = DumbService.getInstance(project);
+    Runnable update = () -> get(repository).update(repository, calculator, info -> onRepoChanged(repository, info));
+    dumbService.runReadActionInSmartMode(update);
   }
 
   @NotNull
@@ -81,16 +95,14 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
 
   private void scheduleRefresh(@NotNull GitRepository repository) {
     if (active.get()) {
-      log.debug("Scheduled refresh for: ", repository);
       scheduleTask(new RefreshTask(repository));
     } else {
-      log.debug("Inactive - ignored scheduling refresh for ", repository);
+      log.debug("Inactive - ignored scheduling refresh for: ", repository);
     }
   }
 
   private void scheduleUpdate(@NotNull GitRepository repository) {
     if (active.get()) {
-      log.debug("Scheduled update for: ", repository);
       scheduleTask(new UpdateTask(repository));
     } else {
       log.debug("Inactive - ignored updating refresh for ", repository);
@@ -98,12 +110,17 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   }
 
   private void scheduleTask(CacheTask task) {
-    if (scheduledRepositories.putIfAbsent(task.repository, task) == null) {
-      updateExecutor.submit(task);
-      log.debug("Scheduled ", task);
+    CacheTask alreadyScheduled = scheduledRepositories.putIfAbsent(task.repository, task);
+    if (alreadyScheduled == null) {
+      submitForExecution(task);
     } else {
-      log.debug("Task for ", task.repository, " already scheduled");
+      log.debug("Task for ", task.repository, " already scheduled: ", alreadyScheduled);
     }
+  }
+
+  private void submitForExecution(CacheTask  task) {
+    updateExecutor.submit(task);
+    log.debug("Scheduled: ", task);
   }
 
   @Override
@@ -116,11 +133,25 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   public void updatedRepoList(ImmutableList<GitRepository> repositories) {
     Set<GitRepository> removed = new HashSet<>(behindStatuses.keySet());
     removed.removeAll(repositories);
-    removed.forEach(removedRepo -> {
-      behindStatuses.remove(removedRepo);
-      Optional.ofNullable(scheduledRepositories.remove(removedRepo)).ifPresent(CacheTask::kill);
-    });
-    messageBus.syncPublisher(CACHE_CHANGE).evicted(removed);
+    purgeRepositories(removed);
+  }
+
+  private void purgeRepositories(@NotNull Collection<GitRepository> repositories) {
+    removeRepositories(repositories);
+    notifyEvicted(repositories);
+  }
+
+  private void removeRepositories(@NotNull Collection<GitRepository> repositories) {
+    repositories.forEach(this::removeRepository);
+  }
+
+  private void removeRepository(@NotNull GitRepository repository) {
+    behindStatuses.remove(repository);
+    Optional.ofNullable(scheduledRepositories.remove(repository)).ifPresent(CacheTask::kill);
+  }
+
+  private void notifyEvicted(@NotNull Collection<GitRepository> repositories) {
+    messageBus.syncPublisher(CACHE_CHANGE).evicted(repositories);
   }
 
   private void onRepoChanged(GitRepository repo, RepoInfo info) {
@@ -154,18 +185,26 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   @Override
   public void projectOpened() {
     if (active.compareAndSet(false, true)) {
-      ThreadFactoryBuilder threadBuilder = new ThreadFactoryBuilder().setDaemon(true);
-      updateExecutor = Executors.newSingleThreadExecutor(
-          threadBuilder.setNameFormat(getClass().getSimpleName() + "-[" + project.getName() + "]-%d").build()
-      );
+      createExecutor();
     }
+  }
+
+  private void createExecutor() {
+    ThreadFactoryBuilder threadBuilder = new ThreadFactoryBuilder().setDaemon(true);
+    updateExecutor = Executors.newSingleThreadExecutor(
+        threadBuilder.setNameFormat(getClass().getSimpleName() + "-[" + project.getName() + "]-%d").build()
+    );
   }
 
   @Override
   public void projectClosed() {
     if (active.compareAndSet(true, false)) {
-      updateExecutor.shutdownNow().forEach(notStarted -> log.info("Task " + notStarted + " was never started"));
+      destroyExecutor();
     }
+  }
+
+  private void destroyExecutor() {
+    updateExecutor.shutdownNow().forEach(notStarted -> log.info("Task " + notStarted + " was never started"));
   }
 
   private class RefreshTask extends CacheTask {
@@ -177,6 +216,11 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     public void runImpl() {
       refreshSync(repository);
     }
+
+    @Override
+    public String toString() {
+      return "RefreshTask for " + repository;
+    }
   }
 
   private class UpdateTask extends CacheTask {
@@ -187,6 +231,11 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     @Override
     public void runImpl() {
       updateSync(repository);
+    }
+
+    @Override
+    public String toString() {
+      return "UpdateTask for " + repository;
     }
   }
 

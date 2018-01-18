@@ -36,7 +36,15 @@ public class AutoFetchState implements ProjectComponent {
 
   @Override
   public void initComponent() {
+    initializeExtensions();
+    connectToMessageBus();
+  }
+
+  private void initializeExtensions() {
     extensions.addAll(getExtensionPoints().map(this::instantiate).collect(Collectors.toList()));
+  }
+
+  private void connectToMessageBus() {
     connection = project.getMessageBus().connect();
     connection.subscribe(AutoFetchAllowed.TOPIC, allowed -> fireStateChanged());
   }
@@ -68,10 +76,18 @@ public class AutoFetchState implements ProjectComponent {
 
   @Override
   public void disposeComponent() {
+    disconnectFromMessageBus();
+    disposeExtensions();
+  }
+
+  private void disconnectFromMessageBus() {
     if (connection != null) {
       connection.disconnect();
       connection = null;
     }
+  }
+
+  private void disposeExtensions() {
     extensions.forEach(AutoFetchAllowed::dispose);
     extensions.clear();
   }

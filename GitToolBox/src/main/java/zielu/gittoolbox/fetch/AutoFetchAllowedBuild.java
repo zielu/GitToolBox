@@ -22,6 +22,10 @@ public class AutoFetchAllowedBuild implements AutoFetchAllowed {
 
   @Override
   public void initialize(Project project) {
+    connectToMessageBus(project);
+  }
+
+  private void connectToMessageBus(Project project) {
     connection = project.getMessageBus().connect();
     connection.subscribe(BuildManagerListener.TOPIC, new BuildManagerListener() {
       @Override
@@ -31,25 +35,41 @@ public class AutoFetchAllowedBuild implements AutoFetchAllowed {
 
       @Override
       public void buildStarted(Project currentProject, UUID sessionId, boolean isAutomake) {
-        log.debug("Build started");
-        if (Objects.equals(project, currentProject)) {
-          buildRunning.set(true);
-        }
+        onBuildStarted(project, currentProject);
       }
 
       @Override
       public void buildFinished(Project currentProject, UUID sessionId, boolean isAutomake) {
-        log.debug("Build finished");
-        if (Objects.equals(project, currentProject)) {
-          buildRunning.set(false);
-          fireStateChanged(project);
-        }
+        onBuildFinished(project, currentProject);
       }
     });
   }
 
+  private void onBuildStarted(Project project, Project builtProject) {
+    log.debug("Build started");
+    if (isCurrentProject(project, builtProject)) {
+      buildRunning.set(true);
+    }
+  }
+
+  private boolean isCurrentProject(Project project, Project builtProject) {
+    return Objects.equals(project, builtProject);
+  }
+
+  private void onBuildFinished(Project project, Project builtProject) {
+    log.debug("Build finished");
+    if (isCurrentProject(project, builtProject)) {
+      buildRunning.set(false);
+      fireStateChanged(project);
+    }
+  }
+
   @Override
   public void dispose() {
+    disconnectFromMessageBus();
+  }
+
+  private void disconnectFromMessageBus() {
     if (connection != null) {
       connection.disconnect();
       connection = null;

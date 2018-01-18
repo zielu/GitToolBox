@@ -20,25 +20,41 @@ public class AutoFetchAllowedDumbMode implements AutoFetchAllowed {
 
   @Override
   public void initialize(Project project) {
+    connectToMessageBus(project);
+  }
+
+  private void connectToMessageBus(Project project) {
     connection = project.getMessageBus().connect();
     connection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
       @Override
       public void enteredDumbMode() {
-        log.debug("Entered dumb mode");
-        dumbMode.set(true);
+        enterDumbMode();
       }
 
       @Override
       public void exitDumbMode() {
-        log.debug("Exited dumb mode");
-        dumbMode.set(false);
-        fireStateChanged(project);
+        leaveDumbMode(project);
       }
     });
   }
 
+  private void enterDumbMode() {
+    log.debug("Entered dumb mode");
+    dumbMode.set(true);
+  }
+
+  private void leaveDumbMode(Project project) {
+    log.debug("Exited dumb mode");
+    dumbMode.set(false);
+    fireStateChanged(project);
+  }
+
   @Override
   public void dispose() {
+    disconnectFromMessageBus();
+  }
+
+  private void disconnectFromMessageBus() {
     if (connection != null) {
       connection.disconnect();
       connection = null;

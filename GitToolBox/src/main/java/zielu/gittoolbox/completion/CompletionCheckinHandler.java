@@ -27,11 +27,15 @@ public class CompletionCheckinHandler extends CheckinHandler {
   private void captureSelectedRepositories(CheckinProjectPanel panel) {
     GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(panel.getProject());
     if (config.commitDialogCompletion) {
-      PerfWatch getAffectedWatch = PerfWatch.createStarted("Get affected");
-      Collection<File> affected = panel.getFiles();
-      getAffectedWatch.finish();
-      GitToolBoxCompletionProject.getInstance(panel.getProject()).updateAffected(affected);
+      updateAffectedFiles(panel);
     }
+  }
+
+  private void updateAffectedFiles(CheckinProjectPanel panel) {
+    PerfWatch getAffectedWatch = PerfWatch.createStarted("Get affected");
+    Collection<File> affected = panel.getFiles();
+    getAffectedWatch.finish();
+    GitToolBoxCompletionProject.getInstance(panel.getProject()).updateAffected(affected);
   }
 
   @Override

@@ -19,15 +19,23 @@ public class GitRevListLeftRightCounter implements GitLineHandlerListener {
   @Override
   public void onLineAvailable(String line, Key outputType) {
     if (aheadLine(line)) {
-      ahead++;
-      if (aheadHash == null) {
-        aheadHash = hashFromLine(line);
-      }
+      onAheadLine(line);
     } else if (behindLine(line)) {
-      behind++;
-      if (behindHash == null) {
-        behindHash = hashFromLine(line);
-      }
+      onBehindLine(line);
+    }
+  }
+
+  private void onAheadLine(String line) {
+    ahead++;
+    if (aheadHash == null) {
+      aheadHash = hashFromLine(line);
+    }
+  }
+
+  private void onBehindLine(String line) {
+    behind++;
+    if (behindHash == null) {
+      behindHash = hashFromLine(line);
     }
   }
 

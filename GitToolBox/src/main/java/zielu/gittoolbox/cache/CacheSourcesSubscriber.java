@@ -28,17 +28,23 @@ class CacheSourcesSubscriber implements ProjectComponent {
 
   @Override
   public void initComponent() {
-    //order is significant
+    registerOrderedAwares();
+    connectToMessageBus();
+  }
+
+  private void registerOrderedAwares() {
     VirtualFileRepoCache repoCache = VirtualFileRepoCache.getInstance(project);
     dirMappingAwares.add(repoCache);
     PerRepoInfoCache infoCache = PerRepoInfoCache.getInstance(project);
     dirMappingAwares.add(infoCache);
     repoChangeAwares.add(infoCache);
+  }
 
+  private void connectToMessageBus() {
     MessageBus messageBus = project.getMessageBus();
     connection = messageBus.connect();
-    connection.subscribe(GitRepository.GIT_REPO_CHANGE, this::repoChanged);
-    connection.subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this::dirMappingChanged);
+    connection.subscribe(GitRepository.GIT_REPO_CHANGE, this::onRepoChanged);
+    connection.subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this::onDirMappingChanged);
   }
 
   @Override
@@ -53,25 +59,43 @@ class CacheSourcesSubscriber implements ProjectComponent {
 
   @Override
   public void disposeComponent() {
+    disconnectFromMessageBus();
+    clearAwares();
+  }
+
+  private void disconnectFromMessageBus() {
     connection.disconnect();
     connection = null;
   }
 
-  private void repoChanged(@NotNull GitRepository repository) {
+  private void clearAwares() {
+    dirMappingAwares.clear();
+    repoChangeAwares.clear();
+  }
+
+  private void onRepoChanged(@NotNull GitRepository repository) {
     if (active.get()) {
-      log.debug("Repo changed: ", repository);
-      repoChangeAwares.forEach(aware -> aware.repoChanged(repository));
-      log.debug("Repo changed notification done: ", repository);
+      notifyRepoChangeAwares(repository);
     }
   }
 
-  private void dirMappingChanged() {
+  private void notifyRepoChangeAwares(@NotNull GitRepository repository) {
+    log.debug("Repo changed: ", repository);
+    repoChangeAwares.forEach(aware -> aware.repoChanged(repository));
+    log.debug("Repo changed notification done: ", repository);
+  }
+
+  private void onDirMappingChanged() {
     if (active.get()) {
-      log.debug("Dir mappings changed");
-      GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
-      ImmutableList<GitRepository> repositories = ImmutableList.copyOf(gitManager.getRepositories());
-      dirMappingAwares.forEach(aware -> aware.updatedRepoList(repositories));
-      log.debug("Dir mappings change notification done");
+      notifyDirMappingChanged();
     }
+  }
+
+  private void notifyDirMappingChanged() {
+    log.debug("Dir mappings changed");
+    GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
+    ImmutableList<GitRepository> repositories = ImmutableList.copyOf(gitManager.getRepositories());
+    dirMappingAwares.forEach(aware -> aware.updatedRepoList(repositories));
+    log.debug("Dir mappings change notification done");
   }
 }
