@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>173.0.0-dev</version>
+  <version>181.0.0-dev</version>
   <vendor url="https://github.com/zielu/GitToolBox">Lukasz Zielinski</vendor>
 
   <description><![CDATA[
@@ -53,6 +53,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      <h3>Changes in 181.0.0</h3>
+      <ul>
+        <li>Compatible with 181.*</li>
+      </ul>
       <h3>Changes in 173.2.1</h3>
       <ul>
         <li>Auto fetch exclusions (<a href="https://github.com/zielu/GitToolBox/issues/59">#59</a>)</li>
@@ -69,10 +73,6 @@
       <ul>
         <li>Restrict compatibility to 171.* (<a href="https://github.com/zielu/GitToolBox/issues/46">#46</a>)</li>
       </ul>
-      <h3>Changes in 171.2.0</h3>
-      <ul>
-        <li>Git Extender integration (<a href="https://github.com/zielu/GitToolBox/issues/43">#43</a>)</li>
-      </ul>
       ]]>
   </change-notes>
 
@@ -85,7 +85,7 @@
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="173" until-build="173.*"/>
+  <idea-version since-build="181" until-build="181.*"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
