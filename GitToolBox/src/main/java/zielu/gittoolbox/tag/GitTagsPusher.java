@@ -23,12 +23,10 @@ import zielu.gittoolbox.push.GtPushResult;
 public class GitTagsPusher {
   private final Project project;
   private final ProgressIndicator progressIndicator;
-  private final Git git;
 
   private GitTagsPusher(Project project, ProgressIndicator progress) {
     this.project = project;
     progressIndicator = progress;
-    git = ServiceManager.getService(Git.class);
   }
 
   public static GitTagsPusher create(@NotNull Project project, @NotNull ProgressIndicator progress) {
@@ -57,7 +55,7 @@ public class GitTagsPusher {
                             final GitRemote remote, final String url) {
     final GitLineHandlerListener progressListener = GitStandardProgressAnalyzer.createListener(progressIndicator);
     final GitPushRejectedDetector rejectedDetector = new GitPushRejectedDetector();
-    GitCommandResult result = git.runCommand(() -> {
+    GitCommandResult result = Git.getInstance().runCommand(() -> {
       final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(),
           GitCommand.PUSH);
       h.setUrl(url);
@@ -65,7 +63,7 @@ public class GitTagsPusher {
       h.setStdoutSuppressed(false);
       h.addLineListener(progressListener);
       h.addLineListener(rejectedDetector);
-      h.addProgressParameter();
+      h.addParameters("--progress");
       h.addParameters(remote.getName());
       h.addParameters(pushSpec.specs());
       return h;

@@ -28,16 +28,13 @@ public class IdeaMocksExtension implements BeforeEachCallback, AfterEachCallback
     Project project = mock(Project.class);
     MessageBus messageBus = mock(MessageBus.class);
     when(project.getMessageBus()).thenReturn(messageBus);
-    when(messageBus.syncPublisher(any(Topic.class))).thenAnswer(new Answer<Object>() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        Topic topic = invocation.getArgument(0);
-        Class listenerClass = topic.getListenerClass();
-        if (ideaMocks.hasMockListener(listenerClass)) {
-          return ideaMocks.getMockListener(listenerClass);
-        } else {
-          return ideaMocks.mockListener(listenerClass);
-        }
+    when(messageBus.syncPublisher(any(Topic.class))).thenAnswer(invocation -> {
+      Topic topic = invocation.getArgument(0);
+      Class<?> listenerClass = topic.getListenerClass();
+      if (ideaMocks.hasMockListener(listenerClass)) {
+        return ideaMocks.getMockListener(listenerClass);
+      } else {
+        return ideaMocks.mockListener(listenerClass);
       }
     });
 
