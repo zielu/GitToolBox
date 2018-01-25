@@ -6,7 +6,11 @@ Plugin for family of Jetbrains IDEs that expands build-in `Git Integration`.
 For list of features see [plugin.xml](./GitToolBox/src/main/resources/META-INF/plugin.xml)
 
 ## Jetbrains plugin repository
-[Plugin repository page](https://plugins.jetbrains.com/plugin/7499)
+[Plugin repository page](https://plugins.jetbrains.com/plugin/7499-gittoolbox)
+
+### EAP builds
+Add https://plugins.jetbrains.com/plugins/eap/7499 in **Settings > Plugins > Browse repositories... > Manage 
+repositories...** to receive early access builds.
 
 ## Architecture decisions record
 Decisions are stored [here](./GitToolBox/doc/arch).
