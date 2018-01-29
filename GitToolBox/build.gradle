@@ -12,7 +12,7 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.2.17"
+    id "org.jetbrains.intellij" version "0.2.18"
     id 'com.palantir.git-version' version '0.10.1'
 }
 
@@ -48,6 +48,11 @@ idea {
         jdkName = javaVersion
         languageLevel = javaVersion
     }
+}
+
+patchPluginXml {
+    changeNotes "${file('changenotes.html').getText('UTF-8')}"
+    pluginDescription "${file('description.html').getText('UTF-8')}"
 }
 
 version = "${version}"
