@@ -7,7 +7,6 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Map;
@@ -49,7 +48,6 @@ public class BehindTracker implements ProjectComponent {
     };
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   @NotNull
   public static BehindTracker getInstance(@NotNull Project project) {
     return project.getComponent(BehindTracker.class);

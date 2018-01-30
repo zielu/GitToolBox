@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.intellij.mock.MockVirtualFile;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;

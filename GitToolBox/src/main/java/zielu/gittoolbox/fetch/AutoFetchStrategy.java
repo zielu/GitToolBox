@@ -6,7 +6,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import java.util.List;
-import zielu.gittoolbox.GitToolBoxProject;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.util.GtUtil;

@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.util.messages.MessageBusConnection;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +35,6 @@ public class StatusBarManager implements Disposable, ProjectAware {
     });
   }
 
-  @SuppressFBWarnings({"NP_NULL_PARAM_DEREF"})
   @NotNull
   public static StatusBarManager create(@NotNull Project project) {
     return new StatusBarManager(project);

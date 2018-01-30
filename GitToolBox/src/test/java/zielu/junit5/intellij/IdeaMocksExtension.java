@@ -14,8 +14,6 @@ import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 public class IdeaMocksExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
   private static final ExtensionContext.Namespace NS = ExtensionContext.Namespace.create(IdeaMocksExtension.class);

@@ -5,7 +5,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,7 +27,6 @@ public class AutoFetchState implements ProjectComponent {
     this.project = project;
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   @NotNull
   public static AutoFetchState getInstance(@NotNull Project project) {
     return project.getComponent(AutoFetchState.class);

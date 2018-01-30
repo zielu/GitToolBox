@@ -8,7 +8,6 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,7 +66,6 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     return !this.autoFetchExclusions.equals(autoFetchExclusions);
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   public void fireChanged(@NotNull Project project) {
     project.getMessageBus().syncPublisher(ConfigNotifier.CONFIG_TOPIC).configChanged(project, this);
   }

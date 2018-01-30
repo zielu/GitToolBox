@@ -117,8 +117,9 @@ junitPlatformTest {
 apply plugin: 'findbugs'
 findbugs {
     toolVersion = "3.0.1"
-    ignoreFailures = true
+    ignoreFailures = false
     effort = 'default'
+    includeFilter = file("${projectDir}/config/findbugs/includeFilter.xml")
 }
 
 apply plugin: 'checkstyle'
@@ -160,7 +161,3 @@ def static buildTime() {
     df.setTimeZone(TimeZone.getTimeZone("UTC"))
     return df.format(new Date())
 }
-
-/*task('release') {
-    dependsOn clean, test, jacocoTestReport, buildPlugin
-}*/

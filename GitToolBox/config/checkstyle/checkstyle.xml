@@ -18,8 +18,6 @@
 <module name = "Checker">
     <property name="charset" value="UTF-8"/>
 
-    <property name="severity" value="warning"/>
-
     <property name="fileExtensions" value="java, properties, xml"/>
     <!-- Checks for whitespace                               -->
     <!-- See http://checkstyle.sf.net/config_whitespace.html -->
@@ -78,7 +76,6 @@
         <module name="MultipleVariableDeclarations"/>
         <module name="ArrayTypeStyle"/>
         <module name="MissingSwitchDefault"/>
-        <module name="FallThrough"/>
         <module name="UpperEll"/>
         <module name="ModifierOrder"/>
         <module name="EmptyLineSeparator">
@@ -225,11 +222,20 @@
 
         <!-- imports -->
         <module name="AvoidStarImport"/>
-        <module name="CustomImportOrder">
-            <property name="sortImportsInGroupAlphabetically" value="true"/>
-            <property name="separateLineBetweenGroups" value="true"/>
-            <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-        </module>
+        <module name="FallThrough"/>
         <module name="RedundantImport"/>
+        <module name="ReturnCount">
+            <property name="max" value="0"/>
+            <property name="tokens" value="CTOR_DEF"/>
+        </module>
+        <module name="ReturnCount">
+            <property name="max" value="2"/>
+            <property name="tokens" value="LAMBDA"/>
+        </module>
+        <module name="ReturnCount">
+            <property name="max" value="4"/>
+            <property name="tokens" value="METHOD_DEF"/>
+        </module>
+        <module name="UnusedImports"/>
     </module>
 </module>

@@ -1,7 +1,6 @@
 package zielu.gittoolbox.tag;
 
 import com.google.common.base.Preconditions;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import git4idea.GitUtil;

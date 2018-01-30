@@ -11,7 +11,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcsUtil.VcsImplUtil;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
@@ -46,7 +45,6 @@ public class GtFetcher {
     return new Builder();
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"}) //TODO: extract first if to better separate FB suppression
   @NotNull
   private String makeAdditionalInfoByRoot(@NotNull Map<VirtualFile, String> additionalInfo) {
     if (additionalInfo.isEmpty()) {
@@ -64,7 +62,6 @@ public class GtFetcher {
     return info.toString();
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"}) //TODO: separate FB suppression
   public ImmutableCollection<GitRepository> fetchRoots(@NotNull Collection<GitRepository> repositories) {
     final float fraction = 1f / repositories.size();
     Map<VirtualFile, String> additionalInfos = Maps.newHashMapWithExpectedSize(repositories.size());

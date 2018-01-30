@@ -15,20 +15,11 @@ class ExtensionContextParamResolver implements ParameterResolver {
   private final List<Class<?>> parameterTypes;
 
   ExtensionContextParamResolver(Namespace namespace, Class<?> first, Class<?>... others) {
-    this(namespace, new ParameterResolver() {
-      @Override
-      public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        return false;
-      }
-
-      @Override
-      public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        return null;
-      }
-    }, first, others);
+    this(namespace, new EmptyResolver(), first, others);
   }
 
-  ExtensionContextParamResolver(Namespace namespace, ParameterResolver parent, Class<?> first, Class<?>... others) {
+  private ExtensionContextParamResolver(Namespace namespace, ParameterResolver parent, Class<?> first,
+                                        Class<?>... others) {
     this.namespace = namespace;
     this.parent = parent;
     this.parameterTypes = Lists.asList(first, others);
@@ -56,5 +47,17 @@ class ExtensionContextParamResolver implements ParameterResolver {
         .map(Object.class::cast)
         .findFirst();
     return resolved.orElseGet(() -> parent.resolveParameter(parameterContext, extensionContext));
+  }
+
+  private static final class EmptyResolver implements ParameterResolver {
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+      return false;
+    }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+      return null;
+    }
   }
 }
