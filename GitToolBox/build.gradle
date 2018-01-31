@@ -97,10 +97,8 @@ jacoco {
 
 // workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
 // as 'test' task cleans generated report
-def jacocoExecutionData = files("${project.buildDir.name}/jacoco-junit5/test.exec")
-
 jacocoTestReport {
-    executionData "${jacocoExecutionData}"
+    executionData = files("${project.buildDir.name}/jacoco-junit5/test.exec")
 }
 
 junitPlatformTest {
@@ -110,7 +108,8 @@ junitPlatformTest {
         def cp = classpath.getFiles().stream().map(toString).collect(Collectors.joining(File.pathSeparator))
         environment 'CLASSPATH', cp
         classpath = classpath.filter { false }
-        jvmArgs "-javaagent:${configurations.testAgent.singleFile}=destfile=${jacocoExecutionData}"
+        jvmArgs "-javaagent:${configurations.testAgent.singleFile}=destfile=${project.buildDir.name}" +
+                "/jacoco-junit5/test.exec"
     }
 }
 
