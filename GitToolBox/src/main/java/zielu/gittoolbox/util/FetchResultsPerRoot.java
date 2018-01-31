@@ -46,9 +46,9 @@ public class FetchResultsPerRoot {
         }
       }
       if (anyError || anyNotAuthorized) {
-        notifier.notifyWeakError("Fetch problems:" + Html.BR + message.toString());
+        notifier.fetchError("Fetch problems:" + Html.BR + message.toString());
       } else {
-        notifier.notifyMinorWarning("Fetch problems:", message.toString());
+        notifier.fetchWarning("Fetch problems:", message.toString());
       }
     }
   }

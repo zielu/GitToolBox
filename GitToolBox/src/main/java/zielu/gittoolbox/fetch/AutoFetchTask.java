@@ -60,7 +60,7 @@ public class AutoFetchTask implements Runnable {
   }
 
   private NotificationHandle showFinishedNotification() {
-    return Notifier.getInstance(project).notifyLogOnly(
+    return Notifier.getInstance(project).autoFetchInfo(
         ResBundle.getString("message.autoFetch"),
         ResBundle.getString("message.finished"));
   }

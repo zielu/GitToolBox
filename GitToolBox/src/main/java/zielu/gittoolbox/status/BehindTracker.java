@@ -120,7 +120,7 @@ public class BehindTracker implements ProjectComponent {
   }
 
   private void displaySuccessNotification(StringBand message) {
-    Notifier.getInstance(project).notifySuccess(message.toString(), updateProjectListener);
+    Notifier.getInstance(project).behindTrackerSuccess(message.toString(), updateProjectListener);
   }
 
   @NotNull

@@ -32,10 +32,12 @@
 
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
 
-
     <applicationConfigurable instance="zielu.gittoolbox.ui.config.GtConfigurable" id="zielu.gittoolbox.app.config"/>
     <projectConfigurable instance="zielu.gittoolbox.ui.config.GtProjectConfigurable" id="zielu.svntoolbox.prj.config"/>
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator"/>
+
+    <projectService serviceInterface="zielu.gittoolbox.notification.GtNotifier"
+                    serviceImplementation="zielu.gittoolbox.notification.GtNotifierImpl"/>
 
     <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.completion.CompletionCheckinHandlerFactory"/>
     <completion.contributor language="TEXT"
