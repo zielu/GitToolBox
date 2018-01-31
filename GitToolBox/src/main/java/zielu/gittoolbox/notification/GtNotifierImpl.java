@@ -66,16 +66,6 @@ class GtNotifierImpl implements GtNotifier {
   }
 
   @NotNull
-  private Notification notify(@NotNull NotificationGroup notificationGroup,
-                              @NotNull String title,
-                              @NotNull String message,
-                              @NotNull NotificationType type,
-                              @Nullable NotificationListener listener) {
-    Notification notification = createNotification(notificationGroup, title, message, type, listener);
-    return notify(notification);
-  }
-
-  @NotNull
   private Notification createNotification(@NotNull NotificationGroup notificationGroup,
                                           @NotNull String title,
                                           @NotNull String message,
@@ -86,8 +76,19 @@ class GtNotifierImpl implements GtNotifier {
       message = title;
       title = "";
     }
-    // if both title and message were empty, then it is a problem in the calling code => Notifications engine assertion will notify.
+    // if both title and message were empty, then it is a problem in the calling code =>
+    // Notifications engine assertion will notify.
     return notificationGroup.createNotification(title, message, type, listener);
+  }
+
+  @NotNull
+  private Notification notify(@NotNull NotificationGroup notificationGroup,
+                              @NotNull String title,
+                              @NotNull String message,
+                              @NotNull NotificationType type,
+                              @Nullable NotificationListener listener) {
+    Notification notification = createNotification(notificationGroup, title, message, type, listener);
+    return notify(notification);
   }
 
   @NotNull
