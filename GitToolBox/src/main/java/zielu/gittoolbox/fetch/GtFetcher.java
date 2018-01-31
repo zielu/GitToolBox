@@ -103,7 +103,7 @@ public class GtFetcher {
   private void showAdditionalInfos(Map<VirtualFile, String> additionalInfos) {
     String additionalInfo = makeAdditionalInfoByRoot(additionalInfos);
     if (!StringUtil.isEmptyOrSpaces(additionalInfo)) {
-      Notifier.getInstance(project).notifyMinorInfo("Fetch details", additionalInfo);
+      Notifier.getInstance(project).fetchInfo("Fetch details", additionalInfo);
     }
   }
 

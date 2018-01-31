@@ -44,15 +44,21 @@
     <ul>
       <li>File / Settings / Other Settings / Git ToolBox Global</li>
       <li>File / Settings / Other Settings / Git ToolBox Project</li>
+      <li>File / Settings / Appearance & Behavior / Notifications</li>
     </ul>
     <b>Mac OS (with project open):</b>
     <ul>
       <li>IntelliJ IDEA / Preferences... / Other Settings / Git ToolBox Global</li>
       <li>IntelliJ IDEA / Preferences... / Other Settings / Git ToolBox Project</li>
+      <li>IntelliJ IDEA / Preferences... / Appearance & Behavior / Notifications</li>
     </ul>
     ]]></description>
 
   <change-notes><![CDATA[
+      <h3>Changes in 173.3.0</h3>
+      <ul>
+        <li>Configurable notification groups (<a href="https://github.com/zielu/GitToolBox/issues/72">#72</a>)</li>
+      </ul>
       <h3>Changes in 173.2.1</h3>
       <ul>
         <li>Auto fetch exclusions (<a href="https://github.com/zielu/GitToolBox/issues/59">#59</a>)</li>
@@ -94,10 +100,12 @@
 
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
 
-
     <applicationConfigurable instance="zielu.gittoolbox.ui.config.GtConfigurable" id="zielu.gittoolbox.app.config"/>
     <projectConfigurable instance="zielu.gittoolbox.ui.config.GtProjectConfigurable" id="zielu.svntoolbox.prj.config"/>
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator"/>
+
+    <projectService serviceInterface="zielu.gittoolbox.notification.GtNotifier"
+                    serviceImplementation="zielu.gittoolbox.notification.GtNotifierImpl"/>
 
     <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.completion.CompletionCheckinHandlerFactory"/>
     <completion.contributor language="TEXT"
