@@ -12,7 +12,7 @@
 -->
 
 <suppressions>
-  <suppress files=".*(?:UtfSeq)\.java$" checks="AvoidEscapedUnicodeCharacters"/>
+  <suppress files=".*UtfSeq\.java$" checks="AvoidEscapedUnicodeCharacters"/>
 
   <!-- JUnit Rules require the rules field to have public visibility. -->
   <!-- See http://checkstyle.sourceforge.net/config_design.html#VisibilityModifier -->

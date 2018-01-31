@@ -8,7 +8,6 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryManager;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.ArrayList;

@@ -6,7 +6,11 @@ Plugin for family of Jetbrains IDEs that expands build-in `Git Integration`.
 For list of features see [plugin.xml](./GitToolBox/src/main/resources/META-INF/plugin.xml)
 
 ## Jetbrains plugin repository
-[Plugin repository page](https://plugins.jetbrains.com/plugin/7499)
+[Plugin repository page](https://plugins.jetbrains.com/plugin/7499-gittoolbox)
+
+### EAP builds
+Add https://plugins.jetbrains.com/plugins/eap/7499 in **Settings > Plugins > Browse repositories... > Manage 
+repositories...** to receive early access builds.
 
 ## Architecture decisions record
 Decisions are stored [here](./GitToolBox/doc/arch).
@@ -15,7 +19,7 @@ Decisions are stored [here](./GitToolBox/doc/arch).
 
 ## Development builds
 If version set in [gradle.properties](./GitToolBox/gradle.properties) ends with `-dev` then build datetime in UTC timezone will be appended.
-For example dev build on `2018-01-13 13:06:12 CET` will produce version `173.1.2-dev.20180113.120612`
+For example dev build on `2018-01-13 13:06:12 CET` will produce version `173.1.2-dev.20180113.120612.adddfbcd10`
 
 ### Useful build commands
 Release build
@@ -32,7 +36,7 @@ gradle clean test jacocoTestReport
 ```
 Update gradlew version
 ```
-gradle wrapper --gradle-version 4.4.1 --distribution-type ALL
+gradle wrapper --gradle-version 4.5 --distribution-type ALL
 ```
 
 ### Useful run commands

@@ -14,8 +14,6 @@ import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 public class IdeaMocksExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
   private static final ExtensionContext.Namespace NS = ExtensionContext.Namespace.create(IdeaMocksExtension.class);
@@ -28,16 +26,13 @@ public class IdeaMocksExtension implements BeforeEachCallback, AfterEachCallback
     Project project = mock(Project.class);
     MessageBus messageBus = mock(MessageBus.class);
     when(project.getMessageBus()).thenReturn(messageBus);
-    when(messageBus.syncPublisher(any(Topic.class))).thenAnswer(new Answer<Object>() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        Topic topic = invocation.getArgument(0);
-        Class listenerClass = topic.getListenerClass();
-        if (ideaMocks.hasMockListener(listenerClass)) {
-          return ideaMocks.getMockListener(listenerClass);
-        } else {
-          return ideaMocks.mockListener(listenerClass);
-        }
+    when(messageBus.syncPublisher(any(Topic.class))).thenAnswer(invocation -> {
+      Topic topic = invocation.getArgument(0);
+      Class<?> listenerClass = topic.getListenerClass();
+      if (ideaMocks.hasMockListener(listenerClass)) {
+        return ideaMocks.getMockListener(listenerClass);
+      } else {
+        return ideaMocks.mockListener(listenerClass);
       }
     });
 

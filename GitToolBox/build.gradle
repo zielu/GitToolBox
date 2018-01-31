@@ -12,7 +12,8 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.2.17"
+    id "org.jetbrains.intellij" version "0.2.18"
+    id 'com.palantir.git-version' version '0.10.1'
 }
 
 repositories {
@@ -52,6 +53,11 @@ idea {
 version = "${version}"
 if (version.endsWith("-dev")) {
     version += ".${buildTime()}"
+    def details = versionDetails()
+    version += "+${details.gitHash}"
+    if (!details.isClean) {
+        version += ".dirty"
+    }
 }
 
 junitPlatform {
@@ -104,8 +110,9 @@ junitPlatformTest {
 apply plugin: 'findbugs'
 findbugs {
     toolVersion = "3.0.1"
-    ignoreFailures = true
+    ignoreFailures = false
     effort = 'default'
+    includeFilter = file("${projectDir}/config/findbugs/includeFilter.xml")
 }
 
 apply plugin: 'checkstyle'
@@ -118,15 +125,15 @@ checkstyle {
 }
 
 dependencies {
-    checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
+    checkstyle("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
     testAgent("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
 
     compile("org.jodd:jodd-core:${joddVersion}")
     compile("com.google.guava:guava:${guavaVersion}")
     compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
 
-    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
-    compile group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
+    compile('com.google.code.findbugs:jsr305:3.0.2')
+    compile('com.google.code.findbugs:findbugs:3.0.1')
 
     testCompile("org.mockito:mockito-core:${mockitoVersion}")
     testCompile("org.assertj:assertj-core:${assertjCoreVersion}")

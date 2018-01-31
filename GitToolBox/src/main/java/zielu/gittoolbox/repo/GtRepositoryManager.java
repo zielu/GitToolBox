@@ -9,7 +9,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
