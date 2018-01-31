@@ -51,7 +51,7 @@ idea {
 }
 
 patchPluginXml {
-    changeNotes "${file('changenotes.html').getText('UTF-8')}"
+    changeNotes "${file('change-notes.html').getText('UTF-8')}"
     pluginDescription "${file('description.html').getText('UTF-8')}"
 }
 
@@ -94,9 +94,13 @@ apply plugin: 'jacoco'
 jacoco {
     toolVersion = "${jacocoVersion}"
 }
+
+// workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
+// as 'test' task cleans generated report
+def jacocoExecutionData = files("${project.buildDir.name}/jacoco-junit5/test.exec")
+
 jacocoTestReport {
-    //workaround for skipped task as running test task cleans generated report
-    executionData = files("${project.buildDir.name}/jacoco-junit5/test.exec")
+    executionData "${jacocoExecutionData}"
 }
 
 junitPlatformTest {
@@ -106,9 +110,7 @@ junitPlatformTest {
         def cp = classpath.getFiles().stream().map(toString).collect(Collectors.joining(File.pathSeparator))
         environment 'CLASSPATH', cp
         classpath = classpath.filter { false }
-        //workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
-        jvmArgs "-javaagent:${configurations.testAgent.singleFile}=destfile=${project.buildDir.name}" +
-                "/jacoco-junit5/test.exec"
+        jvmArgs "-javaagent:${configurations.testAgent.singleFile}=destfile=${jacocoExecutionData}"
     }
 }
 

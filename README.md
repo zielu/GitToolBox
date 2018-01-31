@@ -6,7 +6,7 @@ Plugin for family of Jetbrains IDEs that expands build-in `Git Integration`.
 For list of features see [description](./GitToolBox/description.html)
 
 ## Change notes
-For list of change notes see [changenotes](./GitToolBox/changenotes.html)
+For list of change notes see [changenotes](./GitToolBox/change-notes.html)
 
 ## Jetbrains plugin repository
 [Plugin repository page](https://plugins.jetbrains.com/plugin/7499-gittoolbox)
