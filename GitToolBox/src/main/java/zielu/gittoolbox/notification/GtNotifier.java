@@ -15,8 +15,6 @@ public interface GtNotifier {
       "GitToolBox Behind Tracker", ChangesViewContentManager.TOOLWINDOW_ID);
   NotificationGroup FETCH_GROUP_ID = NotificationGroup.toolWindowGroup(
       "GitToolBox Fetch", ChangesViewContentManager.TOOLWINDOW_ID);
-  NotificationGroup AUTO_FETCH = new NotificationGroup(
-      "GitToolBox Auto Fetch", NotificationDisplayType.NONE, true);
 
   @NotNull
   static GtNotifier getInstance(@NotNull Project project) {
