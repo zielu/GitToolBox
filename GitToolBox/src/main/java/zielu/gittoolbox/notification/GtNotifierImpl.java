@@ -6,6 +6,7 @@ import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vcs.VcsNotifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,7 +63,7 @@ class GtNotifierImpl implements GtNotifier {
   @NotNull
   @Override
   public Notification autoFetchInfo(@NotNull String title, @NotNull String message) {
-    return notify(AUTO_FETCH, title, message, NotificationType.INFORMATION, null);
+    return notify(VcsNotifier.SILENT_NOTIFICATION, title, message, NotificationType.INFORMATION, null);
   }
 
   @NotNull
