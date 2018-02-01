@@ -23,7 +23,7 @@ public class AutoFetchState implements ProjectComponent {
   private final Project project;
   private MessageBusConnection connection;
 
-  public AutoFetchState(@NotNull Project project) {
+  AutoFetchState(@NotNull Project project) {
     this.project = project;
   }
 

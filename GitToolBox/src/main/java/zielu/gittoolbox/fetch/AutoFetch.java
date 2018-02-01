@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.messages.MessageBusConnection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +15,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxApp;
-import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
-public class AutoFetch implements ProjectComponent {
+public class AutoFetch implements ProjectComponent, AutoFetchComponent {
   private static final int DEFAULT_DELAY_MINUTES = 1;
   private final Logger log = Logger.getInstance(getClass());
 
@@ -27,37 +25,16 @@ public class AutoFetch implements ProjectComponent {
   private final AtomicBoolean active = new AtomicBoolean();
   private final List<ScheduledFuture<?>> scheduledTasks = new LinkedList<>();
   private final Project project;
-  private MessageBusConnection connection;
   private ScheduledExecutorService executor;
   private int currentInterval;
 
-  public AutoFetch(@NotNull Project project) {
+  AutoFetch(@NotNull Project project) {
     this.project = project;
   }
 
   @NotNull
   public static AutoFetch getInstance(@NotNull Project project) {
     return project.getComponent(AutoFetch.class);
-  }
-
-  public static AutoFetch create(Project project) {
-    return new AutoFetch(project);
-  }
-
-  @Override
-  public void initComponent() {
-    connectToMessageBus();
-  }
-
-  private void connectToMessageBus() {
-    connection = project.getMessageBus().connect();
-    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
-      @Override
-      public void configChanged(Project project, GitToolBoxConfigForProject config) {
-        onConfigChange(config);
-      }
-    });
-    connection.subscribe(AutoFetchNotifier.TOPIC, this::onStateChanged);
   }
 
   private void initializeFirstTask() {
@@ -85,7 +62,8 @@ public class AutoFetch implements ProjectComponent {
     return scheduledTasks.isEmpty();
   }
 
-  private void onConfigChange(@NotNull GitToolBoxConfigForProject config) {
+  @Override
+  public void configChanged(@NotNull GitToolBoxConfigForProject config) {
     if (config.autoFetch) {
       log.debug("Auto-fetch enabled");
       autoFetchEnabled(config);
@@ -150,7 +128,7 @@ public class AutoFetch implements ProjectComponent {
     submitTaskToExecutor(seconds, TimeUnit.SECONDS);
   }
 
-  private void onStateChanged(@NotNull AutoFetchState state) {
+  public void stateChanged(@NotNull AutoFetchState state) {
     if (isAutoFetchEnabled(state)) {
       scheduleTaskOnStateChange();
     }
@@ -245,6 +223,7 @@ public class AutoFetch implements ProjectComponent {
     lastAutoFetchTimestamp.set(System.currentTimeMillis());
   }
 
+  @Override
   public long lastAutoFetch() {
     return lastAutoFetchTimestamp.get();
   }
@@ -265,14 +244,6 @@ public class AutoFetch implements ProjectComponent {
   public void projectClosed() {
     if (active.compareAndSet(true, false)) {
       cancelCurrentTasks();
-    }
-  }
-
-  @Override
-  public void disposeComponent() {
-    if (connection != null) {
-      connection.disconnect();
-      connection = null;
     }
   }
 
