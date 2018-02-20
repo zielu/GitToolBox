@@ -1,7 +1,6 @@
 package zielu.gittoolbox.notification;
 
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.components.ServiceManager;
