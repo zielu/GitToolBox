@@ -129,15 +129,12 @@ public class BehindTracker implements ProjectComponent {
   private ChangeType detectChangeTypeIfBothPresent(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
     if (isSameRemoteBranch(previous, current)) {
       return detectChangeTypeIfSameRemoteBranch(previous, current);
-    } else {
-      return ChangeType.SWITCHED;
     }
+    return ChangeType.NONE;
   }
 
   private ChangeType detectChangeTypeIfSameRemoteBranch(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
-    if (isLocalBranchSwitched(previous, current)) {
-      return ChangeType.SWITCHED;
-    } else if (isRemoteHashChanged(previous, current)) {
+    if (isRemoteHashChanged(previous, current)) {
       return ChangeType.FETCHED;
     } else {
       return ChangeType.NONE;
@@ -152,6 +149,7 @@ public class BehindTracker implements ProjectComponent {
     return !previous.status().sameRemoteHash(current.status());
   }
 
+  @Deprecated
   private boolean isLocalBranchSwitched(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
     return !previous.status().sameLocalBranch(current.status());
   }
@@ -179,8 +177,10 @@ public class BehindTracker implements ProjectComponent {
 
   private enum ChangeType {
     NONE(false, "NONE"),
+    @Deprecated
     HIDDEN(false, "HIDDEN"),
     FETCHED(true, ResBundle.getString("message.fetch.done")),
+    @Deprecated
     SWITCHED(true, ResBundle.getString("message.switched"));
 
     private final boolean myVisible;
