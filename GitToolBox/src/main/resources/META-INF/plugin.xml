@@ -81,7 +81,10 @@
       <implementation-class>zielu.gittoolbox.fetch.AutoFetchState</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.status.BehindTracker</implementation-class>
+      <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTracker</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTrackerController</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.completion.GitToolBoxCompletionProject</implementation-class>

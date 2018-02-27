@@ -1,4 +1,4 @@
-package zielu.gittoolbox.status;
+package zielu.gittoolbox.status.behindtracker;
 
 import com.google.common.collect.Maps;
 import com.intellij.notification.Notification;
@@ -6,7 +6,6 @@ import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Map;
@@ -19,11 +18,11 @@ import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.cache.PerRepoInfoCache;
-import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.config.GitToolBoxConfig;
+import zielu.gittoolbox.status.GitAheadBehindCount;
+import zielu.gittoolbox.status.RevListCount;
 import zielu.gittoolbox.ui.StatusMessages;
 import zielu.gittoolbox.ui.UpdateProject;
 import zielu.gittoolbox.util.GtUtil;
@@ -35,8 +34,6 @@ public class BehindTracker implements ProjectComponent {
   private final Map<GitRepository, RepoInfo> state = new ConcurrentHashMap<>();
   private final Project project;
   private final NotificationListener updateProjectListener;
-
-  private MessageBusConnection connection;
 
   public BehindTracker(@NotNull Project project) {
     this.project = project;
@@ -51,31 +48,6 @@ public class BehindTracker implements ProjectComponent {
   @NotNull
   public static BehindTracker getInstance(@NotNull Project project) {
     return project.getComponent(BehindTracker.class);
-  }
-
-  @Override
-  public void initComponent() {
-    connectToMessageBus();
-  }
-
-  private void connectToMessageBus() {
-    connection = project.getMessageBus().connect();
-    connection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
-      @Override
-      public void stateChanged(@NotNull RepoInfo info,
-                               @NotNull GitRepository repository) {
-        if (log.isDebugEnabled()) {
-          log.debug("State changed [", GtUtil.name(repository), "]: ", info);
-        }
-        onRepoChange(info, repository);
-      }
-    });
-  }
-
-  private void onRepoChange(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-    if (active.get()) {
-      onStateChange(repository, info);
-    }
   }
 
   private Optional<BehindMessage> prepareMessage() {
@@ -134,7 +106,7 @@ public class BehindTracker implements ProjectComponent {
     return GitToolBoxConfig.getInstance().behindTracker;
   }
 
-  private void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
+  void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
     RepoInfo previousInfo = state.put(repository, info);
     if (log.isDebugEnabled()) {
       log.debug("Info update [", GtUtil.name(repository), "]: ", previousInfo, " > ", info);
@@ -201,13 +173,8 @@ public class BehindTracker implements ProjectComponent {
   @Override
   public void projectClosed() {
     if (active.compareAndSet(true, false)) {
-      disconnectFromMessageBus();
       state.clear();
     }
-  }
-
-  private void disconnectFromMessageBus() {
-    connection.disconnect();
   }
 
   private enum ChangeType {

@@ -94,10 +94,6 @@ public class StatusMessages {
     return result;
   }
 
-  public String prepareBehindMessage(Map<GitRepository, RevListCount> statuses) {
-    return prepareBehindMessage(statuses, false);
-  }
-
   public String prepareBehindMessage(Map<GitRepository, RevListCount> statuses, boolean forceRepoNames) {
     StringBand message = new StringBand();
     if (statuses.size() == 1) {
