@@ -31,8 +31,13 @@ public class BehindTrackerController implements ProjectComponent {
   @Override
   public void initComponent() {
     behindTracker = BehindTracker.getInstance(project);
-    connectToMessageBus();
     executor = new ReschedulingExecutor(GitToolBoxApp.getInstance().tasksExecutor(), true);
+    connectToMessageBus();
+  }
+
+  @Override
+  public void projectOpened() {
+    active.compareAndSet(false, true);
   }
 
   private void connectToMessageBus() {
