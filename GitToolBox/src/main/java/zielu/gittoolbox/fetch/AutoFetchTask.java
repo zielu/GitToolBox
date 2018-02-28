@@ -27,6 +27,8 @@ import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.ui.util.AppUtil;
+import zielu.gittoolbox.util.DisposeSafeCallable;
+import zielu.gittoolbox.util.GtUtil;
 
 public class AutoFetchTask implements Runnable {
   private static final boolean showNotifications = false;
@@ -132,24 +134,15 @@ public class AutoFetchTask implements Runnable {
   }
 
   private boolean tryExecuteFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
-    return parent.callIfActive(() -> {
+    return parent.callIfActive(new DisposeSafeCallable<>(project, () -> {
       log.debug("Auto-fetching...");
-      try {
-        executeFetch(repos, indicator);
-        log.debug("Finished auto-fetch");
-        if (showNotifications) {
-          finishedNotification();
-        }
-      } catch (AssertionError error) {
-        if (project.isDisposed()) {
-          log.debug("Project already disposed", error);
-        } else {
-          log.error(error);
-          return false;
-        }
+      executeFetch(repos, indicator);
+      log.debug("Finished auto-fetch");
+      if (showNotifications) {
+        finishedNotification();
       }
       return true;
-    }).orElse(false);
+    }, false)).orElse(false);
   }
 
   private void executeFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
@@ -171,7 +164,8 @@ public class AutoFetchTask implements Runnable {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
           parent.runIfActive(() -> {
-            if (tryToFetch(repos, indicator, getTitle())) {
+            String title = repos.stream().map(GtUtil::name).collect(Collectors.joining(", "));
+            if (tryToFetch(repos, indicator, title)) {
               parent.scheduleNextTask();
             }
           });

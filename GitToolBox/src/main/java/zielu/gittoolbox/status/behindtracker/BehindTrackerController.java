@@ -5,15 +5,22 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.util.DisposeSafeRunnable;
 import zielu.gittoolbox.util.GtUtil;
+import zielu.gittoolbox.util.ReschedulingExecutor;
 
 public class BehindTrackerController implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
+  private final AtomicBoolean active = new AtomicBoolean();
   private final Project project;
+  private ReschedulingExecutor executor;
   private BehindTracker behindTracker;
   private MessageBusConnection connection;
 
@@ -25,6 +32,7 @@ public class BehindTrackerController implements ProjectComponent {
   public void initComponent() {
     behindTracker = BehindTracker.getInstance(project);
     connectToMessageBus();
+    executor = new ReschedulingExecutor(GitToolBoxApp.getInstance().tasksExecutor(), true);
   }
 
   private void connectToMessageBus() {
@@ -33,17 +41,33 @@ public class BehindTrackerController implements ProjectComponent {
       @Override
       public void stateChanged(@NotNull RepoInfo info,
                                @NotNull GitRepository repository) {
-        if (log.isDebugEnabled()) {
-          log.debug("State changed [", GtUtil.name(repository), "]: ", info);
+        if (active.get()) {
+          handleStateChange(info, repository);
         }
-        behindTracker.onStateChange(repository, info);
       }
     });
   }
 
+  private void handleStateChange(@NotNull RepoInfo info,
+                                 @NotNull GitRepository repository) {
+    if (log.isDebugEnabled()) {
+      log.debug("State changed [", GtUtil.name(repository), "]: ", info);
+    }
+    behindTracker.onStateChange(repository, info);
+    scheduleNotifyTask();
+  }
+
+  private void scheduleNotifyTask() {
+    BehindNotifyTask task = new BehindNotifyTask(project);
+    executor.schedule("behind-notify", new DisposeSafeRunnable(project, task), 5, TimeUnit.SECONDS);
+  }
+
   @Override
   public void projectClosed() {
-    disconnectFromMessageBus();
+    if (active.compareAndSet(true, false)) {
+      disconnectFromMessageBus();
+      executor.dispose();
+    }
   }
 
   private void disconnectFromMessageBus() {
@@ -53,5 +77,6 @@ public class BehindTrackerController implements ProjectComponent {
   @Override
   public void disposeComponent() {
     connection = null;
+    executor = null;
   }
 }
