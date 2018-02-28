@@ -29,15 +29,19 @@ public class GitToolBoxApp implements ApplicationComponent {
     autoFetchExecutor = Executors.newSingleThreadScheduledExecutor(
         new ThreadFactoryBuilder().setDaemon(true).setNameFormat("AutoFetch-%s").build()
     );
+    log.debug("Created auto-fetch executor: ", autoFetchExecutor);
     tasksExecutor = Executors.newScheduledThreadPool(2,
         new ThreadFactoryBuilder().setDaemon(true).setNameFormat("GtTask-%s").build()
     );
+    log.debug("Created tasks executor: ", tasksExecutor);
   }
 
   @Override
   public void disposeComponent() {
     shutdown(autoFetchExecutor);
     shutdown(tasksExecutor);
+    autoFetchExecutor = null;
+    tasksExecutor = null;
   }
 
   private void shutdown(ScheduledExecutorService executor) {

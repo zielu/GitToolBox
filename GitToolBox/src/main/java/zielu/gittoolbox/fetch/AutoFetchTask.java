@@ -164,7 +164,7 @@ public class AutoFetchTask implements Runnable {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
           parent.runIfActive(() -> {
-            String title = repos.stream().map(GtUtil::name).collect(Collectors.joining(", "));
+            String title = autoFetchTitle(repos);
             if (tryToFetch(repos, indicator, title)) {
               parent.scheduleNextTask();
             }
@@ -177,6 +177,11 @@ public class AutoFetchTask implements Runnable {
         AppUtil.invokeLaterIfNeeded(this::finishedWithoutFetch);
       }
     }
+  }
+
+  private String autoFetchTitle(List<GitRepository> repos) {
+    String reposPart = repos.stream().map(GtUtil::name).collect(Collectors.joining(", "));
+    return ResBundle.getString("message.autoFetch.progress.prefix") + ": " + reposPart;
   }
 
   @Override
