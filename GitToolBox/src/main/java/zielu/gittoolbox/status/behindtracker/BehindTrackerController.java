@@ -63,15 +63,17 @@ public class BehindTrackerController implements ProjectComponent {
   }
 
   private void scheduleNotifyTask() {
-    BehindNotifyTask task = new BehindNotifyTask(project);
-    executor.schedule("behind-notify", new DisposeSafeRunnable(project, task), 5, TimeUnit.SECONDS);
+    if (active.get()) {
+      BehindNotifyTask task = new BehindNotifyTask(project);
+      executor.schedule("behind-notify", new DisposeSafeRunnable(project, task), 20, TimeUnit.SECONDS);
+    }
   }
 
   @Override
   public void projectClosed() {
     if (active.compareAndSet(true, false)) {
       disconnectFromMessageBus();
-      executor.dispose();
+      executor.close();
     }
   }
 
@@ -82,6 +84,7 @@ public class BehindTrackerController implements ProjectComponent {
   @Override
   public void disposeComponent() {
     connection = null;
+    executor.dispose();
     executor = null;
   }
 }

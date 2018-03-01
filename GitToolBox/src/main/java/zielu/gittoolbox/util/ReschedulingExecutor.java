@@ -41,9 +41,13 @@ public class ReschedulingExecutor implements Disposable {
     }
   }
 
+  public void close() {
+    active.compareAndSet(true, false);
+  }
+
   @Override
   public void dispose() {
-    if (active.compareAndSet(true, false)) {
+    if (!active.get()) {
       ImmutableList<Future<?>> existingTasks = ImmutableList.copyOf(tasks.values());
       tasks.clear();
       existingTasks.forEach(task -> task.cancel(mayInterrupt));
