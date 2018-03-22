@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.intellij.mock.MockVirtualFile;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
+import name.falgout.jeffrey.testing.junit5.MockitoExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import zielu.junit5.intellij.IdeaMocks;
 import zielu.junit5.intellij.IdeaMocksExtension;
-import zielu.junit5.mockito.MockitoExtension;
 
 @Tag("fast")
 @ExtendWith({MockitoExtension.class, IdeaMocksExtension.class})

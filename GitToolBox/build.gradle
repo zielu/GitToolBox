@@ -3,11 +3,10 @@ import java.util.stream.Collectors
 
 buildscript {
     repositories {
-        maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
         mavenCentral()
     }
     dependencies {
-        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.3"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:1.1.0"
     }
 }
 
@@ -142,6 +141,7 @@ dependencies {
     compile group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
     testCompile("org.mockito:mockito-core:${mockitoVersion}")
+    testCompile 'name.falgout.jeffrey.testing.junit5:mockito-extension:1.0.0'
     testCompile("org.assertj:assertj-core:${assertjCoreVersion}")
     // JUnit 5
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
