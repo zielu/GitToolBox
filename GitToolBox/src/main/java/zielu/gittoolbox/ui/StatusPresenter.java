@@ -1,7 +1,9 @@
 package zielu.gittoolbox.ui;
 
+import zielu.gittoolbox.status.BehindStatus;
+
 public interface StatusPresenter {
-  String behindStatus(int behind);
+  String behindStatus(BehindStatus behind);
 
   String aheadBehindStatus(int ahead, int behind);
 

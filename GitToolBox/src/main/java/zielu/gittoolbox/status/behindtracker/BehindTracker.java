@@ -12,8 +12,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import javax.swing.event.HyperlinkEvent;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
@@ -22,8 +22,8 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.config.GitToolBoxConfig;
+import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.status.GitAheadBehindCount;
-import zielu.gittoolbox.status.RevListCount;
 import zielu.gittoolbox.ui.StatusMessages;
 import zielu.gittoolbox.ui.UpdateProject;
 import zielu.gittoolbox.util.GtUtil;
@@ -32,8 +32,8 @@ import zielu.gittoolbox.util.Html;
 public class BehindTracker implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
-  private final Map<GitRepository, RepoInfo> state = new ConcurrentHashMap<>();
-  private final Map<GitRepository, ChangeType> pendingChanges = new ConcurrentHashMap<>();
+  private final Map<GitRepository, RepoInfo> state = new HashMap<>();
+  private final Map<GitRepository, PendingChange> pendingChanges = new HashMap<>();
   private final Project project;
   private final NotificationListener updateProjectListener;
 
@@ -53,7 +53,7 @@ public class BehindTracker implements ProjectComponent {
   }
 
   private Optional<BehindMessage> prepareMessage(@NotNull Collection<GitRepository> repositories) {
-    Map<GitRepository, RevListCount> statuses = mapStateAsStatuses(repositories);
+    Map<GitRepository, BehindStatus> statuses = mapStateAsStatuses(repositories);
 
     if (statuses.isEmpty()) {
       return Optional.empty();
@@ -62,16 +62,19 @@ public class BehindTracker implements ProjectComponent {
     }
   }
 
-  private Map<GitRepository, RevListCount> mapStateAsStatuses(@NotNull Collection<GitRepository> repositories) {
-    Map<GitRepository, RevListCount> statuses = new HashMap<>();
+  private synchronized Map<GitRepository, BehindStatus> mapStateAsStatuses(
+      @NotNull Collection<GitRepository> repositories) {
+
+    Map<GitRepository, BehindStatus> statuses = new HashMap<>();
     repositories.forEach(repo -> {
       RepoInfo info = state.getOrDefault(repo, RepoInfo.empty());
-      info.count().filter(GitAheadBehindCount::isNotZero).ifPresent(count -> statuses.put(repo, count.behind));
+      info.count().filter(GitAheadBehindCount::isNotZero).ifPresent(count -> statuses.put(repo,
+          BehindStatus.create(count.behind)));
     });
     return statuses;
   }
 
-  private BehindMessage createBehindMessage(Map<GitRepository, RevListCount> statuses) {
+  private BehindMessage createBehindMessage(Map<GitRepository, BehindStatus> statuses) {
     boolean manyReposInProject = hasManyReposInProject();
     boolean manyReposInStatuses = statuses.size() > 1;
     return new BehindMessage(StatusMessages.getInstance().prepareBehindMessage(statuses, manyReposInProject),
@@ -110,14 +113,43 @@ public class BehindTracker implements ProjectComponent {
   }
 
   void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
+    synchronized (this) {
+      onStateChangeUnsafe(repository, info);
+    }
+  }
+
+  private void onStateChangeUnsafe(@NotNull GitRepository repository, @NotNull RepoInfo info) {
     RepoInfo previousInfo = state.put(repository, info);
     if (log.isDebugEnabled()) {
       log.debug("Info update [", GtUtil.name(repository), "]: ", previousInfo, " > ", info);
     }
     ChangeType changeType = detectChangeType(previousInfo, info);
+    PendingChange oldPending = pendingChanges.remove(repository);
     if (changeType.isVisible()) {
-      pendingChanges.put(repository, changeType);
+      BehindStatus status = null;
+      if (oldPending == null) {
+        status = calculateBehindStatus(info, count -> BehindStatus.create(count.behind));
+      } else if (info.count().isPresent()) {
+        status = calculateBehindStatus(info, count -> calculateBehindStatus(previousInfo, count));
+      }
+      Optional.ofNullable(status)
+          .ifPresent(stat -> pendingChanges.put(repository, new PendingChange(stat, changeType)));
     }
+  }
+
+  private BehindStatus calculateBehindStatus(@NotNull RepoInfo info,
+                                             @NotNull Function<GitAheadBehindCount, BehindStatus> operation) {
+    return info.count()
+        .filter(GitAheadBehindCount::isNotZeroBehind)
+        .map(operation)
+        .orElseGet(BehindStatus::empty);
+  }
+
+  private BehindStatus calculateBehindStatus(@Nullable RepoInfo previous, @NotNull GitAheadBehindCount currentCount) {
+    int oldBehind = Optional.ofNullable(previous).flatMap(RepoInfo::count)
+        .map(count -> count.behind.value()).orElse(0);
+    int delta = currentCount.behind.value() - oldBehind;
+    return BehindStatus.create(currentCount.behind, delta);
   }
 
   private ChangeType detectChangeType(@Nullable RepoInfo previous, @NotNull RepoInfo current) {
@@ -159,11 +191,16 @@ public class BehindTracker implements ProjectComponent {
 
   void showChangeNotification() {
     if (isNotificationEnabled()) {
-      Collection<GitRepository> changedRepos = ImmutableSet.copyOf(pendingChanges.keySet());
-      pendingChanges.clear();
+      Collection<GitRepository> changedRepos = drainChangedRepos();
       log.debug("Show notification for ", changedRepos.size(), " repositories");
       showNotification(changedRepos);
     }
+  }
+
+  private synchronized Collection<GitRepository> drainChangedRepos() {
+    Collection<GitRepository> changedRepos = ImmutableSet.copyOf(pendingChanges.keySet());
+    pendingChanges.clear();
+    return changedRepos;
   }
 
   @Override
@@ -173,6 +210,12 @@ public class BehindTracker implements ProjectComponent {
 
   @Override
   public void disposeComponent() {
+    synchronized (this) {
+      disposeUnsafe();
+    }
+  }
+
+  private void disposeUnsafe() {
     state.clear();
     pendingChanges.clear();
   }
@@ -204,6 +247,16 @@ public class BehindTracker implements ProjectComponent {
 
     String title() {
       return title;
+    }
+  }
+
+  private static class PendingChange {
+    public final BehindStatus status;
+    public final ChangeType type;
+
+    private PendingChange(BehindStatus status, ChangeType type) {
+      this.status = status;
+      this.type = type;
     }
   }
 

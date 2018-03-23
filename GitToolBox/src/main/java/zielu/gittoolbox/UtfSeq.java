@@ -5,6 +5,7 @@ public final class UtfSeq {
   public static final String ARROW_DOWN = "\u2193";
   public static final String ARROWHEAD_UP = "\u02C4";
   public static final String ARROWHEAD_DOWN = "\u02C5";
+  public static final String INCREMENT = "\u2206";
 
   private UtfSeq() {
     throw new IllegalStateException();

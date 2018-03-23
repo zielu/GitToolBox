@@ -15,8 +15,8 @@ import java.util.Map.Entry;
 import jodd.util.StringBand;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.config.GitToolBoxConfig;
+import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.status.GitAheadBehindCount;
-import zielu.gittoolbox.status.RevListCount;
 import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
@@ -38,15 +38,15 @@ public class StatusMessages {
     return GitToolBoxConfig.getInstance().getPresenter();
   }
 
-  public String behindStatus(RevListCount behindCount) {
-    if (SUCCESS == behindCount.status()) {
-      if (behindCount.value() > 0) {
-        return presenter().behindStatus(behindCount.value());
+  private String behindStatus(BehindStatus behind) {
+    if (SUCCESS == behind.status()) {
+      if (behind.behind() > 0) {
+        return presenter().behindStatus(behind);
       } else {
         return ResBundle.getString("message.up.to.date");
       }
     } else {
-      return commonStatus(behindCount.status());
+      return commonStatus(behind.status());
     }
   }
 
@@ -70,34 +70,33 @@ public class StatusMessages {
     return GitUIUtil.code(GtUtil.name(repository) + ": ");
   }
 
-  private StringBand prepareSingleLineMessage(GitRepository repository, RevListCount status, boolean forceRepoName) {
+  private StringBand prepareSingleLineMessage(GitRepository repository, BehindStatus behind, boolean forceRepoName) {
     StringBand message = new StringBand();
     if (forceRepoName) {
       message.append(repoNamePrefix(repository));
     }
-    message.append(behindStatus(status));
+    message.append(behindStatus(behind));
     return message;
   }
 
-  private StringBand prepareMultiLineMessage(Map<GitRepository, RevListCount> statuses) {
+  private StringBand prepareMultiLineMessage(Map<GitRepository, BehindStatus> statuses) {
     StringBand result = new StringBand();
     boolean first = true;
-    for (Entry<GitRepository, RevListCount> status : statuses.entrySet()) {
+    for (Entry<GitRepository, BehindStatus> status : statuses.entrySet()) {
       if (!first) {
         result.append(Html.BR);
       } else {
         first = false;
       }
-      result.append(repoNamePrefix(status.getKey()))
-          .append(behindStatus(status.getValue()));
+      result.append(repoNamePrefix(status.getKey())).append(behindStatus(status.getValue()));
     }
     return result;
   }
 
-  public String prepareBehindMessage(Map<GitRepository, RevListCount> statuses, boolean forceRepoNames) {
+  public String prepareBehindMessage(Map<GitRepository, BehindStatus> statuses, boolean forceRepoNames) {
     StringBand message = new StringBand();
     if (statuses.size() == 1) {
-      Entry<GitRepository, RevListCount> entry = Iterables.getOnlyElement(statuses.entrySet());
+      Entry<GitRepository, BehindStatus> entry = Iterables.getOnlyElement(statuses.entrySet());
       message.append(prepareSingleLineMessage(entry.getKey(), entry.getValue(), forceRepoNames));
     } else {
       message.append(prepareMultiLineMessage(statuses));

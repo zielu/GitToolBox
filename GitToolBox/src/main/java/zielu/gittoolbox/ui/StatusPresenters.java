@@ -1,14 +1,19 @@
 package zielu.gittoolbox.ui;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.OptionalInt;
+import jodd.util.StringBand;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.UtfSeq;
+import zielu.gittoolbox.status.BehindStatus;
 
 public enum StatusPresenters implements StatusPresenter {
   arrows {
     @Override
-    public String behindStatus(int behind) {
-      return behind + UtfSeq.ARROW_DOWN;
+    public String behindStatus(BehindStatus behind) {
+      StringBand text = new StringBand(behind.behind()).append(UtfSeq.ARROW_DOWN);
+      behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta, UtfSeq.INCREMENT)));
+      return text.toString();
     }
 
     @Override
@@ -41,8 +46,10 @@ public enum StatusPresenters implements StatusPresenter {
   },
   arrowHeads {
     @Override
-    public String behindStatus(int behind) {
-      return behind + UtfSeq.ARROWHEAD_DOWN;
+    public String behindStatus(BehindStatus behind) {
+      StringBand text = new StringBand(behind.behind()).append(UtfSeq.ARROWHEAD_DOWN);
+      behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta)));
+      return text.toString();
     }
 
     @Override
@@ -75,8 +82,10 @@ public enum StatusPresenters implements StatusPresenter {
   },
   text {
     @Override
-    public String behindStatus(int behind) {
-      return behind + " " + ResBundle.getString("git.behind");
+    public String behindStatus(BehindStatus behind) {
+      StringBand text = new StringBand(behind.behind()).append(" ").append(ResBundle.getString("git.behind"));
+      behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta)));
+      return text.toString();
     }
 
     @Override
@@ -134,5 +143,21 @@ public enum StatusPresenters implements StatusPresenter {
         return behindText;
       }
     }
+  }
+
+  private static String formatDelta(int delta) {
+    if (delta > 0) {
+      return "+ " + delta;
+    } else if (delta < 0) {
+      return "- " + Math.abs(delta);
+    }
+    return "";
+  }
+
+  private static String formatDelta(int delta, String symbol) {
+    if (delta > 0) {
+      return symbol + " " + delta;
+    }
+    return "";
   }
 }
