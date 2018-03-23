@@ -1,7 +1,6 @@
 package zielu.gittoolbox.ui;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.OptionalInt;
 import jodd.util.StringBand;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.UtfSeq;
