@@ -10,7 +10,7 @@ public enum StatusPresenters implements StatusPresenter {
   arrows {
     @Override
     public String behindStatus(BehindStatus behind) {
-      StringBand text = new StringBand(behind.behind()).append(UtfSeq.ARROW_DOWN);
+      StringBand text = formatBehind(behind, UtfSeq.ARROW_DOWN);
       behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta, UtfSeq.INCREMENT)));
       return text.toString();
     }
@@ -46,7 +46,7 @@ public enum StatusPresenters implements StatusPresenter {
   arrowHeads {
     @Override
     public String behindStatus(BehindStatus behind) {
-      StringBand text = new StringBand(behind.behind()).append(UtfSeq.ARROWHEAD_DOWN);
+      StringBand text = formatBehind(behind, UtfSeq.ARROWHEAD_DOWN);
       behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta)));
       return text.toString();
     }
@@ -80,9 +80,12 @@ public enum StatusPresenters implements StatusPresenter {
     }
   },
   text {
+    private final String behindSymbol = " " + ResBundle.getString("git.behind");
+    private final String aheadSymbol = " " + ResBundle.getString("git.ahead");
+
     @Override
     public String behindStatus(BehindStatus behind) {
-      StringBand text = new StringBand(behind.behind()).append(" ").append(ResBundle.getString("git.behind"));
+      StringBand text = formatBehind(behind, behindSymbol);
       behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta)));
       return text.toString();
     }
@@ -97,9 +100,9 @@ public enum StatusPresenters implements StatusPresenter {
       if (ahead > 0 && behind > 0) {
         return aheadBehindStatus(ahead, behind);
       } else if (ahead > 0) {
-        return ahead + " " + ResBundle.getString("git.ahead");
+        return ahead + aheadSymbol;
       } else if (behind > 0) {
-        return behind + " " + ResBundle.getString("git.behind");
+        return behind + behindSymbol;
       } else {
         return "";
       }
@@ -144,18 +147,22 @@ public enum StatusPresenters implements StatusPresenter {
     }
   }
 
+  private static StringBand formatBehind(BehindStatus behind, String symbol) {
+    return new StringBand().append(behind.behind()).append(symbol);
+  }
+
   private static String formatDelta(int delta) {
     if (delta > 0) {
-      return "+ " + delta;
+      return "+" + delta;
     } else if (delta < 0) {
-      return "- " + Math.abs(delta);
+      return String.valueOf(delta);
     }
     return "";
   }
 
   private static String formatDelta(int delta, String symbol) {
     if (delta > 0) {
-      return symbol + " " + delta;
+      return symbol + delta;
     }
     return "";
   }
