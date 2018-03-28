@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 import com.google.common.base.Objects;
 import com.intellij.vcs.log.Hash;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRepoInfo;
@@ -46,7 +45,12 @@ public class RepoStatus {
     return new RepoStatus(localBranch, localHash, remote, remoteHash);
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
+  public static RepoStatus create(GitLocalBranch localBranch, Hash localHash,
+                                  GitRemoteBranch remoteBranch, Hash remoteHash) {
+    return new RepoStatus(localBranch, localHash, remoteBranch, remoteHash);
+  }
+
+  @Nullable
   private static GitLocalBranch getLocalBranch(@NotNull GitRepository repository) {
     return repository.getCurrentBranch();
   }

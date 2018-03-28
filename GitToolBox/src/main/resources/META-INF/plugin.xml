@@ -1,84 +1,16 @@
 <idea-plugin url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>173.0.0-dev</version>
-  <vendor url="https://github.com/zielu/GitToolBox">Lukasz Zielinski</vendor>
+  <version>181.0.0-dev</version>
+  <vendor url="https://github.com/zielu">Lukasz Zielinski</vendor>
 
   <description><![CDATA[
-    <h2>Enriches Git Integration with additional features</h2>
-    <div>
-      <a href="https://plugins.jetbrains.com/plugin/7499?pr=idea_ce">[Home]</a>
-      <a href="https://github.com/zielu/GitToolBox/issues">[Issues]</a>
-    </div><br/>
-    <h2>Features</h2>
-    <ul>
-      <li><b>Git status display</b> -
-        shows number of ahead / behind commits for current branch as status bar widget
-        and Project View decoration on modules.
-      </li>
-      <li><b>Status bar widget</b>
-        <ul>
-          <li>tooltip shows info for all repositories</li>
-          <li>popup menu - status refresh</li>
-          <li>popup menu - repository fetch</li>
-        </ul>
-      </li>
-      <li><b>Auto fetch</b> -
-        runs git fetch at fixed intervals
-      </li>
-      <li><b>Push tags on current branch</b> -
-        available in VCS / Git
-      </li>
-      <li><b>Behind tracker</b> -
-        shows notification when behind count of current branch changes and is non-zero
-      </li>
-      <li><b>Branch name completion in Commit dialog</b> -
-        provides branch name completion inside Commit dialog message
-      </li>
-      <li><b>Git Extender integration</b> -
-        can be selected as update action executed from behind tracker popup
-      </li>
-    </ul>
-    <h2>Configuration</h2>
-    <b>Windows/Linux:</b>
-    <ul>
-      <li>File / Settings / Other Settings / Git ToolBox Global</li>
-      <li>File / Settings / Other Settings / Git ToolBox Project</li>
-      <li>File / Settings / Appearance & Behavior / Notifications</li>
-    </ul>
-    <b>Mac OS (with project open):</b>
-    <ul>
-      <li>IntelliJ IDEA / Preferences... / Other Settings / Git ToolBox Global</li>
-      <li>IntelliJ IDEA / Preferences... / Other Settings / Git ToolBox Project</li>
-      <li>IntelliJ IDEA / Preferences... / Appearance & Behavior / Notifications</li>
-    </ul>
-    ]]></description>
+      read from description.html
+      ]]>
+  </description>
 
   <change-notes><![CDATA[
-      <h3>Changes in 173.3.0</h3>
-      <ul>
-        <li>Configurable notification groups (<a href="https://github.com/zielu/GitToolBox/issues/72">#72</a>)</li>
-      </ul>
-      <h3>Changes in 173.2.1</h3>
-      <ul>
-        <li>Auto fetch exclusions (<a href="https://github.com/zielu/GitToolBox/issues/59">#59</a>)</li>
-        <li>Improve default project handling (<a href="https://github.com/zielu/GitToolBox/issues/65">#65</a>)</li>
-        <li>Include Mac OS configuration location (<a href="https://github.com/zielu/GitToolBox/issues/66">#66</a>)</li>
-        <li>Tooltips for configuration options (<a href="https://github.com/zielu/GitToolBox/issues/69">#69</a>)</li>
-        <li>Performance improvements</li>
-      </ul>
-      <h3>Changes in 172.1.0</h3>
-      <ul>
-        <li>Restrict compatibility to 172.* (<a href="https://github.com/zielu/GitToolBox/issues/46">#46</a>)</li>
-      </ul>
-      <h3>Changes in 171.3.0</h3>
-      <ul>
-        <li>Restrict compatibility to 171.* (<a href="https://github.com/zielu/GitToolBox/issues/46">#46</a>)</li>
-      </ul>
-      <h3>Changes in 171.2.0</h3>
-      <ul>
-        <li>Git Extender integration (<a href="https://github.com/zielu/GitToolBox/issues/43">#43</a>)</li>
-      </ul>
+      read from changenotes.html
       ]]>
   </change-notes>
 
@@ -91,7 +23,7 @@
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="173" until-build="173.*"/>
+  <idea-version since-build="181" until-build="181.*"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
@@ -99,6 +31,8 @@
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigForProject"/>
 
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
+    <applicationService serviceInterface="zielu.gittoolbox.ui.StatusMessagesUi"
+                        serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService"/>
 
     <applicationConfigurable instance="zielu.gittoolbox.ui.config.GtConfigurable" id="zielu.gittoolbox.app.config"/>
     <projectConfigurable instance="zielu.gittoolbox.ui.config.GtProjectConfigurable" id="zielu.svntoolbox.prj.config"/>
@@ -111,6 +45,9 @@
     <completion.contributor language="TEXT"
         order="first, before commitCompletion"
         implementationClass="zielu.gittoolbox.completion.CurrentBranchCompletionContributor"/>
+
+    <projectService serviceInterface="zielu.gittoolbox.ui.behindtracker.BehindTrackerUi"
+                    serviceImplementation="zielu.gittoolbox.ui.behindtracker.BehindTrackerUiService"/>
   </extensions>
 
   <application-components>
@@ -139,13 +76,20 @@
       <implementation-class>zielu.gittoolbox.cache.CacheSourcesSubscriber</implementation-class>
     </component>
     <component>
+      <implementation-class>zielu.gittoolbox.fetch.AutoFetchSubscriber</implementation-class>
+    </component>
+    <component>
+      <interface-class>zielu.gittoolbox.fetch.AutoFetchComponent</interface-class>
       <implementation-class>zielu.gittoolbox.fetch.AutoFetch</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.fetch.AutoFetchState</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.status.BehindTracker</implementation-class>
+      <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTracker</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTrackerController</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.completion.GitToolBoxCompletionProject</implementation-class>

@@ -1,0 +1,247 @@
+package zielu.gittoolbox.status.behindtracker;
+
+import com.google.common.collect.ImmutableMap;
+import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
+import git4idea.repo.GitRepository;
+import git4idea.util.GitUIUtil;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import jodd.util.StringBand;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.status.BehindStatus;
+import zielu.gittoolbox.status.GitAheadBehindCount;
+import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi;
+import zielu.gittoolbox.util.GtUtil;
+import zielu.gittoolbox.util.Html;
+
+public class BehindTracker implements ProjectComponent {
+  private final Logger log = Logger.getInstance(getClass());
+  private final AtomicBoolean active = new AtomicBoolean();
+  private final Map<GitRepository, RepoInfo> state = new HashMap<>();
+  private final Map<GitRepository, PendingChange> pendingChanges = new HashMap<>();
+  private final BehindTrackerUi ui;
+
+  public BehindTracker(@NotNull BehindTrackerUi ui) {
+    this.ui = ui;
+  }
+
+  @NotNull
+  public static BehindTracker getInstance(@NotNull Project project) {
+    return project.getComponent(BehindTracker.class);
+  }
+
+  private Optional<BehindMessage> prepareMessage(
+      @NotNull ImmutableMap<GitRepository, PendingChange> changes) {
+    Map<GitRepository, BehindStatus> statuses = mapStateAsStatuses(changes);
+    if (statuses.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(createBehindMessage(statuses));
+    }
+  }
+
+  private synchronized Map<GitRepository, BehindStatus> mapStateAsStatuses(
+      @NotNull ImmutableMap<GitRepository, PendingChange> changes) {
+    Map<GitRepository, BehindStatus> statuses = new HashMap<>();
+    changes.forEach((repo, change) -> statuses.put(repo, change.status));
+    return statuses;
+  }
+
+  private BehindMessage createBehindMessage(Map<GitRepository, BehindStatus> statuses) {
+    boolean manyReposInProject = hasManyReposInProject();
+    boolean manyReposInStatuses = statuses.size() > 1;
+    return new BehindMessage(ui.getStatusMessages().prepareBehindMessage(statuses, manyReposInProject),
+        manyReposInStatuses);
+  }
+
+  private boolean hasManyReposInProject() {
+    return state.size() > 1;
+  }
+
+  private void showNotification(@NotNull ImmutableMap<GitRepository, PendingChange> changes) {
+    Optional<BehindMessage> messageOption = prepareMessage(changes);
+    if (messageOption.isPresent() && active.get()) {
+      showNotification(messageOption.get(), ChangeType.FETCHED);
+    }
+  }
+
+  private void showNotification(@NotNull BehindMessage message, @NotNull ChangeType changeType) {
+    StringBand finalMessage = formatMessage(message, changeType);
+    ui.displaySuccessNotification(finalMessage.toString());
+  }
+
+  @NotNull
+  private StringBand formatMessage(@NotNull BehindMessage message, @NotNull ChangeType changeType) {
+    return new StringBand(GitUIUtil.bold(changeType.title()))
+        .append(" (").append(Html.link("update", ResBundle.getString("update.project")))
+        .append(")").append(Html.BR).append(message.text);
+  }
+
+  void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
+    synchronized (this) {
+      onStateChangeUnsafe(repository, info);
+    }
+  }
+
+  private void onStateChangeUnsafe(@NotNull GitRepository repository, @NotNull RepoInfo info) {
+    RepoInfo previousInfo = state.put(repository, info);
+    if (log.isDebugEnabled()) {
+      log.debug("Info update [", GtUtil.name(repository), "]: ", previousInfo, " > ", info);
+    }
+    ChangeType changeType = detectChangeType(previousInfo, info);
+    if (changeType == ChangeType.FETCHED) {
+      BehindStatus status = null;
+      if (previousInfo == null) {
+        status = calculateBehindStatus(info, count -> BehindStatus.create(count.behind));
+      } else if (info.count().isPresent()) {
+        status = calculateBehindStatus(info, count -> calculateBehindStatus(previousInfo, count));
+      }
+      Optional.ofNullable(status)
+          .ifPresent(stat -> pendingChanges.put(repository, new PendingChange(stat, changeType)));
+    } else if (changeType != ChangeType.NONE) {
+      pendingChanges.remove(repository);
+    }
+  }
+
+  private BehindStatus calculateBehindStatus(@NotNull RepoInfo info,
+                                             @NotNull Function<GitAheadBehindCount, BehindStatus> operation) {
+    return info.count()
+        .filter(GitAheadBehindCount::isNotZeroBehind)
+        .map(operation)
+        .orElseGet(BehindStatus::empty);
+  }
+
+  private BehindStatus calculateBehindStatus(@Nullable RepoInfo previous, @NotNull GitAheadBehindCount currentCount) {
+    int oldBehind = Optional.ofNullable(previous).flatMap(RepoInfo::count)
+        .map(count -> count.behind.value()).orElse(0);
+    int delta = currentCount.behind.value() - oldBehind;
+    return BehindStatus.create(currentCount.behind, delta);
+  }
+
+  private ChangeType detectChangeType(@Nullable RepoInfo previous, @NotNull RepoInfo current) {
+    ChangeType type = ChangeType.NONE;
+    if (previous != null) {
+      type = detectChangeTypeIfBothPresent(previous, current);
+    }
+    return type;
+  }
+
+  @NotNull
+  private ChangeType detectChangeTypeIfBothPresent(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    if (isSameRemoteBranch(previous, current)) {
+      return detectChangeTypeIfSameRemoteBranch(previous, current);
+    } else {
+      return ChangeType.SWITCHED;
+    }
+  }
+
+  private ChangeType detectChangeTypeIfSameRemoteBranch(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    if (isLocalBranchSwitched(previous, current)) {
+      return ChangeType.SWITCHED;
+    } else if (isRemoteHashChanged(previous, current)) {
+      return ChangeType.FETCHED;
+    } else {
+      return ChangeType.NONE;
+    }
+  }
+
+  private boolean isSameRemoteBranch(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    return previous.status().sameRemoteBranch(current.status());
+  }
+
+  private boolean isRemoteHashChanged(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    return !previous.status().sameRemoteHash(current.status());
+  }
+
+  private boolean isLocalBranchSwitched(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    return !previous.status().sameLocalBranch(current.status());
+  }
+
+  void showChangeNotification() {
+    if (ui.isNotificationEnabled()) {
+      ImmutableMap<GitRepository, PendingChange> changes = drainChanges();
+      log.debug("Show notification for ", changes.size(), " repositories");
+      showNotification(changes);
+    }
+  }
+
+  private synchronized ImmutableMap<GitRepository, PendingChange> drainChanges() {
+    ImmutableMap<GitRepository, PendingChange> changedRepos = ImmutableMap.copyOf(pendingChanges);
+    pendingChanges.clear();
+    return changedRepos;
+  }
+
+  @Override
+  public void projectOpened() {
+    active.compareAndSet(false, true);
+  }
+
+  @Override
+  public void disposeComponent() {
+    synchronized (this) {
+      disposeUnsafe();
+    }
+  }
+
+  private void disposeUnsafe() {
+    state.clear();
+    pendingChanges.clear();
+  }
+
+  @Override
+  public void projectClosed() {
+    active.compareAndSet(true, false);
+  }
+
+  private enum ChangeType {
+    NONE(false, "NONE"),
+    @Deprecated
+    HIDDEN(false, "HIDDEN"),
+    FETCHED(true, ResBundle.getString("message.fetch.done")),
+    SWITCHED(true, ResBundle.getString("message.switched"));
+
+    private final boolean visible;
+    private final String title;
+
+    ChangeType(boolean visible, String title) {
+      this.visible = visible;
+      this.title = title;
+    }
+
+    boolean isVisible() {
+      return visible;
+    }
+
+    String title() {
+      return title;
+    }
+  }
+
+  private static class PendingChange {
+    public final BehindStatus status;
+    public final ChangeType type;
+
+    private PendingChange(BehindStatus status, ChangeType type) {
+      this.status = status;
+      this.type = type;
+    }
+  }
+
+  private static class BehindMessage {
+    public final String text;
+    public final boolean manyRepos;
+
+    private BehindMessage(String text, boolean manyRepos) {
+      this.text = text;
+      this.manyRepos = manyRepos;
+    }
+  }
+}

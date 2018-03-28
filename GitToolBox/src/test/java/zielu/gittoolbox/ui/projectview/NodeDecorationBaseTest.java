@@ -7,6 +7,7 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import git4idea.GitLocalBranch;
 import git4idea.repo.GitRepository;
+import name.falgout.jeffrey.testing.junit5.MockitoExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,6 @@ import zielu.gittoolbox.cache.RepoStatus;
 import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusPresenters;
-import zielu.junit5.mockito.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 abstract class NodeDecorationBaseTest {

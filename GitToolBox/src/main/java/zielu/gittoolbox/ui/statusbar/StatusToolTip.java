@@ -18,7 +18,7 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
-import zielu.gittoolbox.fetch.AutoFetch;
+import zielu.gittoolbox.fetch.AutoFetchComponent;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.util.GtUtil;
@@ -101,7 +101,7 @@ public class StatusToolTip {
     StringBand result = new StringBand();
     if (config.autoFetch) {
       result.append(GitUIUtil.bold(ResBundle.getString("message.autoFetch"))).append(": ");
-      long lastAutoFetch = AutoFetch.getInstance(project).lastAutoFetch();
+      long lastAutoFetch = AutoFetchComponent.getInstance(project).lastAutoFetch();
       if (lastAutoFetch != 0) {
         result.append(DateFormatUtil.formatBetweenDates(lastAutoFetch, System.currentTimeMillis()));
       } else {

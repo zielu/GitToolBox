@@ -1,14 +1,18 @@
 package zielu.gittoolbox.ui;
 
 import com.google.common.collect.ImmutableMap;
+import jodd.util.StringBand;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.UtfSeq;
+import zielu.gittoolbox.status.BehindStatus;
 
 public enum StatusPresenters implements StatusPresenter {
   arrows {
     @Override
-    public String behindStatus(int behind) {
-      return behind + UtfSeq.ARROW_DOWN;
+    public String behindStatus(BehindStatus behind) {
+      StringBand text = formatBehind(behind, UtfSeq.ARROW_DOWN);
+      behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta, UtfSeq.INCREMENT)));
+      return text.toString();
     }
 
     @Override
@@ -41,8 +45,10 @@ public enum StatusPresenters implements StatusPresenter {
   },
   arrowHeads {
     @Override
-    public String behindStatus(int behind) {
-      return behind + UtfSeq.ARROWHEAD_DOWN;
+    public String behindStatus(BehindStatus behind) {
+      StringBand text = formatBehind(behind, UtfSeq.ARROWHEAD_DOWN);
+      behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta)));
+      return text.toString();
     }
 
     @Override
@@ -74,9 +80,14 @@ public enum StatusPresenters implements StatusPresenter {
     }
   },
   text {
+    private final String behindSymbol = " " + ResBundle.getString("git.behind");
+    private final String aheadSymbol = " " + ResBundle.getString("git.ahead");
+
     @Override
-    public String behindStatus(int behind) {
-      return behind + " " + ResBundle.getString("git.behind");
+    public String behindStatus(BehindStatus behind) {
+      StringBand text = formatBehind(behind, behindSymbol);
+      behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta)));
+      return text.toString();
     }
 
     @Override
@@ -89,9 +100,9 @@ public enum StatusPresenters implements StatusPresenter {
       if (ahead > 0 && behind > 0) {
         return aheadBehindStatus(ahead, behind);
       } else if (ahead > 0) {
-        return ahead + " " + ResBundle.getString("git.ahead");
+        return ahead + aheadSymbol;
       } else if (behind > 0) {
-        return behind + " " + ResBundle.getString("git.behind");
+        return behind + behindSymbol;
       } else {
         return "";
       }
@@ -134,5 +145,25 @@ public enum StatusPresenters implements StatusPresenter {
         return behindText;
       }
     }
+  }
+
+  private static StringBand formatBehind(BehindStatus behind, String symbol) {
+    return new StringBand().append(behind.behind()).append(symbol);
+  }
+
+  private static String formatDelta(int delta) {
+    if (delta > 0) {
+      return "+" + delta;
+    } else if (delta < 0) {
+      return String.valueOf(delta);
+    }
+    return "";
+  }
+
+  private static String formatDelta(int delta, String symbol) {
+    if (delta > 0) {
+      return symbol + delta;
+    }
+    return "";
   }
 }

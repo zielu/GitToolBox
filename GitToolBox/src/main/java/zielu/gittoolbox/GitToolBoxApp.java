@@ -10,6 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class GitToolBoxApp implements ApplicationComponent {
   private final Logger log = Logger.getInstance(getClass());
   private ScheduledExecutorService autoFetchExecutor;
+  private ScheduledExecutorService tasksExecutor;
 
   public static GitToolBoxApp getInstance() {
     return ApplicationManager.getApplication().getComponent(GitToolBoxApp.class);
@@ -19,15 +20,31 @@ public class GitToolBoxApp implements ApplicationComponent {
     return autoFetchExecutor;
   }
 
+  public ScheduledExecutorService tasksExecutor() {
+    return tasksExecutor;
+  }
+
   @Override
   public void initComponent() {
     autoFetchExecutor = Executors.newSingleThreadScheduledExecutor(
         new ThreadFactoryBuilder().setDaemon(true).setNameFormat("AutoFetch-%s").build()
     );
+    log.debug("Created auto-fetch executor: ", autoFetchExecutor);
+    tasksExecutor = Executors.newScheduledThreadPool(2,
+        new ThreadFactoryBuilder().setDaemon(true).setNameFormat("GtTask-%s").build()
+    );
+    log.debug("Created tasks executor: ", tasksExecutor);
   }
 
   @Override
   public void disposeComponent() {
-    autoFetchExecutor.shutdownNow().forEach(notStarted -> log.info("Task " + notStarted + " was never started"));
+    shutdown(autoFetchExecutor);
+    shutdown(tasksExecutor);
+    autoFetchExecutor = null;
+    tasksExecutor = null;
+  }
+
+  private void shutdown(ScheduledExecutorService executor) {
+    executor.shutdownNow().forEach(notStarted -> log.info("Task " + notStarted + " was never started"));
   }
 }

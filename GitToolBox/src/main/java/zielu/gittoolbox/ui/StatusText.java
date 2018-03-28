@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.status.GitAheadBehindCount;
@@ -11,7 +10,6 @@ public final class StatusText {
     throw new IllegalStateException();
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   public static String format(@NotNull GitAheadBehindCount aheadBehind) {
     Status status = aheadBehind.status();
     if (status.isValid()) {
@@ -25,7 +23,6 @@ public final class StatusText {
     }
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   public static String formatToolTip(@NotNull GitAheadBehindCount aheadBehind) {
     if (aheadBehind.status() == Status.SUCCESS) {
       return "";

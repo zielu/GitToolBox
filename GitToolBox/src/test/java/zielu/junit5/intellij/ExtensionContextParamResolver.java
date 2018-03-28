@@ -18,7 +18,8 @@ class ExtensionContextParamResolver implements ParameterResolver {
     this(namespace, new EmptyResolver(), first, others);
   }
 
-  ExtensionContextParamResolver(Namespace namespace, ParameterResolver parent, Class<?> first, Class<?>... others) {
+  private ExtensionContextParamResolver(Namespace namespace, ParameterResolver parent, Class<?> first,
+                                        Class<?>... others) {
     this.namespace = namespace;
     this.parent = parent;
     this.parameterTypes = Lists.asList(first, others);

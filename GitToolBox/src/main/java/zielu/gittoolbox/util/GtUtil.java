@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.HashImpl;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.config.GitVcsSettings;
@@ -31,7 +30,6 @@ public final class GtUtil {
     return DvcsUtil.getShortRepositoryName(repository);
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   @NotNull
   public static GitVcs vcs(@NotNull GitRepository repository) {
     return repository.getVcs();
@@ -41,7 +39,6 @@ public final class GtUtil {
     return HashImpl.build(hash);
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   public static boolean hasRemotes(@NotNull GitRepository repository) {
     return !repository.getRemotes().isEmpty();
   }

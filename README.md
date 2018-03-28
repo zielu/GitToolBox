@@ -3,7 +3,10 @@ GitToolBox - plugin for Jetbrains IDEs
 Plugin for family of Jetbrains IDEs that expands build-in `Git Integration`.
 
 ## Features
-For list of features see [plugin.xml](./GitToolBox/src/main/resources/META-INF/plugin.xml)
+For list of features see [description](./GitToolBox/description.html)
+
+## Change notes
+For list of change notes see [changenotes](./GitToolBox/change-notes.html)
 
 ## Jetbrains plugin repository
 [Plugin repository page](https://plugins.jetbrains.com/plugin/7499-gittoolbox)
@@ -17,7 +20,7 @@ Decisions are stored [here](./GitToolBox/doc/arch).
 
 ## Building & running
 
-## Development builds
+### Development builds
 If version set in [gradle.properties](./GitToolBox/gradle.properties) ends with `-dev` then build datetime in UTC timezone will be appended.
 For example dev build on `2018-01-13 13:06:12 CET` will produce version `173.1.2-dev.20180113.120612.adddfbcd10`
 
@@ -49,7 +52,7 @@ Run with fresh sandbox
 gradle clean runIde
 ```
 
-### Plugin debugging
+### Debugging
 To debug the plugin execute Gradle run configuration with `runIde` task using IDE **Debug action**.
 
 ## Logging

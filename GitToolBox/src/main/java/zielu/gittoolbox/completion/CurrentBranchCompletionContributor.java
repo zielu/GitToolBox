@@ -11,7 +11,6 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiPlainText;
 import com.intellij.util.ProcessingContext;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
@@ -76,7 +75,6 @@ public class CurrentBranchCompletionContributor extends CompletionContributor {
       return project.getComponent(GitToolBoxCompletionProject.class).getFormatters();
     }
 
-    @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
     @NotNull
     private Project getProject(@NotNull CompletionParameters parameters) {
       return parameters.getPosition().getProject();

@@ -3,7 +3,6 @@ package zielu.gittoolbox.repo;
 import com.google.common.collect.ImmutableSet;
 import com.intellij.dvcs.repo.RepoStateException;
 import com.intellij.openapi.diagnostic.Logger;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map.Entry;
@@ -28,7 +27,6 @@ public class GtConfig {
     svnRemotes = ImmutableSet.of();
   }
 
-  @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH"})
   @NotNull
   public static GtConfig load(@NotNull File configFile) {
     if (!configFile.exists()) {
