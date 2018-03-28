@@ -31,6 +31,8 @@
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigForProject"/>
 
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
+    <applicationService serviceInterface="zielu.gittoolbox.ui.StatusMessagesUi"
+                        serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService"/>
 
     <applicationConfigurable instance="zielu.gittoolbox.ui.config.GtConfigurable" id="zielu.gittoolbox.app.config"/>
     <projectConfigurable instance="zielu.gittoolbox.ui.config.GtProjectConfigurable" id="zielu.svntoolbox.prj.config"/>
@@ -43,6 +45,9 @@
     <completion.contributor language="TEXT"
         order="first, before commitCompletion"
         implementationClass="zielu.gittoolbox.completion.CurrentBranchCompletionContributor"/>
+
+    <projectService serviceInterface="zielu.gittoolbox.ui.behindtracker.BehindTrackerUi"
+                    serviceImplementation="zielu.gittoolbox.ui.behindtracker.BehindTrackerUiService"/>
   </extensions>
 
   <application-components>

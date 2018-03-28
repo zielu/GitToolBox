@@ -16,7 +16,7 @@ import zielu.gittoolbox.status.RevListCount;
 
 @Tag("fast")
 class StatusPresenterTest {
-  private static final Hash hash = HashImpl.build("92c4b38ed6cc6f2091f454d177074fceb70d5a80");
+  private static final Hash HASH = HashImpl.build("92c4b38ed6cc6f2091f454d177074fceb70d5a80");
 
   @ParameterizedTest
   @MethodSource("expectedZeroBehindStatusArgs")
@@ -37,7 +37,7 @@ class StatusPresenterTest {
   @MethodSource("expectedBehindStatusWithDeltaArgs")
   void expectedBehindStatusWithDelta(StatusPresenter presenter, String expectedValue) {
     String status = presenter.behindStatus(BehindStatus.create(
-        RevListCount.success(1, hash), 1));
+        RevListCount.success(1, HASH), 1));
     assertThat(status).isEqualTo(expectedValue);
   }
 

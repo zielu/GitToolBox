@@ -45,6 +45,11 @@ public class RepoStatus {
     return new RepoStatus(localBranch, localHash, remote, remoteHash);
   }
 
+  public static RepoStatus create(GitLocalBranch localBranch, Hash localHash,
+                                  GitRemoteBranch remoteBranch, Hash remoteHash) {
+    return new RepoStatus(localBranch, localHash, remoteBranch, remoteHash);
+  }
+
   @Nullable
   private static GitLocalBranch getLocalBranch(@NotNull GitRepository repository) {
     return repository.getCurrentBranch();

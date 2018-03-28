@@ -13,8 +13,8 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import jodd.util.StringBand;
+import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.Status;
@@ -23,8 +23,11 @@ import zielu.gittoolbox.util.Html;
 
 public class StatusMessages {
   private final EnumMap<Status, String> commonStatuses = new EnumMap<>(Status.class);
+  private final StatusMessagesUi ui;
 
-  public StatusMessages() {
+  public StatusMessages(@NotNull StatusMessagesUi ui) {
+    this.ui = ui;
+
     commonStatuses.put(CANCEL, ResBundle.getString("message.cancelled"));
     commonStatuses.put(FAILURE, ResBundle.getString("message.failure"));
     commonStatuses.put(NO_REMOTE, ResBundle.getString("message.no.remote"));
@@ -34,14 +37,10 @@ public class StatusMessages {
     return ServiceManager.getService(StatusMessages.class);
   }
 
-  private StatusPresenter presenter() {
-    return GitToolBoxConfig.getInstance().getPresenter();
-  }
-
   private String behindStatus(BehindStatus behind) {
     if (SUCCESS == behind.status()) {
       if (behind.behind() > 0) {
-        return presenter().behindStatus(behind);
+        return ui.presenter().behindStatus(behind);
       } else {
         return ResBundle.getString("message.up.to.date");
       }
@@ -53,7 +52,7 @@ public class StatusMessages {
   public String aheadBehindStatus(GitAheadBehindCount count) {
     if (SUCCESS == count.status()) {
       if (count.isNotZero()) {
-        return presenter().aheadBehindStatus(count.ahead.value(), count.behind.value());
+        return ui.presenter().aheadBehindStatus(count.ahead.value(), count.behind.value());
       } else {
         return ResBundle.getString("message.up.to.date");
       }
