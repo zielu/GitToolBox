@@ -35,17 +35,19 @@ class StatusPresenterTest {
 
   @ParameterizedTest
   @MethodSource("expectedBehindStatusWithDeltaArgs")
-  void expectedBehindStatusWithDelta(StatusPresenter presenter, String expectedValue) {
+  void expectedBehindStatusWithDelta(StatusPresenter presenter, int count, Integer delta, String expectedValue) {
     String status = presenter.behindStatus(BehindStatus.create(
-        RevListCount.success(1, HASH), 1));
+        RevListCount.success(count, HASH), delta));
     assertThat(status).isEqualTo(expectedValue);
   }
 
   private static Stream<Arguments> expectedBehindStatusWithDeltaArgs() {
     return Stream.of(
-      Arguments.of(StatusPresenters.arrows, "1" + UtfSeq.ARROW_DOWN + " " + UtfSeq.INCREMENT + "1"),
-      Arguments.of(StatusPresenters.arrowHeads, "1" + UtfSeq.ARROWHEAD_DOWN + " +1"),
-      Arguments.of(StatusPresenters.text, "1 " + ResBundle.getString("git.behind") + " +1")
+      Arguments.of(StatusPresenters.arrows, 1, 1, "1" + UtfSeq.ARROW_DOWN + " " + UtfSeq.INCREMENT + "1"),
+      Arguments.of(StatusPresenters.arrows, 1, 0, "1" + UtfSeq.ARROW_DOWN + " "),//TODO: remove trailing space
+      Arguments.of(StatusPresenters.arrows, 1, -1, "1" + UtfSeq.ARROW_DOWN + " " + UtfSeq.INCREMENT + "-1"),
+      Arguments.of(StatusPresenters.arrowHeads, 1, 1, "1" + UtfSeq.ARROWHEAD_DOWN + " +1"),
+      Arguments.of(StatusPresenters.text, 1, 1, "1 " + ResBundle.getString("git.behind") + " +1")
     );
   }
 }

@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.extension.UpdateProjectAction;
+import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.util.CheckBoxWithColorChooserEx;
@@ -33,6 +34,7 @@ public class GtForm implements GtFormUi {
   private JCheckBox showStatusBeforeLocationCheckBox;
   private JLabel presentationStatusBarPreview;
   private JLabel presentationProjectViewPreview;
+  private JLabel presentationBehindTrackerPreview;
   private CheckBoxWithColorChooserEx projectViewStatusColorChooser;
   private JCheckBox projectViewStatusBoldCheckBox;
   private JCheckBox projectViewStatusItalicCheckBox;
@@ -59,6 +61,7 @@ public class GtForm implements GtFormUi {
         StatusPresenter presenter = getPresenter();
         presentationStatusBarPreview.setText(getStatusBarPreview(presenter));
         presentationProjectViewPreview.setText(getProjectViewPreview(presenter));
+        presentationBehindTrackerPreview.setText(getBehindTrackerPreview(presenter));
       }
     });
     showProjectViewStatusCheckBox.addItemListener(new ItemListener() {
@@ -104,6 +107,12 @@ public class GtForm implements GtFormUi {
     return presenter.nonZeroAheadBehindStatus(3, 2)
         + " | " + presenter.nonZeroAheadBehindStatus(3, 0)
         + " | " + presenter.nonZeroAheadBehindStatus(0, 2);
+  }
+
+  private String getBehindTrackerPreview(StatusPresenter presenter) {
+    return presenter.behindStatus(BehindStatus.create(3, 1))
+        + " | " + presenter.behindStatus(BehindStatus.create(3, -1))
+        + " | " + presenter.behindStatus(BehindStatus.create(3));
   }
 
   private void onProjectViewStatusChange() {

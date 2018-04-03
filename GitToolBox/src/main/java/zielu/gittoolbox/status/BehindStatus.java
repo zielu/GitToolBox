@@ -9,9 +9,9 @@ public class BehindStatus {
   private final Status status;
   private final Integer delta;
 
-  private BehindStatus(RevListCount behind, Integer delta) {
-    this.count = behind.value();
-    this.status = behind.status();
+  private BehindStatus(int count, Status status, Integer delta) {
+    this.count = count;
+    this.status = status;
     this.delta = delta;
   }
 
@@ -22,11 +22,19 @@ public class BehindStatus {
   }
 
   public static BehindStatus create(RevListCount behind) {
-    return new BehindStatus(behind, null);
+    return new BehindStatus(behind.value(), behind.status(), null);
   }
 
   public static BehindStatus create(RevListCount behind, int delta) {
-    return new BehindStatus(behind, delta);
+    return new BehindStatus(behind.value(), behind.status(), delta);
+  }
+
+  public static BehindStatus create(int count, int delta) {
+    return new BehindStatus(count, Status.SUCCESS, delta);
+  }
+
+  public static BehindStatus create(int count) {
+    return new BehindStatus(count, Status.SUCCESS, null);
   }
 
   public static BehindStatus empty() {

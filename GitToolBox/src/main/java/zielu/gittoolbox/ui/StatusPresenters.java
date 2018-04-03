@@ -119,18 +119,18 @@ public enum StatusPresenters implements StatusPresenter {
     }
   };
 
-  private static final ImmutableMap<String, StatusPresenter> presenters;
+  private static final ImmutableMap<String, StatusPresenter> PRESENTERS;
 
   static {
     ImmutableMap.Builder<String, StatusPresenter> builder = ImmutableMap.builder();
     for (StatusPresenters presenter : values()) {
       builder.put(presenter.key(), presenter);
     }
-    presenters = builder.build();
+    PRESENTERS = builder.build();
   }
 
   public static StatusPresenter forKey(String key) {
-    return presenters.get(key);
+    return PRESENTERS.get(key);
   }
 
   private static String format(String aheadText, String behindText) {
@@ -161,7 +161,7 @@ public enum StatusPresenters implements StatusPresenter {
   }
 
   private static String formatDelta(int delta, String symbol) {
-    if (delta > 0) {
+    if (delta != 0) {
       return symbol + delta;
     }
     return "";
