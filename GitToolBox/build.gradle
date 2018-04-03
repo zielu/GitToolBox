@@ -13,6 +13,7 @@ buildscript {
 plugins {
     id "org.jetbrains.intellij" version "0.3.1"
     id 'com.palantir.git-version' version '0.10.1'
+    id 'ch.netzwerg.release' version '1.2.5'
 }
 
 repositories {
@@ -33,11 +34,11 @@ configurations {
 }
 
 intellij {
-    version ideaVersion
-    type ideaType
-    plugins 'git4idea'
-    updateSinceUntilBuild false
-    downloadSources true
+    version = ideaVersion
+    type = ideaType
+    plugins = 'git4idea'
+    updateSinceUntilBuild = false
+    downloadSources = true
     plugins = ['Git4Idea', 'gr.jchrist.gitextender:0.4.1']
 }
 
@@ -57,14 +58,24 @@ patchPluginXml {
     pluginDescription "${file('description.html').getText('UTF-8')}"
 }
 
-version = "${version}"
-if (version.endsWith("-dev")) {
-    version += ".${buildTime()}"
-    def details = versionDetails()
-    version += "+${details.gitHash}"
-    if (!details.isClean) {
-        version += ".dirty"
+jar {
+    manifest {
+        attributes(
+            'Name': project.name,
+            'Specification-Title': project.name,
+            'Specification-Vendor': 'Lukasz Zielinski (zieluuuu@gmail.com)',
+            'Specification-Version': project.version,
+            'Implementation-Title': project.name,
+            'Implementation-Vendor': 'Lukasz Zielinski (zieluuuu@gmail.com)',
+            'Implementation-Version': versionDetails().gitHash,
+            'Build-Date': buildTime()
+        )
     }
+}
+
+release {
+    tagPrefix = ''
+    dependsOn buildPlugin
 }
 
 junitPlatform {
@@ -79,7 +90,7 @@ junitPlatform {
         }
         // includeClassNamePattern '.*Test'
     }
-    enableStandardTestTask true
+    enableStandardTestTask = true
     // reportsDir file('build/test-results/junit-platform') // this is the default
     // logManager 'org.apache.logging.log4j.jul.LogManager'
 }
