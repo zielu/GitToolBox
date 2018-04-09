@@ -144,15 +144,14 @@ checkstyle {
 }
 
 dependencies {
+
     checkstyle("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
     testAgent("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
 
     compile("org.jodd:jodd-core:${joddVersion}")
-    compile("com.google.guava:guava:${guavaVersion}")
-    compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
 
-    compile('com.google.code.findbugs:jsr305:3.0.2')
-    compile('com.google.code.findbugs:findbugs:3.0.1')
+    compileOnly('com.google.code.findbugs:jsr305:3.0.2')
+    compileOnly('com.google.code.findbugs:findbugs:3.0.1')
 
     testCompile("org.mockito:mockito-core:${mockitoVersion}")
     testCompile 'name.falgout.jeffrey.testing.junit5:mockito-extension:1.0.0'
