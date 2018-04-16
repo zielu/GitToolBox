@@ -149,6 +149,7 @@ dependencies {
     testAgent("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
 
     compile("org.jodd:jodd-core:${joddVersion}")
+    compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
 
     compileOnly('com.google.code.findbugs:jsr305:3.0.2')
     compileOnly('com.google.code.findbugs:findbugs:3.0.1')
