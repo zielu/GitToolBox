@@ -24,11 +24,22 @@ Decisions are stored [here](./GitToolBox/doc/arch).
 If version set in [gradle.properties](./GitToolBox/gradle.properties) ends with `-dev` then build datetime in UTC timezone will be appended.
 For example dev build on `2018-01-13 13:06:12 CET` will produce version `173.1.2-dev.20180113.120612.adddfbcd10`
 
+### Releases
+
+#### Release current `-SNAPSHOT`
+```
+gradle clean check jacocoTestReport buildPlugin release
+```
+#### Upgrade to next minor version
+```
+gradle clean check jacocoTestReport buildPlugin releaseMinorVersion
+```
+#### Upgrade to next major version
+```
+gradle clean check jacocoTestReport buildPlugin releaseMajorVersion
+```
+
 ### Useful build commands
-Release build
-```
-gradle clean check jacocoTestReport buildPlugin
-```
 Full verification of build
 ```
 gradle clean check jacocoTestReport
@@ -39,7 +50,7 @@ gradle clean test jacocoTestReport
 ```
 Update gradlew version
 ```
-gradle wrapper --gradle-version 4.5 --distribution-type ALL
+gradle wrapper --gradle-version 4.6 --distribution-type ALL
 ```
 
 ### Useful run commands
