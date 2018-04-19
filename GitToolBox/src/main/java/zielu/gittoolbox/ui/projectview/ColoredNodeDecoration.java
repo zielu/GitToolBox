@@ -45,8 +45,16 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
     return SimpleTextAttributes.GRAY_ATTRIBUTES;
   }
 
+  private void setName(PresentationData data) {
+    if (data.getColoredText().isEmpty()) {
+      Optional.ofNullable(data.getPresentableText())
+          .ifPresent(text -> data.addText(text, SimpleTextAttributes.REGULAR_ATTRIBUTES));
+    }
+  }
+
   @Override
   public boolean apply(ProjectViewNode node, PresentationData data) {
+    setName(data);
     Optional<String> locationString = Optional.ofNullable(data.getLocationString());
     if (config.showProjectViewLocationPath) {
       if (config.showProjectViewStatusBeforeLocation) {

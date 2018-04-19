@@ -46,7 +46,7 @@ abstract class NodeDecorationBaseTest {
 
   abstract String getStatusText(PresentationData data);
 
-  private PresentationData presentationData(boolean location) {
+  PresentationData presentationData(boolean location) {
     PresentationData data = presentationData();
     if (location) {
       data.setLocationString(LOCATION);
@@ -58,7 +58,7 @@ abstract class NodeDecorationBaseTest {
     return new PresentationData();
   }
 
-  private PresentationData apply(PresentationData presentationData) {
+  PresentationData apply(PresentationData presentationData) {
     decoration.apply(node, presentationData);
     return presentationData;
   }
