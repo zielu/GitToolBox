@@ -33,13 +33,15 @@ configurations {
     }
 }
 
+def ideaCacheDir = System.getProperty('user.home') + File.separator + 'intellij-gradle-cache'
+
 intellij {
     version = ideaVersion
     type = ideaType
-    plugins = 'git4idea'
     updateSinceUntilBuild = false
     downloadSources = true
-    plugins = ['Git4Idea', 'gr.jchrist.gitextender:0.4.1']
+    plugins = ['Git4Idea', 'gr.jchrist.gitextender:0.4.1', 'PythonCore:2018.1.181.4203.550']
+    ideaDependencyCachePath = ideaCacheDir
 }
 
 apply plugin: 'idea'
