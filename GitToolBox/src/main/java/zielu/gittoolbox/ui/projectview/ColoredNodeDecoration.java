@@ -13,6 +13,7 @@ import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfig;
+import zielu.gittoolbox.ui.util.PresentationDataUtil;
 
 public class ColoredNodeDecoration extends NodeDecorationBase {
 
@@ -46,7 +47,8 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
   }
 
   private void setName(PresentationData data) {
-    if (data.getColoredText().isEmpty()) {
+    Optional<String> textValue = PresentationDataUtil.getFirstColoredTextValue(data);
+    if (!textValue.isPresent()) {
       Optional.ofNullable(data.getPresentableText())
           .ifPresent(text -> data.addText(text, SimpleTextAttributes.REGULAR_ATTRIBUTES));
     }
