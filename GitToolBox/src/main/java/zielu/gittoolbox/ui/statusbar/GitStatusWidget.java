@@ -10,9 +10,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
-import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import java.awt.event.MouseEvent;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +24,7 @@ import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.ui.util.AppUtil;
+import zielu.gittoolbox.util.DisposeSafeRunnable;
 import zielu.gittoolbox.util.GtUtil;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
@@ -35,7 +36,6 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
   private String text = "";
   private boolean visible = true;
 
-
   private GitStatusWidget(@NotNull Project project) {
     super(project);
     toolTip = new StatusToolTip(project);
@@ -43,42 +43,53 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-        onCacheChange(info, repository);
+        if (isActive()) {
+          onCacheChange(project, info, repository);
+        }
       }
     });
     myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
       @Override
       public void configChanged(GitToolBoxConfig config) {
-        runUpdateLater();
+        if (isActive()) {
+          runUpdateLater(project);
+        }
       }
     });
-    myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> AppUtil.invokeLaterIfNeeded(this::updateStatusBar));
+    myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> {
+      if (isActive()) {
+        AppUtil.invokeLaterIfNeeded(this::updateStatusBar);
+      }
+    });
   }
 
   public static GitStatusWidget create(@NotNull Project project) {
     return new GitStatusWidget(project);
   }
 
-  private void onCacheChange(@NotNull final RepoInfo info, @NotNull final GitRepository repository) {
-    AppUtil.invokeLaterIfNeeded(() -> {
-      if (opened.get() && repository.equals(GtUtil.getCurrentRepositoryQuick(myProject))) {
+  private void onCacheChange(@NotNull Project project, @NotNull final RepoInfo info,
+                             @NotNull final GitRepository repository) {
+    Runnable onCacheChange = new DisposeSafeRunnable(project, () -> {
+      if (isActive() && repository.equals(GtUtil.getCurrentRepositoryQuick(project))) {
         update(repository, info);
         updateStatusBar();
       }
     });
+    AppUtil.invokeLaterIfNeeded(onCacheChange);
   }
 
-  private void runUpdateLater() {
-    AppUtil.invokeLaterIfNeeded(() -> {
-      if (opened.get()) {
-        runUpdate();
+  private void runUpdateLater(Project project) {
+    Runnable update = new DisposeSafeRunnable(project, () -> {
+      if (isActive()) {
+        runUpdate(project);
       }
     });
+    AppUtil.invokeLaterIfNeeded(update);
   }
 
   void setVisible(boolean visible) {
     this.visible = visible;
-    runUpdateLater();
+    Optional.ofNullable(myProject).ifPresent(this::runUpdateLater);
   }
 
   @Override
@@ -129,17 +140,17 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
 
   @Override
   public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-    runUpdate();
+    runUpdate(myProject);
   }
 
   @Override
   public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-    runUpdate();
+    runUpdate(myProject);
   }
 
   @Override
   public void selectionChanged(@NotNull FileEditorManagerEvent event) {
-    runUpdate();
+    runUpdate(myProject);
   }
 
   private void updateStatusBar() {
@@ -159,18 +170,17 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         .orElse(ResBundle.getString("git.na"));
   }
 
-  private void runUpdate() {
-    GitVcs git = GitVcs.getInstance(myProject);
-    if (git != null) {
-      GitRepository repository = GtUtil.getCurrentRepositoryQuick(myProject);
-      RepoInfo repoInfo = RepoInfo.empty();
-      if (repository != null) {
-        repoInfo = PerRepoInfoCache.getInstance(myProject).getInfo(repository);
-      }
-      update(repository, repoInfo);
-    } else {
-      empty();
+  private void runUpdate(@Nullable Project project) {
+    Optional.ofNullable(project).ifPresent(this::performUpdate);
+  }
+
+  private void performUpdate(@NotNull Project project) {
+    GitRepository repository = GtUtil.getCurrentRepositoryQuick(project);
+    RepoInfo repoInfo = RepoInfo.empty();
+    if (repository != null) {
+      repoInfo = PerRepoInfoCache.getInstance(project).getInfo(repository);
     }
+    update(repository, repoInfo);
     updateStatusBar();
   }
 
@@ -184,6 +194,10 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     } else {
       empty();
     }
+  }
+
+  private boolean isActive() {
+    return !isDisposed() && opened.get();
   }
 
   @Nullable

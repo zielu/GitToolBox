@@ -22,17 +22,6 @@ public class StatusBarManager implements Disposable, ProjectAware {
   private StatusBarManager(Project project) {
     this.project = project;
     connection = this.project.getMessageBus().connect();
-    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
-      @Override
-      public void configChanged(GitToolBoxConfig config) {
-        final boolean showStatusWidget = config.showStatusWidget;
-        SwingUtilities.invokeLater(() -> {
-          if (opened.get()) {
-            statusWidget.setVisible(showStatusWidget);
-          }
-        });
-      }
-    });
   }
 
   @NotNull
@@ -45,6 +34,17 @@ public class StatusBarManager implements Disposable, ProjectAware {
     if (statusBar != null) {
       statusBar.addWidget(statusWidget, project);
       statusWidget.installed();
+      connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
+        @Override
+        public void configChanged(GitToolBoxConfig config) {
+          final boolean showStatusWidget = config.showStatusWidget;
+          SwingUtilities.invokeLater(() -> {
+            if (opened.get()) {
+              statusWidget.setVisible(showStatusWidget);
+            }
+          });
+        }
+      });
     }
   }
 
@@ -59,7 +59,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
   @Override
   public void opened() {
     if (opened.compareAndSet(false, true)) {
-      if (!ApplicationManager.getApplication().isHeadlessEnvironment()) {
+      if (hasUi()) {
         statusWidget = GitStatusWidget.create(project);
         install();
         statusWidget.setVisible(GitToolBoxConfig.getInstance().showStatusWidget);
@@ -69,17 +69,26 @@ public class StatusBarManager implements Disposable, ProjectAware {
 
   @Override
   public void closed() {
-    opened.compareAndSet(true, false);
+    if (opened.compareAndSet(true, false)) {
+      cleanUp();
+    }
   }
 
-  @Override
-  public void dispose() {
-    if (!ApplicationManager.getApplication().isHeadlessEnvironment()) {
+  private boolean hasUi() {
+    return !ApplicationManager.getApplication().isHeadlessEnvironment();
+  }
+
+  private void cleanUp() {
+    connection.disconnect();
+    if (hasUi()) {
       if (statusWidget != null) {
         uninstall();
         statusWidget = null;
       }
     }
-    connection.disconnect();
+  }
+
+  @Override
+  public void dispose() {
   }
 }

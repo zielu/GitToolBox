@@ -22,7 +22,11 @@ public class DisposeSafeCallable<T> implements Callable<T> {
   @Override
   public T call() throws Exception {
     try {
-      return operation.call();
+      if (project.isDisposed()) {
+        return disposedResult;
+      } else {
+        return operation.call();
+      }
     } catch (AssertionError error) {
       if (project.isDisposed()) {
         log.debug("Project already disposed", error);

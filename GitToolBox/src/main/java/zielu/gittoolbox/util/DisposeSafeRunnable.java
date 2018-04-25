@@ -20,7 +20,9 @@ public class DisposeSafeRunnable implements Runnable {
   @Override
   public void run() {
     try {
-      operation.run();
+      if (!project.isDisposed()) {
+        operation.run();
+      }
     } catch (AssertionError error) {
       if (project.isDisposed()) {
         log.debug("Project already disposed", error);
