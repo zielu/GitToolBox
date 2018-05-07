@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.config.GitToolBoxConfig;
+import zielu.intellij.ui.GtConfigurableBase;
 
 public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     implements SearchableConfigurable {

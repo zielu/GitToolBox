@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config;
+package zielu.intellij.ui;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.options.BaseConfigurable;
@@ -7,6 +7,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.util.ui.UIUtil;
 import javax.swing.JComponent;
 import org.jetbrains.annotations.Nullable;
+import zielu.intellij.ui.GtFormUi;
 
 public abstract class GtConfigurableBase<F extends GtFormUi, C extends PersistentStateComponent> extends
     BaseConfigurable {

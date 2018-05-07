@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config;
+package zielu.intellij.ui;
 
 import javax.swing.JComponent;
 

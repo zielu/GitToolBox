@@ -152,6 +152,13 @@ dependencies {
 
     compile("org.jodd:jodd-core:${joddVersion}")
     compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    compile("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
+        exclude group: 'org.slf4j', module:'slf4j-api'
+    }
+    compile("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
+        exclude group: 'org.slf4j', module:'slf4j-api'
+    }
+    // compile("one.util:streamex:${streamExVersion}")
 
     compileOnly('com.google.code.findbugs:jsr305:3.0.2')
     compileOnly('com.google.code.findbugs:findbugs:3.0.1')

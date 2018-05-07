@@ -11,7 +11,7 @@ class PerfWatchImpl implements PerfWatch {
   private final Stopwatch stopwatch;
 
   PerfWatchImpl(String message) {
-    enabled = LogWatchUtil.isPerfEnabled();
+    enabled = PerfUtil.isEnabled();
     if (enabled) {
       this.message = message;
       stopwatch = Stopwatch.createUnstarted();
@@ -51,7 +51,7 @@ class PerfWatchImpl implements PerfWatch {
     if (millis > 0) {
       StringBand messageToLog = message.append(" [th:").append(Thread.currentThread().getName()).append("][ms]: ")
           .append(millis);
-      LogWatchUtil.log(messageToLog);
+      PerfUtil.log(messageToLog);
     }
   }
 }

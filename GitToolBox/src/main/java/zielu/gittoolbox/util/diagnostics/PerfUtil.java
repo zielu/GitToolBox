@@ -5,18 +5,18 @@ import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import com.intellij.openapi.diagnostic.Logger;
 import jodd.util.StringBand;
 
-final class LogWatchUtil {
+public final class PerfUtil {
   private static final Logger PERF_LOGGER = getInstance("#zielu.gittoolbox.perf");
 
-  private LogWatchUtil() {
+  private PerfUtil() {
     throw new IllegalStateException();
   }
 
-  static Logger getPerfLogger() {
+  static Logger getLogger() {
     return PERF_LOGGER;
   }
 
-  static boolean isPerfEnabled() {
+  static boolean isEnabled() {
     return PERF_LOGGER.isTraceEnabled();
   }
 

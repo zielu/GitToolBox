@@ -23,6 +23,7 @@ import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.util.CheckBoxWithColorChooserEx;
+import zielu.intellij.ui.GtFormUi;
 
 public class GtForm implements GtFormUi {
   private JComboBox presentationMode;

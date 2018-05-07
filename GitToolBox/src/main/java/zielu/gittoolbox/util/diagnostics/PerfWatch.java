@@ -5,7 +5,7 @@ import jodd.util.StringBand;
 
 public interface PerfWatch {
   static PerfWatch create(String message, Object... rest) {
-    if (LogWatchUtil.isPerfEnabled()) {
+    if (PerfUtil.isEnabled()) {
       StringBand initialMessage = new StringBand(message);
       Arrays.stream(rest).forEach(initialMessage::append);
       return new PerfWatchImpl(initialMessage.toString());
