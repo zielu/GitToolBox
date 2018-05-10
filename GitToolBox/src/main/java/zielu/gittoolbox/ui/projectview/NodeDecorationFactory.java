@@ -17,10 +17,6 @@ public class NodeDecorationFactory {
 
   public NodeDecoration decorationFor(@NotNull GitRepository repo, @NotNull RepoInfo repoInfo) {
     GitToolBoxConfig config = GitToolBoxConfig.getInstance();
-    if (config.isProjectViewStatusDecorated()) {
-      return new ColoredNodeDecoration(config, repo, repoInfo);
-    } else {
-      return new LocationOnlyNodeDecoration(config, repo, repoInfo);
-    }
+    return new ColoredNodeDecoration(config, repo, repoInfo);
   }
 }

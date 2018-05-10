@@ -7,6 +7,7 @@ import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfig;
 
 @Tag("fast")
+@Deprecated
 class LocationOnlyNodeDecorationTest extends NodeDecorationBaseTest {
   @Override
   NodeDecoration createDecoration(GitToolBoxConfig config, GitRepository repository, RepoInfo repoInfo) {

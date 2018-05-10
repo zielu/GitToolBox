@@ -45,10 +45,6 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     form.setShowProjectViewLocationPath(config.showProjectViewLocationPath);
     form.setShowProjectViewStatusBeforeLocation(config.showProjectViewStatusBeforeLocation);
     form.setBehindTrackerEnabled(config.behindTracker);
-    form.setProjectViewStatusColorEnabled(config.projectViewStatusCustomColor);
-    form.setProjectViewStatusColor(config.getProjectViewStatusColor());
-    form.setProjectViewStatusBold(config.projectViewStatusBold);
-    form.setProjectViewStatusItalic(config.projectViewStatusItalic);
     form.setUpdateProjectAction(GitToolBoxUpdateProjectApp.getInstance().getById(config.getUpdateProjectActionId()));
   }
 
@@ -61,10 +57,6 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     modified = modified || config.isShowProjectViewStatusBeforeLocationChanged(
         form.getShowProjectViewStatusBeforeLocation());
     modified = modified || config.isBehindTrackerChanged(form.getBehindTrackerEnabled());
-    modified = modified || config.isProjectViewStatusColorChanged(form.getProjectViewStatusColor());
-    modified = modified || config.isProjectViewStatusCustomColorChanged(form.getProjectViewStatusColorEnabled());
-    modified = modified || config.isProjectViewStatusBoldChanged(form.getProjectViewStatusBold());
-    modified = modified || config.isProjectViewStatusItalicChanged(form.getProjectViewStatusItalic());
     modified = modified || config.isUpdateProjectActionId(form.getUpdateProjectAction().getId());
     log.debug("Modified: ", modified);
     return modified;
@@ -78,10 +70,6 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     config.showProjectViewLocationPath = form.getShowProjectViewLocationPath();
     config.showProjectViewStatusBeforeLocation = form.getShowProjectViewStatusBeforeLocation();
     config.behindTracker = form.getBehindTrackerEnabled();
-    config.projectViewStatusCustomColor = form.getProjectViewStatusColorEnabled();
-    config.setProjectViewStatusColor(form.getProjectViewStatusColor());
-    config.projectViewStatusBold = form.getProjectViewStatusBold();
-    config.projectViewStatusItalic = form.getProjectViewStatusItalic();
     config.updateProjectActionId = form.getUpdateProjectAction().getId();
     config.fireChanged();
     log.debug("Applied");

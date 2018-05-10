@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfig;
 
+@Deprecated
 public class LocationOnlyNodeDecoration extends NodeDecorationBase {
 
   public LocationOnlyNodeDecoration(@NotNull GitToolBoxConfig config,
