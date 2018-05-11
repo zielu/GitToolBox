@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.util.diagnostics.PerfWatch;
+import zielu.gittoolbox.GitToolBoxAppMetrics;
 
 class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -34,6 +34,9 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
 
   VirtualFileRepoCacheImpl(Project project) {
     this.project = project;
+    GitToolBoxAppMetrics metrics = GitToolBoxAppMetrics.getInstance();
+    metrics.gauge("vfile_repo_roots_cache_size", rootsCache::size);
+    metrics.gauge("vfile_repo_dirs_cache_size", dirsCache::size);
   }
 
   @Override
@@ -69,10 +72,8 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
 
   @NotNull
   private Optional<GitRepository> findRepoForDir(@NotNull VirtualFile dir) {
-    PerfWatch calculateWatch = PerfWatch.createStarted("Calculate repo for dir [", dir, "]");
-    Optional<GitRepository> repo = calculateRepoForDir(dir);
-    calculateWatch.finish();
-    return repo;
+    return GitToolBoxAppMetrics.getInstance().timer("repo_for_dir_cache")
+        .timeSupplier(() -> calculateRepoForDir(dir));
   }
 
   @NotNull

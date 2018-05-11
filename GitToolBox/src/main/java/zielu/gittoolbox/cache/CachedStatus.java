@@ -1,5 +1,6 @@
 package zielu.gittoolbox.cache;
 
+import com.codahale.metrics.Timer;
 import com.google.common.base.Objects;
 import com.intellij.openapi.diagnostic.Logger;
 import git4idea.repo.GitRepository;
@@ -8,6 +9,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.GitToolBoxAppMetrics;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.util.GtUtil;
@@ -52,9 +54,9 @@ class CachedStatus {
   private void updateStatus(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
                             @NotNull Consumer<RepoInfo> infoConsumer, RepoStatus currentStatus) {
     GitAheadBehindCount oldCount = count;
-    PerfWatch statusUpdateWatch = PerfWatch.createStarted("Status update");
-    count = calculator.aheadBehindStatus(repo, currentStatus.localHash(), currentStatus.remoteHash());
-    statusUpdateWatch.finish();
+    Timer statusUpdateLatency = GitToolBoxAppMetrics.getInstance().timer("status_update");
+    count = statusUpdateLatency
+        .timeSupplier(() -> calculator.aheadBehindStatus(repo, currentStatus.localHash(), currentStatus.remoteHash()));
     LOG.debug("Updated stale status [", repoName, "]: ", oldCount, " > ", count);
     if (!currentStatus.sameHashes(count)) {
       LOG.warn("Hash mismatch between count and status: " + count + " <> " + currentStatus);
