@@ -3,8 +3,6 @@ package zielu.gittoolbox.ui.projectview;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.util.treeView.PresentableNodeDescriptor.ColoredFragment;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.FontUtil;
 import git4idea.repo.GitRepository;
@@ -12,22 +10,20 @@ import java.util.Optional;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.RepoInfo;
-import zielu.gittoolbox.config.DecorationColors;
-import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.ui.util.PresentationDataUtil;
 
 public class ColoredNodeDecoration extends NodeDecorationBase {
+  private ColoredNodeDecorationUi coloredUi;
 
-  public ColoredNodeDecoration(@NotNull GitToolBoxConfig config,
+  public ColoredNodeDecoration(@NotNull ColoredNodeDecorationUi ui,
                                @NotNull GitRepository repo,
                                @NotNull RepoInfo repoInfo) {
-    super(config, repo, repoInfo);
+    super(ui, repo, repoInfo);
+    coloredUi = ui;
   }
 
   private ColoredFragment makeStatusFragment(boolean prefix) {
-    EditorColorsScheme scheme = EditorColorsManager.getInstance().getGlobalScheme();
-    SimpleTextAttributes attributes = SimpleTextAttributes.fromTextAttributes(
-        scheme.getAttributes(DecorationColors.LOCAL_BRANCH_ATTRIBUTES));
+    SimpleTextAttributes attributes = coloredUi.getStatusFragmentAttributes();
     StringBand status = getStatusText();
     if (prefix) {
       String statusTemp = status.toString();
@@ -53,8 +49,8 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
   public boolean apply(ProjectViewNode node, PresentationData data) {
     setName(data);
     Optional<String> locationString = Optional.ofNullable(data.getLocationString());
-    if (config.showProjectViewLocationPath) {
-      if (config.showProjectViewStatusBeforeLocation) {
+    if (ui.showProjectViewLocationPath()) {
+      if (ui.showProjectViewStatusBeforeLocation()) {
         data.addText(makeStatusFragment(true));
         locationString.ifPresent(l -> data.setLocationString("- " + l));
       } else {

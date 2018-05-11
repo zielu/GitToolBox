@@ -11,7 +11,7 @@ import zielu.gittoolbox.config.GitToolBoxConfig;
 class LocationOnlyNodeDecorationTest extends NodeDecorationBaseTest {
   @Override
   NodeDecoration createDecoration(GitToolBoxConfig config, GitRepository repository, RepoInfo repoInfo) {
-    return new LocationOnlyNodeDecoration(config, repository, repoInfo);
+    return new LocationOnlyNodeDecoration(new NodeDecorationUi(config), repository, repoInfo);
   }
 
   @Override

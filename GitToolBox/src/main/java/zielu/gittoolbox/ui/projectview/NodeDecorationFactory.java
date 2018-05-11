@@ -17,6 +17,7 @@ public class NodeDecorationFactory {
 
   public NodeDecoration decorationFor(@NotNull GitRepository repo, @NotNull RepoInfo repoInfo) {
     GitToolBoxConfig config = GitToolBoxConfig.getInstance();
-    return new ColoredNodeDecoration(config, repo, repoInfo);
+    ColoredNodeDecorationUi ui = new ColoredNodeDecorationUi(config);
+    return new ColoredNodeDecoration(ui, repo, repoInfo);
   }
 }
