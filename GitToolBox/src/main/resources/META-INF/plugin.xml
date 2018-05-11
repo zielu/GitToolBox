@@ -58,7 +58,7 @@
       <implementation-class>zielu.gittoolbox.GitToolBoxUpdateProjectApp</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.GitToolBoxAppMetrics</implementation-class>
+      <implementation-class>zielu.gittoolbox.metrics.GitToolBoxAppMetrics</implementation-class>
     </component>
   </application-components>
 
@@ -96,6 +96,9 @@
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.completion.GitToolBoxCompletionProject</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.metrics.GitToolBoxProjectMetrics</implementation-class>
     </component>
     <!--
     <component>

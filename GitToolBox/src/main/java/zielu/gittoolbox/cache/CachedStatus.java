@@ -9,15 +9,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.GitToolBoxAppMetrics;
+import zielu.gittoolbox.metrics.MetricsHost;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.util.GtUtil;
-import zielu.gittoolbox.util.diagnostics.PerfWatch;
 
 class CachedStatus {
   private static final Logger LOG = Logger.getInstance(CachedStatus.class);
-  private final PerfWatch repoStatusCreateWatch = PerfWatch.create("Repo status create");
   private final AtomicBoolean invalid = new AtomicBoolean(true);
   private final AtomicBoolean newStatus = new AtomicBoolean(true);
   private final AtomicReference<RepoInfo> repoInfo = new AtomicReference<>(RepoInfo.empty());
@@ -54,7 +52,7 @@ class CachedStatus {
   private void updateStatus(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
                             @NotNull Consumer<RepoInfo> infoConsumer, RepoStatus currentStatus) {
     GitAheadBehindCount oldCount = count;
-    Timer statusUpdateLatency = GitToolBoxAppMetrics.getInstance().timer("status_update");
+    Timer statusUpdateLatency = MetricsHost.app().timer("status-update");
     count = statusUpdateLatency
         .timeSupplier(() -> calculator.aheadBehindStatus(repo, currentStatus.localHash(), currentStatus.remoteHash()));
     LOG.debug("Updated stale status [", repoName, "]: ", oldCount, " > ", count);
@@ -69,9 +67,7 @@ class CachedStatus {
   }
 
   private RepoStatus createStatus(GitRepository repository) {
-    repoStatusCreateWatch.start();
     RepoStatus currentStatus = RepoStatus.create(repository);
-    repoStatusCreateWatch.finish();
     return currentStatus;
   }
 

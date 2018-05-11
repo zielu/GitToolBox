@@ -23,7 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxAppMetrics;
+import zielu.gittoolbox.metrics.Metrics;
+import zielu.gittoolbox.metrics.MetricsHost;
 import zielu.gittoolbox.status.GitStatusCalculator;
 
 class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
@@ -40,9 +41,9 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   PerRepoInfoCacheImpl(@NotNull Project project) {
     this.project = project;
     calculator = GitStatusCalculator.create(project);
-    GitToolBoxAppMetrics metrics = GitToolBoxAppMetrics.getInstance();
-    metrics.gauge("behind_status_cache_size", behindStatuses::size);
-    behindStatusQueueSize = metrics.counter("behind_status_queue_size");
+    Metrics metrics = MetricsHost.app();
+    metrics.gauge("behind-status-cache-size", behindStatuses::size);
+    behindStatusQueueSize = metrics.counter("behind-status-queue-size");
   }
 
   @Override
