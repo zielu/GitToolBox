@@ -1,4 +1,4 @@
-package zielu.gittoolbox.config;
+package zielu.gittoolbox.ui.config;
 
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.PlainSyntaxHighlighter;
@@ -11,6 +11,7 @@ import javax.swing.Icon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.config.DecorationColors;
 
 public class DecorationColorsPage implements ColorSettingsPage {
   @NotNull

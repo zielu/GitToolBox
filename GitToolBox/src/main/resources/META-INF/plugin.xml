@@ -48,7 +48,7 @@
 
     <projectService serviceInterface="zielu.gittoolbox.ui.behindtracker.BehindTrackerUi"
                     serviceImplementation="zielu.gittoolbox.ui.behindtracker.BehindTrackerUiService"/>
-    <colorSettingsPage implementation="zielu.gittoolbox.config.DecorationColorsPage"/>
+    <colorSettingsPage implementation="zielu.gittoolbox.ui.config.DecorationColorsPage"/>
   </extensions>
 
   <application-components>
