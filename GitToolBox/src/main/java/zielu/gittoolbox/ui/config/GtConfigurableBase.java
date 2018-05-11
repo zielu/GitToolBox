@@ -3,7 +3,6 @@ package zielu.gittoolbox.ui.config;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.options.BaseConfigurable;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.util.Computable;
 import com.intellij.util.ui.UIUtil;
 import javax.swing.JComponent;
 import org.jetbrains.annotations.Nullable;
@@ -32,13 +31,10 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C extends Persisten
 
   private synchronized void initComponent() {
     if (form == null) {
-      form = UIUtil.invokeAndWaitIfNeeded(new Computable<F>() {
-        @Override
-        public F compute() {
-          F form = createForm();
-          form.init();
-          return form;
-        }
+      form = UIUtil.invokeAndWaitIfNeeded(() -> {
+        F form = createForm();
+        form.init();
+        return form;
       });
     }
   }

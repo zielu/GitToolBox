@@ -19,7 +19,7 @@ public class DecorationColorsPage implements ColorSettingsPage {
   public AttributesDescriptor[] getAttributeDescriptors() {
     return new AttributesDescriptor[] {
       new AttributesDescriptor(ResBundle.getString("colors.projectView.decoration.label"),
-          DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
+          DecorationColors.REMOTE_BRANCH_ATTRIBUTES)
     };
   }
 

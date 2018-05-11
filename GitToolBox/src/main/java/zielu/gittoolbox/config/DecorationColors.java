@@ -7,8 +7,8 @@ import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
 public class DecorationColors {
-  public static final TextAttributesKey LOCAL_BRANCH_ATTRIBUTES = TextAttributesKey
-      .createTextAttributesKey("LOCAL_BRANCH_ATTRIBUTES");
+  public static final TextAttributesKey REMOTE_BRANCH_ATTRIBUTES = TextAttributesKey
+      .createTextAttributesKey("GIT_TOOLBOX.REMOTE_BRANCH_ATTRIBUTES");
 
   private DecorationColors() {
     throw new IllegalStateException();
