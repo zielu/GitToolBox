@@ -18,8 +18,10 @@ public class DecorationColorsPage implements ColorSettingsPage {
   @Override
   public AttributesDescriptor[] getAttributeDescriptors() {
     return new AttributesDescriptor[] {
-      new AttributesDescriptor(ResBundle.getString("colors.projectView.decoration.label"),
-          DecorationColors.REMOTE_BRANCH_ATTRIBUTES)
+      new AttributesDescriptor(ResBundle.getString("colors.projectView.remote.branch.decoration.label"),
+          DecorationColors.REMOTE_BRANCH_ATTRIBUTES),
+        new AttributesDescriptor(ResBundle.getString("colors.projectView.local.branch.decoration.label"),
+            DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
     };
   }
 

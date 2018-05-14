@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.projectview;
 
+import static zielu.gittoolbox.config.DecorationColors.LOCAL_BRANCH_ATTRIBUTES;
 import static zielu.gittoolbox.config.DecorationColors.REMOTE_BRANCH_ATTRIBUTES;
 
 import com.intellij.ui.SimpleTextAttributes;
@@ -12,7 +13,11 @@ public class ColoredNodeDecorationUi extends NodeDecorationUi {
     super(config);
   }
 
-  public SimpleTextAttributes getStatusFragmentAttributes() {
+  public SimpleTextAttributes getRemoteBranchStatusAttributes() {
     return DecorationColors.simpleAttributes(REMOTE_BRANCH_ATTRIBUTES);
+  }
+
+  public SimpleTextAttributes getLocalBranchStatusAttributes() {
+    return DecorationColors.simpleAttributes(LOCAL_BRANCH_ATTRIBUTES);
   }
 }

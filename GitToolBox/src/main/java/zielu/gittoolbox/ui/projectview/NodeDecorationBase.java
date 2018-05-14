@@ -46,4 +46,8 @@ public abstract class NodeDecorationBase implements NodeDecoration {
     }
     return status;
   }
+
+  protected final boolean isTrackingBranch() {
+    return repoInfo.status().hasRemoteBranch();
+  }
 }

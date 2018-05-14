@@ -23,14 +23,21 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
   }
 
   private ColoredFragment makeStatusFragment(boolean prefix) {
-    SimpleTextAttributes attributes = coloredUi.getStatusFragmentAttributes();
     StringBand status = getStatusText();
     if (prefix) {
       String statusTemp = status.toString();
       status.setIndex(0);
       status.append(FontUtil.spaceAndThinSpace()).append(statusTemp);
     }
-    return new ColoredFragment(status.toString(), attributes);
+    return new ColoredFragment(status.toString(), getStatusAttributes());
+  }
+
+  private SimpleTextAttributes getStatusAttributes() {
+    if (isTrackingBranch()) {
+      return coloredUi.getRemoteBranchStatusAttributes();
+    } else {
+      return coloredUi.getLocalBranchStatusAttributes();
+    }
   }
 
   private SimpleTextAttributes getLocationAttributes() {
