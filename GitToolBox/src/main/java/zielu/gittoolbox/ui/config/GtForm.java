@@ -1,7 +1,6 @@
 package zielu.gittoolbox.ui.config;
 
 import com.intellij.ui.ListCellRendererWrapper;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -17,12 +16,10 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
-import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.extension.UpdateProjectAction;
 import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
-import zielu.gittoolbox.ui.util.CheckBoxWithColorChooserEx;
 import zielu.intellij.ui.GtFormUi;
 
 public class GtForm implements GtFormUi {
@@ -36,15 +33,7 @@ public class GtForm implements GtFormUi {
   private JLabel presentationStatusBarPreview;
   private JLabel presentationProjectViewPreview;
   private JLabel presentationBehindTrackerPreview;
-  private CheckBoxWithColorChooserEx projectViewStatusColorChooser;
-  private JCheckBox projectViewStatusBoldCheckBox;
-  private JCheckBox projectViewStatusItalicCheckBox;
   private JComboBox updateProjectAction;
-
-  protected void createUIComponents() {
-    String statusColorLabel = ResBundle.getString("configurable.app.showProjectViewStatusColor.label");
-    projectViewStatusColorChooser = new CheckBoxWithColorChooserEx(statusColorLabel);
-  }
 
   @Override
   public void init() {
@@ -95,7 +84,6 @@ public class GtForm implements GtFormUi {
 
   @Override
   public void dispose() {
-    projectViewStatusColorChooser.dispose();
   }
 
   private String getStatusBarPreview(StatusPresenter presenter) {
@@ -119,9 +107,6 @@ public class GtForm implements GtFormUi {
   private void onProjectViewStatusChange() {
     boolean enabled = showProjectViewStatusCheckBox.isSelected();
     showLocationPathCheckBox.setEnabled(enabled);
-    projectViewStatusColorChooser.setEnabled(enabled);
-    projectViewStatusBoldCheckBox.setEnabled(enabled);
-    projectViewStatusItalicCheckBox.setEnabled(enabled);
     if (enabled) {
       showStatusBeforeLocationCheckBox.setEnabled(showLocationPathCheckBox.isSelected());
     } else {
@@ -186,39 +171,6 @@ public class GtForm implements GtFormUi {
 
   public void setShowProjectViewStatusBeforeLocation(boolean showProjectViewStatusBeforeLocation) {
     showStatusBeforeLocationCheckBox.setSelected(showProjectViewStatusBeforeLocation);
-  }
-
-  @NotNull
-  public Color getProjectViewStatusColor() {
-    return projectViewStatusColorChooser.getColor();
-  }
-
-  public void setProjectViewStatusColor(@NotNull Color color) {
-    projectViewStatusColorChooser.setColor(color);
-  }
-
-  public boolean getProjectViewStatusColorEnabled() {
-    return projectViewStatusColorChooser.isSelected();
-  }
-
-  public void setProjectViewStatusColorEnabled(boolean enabled) {
-    projectViewStatusColorChooser.setSelected(enabled);
-  }
-
-  public boolean getProjectViewStatusBold() {
-    return projectViewStatusBoldCheckBox.isSelected();
-  }
-
-  public void setProjectViewStatusBold(boolean bold) {
-    projectViewStatusBoldCheckBox.setSelected(bold);
-  }
-
-  public boolean getProjectViewStatusItalic() {
-    return projectViewStatusItalicCheckBox.isSelected();
-  }
-
-  public void setProjectViewStatusItalic(boolean italic) {
-    projectViewStatusItalicCheckBox.setSelected(italic);
   }
 
   public UpdateProjectAction getUpdateProjectAction() {

@@ -7,21 +7,21 @@ import jodd.util.StringBand;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.RepoInfo;
-import zielu.gittoolbox.config.GitToolBoxConfig;
 
+@Deprecated
 public class LocationOnlyNodeDecoration extends NodeDecorationBase {
 
-  public LocationOnlyNodeDecoration(@NotNull GitToolBoxConfig config,
+  public LocationOnlyNodeDecoration(@NotNull NodeDecorationUi ui,
                                     @NotNull GitRepository repo,
                                     @NotNull RepoInfo repoInfo) {
-    super(config, repo, repoInfo);
+    super(ui, repo, repoInfo);
   }
 
   @Override
   public boolean apply(ProjectViewNode node, PresentationData data) {
     String initialLocation = data.getLocationString();
     data.setLocationString(makeStatusLocation(initialLocation));
-    if (!config.showProjectViewLocationPath && StringUtils.isNotBlank(initialLocation)) {
+    if (!ui.showProjectViewLocationPath() && StringUtils.isNotBlank(initialLocation)) {
       data.setTooltip(initialLocation);
     }
     return true;
@@ -29,12 +29,12 @@ public class LocationOnlyNodeDecoration extends NodeDecorationBase {
 
   private String makeStatusLocation(String existingLocation) {
     String locationPath = null;
-    if (config.showProjectViewLocationPath && StringUtils.isNotBlank(existingLocation)) {
+    if (ui.showProjectViewLocationPath() && StringUtils.isNotBlank(existingLocation)) {
       locationPath = existingLocation;
     }
     StringBand status = getStatusText();
     StringBand location = new StringBand();
-    if (config.showProjectViewStatusBeforeLocation) {
+    if (ui.showProjectViewStatusBeforeLocation()) {
       location.append(status);
       if (locationPath != null) {
         location.append(" - ").append(locationPath);

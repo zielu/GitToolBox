@@ -48,6 +48,10 @@
 
     <projectService serviceInterface="zielu.gittoolbox.ui.behindtracker.BehindTrackerUi"
                     serviceImplementation="zielu.gittoolbox.ui.behindtracker.BehindTrackerUiService"/>
+
+    <colorSettingsPage implementation="zielu.gittoolbox.ui.config.DecorationColorsPage"/>
+    <additionalTextAttributes scheme="Default" file="zielu/gittoolbox/colorschemes/GitToolBoxDefault.xml"/>
+    <additionalTextAttributes scheme="Darcula" file="zielu/gittoolbox/colorschemes/GitToolBoxDarcula.xml"/>
   </extensions>
 
   <application-components>
