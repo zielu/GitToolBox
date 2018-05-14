@@ -72,6 +72,9 @@
       <implementation-class>zielu.gittoolbox.cache.PerRepoInfoCacheImpl</implementation-class>
     </component>
     <component>
+      <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheController</implementation-class>
+    </component>
+    <component>
       <interface-class>zielu.gittoolbox.cache.VirtualFileRepoCache</interface-class>
       <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheImpl</implementation-class>
     </component>

@@ -8,10 +8,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.messages.MessageBus;
 import git4idea.repo.GitRepository;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,30 +22,27 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.Metrics;
-import zielu.gittoolbox.metrics.MetricsHost;
 
 class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final ConcurrentMap<VirtualFile, GitRepository> rootsCache = new ConcurrentHashMap<>();
   private final ConcurrentMap<VirtualFile, Optional<GitRepository>> dirsCache = new ConcurrentHashMap<>();
-  private final Project project;
-  private MessageBus messageBus;
+  private final VirtualFileRepoCacheController controller;
+  private Metrics metrics;
 
-  VirtualFileRepoCacheImpl(Project project) {
-    this.project = project;
-    Metrics metrics = MetricsHost.app();
+  VirtualFileRepoCacheImpl(VirtualFileRepoCacheController controller) {
+    this.controller = controller;
+  }
+
+  @Override
+  public void initComponent() {
+    metrics = controller.getMetrics();
     metrics.gauge("vfile-repo-roots-cache-size", rootsCache::size);
     metrics.gauge("vfile-repo-dirs-cache-size", dirsCache::size);
   }
 
   @Override
-  public void initComponent() {
-    messageBus = project.getMessageBus();
-  }
-
-  @Override
   public void disposeComponent() {
-    messageBus = null;
     rootsCache.clear();
     dirsCache.clear();
   }
@@ -73,8 +68,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
 
   @NotNull
   private Optional<GitRepository> findRepoForDir(@NotNull VirtualFile dir) {
-    return MetricsHost.app().timer("repo-for-dir-cache")
-        .timeSupplier(() -> calculateRepoForDir(dir));
+    return metrics.timer("repo-for-dir-cache").timeSupplier(() -> calculateRepoForDir(dir));
   }
 
   @NotNull
@@ -105,8 +99,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
     RepoListUpdate update = buildUpdate(repositories);
     rebuildRootsCache(update);
     purgeDirsCache(update);
-    VirtualFileCacheListener publisher = messageBus.syncPublisher(CACHE_CHANGE);
-    publisher.updated();
+    controller.fireCacheChanged();
   }
 
   private RepoListUpdate buildUpdate(ImmutableList<GitRepository> repositories) {

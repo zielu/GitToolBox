@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Metrics {
   Timer timer(@NotNull String simpleName);
+
   Counter counter(@NotNull String simpleName);
+
   <T> Gauge<T> gauge(@NotNull String simpleName, Gauge<T> gauge);
 }

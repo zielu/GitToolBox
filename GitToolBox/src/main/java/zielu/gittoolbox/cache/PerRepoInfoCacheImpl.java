@@ -41,7 +41,7 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   PerRepoInfoCacheImpl(@NotNull Project project) {
     this.project = project;
     calculator = GitStatusCalculator.create(project);
-    Metrics metrics = MetricsHost.app();
+    Metrics metrics = MetricsHost.project(project);
     metrics.gauge("behind-status-cache-size", behindStatuses::size);
     behindStatusQueueSize = metrics.counter("behind-status-queue-size");
   }

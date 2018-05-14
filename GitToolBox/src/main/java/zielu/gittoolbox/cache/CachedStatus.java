@@ -52,7 +52,7 @@ class CachedStatus {
   private void updateStatus(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
                             @NotNull Consumer<RepoInfo> infoConsumer, RepoStatus currentStatus) {
     GitAheadBehindCount oldCount = count;
-    Timer statusUpdateLatency = MetricsHost.app().timer("status-update");
+    Timer statusUpdateLatency = MetricsHost.project(repo.getProject()).timer("status-update");
     count = statusUpdateLatency
         .timeSupplier(() -> calculator.aheadBehindStatus(repo, currentStatus.localHash(), currentStatus.remoteHash()));
     LOG.debug("Updated stale status [", repoName, "]: ", oldCount, " > ", count);

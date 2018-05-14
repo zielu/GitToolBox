@@ -1,5 +1,6 @@
 package zielu.gittoolbox.completion;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.CheckinProjectPanel;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.checkin.CheckinHandler;
@@ -30,9 +31,10 @@ public class CompletionCheckinHandler extends CheckinHandler {
   }
 
   private void updateAffectedFiles(CheckinProjectPanel panel) {
-    Collection<File> affected = MetricsHost.app()
+    Project project = panel.getProject();
+    Collection<File> affected = MetricsHost.project(project)
         .timer("completion-get-affected").timeSupplier(panel::getFiles);
-    GitToolBoxCompletionProject.getInstance(panel.getProject()).updateAffected(affected);
+    GitToolBoxCompletionProject.getInstance(project).updateAffected(affected);
   }
 
   @Override

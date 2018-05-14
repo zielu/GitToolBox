@@ -81,7 +81,7 @@ public class GitToolBoxCompletionProject implements ProjectComponent {
   }
 
   private Collection<GitRepository> findAffectedRepositories() {
-    return MetricsHost.app().timer("completion-get-repos")
+    return MetricsHost.project(project).timer("completion-get-repos")
       .timeSupplier(() -> getRepositories(project, affectedFiles));
   }
 

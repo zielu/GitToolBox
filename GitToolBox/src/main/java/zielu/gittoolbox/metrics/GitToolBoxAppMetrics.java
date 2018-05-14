@@ -7,6 +7,7 @@ import com.codahale.metrics.Timer;
 import com.codahale.metrics.jmx.JmxReporter;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 class GitToolBoxAppMetrics implements ApplicationComponent, Metrics {
@@ -29,9 +30,8 @@ class GitToolBoxAppMetrics implements ApplicationComponent, Metrics {
 
   @Override
   public void disposeComponent() {
-    if (reporter != null) {
-      reporter.close();
-    }
+    Optional.ofNullable(reporter).ifPresent(JmxReporter::close);
+    reporter = null;
   }
 
   @Override
