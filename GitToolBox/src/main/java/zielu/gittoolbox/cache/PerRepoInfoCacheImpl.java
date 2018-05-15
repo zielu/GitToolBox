@@ -34,7 +34,8 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   private final ConcurrentMap<GitRepository, CacheTask> scheduledRepositories = Maps.newConcurrentMap();
   private final Project project;
   private final GitStatusCalculator calculator;
-  private final Counter behindStatusQueueSize;
+  private final Counter statusQueueSize;
+  private final Counter discardedTasksCount;
   private ExecutorService updateExecutor;
   private MessageBus messageBus;
 
@@ -42,8 +43,9 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     this.project = project;
     calculator = GitStatusCalculator.create(project);
     Metrics metrics = MetricsHost.project(project);
-    metrics.gauge("behind-status-cache-size", behindStatuses::size);
-    behindStatusQueueSize = metrics.counter("behind-status-queue-size");
+    metrics.gauge("info-cache-size", behindStatuses::size);
+    statusQueueSize = metrics.counter("info-cache-queue-size");
+    discardedTasksCount = metrics.counter("info-cache-discarded-updates");
   }
 
   @Override
@@ -122,13 +124,14 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     if (alreadyScheduled == null) {
       submitForExecution(task);
     } else {
+      discardedTasksCount.inc();
       log.debug("Task for ", task.repository, " already scheduled: ", alreadyScheduled);
     }
   }
 
   private void submitForExecution(CacheTask  task) {
     updateExecutor.submit(task);
-    behindStatusQueueSize.inc();
+    statusQueueSize.inc();
     log.debug("Scheduled: ", task);
   }
 
@@ -214,7 +217,7 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
 
   private void destroyExecutor() {
     List<Runnable> notStartedTasks = updateExecutor.shutdownNow();
-    behindStatusQueueSize.dec(notStartedTasks.size());
+    statusQueueSize.dec(notStartedTasks.size());
     notStartedTasks.forEach(notStarted -> log.info("Task " + notStarted + " was never started"));
   }
 
@@ -270,7 +273,7 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
           scheduledRepositories.remove(repository);
         }
       } finally {
-        behindStatusQueueSize.dec();
+        statusQueueSize.dec();
       }
     }
 

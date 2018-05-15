@@ -21,6 +21,8 @@ import java.util.Map;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.Notifier;
+import zielu.gittoolbox.metrics.Metrics;
+import zielu.gittoolbox.metrics.MetricsHost;
 import zielu.gittoolbox.util.FetchResult;
 import zielu.gittoolbox.util.FetchResultsPerRoot;
 import zielu.gittoolbox.util.GtUtil;
@@ -63,6 +65,11 @@ public class GtFetcher {
   }
 
   public ImmutableCollection<GitRepository> fetchRoots(@NotNull Collection<GitRepository> repositories) {
+    Metrics metrics = MetricsHost.project(this.project);
+    return metrics.timer("fetch-roots").timeSupplier(() -> doFetchRoots(repositories));
+  }
+
+  private ImmutableCollection<GitRepository> doFetchRoots(@NotNull Collection<GitRepository> repositories) {
     final float fraction = 1f / repositories.size();
     Map<VirtualFile, String> additionalInfos = Maps.newHashMapWithExpectedSize(repositories.size());
     FetchResultsPerRoot errorsPerRoot = new FetchResultsPerRoot();
