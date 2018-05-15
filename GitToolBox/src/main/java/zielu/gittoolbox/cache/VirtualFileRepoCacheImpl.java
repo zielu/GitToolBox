@@ -13,7 +13,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.repo.GitRepository;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -26,7 +25,7 @@ import zielu.gittoolbox.metrics.Metrics;
 class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final ConcurrentMap<VirtualFile, GitRepository> rootsCache = new ConcurrentHashMap<>();
-  private final ConcurrentMap<VirtualFile, Optional<GitRepository>> dirsCache = new ConcurrentHashMap<>();
+  private final ConcurrentMap<VirtualFile, CacheEntry> dirsCache = new ConcurrentHashMap<>();
   private final VirtualFileRepoCacheController controller;
   private Metrics metrics;
 
@@ -57,30 +56,31 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
   @Nullable
   @Override
   public GitRepository getRepoForDir(@NotNull VirtualFile dir) {
-    Optional<GitRepository> cachedRepo = dirsCache.get(dir);
-    if (cachedRepo == null) {
-      cachedRepo = findRepoForDir(dir);
-      dirsCache.putIfAbsent(dir, cachedRepo);
-      log.debug("Cached repo ", cachedRepo, " for dir ", dir);
-    }
-    return cachedRepo.orElse(null);
+    Preconditions.checkArgument(dir.isDirectory(), "%s is not a dir", dir);
+    return dirsCache.computeIfAbsent(dir, this::computeRepoForDir).repository;
   }
 
   @NotNull
-  private Optional<GitRepository> findRepoForDir(@NotNull VirtualFile dir) {
+  private CacheEntry computeRepoForDir(@NotNull  VirtualFile dir) {
+    CacheEntry entry = findRepoForDir(dir);
+    log.debug("Cached repo ", entry.repository, " for dir ", dir);
+    return entry;
+  }
+
+  @NotNull
+  private CacheEntry findRepoForDir(@NotNull VirtualFile dir) {
     return metrics.timer("repo-for-dir-cache").timeSupplier(() -> calculateRepoForDir(dir));
   }
 
   @NotNull
-  private Optional<GitRepository> calculateRepoForDir(@NotNull VirtualFile dir) {
+  private CacheEntry calculateRepoForDir(@NotNull VirtualFile dir) {
     GitRepository foundRepo = null;
     boolean movedUp = false;
     for (VirtualFile currentDir = dir; currentDir != null; currentDir = currentDir.getParent()) {
       if (movedUp) {
-        Optional<GitRepository> existingRepo = dirsCache.get(currentDir);
-        if (existingRepo != null) {
-          foundRepo = existingRepo.orElse(null);
-          break;
+        CacheEntry existingEntry = dirsCache.get(currentDir);
+        if (existingEntry != null) {
+          return existingEntry;
         }
       }
       foundRepo = rootsCache.get(currentDir);
@@ -91,7 +91,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
         movedUp = true;
       }
     }
-    return Optional.ofNullable(foundRepo);
+    return new CacheEntry(foundRepo);
   }
 
   @Override
@@ -170,6 +170,14 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
         GitRepository repo = repositories.get(root);
         consumer.accept(root, repo);
       });
+    }
+  }
+
+  private static final class CacheEntry {
+    private final GitRepository repository;
+
+    private CacheEntry(GitRepository repository) {
+      this.repository = repository;
     }
   }
 }
