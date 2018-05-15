@@ -40,7 +40,7 @@ intellij {
     type = ideaType
     updateSinceUntilBuild = false
     downloadSources = true
-    plugins = ['Git4Idea', 'gr.jchrist.gitextender:0.4.1', 'PythonCore:2018.1.181.4203.550']
+    plugins = ['Git4Idea', 'gr.jchrist.gitextender:0.4.1']
     ideaDependencyCachePath = ideaCacheDir
 }
 
