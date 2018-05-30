@@ -36,6 +36,10 @@ public class RepoInfo {
     return Optional.ofNullable(count);
   }
 
+  public boolean isEmpty() {
+    return status.isEmpty() && count == null;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
