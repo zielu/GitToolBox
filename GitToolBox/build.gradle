@@ -120,34 +120,31 @@ checkstyle {
 
 dependencies {
 
-    checkstyle("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
-    testAgent("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
+    checkstyle ("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
+    testAgent ("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
 
-    compile("org.jodd:jodd-core:${joddVersion}")
-    compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
-    compile("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
+    implementation ("org.jodd:jodd-core:${joddVersion}")
+    implementation ("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation ("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
         exclude group: 'org.slf4j', module:'slf4j-api'
     }
-    compile("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
+    implementation ("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
         exclude group: 'org.slf4j', module:'slf4j-api'
     }
-    // compile("one.util:streamex:${streamExVersion}")
 
-    compileOnly('com.google.code.findbugs:jsr305:3.0.2')
-    compileOnly('com.google.code.findbugs:findbugs:3.0.1')
+    compileOnly ('com.google.code.findbugs:jsr305:3.0.2')
+    compileOnly ('com.google.code.findbugs:findbugs:3.0.1')
 
-    testCompile("org.mockito:mockito-core:${mockitoVersion}")
-    testCompile 'name.falgout.jeffrey.testing.junit5:mockito-extension:1.0.0'
-    testCompile("org.assertj:assertj-core:${assertjCoreVersion}")
+    testImplementation ("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
+    testImplementation ("org.mockito:mockito-core:${mockitoVersion}")
+    testImplementation 'name.falgout.jeffrey.testing.junit5:mockito-extension:1.0.0'
+    testImplementation ("org.assertj:assertj-core:${assertjCoreVersion}")
     // JUnit 5
-    testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
-    testCompile("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
-    testCompileOnly('org.apiguardian:apiguardian-api:1.0.0')
-    // Only needed to run tests in an IntelliJ IDEA that bundles an older version
-    // testRuntime("org.junit.platform:junit-platform-launcher:${junitPlatformVersion}")
-    // testRuntime("org.junit.vintage:junit-vintage-engine:${junitVintageEngineVersion}")
-    testCompile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testImplementation ("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
+
+    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    testCompileOnly ('org.apiguardian:apiguardian-api:1.0.0')
 }
 
 
