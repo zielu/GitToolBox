@@ -36,6 +36,7 @@ import zielu.gittoolbox.ui.util.AppUtil;
 import zielu.gittoolbox.ui.util.ButtonWithPopup;
 import zielu.gittoolbox.ui.util.SimpleAction;
 import zielu.gittoolbox.util.GtUtil;
+import zielu.intellij.ui.GtFormUi;
 
 public class GtPrjForm implements GtFormUi {
   private final Logger log = Logger.getInstance(getClass());

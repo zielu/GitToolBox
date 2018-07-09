@@ -8,14 +8,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.messages.MessageBus;
 import git4idea.repo.GitRepository;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -23,27 +20,28 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.util.diagnostics.PerfWatch;
+import zielu.gittoolbox.metrics.Metrics;
 
 class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final ConcurrentMap<VirtualFile, GitRepository> rootsCache = new ConcurrentHashMap<>();
-  private final ConcurrentMap<VirtualFile, Optional<GitRepository>> dirsCache = new ConcurrentHashMap<>();
-  private final Project project;
-  private MessageBus messageBus;
+  private final ConcurrentMap<VirtualFile, CacheEntry> dirsCache = new ConcurrentHashMap<>();
+  private final VirtualFileRepoCacheController controller;
+  private Metrics metrics;
 
-  VirtualFileRepoCacheImpl(Project project) {
-    this.project = project;
+  VirtualFileRepoCacheImpl(VirtualFileRepoCacheController controller) {
+    this.controller = controller;
   }
 
   @Override
   public void initComponent() {
-    messageBus = project.getMessageBus();
+    metrics = controller.getMetrics();
+    metrics.gauge("vfile-repo-roots-cache-size", rootsCache::size);
+    metrics.gauge("vfile-repo-dirs-cache-size", dirsCache::size);
   }
 
   @Override
   public void disposeComponent() {
-    messageBus = null;
     rootsCache.clear();
     dirsCache.clear();
   }
@@ -58,33 +56,31 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
   @Nullable
   @Override
   public GitRepository getRepoForDir(@NotNull VirtualFile dir) {
-    Optional<GitRepository> cachedRepo = dirsCache.get(dir);
-    if (cachedRepo == null) {
-      cachedRepo = findRepoForDir(dir);
-      dirsCache.putIfAbsent(dir, cachedRepo);
-      log.debug("Cached repo ", cachedRepo, " for dir ", dir);
-    }
-    return cachedRepo.orElse(null);
+    Preconditions.checkArgument(dir.isDirectory(), "%s is not a dir", dir);
+    return dirsCache.computeIfAbsent(dir, this::computeRepoForDir).repository;
   }
 
   @NotNull
-  private Optional<GitRepository> findRepoForDir(@NotNull VirtualFile dir) {
-    PerfWatch calculateWatch = PerfWatch.createStarted("Calculate repo for dir [", dir, "]");
-    Optional<GitRepository> repo = calculateRepoForDir(dir);
-    calculateWatch.finish();
-    return repo;
+  private CacheEntry computeRepoForDir(@NotNull  VirtualFile dir) {
+    CacheEntry entry = findRepoForDir(dir);
+    log.debug("Cached repo ", entry.repository, " for dir ", dir);
+    return entry;
   }
 
   @NotNull
-  private Optional<GitRepository> calculateRepoForDir(@NotNull VirtualFile dir) {
+  private CacheEntry findRepoForDir(@NotNull VirtualFile dir) {
+    return metrics.timer("repo-for-dir-cache").timeSupplier(() -> calculateRepoForDir(dir));
+  }
+
+  @NotNull
+  private CacheEntry calculateRepoForDir(@NotNull VirtualFile dir) {
     GitRepository foundRepo = null;
     boolean movedUp = false;
     for (VirtualFile currentDir = dir; currentDir != null; currentDir = currentDir.getParent()) {
       if (movedUp) {
-        Optional<GitRepository> existingRepo = dirsCache.get(currentDir);
-        if (existingRepo != null) {
-          foundRepo = existingRepo.orElse(null);
-          break;
+        CacheEntry existingEntry = dirsCache.get(currentDir);
+        if (existingEntry != null) {
+          return existingEntry;
         }
       }
       foundRepo = rootsCache.get(currentDir);
@@ -95,7 +91,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
         movedUp = true;
       }
     }
-    return Optional.ofNullable(foundRepo);
+    return new CacheEntry(foundRepo);
   }
 
   @Override
@@ -103,8 +99,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
     RepoListUpdate update = buildUpdate(repositories);
     rebuildRootsCache(update);
     purgeDirsCache(update);
-    VirtualFileCacheListener publisher = messageBus.syncPublisher(CACHE_CHANGE);
-    publisher.updated();
+    controller.fireCacheChanged();
   }
 
   private RepoListUpdate buildUpdate(ImmutableList<GitRepository> repositories) {
@@ -175,6 +170,14 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
         GitRepository repo = repositories.get(root);
         consumer.accept(root, repo);
       });
+    }
+  }
+
+  private static final class CacheEntry {
+    private final GitRepository repository;
+
+    private CacheEntry(GitRepository repository) {
+      this.repository = repository;
     }
   }
 }

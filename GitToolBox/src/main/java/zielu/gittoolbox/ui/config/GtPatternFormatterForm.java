@@ -17,6 +17,7 @@ import zielu.gittoolbox.config.CommitCompletionConfig;
 import zielu.gittoolbox.formatter.Formatted;
 import zielu.gittoolbox.formatter.RegExpFormatter;
 import zielu.gittoolbox.ui.util.RegExpTextField;
+import zielu.intellij.ui.GtFormUi;
 
 public class GtPatternFormatterForm implements GtFormUi {
   private final Set<Consumer<String>> patternUpdates = new LinkedHashSet<>();

@@ -48,6 +48,10 @@
 
     <projectService serviceInterface="zielu.gittoolbox.ui.behindtracker.BehindTrackerUi"
                     serviceImplementation="zielu.gittoolbox.ui.behindtracker.BehindTrackerUiService"/>
+
+    <colorSettingsPage implementation="zielu.gittoolbox.ui.config.DecorationColorsPage"/>
+    <additionalTextAttributes scheme="Default" file="zielu/gittoolbox/colorschemes/GitToolBoxDefault.xml"/>
+    <additionalTextAttributes scheme="Darcula" file="zielu/gittoolbox/colorschemes/GitToolBoxDarcula.xml"/>
   </extensions>
 
   <application-components>
@@ -56,6 +60,9 @@
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.GitToolBoxUpdateProjectApp</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.metrics.GitToolBoxAppMetrics</implementation-class>
     </component>
   </application-components>
 
@@ -67,6 +74,9 @@
     <component>
       <interface-class>zielu.gittoolbox.cache.PerRepoInfoCache</interface-class>
       <implementation-class>zielu.gittoolbox.cache.PerRepoInfoCacheImpl</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheController</implementation-class>
     </component>
     <component>
       <interface-class>zielu.gittoolbox.cache.VirtualFileRepoCache</interface-class>
@@ -93,6 +103,9 @@
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.completion.GitToolBoxCompletionProject</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.metrics.GitToolBoxProjectMetrics</implementation-class>
     </component>
     <!--
     <component>

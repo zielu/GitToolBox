@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.projectview;
 
+import com.codahale.metrics.Timer;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.ProjectViewNodeDecorator;
@@ -10,7 +11,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import git4idea.repo.GitRepository;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.config.GitToolBoxConfig;
-import zielu.gittoolbox.util.diagnostics.PerfWatch;
+import zielu.gittoolbox.metrics.MetricsHost;
 
 public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   private final Logger log = Logger.getInstance(getClass());
@@ -20,25 +21,36 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
 
   @Override
   public void decorate(ProjectViewNode node, PresentationData presentation) {
-    PerfWatch decorateWatch = PerfWatch.createStarted("Decorate");
     if (shouldDecorate(node)) {
-      PerfWatch getRepoWatch = PerfWatch.createStarted("Get repo [", node.getName(), "]");
-      GitRepository repo = repoFinder.getRepoFor(node);
-      getRepoWatch.finish();
-      if (repo != null) {
-        applyDecoration(node.getProject(), repo, node, presentation);
-        decorateWatch.elapsed("Decoration ", "[", node.getName(), "]");
-      } else {
-        log.debug("No git repo: ", node);
-      }
+      decorateLatency(node).time(() -> doDecorate(node, presentation));
     }
-    decorateWatch.finish();
   }
 
   @Override
   public void decorate(PackageDependenciesNode packageDependenciesNode,
                        ColoredTreeCellRenderer coloredTreeCellRenderer) {
     log.debug("Decorate package dependencies");
+  }
+
+  private Timer decorateLatency(ProjectViewNode node) {
+    return MetricsHost.project(node.getProject()).timer("decorate");
+  }
+
+  private Timer repoForLatency(ProjectViewNode node) {
+    return MetricsHost.project(node.getProject()).timer("repo-for");
+  }
+
+  private Timer decorateApplyLatency(ProjectViewNode node) {
+    return MetricsHost.project(node.getProject()).timer("decorate-apply");
+  }
+
+  private void doDecorate(ProjectViewNode node, PresentationData presentation) {
+    GitRepository repo = repoForLatency(node).timeSupplier(() -> repoFinder.getRepoFor(node));
+    if (repo != null) {
+      decorateApplyLatency(node).time(() -> applyDecoration(node.getProject(), repo, node, presentation));
+    } else {
+      log.debug("No git repo: ", node);
+    }
   }
 
   private boolean shouldDecorate(ProjectViewNode projectViewNode) {
@@ -48,11 +60,9 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
 
   private void applyDecoration(Project project, GitRepository repo, ProjectViewNode projectViewNode,
                                PresentationData presentation) {
-    final PerfWatch decorateApplyWatch = PerfWatch.createStarted("Decorate apply");
     PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
     NodeDecoration decoration = decorationFactory.decorationFor(repo, cache.getInfo(repo));
     boolean applied = decoration.apply(projectViewNode, presentation);
-    decorateApplyWatch.elapsed("for ", repo).finish();
     presentation.setChanged(applied);
   }
 }

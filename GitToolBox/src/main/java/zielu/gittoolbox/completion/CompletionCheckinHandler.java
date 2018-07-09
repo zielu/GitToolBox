@@ -1,6 +1,6 @@
 package zielu.gittoolbox.completion;
 
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.CheckinProjectPanel;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.checkin.CheckinHandler;
@@ -8,10 +8,9 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
-import zielu.gittoolbox.util.diagnostics.PerfWatch;
+import zielu.gittoolbox.metrics.MetricsHost;
 
 public class CompletionCheckinHandler extends CheckinHandler {
-  private final Logger log = Logger.getInstance(getClass());
   private final CheckinProjectPanel panel;
 
   public CompletionCheckinHandler(CheckinProjectPanel panel) {
@@ -32,10 +31,10 @@ public class CompletionCheckinHandler extends CheckinHandler {
   }
 
   private void updateAffectedFiles(CheckinProjectPanel panel) {
-    PerfWatch getAffectedWatch = PerfWatch.createStarted("Get affected");
-    Collection<File> affected = panel.getFiles();
-    getAffectedWatch.finish();
-    GitToolBoxCompletionProject.getInstance(panel.getProject()).updateAffected(affected);
+    Project project = panel.getProject();
+    Collection<File> affected = MetricsHost.project(project)
+        .timer("completion-get-affected").timeSupplier(panel::getFiles);
+    GitToolBoxCompletionProject.getInstance(project).updateAffected(affected);
   }
 
   @Override

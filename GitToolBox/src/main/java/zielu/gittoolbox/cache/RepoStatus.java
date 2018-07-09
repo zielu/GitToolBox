@@ -89,6 +89,13 @@ public class RepoStatus {
     return Objects.equal(localHash, aheadBehind.ahead.top()) && Objects.equal(remoteHash, aheadBehind.behind.top());
   }
 
+  public boolean isEmpty() {
+    return localHash == null
+        && localBranch == null
+        && remoteHash == null
+        && remoteBranch == null;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

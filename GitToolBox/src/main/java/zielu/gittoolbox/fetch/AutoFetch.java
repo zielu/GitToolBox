@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.metrics.Metrics;
+import zielu.gittoolbox.metrics.MetricsHost;
 
 public class AutoFetch implements ProjectComponent, AutoFetchComponent {
   private static final int DEFAULT_DELAY_MINUTES = 1;
@@ -30,6 +32,15 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
 
   AutoFetch(@NotNull Project project) {
     this.project = project;
+    Metrics metrics = MetricsHost.project(project);
+    metrics.gauge("auto-fetch-tasks-size", this::autoFetchTasksSize);
+    metrics.gauge("auto-fetch-last-timestamp", lastAutoFetchTimestamp::get);
+  }
+
+  private int autoFetchTasksSize() {
+    synchronized (AutoFetch.this) {
+      return scheduledTasks.size();
+    }
   }
 
   @NotNull

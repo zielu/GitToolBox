@@ -17,7 +17,7 @@ import zielu.gittoolbox.config.GitToolBoxConfig;
 class ColoredNodeDecorationTest extends NodeDecorationBaseTest {
   @Override
   NodeDecoration createDecoration(GitToolBoxConfig config, GitRepository repository, RepoInfo repoInfo) {
-    return new ColoredNodeDecoration(config, repository, repoInfo);
+    return new ColoredNodeDecoration(new ColoredNodeDecorationUi(config), repository, repoInfo);
   }
 
   @Override

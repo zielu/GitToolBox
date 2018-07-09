@@ -8,7 +8,6 @@ import static zielu.intellij.test.MockVfsUtil.createDir;
 
 import com.google.common.collect.ImmutableList;
 import com.intellij.mock.MockVirtualFile;
-import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import name.falgout.jeffrey.testing.junit5.MockitoExtension;
 import org.junit.jupiter.api.AfterEach;
@@ -17,6 +16,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import zielu.gittoolbox.metrics.Metrics;
+import zielu.gittoolbox.metrics.MockMetrics;
 import zielu.junit5.intellij.IdeaMocks;
 import zielu.junit5.intellij.IdeaMocksExtension;
 
@@ -25,13 +26,19 @@ import zielu.junit5.intellij.IdeaMocksExtension;
 class VirtualFileRepoCacheImplTest {
   @Mock
   private GitRepository repository;
+  @Mock
+  private VirtualFileRepoCacheController controller;
+
+  private Metrics mockMetrics = new MockMetrics();
+
   private MockVirtualFile repositoryRoot = createDir("repoRoot");
 
   private VirtualFileRepoCacheImpl cache;
 
   @BeforeEach
-  void beforeEach(Project project) {
-    cache = new VirtualFileRepoCacheImpl(project);
+  void beforeEach() {
+    when(controller.getMetrics()).thenReturn(mockMetrics);
+    cache = new VirtualFileRepoCacheImpl(controller);
     cache.initComponent();
     when(repository.getRoot()).thenReturn(repositoryRoot);
   }
@@ -95,8 +102,7 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void updatedRepoListPublishesToMessageBus(IdeaMocks mocks) {
-    VirtualFileCacheListener listener = mocks.mockListener(VirtualFileCacheListener.class);
     cache.updatedRepoList(ImmutableList.of(repository));
-    verify(listener).updated();
+    verify(controller).fireCacheChanged();
   }
 }

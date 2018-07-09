@@ -1,17 +1,13 @@
 import java.text.SimpleDateFormat
-import java.util.stream.Collectors
 
 buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath "org.junit.platform:junit-platform-gradle-plugin:1.1.0"
-    }
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.1"
+    id "org.jetbrains.intellij" version "0.3.4"
     id 'com.palantir.git-version' version '0.10.1'
     id 'ch.netzwerg.release' version '1.2.5'
 }
@@ -22,7 +18,6 @@ repositories {
 
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: "java"
-apply plugin: 'org.junit.platform.gradle.plugin'
 
 sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
@@ -40,7 +35,7 @@ intellij {
     type = ideaType
     updateSinceUntilBuild = false
     downloadSources = true
-    plugins = ['Git4Idea', 'gr.jchrist.gitextender:0.4.1', 'PythonCore:2018.1.181.4203.550']
+    plugins = ['Git4Idea', 'gr.jchrist.gitextender:0.4.1']
     ideaDependencyCachePath = ideaCacheDir
 }
 
@@ -80,31 +75,6 @@ release {
     dependsOn buildPlugin
 }
 
-junitPlatform {
-    filters {
-        engines {
-            include 'junit-jupiter'
-            // exclude 'custom-engine'
-        }
-        tags {
-            include 'fast', 'integration'
-            // exclude 'slow'
-        }
-        // includeClassNamePattern '.*Test'
-    }
-    enableStandardTestTask = true
-    // reportsDir file('build/test-results/junit-platform') // this is the default
-    // logManager 'org.apache.logging.log4j.jul.LogManager'
-}
-
-test {
-    //prevent running extensions as Junit 3 tests because of naming convention with TestCase
-    exclude('zielu/junit5/**')
-    reports {
-        html.enabled = false
-    }
-}
-
 apply plugin: 'jacoco'
 jacoco {
     toolVersion = "${jacocoVersion}"
@@ -116,15 +86,18 @@ jacocoTestReport {
     executionData = files("${project.buildDir.name}/jacoco-junit5/test.exec")
 }
 
-junitPlatformTest {
-    doFirst {
-        def toString = { item -> String.valueOf(item) }
-        //workaround for 'Path too long' on Windows (https://github.com/maiflai/gradle-scalatest/issues/42)
-        def cp = classpath.getFiles().stream().map(toString).collect(Collectors.joining(File.pathSeparator))
-        environment 'CLASSPATH', cp
-        classpath = classpath.filter { false }
-        jvmArgs "-javaagent:${configurations.testAgent.singleFile}=destfile=${project.buildDir.name}" +
-                "/jacoco-junit5/test.exec"
+test {
+    jacoco {
+        destinationFile = file("${project.buildDir.name}/jacoco-junit5/test.exec")
+    }
+
+    useJUnitPlatform {
+        //prevent running extensions as Junit 3 tests because of naming convention with TestCase
+        exclude('zielu/junit5/**')
+        includeTags 'fast', 'integration'
+        reports {
+            html.enabled = false
+        }
     }
 }
 
@@ -147,27 +120,31 @@ checkstyle {
 
 dependencies {
 
-    checkstyle("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
-    testAgent("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
+    checkstyle ("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
+    testAgent ("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
 
-    compile("org.jodd:jodd-core:${joddVersion}")
-    compile("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation ("org.jodd:jodd-core:${joddVersion}")
+    implementation ("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation ("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
+        exclude group: 'org.slf4j', module:'slf4j-api'
+    }
+    implementation ("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
+        exclude group: 'org.slf4j', module:'slf4j-api'
+    }
 
-    compileOnly('com.google.code.findbugs:jsr305:3.0.2')
-    compileOnly('com.google.code.findbugs:findbugs:3.0.1')
+    compileOnly ('com.google.code.findbugs:jsr305:3.0.2')
+    compileOnly ('com.google.code.findbugs:findbugs:3.0.1')
 
-    testCompile("org.mockito:mockito-core:${mockitoVersion}")
-    testCompile 'name.falgout.jeffrey.testing.junit5:mockito-extension:1.0.0'
-    testCompile("org.assertj:assertj-core:${assertjCoreVersion}")
+    testImplementation ("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
+    testImplementation ("org.mockito:mockito-core:${mockitoVersion}")
+    testImplementation 'name.falgout.jeffrey.testing.junit5:mockito-extension:1.0.0'
+    testImplementation ("org.assertj:assertj-core:${assertjCoreVersion}")
     // JUnit 5
-    testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
-    testCompile("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
-    testCompileOnly('org.apiguardian:apiguardian-api:1.0.0')
-    // Only needed to run tests in an IntelliJ IDEA that bundles an older version
-    // testRuntime("org.junit.platform:junit-platform-launcher:${junitPlatformVersion}")
-    // testRuntime("org.junit.vintage:junit-vintage-engine:${junitVintageEngineVersion}")
-    testCompile("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testImplementation ("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
+
+    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    testCompileOnly ('org.apiguardian:apiguardian-api:1.0.0')
 }
 
 

@@ -3,43 +3,36 @@ package zielu.gittoolbox.ui.projectview;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.util.treeView.PresentableNodeDescriptor.ColoredFragment;
-import com.intellij.ui.Gray;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.FontUtil;
 import git4idea.repo.GitRepository;
-import java.awt.Color;
 import java.util.Optional;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.RepoInfo;
-import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.ui.util.PresentationDataUtil;
 
 public class ColoredNodeDecoration extends NodeDecorationBase {
+  private ColoredNodeDecorationUi coloredUi;
 
-  public ColoredNodeDecoration(@NotNull GitToolBoxConfig config,
+  public ColoredNodeDecoration(@NotNull ColoredNodeDecorationUi ui,
                                @NotNull GitRepository repo,
                                @NotNull RepoInfo repoInfo) {
-    super(config, repo, repoInfo);
+    super(ui, repo, repoInfo);
+    coloredUi = ui;
   }
 
-  private ColoredFragment makeStatusFragment(boolean prefix) {
-    int style = SimpleTextAttributes.STYLE_PLAIN;
-    if (config.projectViewStatusBold) {
-      style |= SimpleTextAttributes.STYLE_BOLD;
-    }
-    if (config.projectViewStatusItalic) {
-      style |= SimpleTextAttributes.STYLE_ITALIC;
-    }
-    Color color = config.projectViewStatusCustomColor ? config.getProjectViewStatusColor() : Gray._128;
-    SimpleTextAttributes attributes = new SimpleTextAttributes(style, color);
+  private ColoredFragment makeStatusFragment() {
     StringBand status = getStatusText();
-    if (prefix) {
-      String statusTemp = status.toString();
-      status.setIndex(0);
-      status.append(FontUtil.spaceAndThinSpace()).append(statusTemp);
+    return new ColoredFragment(status.toString(), getStatusAttributes());
+  }
+
+  private SimpleTextAttributes getStatusAttributes() {
+    if (isTrackingBranch()) {
+      return coloredUi.getRemoteBranchStatusAttributes();
+    } else {
+      return coloredUi.getLocalBranchStatusAttributes();
     }
-    return new ColoredFragment(status.toString(), attributes);
   }
 
   private SimpleTextAttributes getLocationAttributes() {
@@ -58,9 +51,10 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
   public boolean apply(ProjectViewNode node, PresentationData data) {
     setName(data);
     Optional<String> locationString = Optional.ofNullable(data.getLocationString());
-    if (config.showProjectViewLocationPath) {
-      if (config.showProjectViewStatusBeforeLocation) {
-        data.addText(makeStatusFragment(true));
+    if (ui.showProjectViewLocationPath()) {
+      if (ui.showProjectViewStatusBeforeLocation()) {
+        data.addText(PresentationDataUtil.spacer());
+        data.addText(makeStatusFragment());
         locationString.ifPresent(l -> data.setLocationString("- " + l));
       } else {
         if (locationString.isPresent()) {
@@ -68,16 +62,18 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
           location.append(locationString.get());
           location.append(" - ");
           data.addText(location.toString(), getLocationAttributes());
-          data.addText(makeStatusFragment(false));
+          data.addText(makeStatusFragment());
           data.setLocationString("");
         } else {
-          data.addText(makeStatusFragment(true));
+          data.addText(PresentationDataUtil.spacer());
+          data.addText(makeStatusFragment());
         }
       }
     } else {
       locationString.ifPresent(data::setTooltip);
       data.setLocationString("");
-      data.addText(makeStatusFragment(true));
+      data.addText(PresentationDataUtil.spacer());
+      data.addText(makeStatusFragment());
     }
     return true;
   }
