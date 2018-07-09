@@ -1,17 +1,13 @@
 import java.text.SimpleDateFormat
-import java.util.stream.Collectors
 
 buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath "org.junit.platform:junit-platform-gradle-plugin:1.2.0"
-    }
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.1"
+    id "org.jetbrains.intellij" version "0.3.4"
     id 'com.palantir.git-version' version '0.10.1'
     id 'ch.netzwerg.release' version '1.2.5'
 }
@@ -22,7 +18,6 @@ repositories {
 
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: "java"
-apply plugin: 'org.junit.platform.gradle.plugin'
 
 sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
@@ -80,31 +75,6 @@ release {
     dependsOn buildPlugin
 }
 
-junitPlatform {
-    filters {
-        engines {
-            include 'junit-jupiter'
-            // exclude 'custom-engine'
-        }
-        tags {
-            include 'fast', 'integration'
-            // exclude 'slow'
-        }
-        // includeClassNamePattern '.*Test'
-    }
-    enableStandardTestTask = true
-    // reportsDir file('build/test-results/junit-platform') // this is the default
-    // logManager 'org.apache.logging.log4j.jul.LogManager'
-}
-
-test {
-    //prevent running extensions as Junit 3 tests because of naming convention with TestCase
-    exclude('zielu/junit5/**')
-    reports {
-        html.enabled = false
-    }
-}
-
 apply plugin: 'jacoco'
 jacoco {
     toolVersion = "${jacocoVersion}"
@@ -116,15 +86,18 @@ jacocoTestReport {
     executionData = files("${project.buildDir.name}/jacoco-junit5/test.exec")
 }
 
-junitPlatformTest {
-    doFirst {
-        def toString = { item -> String.valueOf(item) }
-        //workaround for 'Path too long' on Windows (https://github.com/maiflai/gradle-scalatest/issues/42)
-        def cp = classpath.getFiles().stream().map(toString).collect(Collectors.joining(File.pathSeparator))
-        environment 'CLASSPATH', cp
-        classpath = classpath.filter { false }
-        jvmArgs "-javaagent:${configurations.testAgent.singleFile}=destfile=${project.buildDir.name}" +
-                "/jacoco-junit5/test.exec"
+test {
+    jacoco {
+        destinationFile = file("${project.buildDir.name}/jacoco-junit5/test.exec")
+    }
+
+    useJUnitPlatform {
+        //prevent running extensions as Junit 3 tests because of naming convention with TestCase
+        exclude('zielu/junit5/**')
+        includeTags 'fast', 'integration'
+        reports {
+            html.enabled = false
+        }
     }
 }
 
