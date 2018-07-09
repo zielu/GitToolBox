@@ -22,13 +22,8 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
     coloredUi = ui;
   }
 
-  private ColoredFragment makeStatusFragment(boolean prefix) {
+  private ColoredFragment makeStatusFragment() {
     StringBand status = getStatusText();
-    if (prefix) {
-      String statusTemp = status.toString();
-      status.setIndex(0);
-      status.append(FontUtil.spaceAndThinSpace()).append(statusTemp);
-    }
     return new ColoredFragment(status.toString(), getStatusAttributes());
   }
 
@@ -58,7 +53,8 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
     Optional<String> locationString = Optional.ofNullable(data.getLocationString());
     if (ui.showProjectViewLocationPath()) {
       if (ui.showProjectViewStatusBeforeLocation()) {
-        data.addText(makeStatusFragment(true));
+        data.addText(PresentationDataUtil.spacer());
+        data.addText(makeStatusFragment());
         locationString.ifPresent(l -> data.setLocationString("- " + l));
       } else {
         if (locationString.isPresent()) {
@@ -66,16 +62,18 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
           location.append(locationString.get());
           location.append(" - ");
           data.addText(location.toString(), getLocationAttributes());
-          data.addText(makeStatusFragment(false));
+          data.addText(makeStatusFragment());
           data.setLocationString("");
         } else {
-          data.addText(makeStatusFragment(true));
+          data.addText(PresentationDataUtil.spacer());
+          data.addText(makeStatusFragment());
         }
       }
     } else {
       locationString.ifPresent(data::setTooltip);
       data.setLocationString("");
-      data.addText(makeStatusFragment(true));
+      data.addText(PresentationDataUtil.spacer());
+      data.addText(makeStatusFragment());
     }
     return true;
   }
