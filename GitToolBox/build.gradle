@@ -129,7 +129,7 @@ dependencies {
     compile ("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
         exclude group: 'org.slf4j', module:'slf4j-api'
     }
-    implementation ("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
+    compile ("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
         exclude group: 'org.slf4j', module:'slf4j-api'
     }
 

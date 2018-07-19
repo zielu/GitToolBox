@@ -1,23 +1,24 @@
 package zielu.gittoolbox.ui.projectview;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.ImmutableList;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import git4idea.GitLocalBranch;
 import git4idea.repo.GitRepository;
-import name.falgout.jeffrey.testing.junit5.MockitoExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.cache.RepoStatus;
 import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusPresenters;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 abstract class NodeDecorationBaseTest {
@@ -32,7 +33,7 @@ abstract class NodeDecorationBaseTest {
 
   private GitToolBoxConfig config = new GitToolBoxConfig();
   private GitAheadBehindCount count = GitAheadBehindCount.success(1, null, 1, null);
-  private RepoInfo repoInfo = RepoInfo.create(RepoStatus.empty(), count);
+  private RepoInfo repoInfo = RepoInfo.create(RepoStatus.empty(), count, ImmutableList.of());
   private NodeDecoration decoration;
 
   @BeforeEach

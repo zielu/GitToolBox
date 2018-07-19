@@ -9,13 +9,15 @@ import static zielu.intellij.test.MockVfsUtil.createDir;
 import com.google.common.collect.ImmutableList;
 import com.intellij.mock.MockVirtualFile;
 import git4idea.repo.GitRepository;
-import name.falgout.jeffrey.testing.junit5.MockitoExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MockMetrics;
 import zielu.junit5.intellij.IdeaMocks;
@@ -23,6 +25,7 @@ import zielu.junit5.intellij.IdeaMocksExtension;
 
 @Tag("fast")
 @ExtendWith({MockitoExtension.class, IdeaMocksExtension.class})
+@MockitoSettings(strictness = Strictness.WARN)
 class VirtualFileRepoCacheImplTest {
   @Mock
   private GitRepository repository;

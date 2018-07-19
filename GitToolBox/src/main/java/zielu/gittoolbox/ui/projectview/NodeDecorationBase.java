@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.projectview;
 
+import com.google.common.collect.ImmutableList;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import jodd.util.StringBand;
@@ -9,6 +10,8 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.ui.StatusPresenter;
+
+import java.util.List;
 
 public abstract class NodeDecorationBase implements NodeDecoration {
   protected final NodeDecorationUi ui;
@@ -43,6 +46,10 @@ public abstract class NodeDecorationBase implements NodeDecoration {
     StringBand status = new StringBand(branch);
     if (count != null) {
       status.append(" ").append(count);
+    }
+    List<String> tags = repoInfo.tags();
+    if (!tags.isEmpty()) {
+      status.append(" (").append(String.join(", ", tags)).append(")");
     }
     return status;
   }
