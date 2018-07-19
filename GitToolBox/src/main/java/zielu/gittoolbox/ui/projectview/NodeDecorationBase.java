@@ -1,8 +1,8 @@
 package zielu.gittoolbox.ui.projectview;
 
-import com.google.common.collect.ImmutableList;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
+import java.util.List;
 import jodd.util.StringBand;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -10,8 +10,6 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.ui.StatusPresenter;
-
-import java.util.List;
 
 public abstract class NodeDecorationBase implements NodeDecoration {
   protected final NodeDecorationUi ui;

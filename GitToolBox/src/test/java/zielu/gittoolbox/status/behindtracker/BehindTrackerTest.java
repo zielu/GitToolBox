@@ -1,5 +1,12 @@
 package zielu.gittoolbox.status.behindtracker;
 
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static zielu.intellij.test.MockVfsUtil.createDir;
+
 import com.google.common.collect.ImmutableList;
 import com.intellij.mock.MockVirtualFile;
 import com.intellij.openapi.project.Project;
@@ -30,11 +37,6 @@ import zielu.gittoolbox.ui.StatusMessages;
 import zielu.gittoolbox.ui.StatusMessagesUi;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi;
-
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-import static zielu.intellij.test.MockVfsUtil.createDir;
 
 @Tag("fast")
 @ExtendWith(MockitoExtension.class)
