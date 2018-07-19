@@ -18,6 +18,7 @@ repositories {
 
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: "java"
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
@@ -123,9 +124,10 @@ dependencies {
     checkstyle ("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
     testAgent ("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
 
-    implementation ("org.jodd:jodd-core:${joddVersion}")
-    implementation ("org.apache.commons:commons-lang3:${commonsLang3Version}")
-    implementation ("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
+    //keep compile instead of implementation for org.jetbrains.intellij to package plugin correctly
+    compile ("org.jodd:jodd-core:${joddVersion}")
+    compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    compile ("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
         exclude group: 'org.slf4j', module:'slf4j-api'
     }
     implementation ("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
