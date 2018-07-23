@@ -35,6 +35,24 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
     }
   }
 
+  private ColoredFragment getTagsFragment() {
+    StringBand text = getTagsText();
+    if (text.length() > 0) {
+      return new ColoredFragment(text.toString(), coloredUi.getTagsAttributes());
+    } else {
+      return null;
+    }
+  }
+
+  private void appendStatus(PresentationData data) {
+    data.addText(makeStatusFragment());
+    ColoredFragment tags = getTagsFragment();
+    if (tags != null) {
+      data.addText(" ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+      data.addText(tags);
+    }
+  }
+
   private SimpleTextAttributes getLocationAttributes() {
     return SimpleTextAttributes.GRAY_ATTRIBUTES;
   }
@@ -54,7 +72,7 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
     if (ui.showProjectViewLocationPath()) {
       if (ui.showProjectViewStatusBeforeLocation()) {
         data.addText(PresentationDataUtil.spacer());
-        data.addText(makeStatusFragment());
+        appendStatus(data);
         locationString.ifPresent(l -> data.setLocationString("- " + l));
       } else {
         if (locationString.isPresent()) {
@@ -62,18 +80,18 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
           location.append(locationString.get());
           location.append(" - ");
           data.addText(location.toString(), getLocationAttributes());
-          data.addText(makeStatusFragment());
+          appendStatus(data);
           data.setLocationString("");
         } else {
           data.addText(PresentationDataUtil.spacer());
-          data.addText(makeStatusFragment());
+          appendStatus(data);
         }
       }
     } else {
       locationString.ifPresent(data::setTooltip);
       data.setLocationString("");
       data.addText(PresentationDataUtil.spacer());
-      data.addText(makeStatusFragment());
+      appendStatus(data);
     }
     return true;
   }

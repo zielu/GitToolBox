@@ -11,6 +11,8 @@ public class DecorationColors {
       .createTextAttributesKey("GIT_TOOLBOX.REMOTE_BRANCH_ATTRIBUTES");
   public static final TextAttributesKey LOCAL_BRANCH_ATTRIBUTES = TextAttributesKey
       .createTextAttributesKey("GIT_TOOLBOX.LOCAL_BRANCH_ATTRIBUTES");
+  public static final TextAttributesKey TAGS_ATTRIBUTES = TextAttributesKey
+      .createTextAttributesKey("GIT_TOOLBOX.TAGS_ATTRIBUTES");
 
   private DecorationColors() {
     throw new IllegalStateException();

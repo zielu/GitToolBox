@@ -45,11 +45,16 @@ public abstract class NodeDecorationBase implements NodeDecoration {
     if (count != null) {
       status.append(" ").append(count);
     }
+    return status;
+  }
+
+  @NotNull
+  protected final StringBand getTagsText() {
     List<String> tags = repoInfo.tags();
     if (!tags.isEmpty()) {
-      status.append(" (").append(String.join(", ", tags)).append(")");
+      return new StringBand("(").append(String.join(", ", tags)).append(")");
     }
-    return status;
+    return new StringBand();
   }
 
   protected final boolean isTrackingBranch() {
