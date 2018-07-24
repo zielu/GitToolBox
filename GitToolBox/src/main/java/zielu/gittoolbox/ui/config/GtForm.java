@@ -1,11 +1,11 @@
 package zielu.gittoolbox.ui.config;
 
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.ListCellRendererWrapper;
 import java.util.Vector;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -19,7 +19,7 @@ import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.intellij.ui.GtFormUi;
 
 public class GtForm implements GtFormUi {
-  private JComboBox presentationMode;
+  private ComboBox presentationMode;
   private JPanel content;
   private JCheckBox showGitStatCheckBox;
   private JCheckBox showProjectViewStatusCheckBox;
@@ -29,7 +29,7 @@ public class GtForm implements GtFormUi {
   private JLabel presentationStatusBarPreview;
   private JLabel presentationProjectViewPreview;
   private JLabel presentationBehindTrackerPreview;
-  private JComboBox updateProjectAction;
+  private ComboBox updateProjectAction;
   private JCheckBox showTagsOnHeadCheckBox;
 
   @Override

@@ -18,11 +18,11 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="a1f6e"/>
+          <labelFor value="f5e7f"/>
           <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="configurable.app.presentation.label"/>
         </properties>
       </component>
-      <component id="a1f6e" class="javax.swing.JComboBox" binding="presentationMode">
+      <component id="f5e7f" class="com.intellij.openapi.ui.ComboBox" binding="presentationMode">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -181,7 +181,7 @@
           <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="update.project.action.label"/>
         </properties>
       </component>
-      <component id="84c3f" class="javax.swing.JComboBox" binding="updateProjectAction">
+      <component id="6e564" class="com.intellij.openapi.ui.ComboBox" binding="updateProjectAction">
         <constraints>
           <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
