@@ -26,6 +26,7 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
   public boolean showProjectViewStatus = true;
   public boolean showProjectViewLocationPath = true;
   public boolean showProjectViewStatusBeforeLocation = false;
+  public boolean showProjectViewHeadTags = true;
   public String projectViewStatusColorHex = ColorUtil.toHex(UIUtil.getInactiveTextColor());
   public boolean projectViewStatusCustomColor = false;
   public boolean projectViewStatusBold = false;
@@ -55,6 +56,10 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
 
   public boolean isShowProjectViewStatusChanged(boolean showProjectViewStatus) {
     return this.showProjectViewStatus != showProjectViewStatus;
+  }
+
+  public boolean isShowProjectViewHeadTagsChanged(boolean showProjectViewHeadTags) {
+    return this.showProjectViewHeadTags != showProjectViewHeadTags;
   }
 
   public boolean isShowProjectViewLocationPathChanged(boolean showProjectViewLocationPath) {

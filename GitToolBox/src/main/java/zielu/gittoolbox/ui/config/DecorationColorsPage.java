@@ -18,13 +18,13 @@ import zielu.gittoolbox.config.DecorationColors;
 public class DecorationColorsPage implements ColorSettingsPage {
   private static final String DEMO_TEXT = new StringBand("<localBranch>Local_Branch</localBranch>\n")
                                                   .append("<remoteBranch>Remote_Branch</remoteBranch>\n")
-                                                  .append("<tags>1.0.0, 1.1.0</remoteBranch>")
+                                                  .append("<headTags>1.0.0, 1.1.0</headTags>")
                                                   .toString();
   private static final Map<String, TextAttributesKey> ADDITIONAL_MAPPINGS =
                                                   ImmutableMap.<String, TextAttributesKey>builder()
                                                   .put("localBranch", DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
                                                   .put("remoteBranch", DecorationColors.REMOTE_BRANCH_ATTRIBUTES)
-                                                  .put("tags", DecorationColors.TAGS_ATTRIBUTES)
+                                                  .put("headTags", DecorationColors.HEAD_TAGS_ATTRIBUTES)
                                                   .build();
 
   @NotNull
@@ -35,8 +35,8 @@ public class DecorationColorsPage implements ColorSettingsPage {
           DecorationColors.REMOTE_BRANCH_ATTRIBUTES),
       new AttributesDescriptor(ResBundle.getString("colors.projectView.local.branch.decoration.label"),
           DecorationColors.LOCAL_BRANCH_ATTRIBUTES),
-      new AttributesDescriptor(ResBundle.getString("colors.projectView.tags.decoration.label"),
-          DecorationColors.TAGS_ATTRIBUTES)
+      new AttributesDescriptor(ResBundle.getString("colors.projectView.head.tags.decoration.label"),
+          DecorationColors.HEAD_TAGS_ATTRIBUTES)
     };
   }
 

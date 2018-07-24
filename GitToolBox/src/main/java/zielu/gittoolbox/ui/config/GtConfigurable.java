@@ -45,6 +45,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     form.setShowProjectViewStatus(config.showProjectViewStatus);
     form.setShowProjectViewLocationPath(config.showProjectViewLocationPath);
     form.setShowProjectViewStatusBeforeLocation(config.showProjectViewStatusBeforeLocation);
+    form.setShowProjectViewTagsOnHead(config.showProjectViewHeadTags);
     form.setBehindTrackerEnabled(config.behindTracker);
     form.setUpdateProjectAction(GitToolBoxUpdateProjectApp.getInstance().getById(config.getUpdateProjectActionId()));
   }
@@ -57,6 +58,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     modified = modified || config.isShowProjectViewLocationPathChanged(form.getShowProjectViewLocationPath());
     modified = modified || config.isShowProjectViewStatusBeforeLocationChanged(
         form.getShowProjectViewStatusBeforeLocation());
+    modified = modified || config.isShowProjectViewHeadTagsChanged(form.getShowProjectTagsOnHead());
     modified = modified || config.isBehindTrackerChanged(form.getBehindTrackerEnabled());
     modified = modified || config.isUpdateProjectActionId(form.getUpdateProjectAction().getId());
     log.debug("Modified: ", modified);
@@ -70,6 +72,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
     config.showProjectViewStatus = form.getShowProjectViewStatus();
     config.showProjectViewLocationPath = form.getShowProjectViewLocationPath();
     config.showProjectViewStatusBeforeLocation = form.getShowProjectViewStatusBeforeLocation();
+    config.showProjectViewHeadTags = form.getShowProjectTagsOnHead();
     config.behindTracker = form.getBehindTrackerEnabled();
     config.updateProjectActionId = form.getUpdateProjectAction().getId();
     config.fireChanged();

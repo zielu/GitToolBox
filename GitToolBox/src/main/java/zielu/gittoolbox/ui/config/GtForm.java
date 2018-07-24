@@ -1,10 +1,6 @@
 package zielu.gittoolbox.ui.config;
 
 import com.intellij.ui.ListCellRendererWrapper;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Vector;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -34,6 +30,7 @@ public class GtForm implements GtFormUi {
   private JLabel presentationProjectViewPreview;
   private JLabel presentationBehindTrackerPreview;
   private JComboBox updateProjectAction;
+  private JCheckBox showTagsOnHeadCheckBox;
 
   @Override
   public void init() {
@@ -45,27 +42,14 @@ public class GtForm implements GtFormUi {
       }
     });
     presentationMode.setModel(new DefaultComboBoxModel<>(StatusPresenters.values()));
-    presentationMode.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        StatusPresenter presenter = getPresenter();
-        presentationStatusBarPreview.setText(getStatusBarPreview(presenter));
-        presentationProjectViewPreview.setText(getProjectViewPreview(presenter));
-        presentationBehindTrackerPreview.setText(getBehindTrackerPreview(presenter));
-      }
+    presentationMode.addActionListener(e -> {
+      StatusPresenter presenter = getPresenter();
+      presentationStatusBarPreview.setText(getStatusBarPreview(presenter));
+      presentationProjectViewPreview.setText(getProjectViewPreview(presenter));
+      presentationBehindTrackerPreview.setText(getBehindTrackerPreview(presenter));
     });
-    showProjectViewStatusCheckBox.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        onProjectViewStatusChange();
-      }
-    });
-    showLocationPathCheckBox.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        onProjectViewStatusChange();
-      }
-    });
+    showProjectViewStatusCheckBox.addItemListener(e -> onProjectViewStatusChange());
+    showLocationPathCheckBox.addItemListener(e -> onProjectViewStatusChange());
     updateProjectAction.setRenderer(new ListCellRendererWrapper<UpdateProjectAction>() {
 
       @Override
@@ -107,6 +91,7 @@ public class GtForm implements GtFormUi {
   private void onProjectViewStatusChange() {
     boolean enabled = showProjectViewStatusCheckBox.isSelected();
     showLocationPathCheckBox.setEnabled(enabled);
+    showTagsOnHeadCheckBox.setEnabled(enabled);
     if (enabled) {
       showStatusBeforeLocationCheckBox.setEnabled(showLocationPathCheckBox.isSelected());
     } else {
@@ -171,6 +156,14 @@ public class GtForm implements GtFormUi {
 
   public void setShowProjectViewStatusBeforeLocation(boolean showProjectViewStatusBeforeLocation) {
     showStatusBeforeLocationCheckBox.setSelected(showProjectViewStatusBeforeLocation);
+  }
+
+  public boolean getShowProjectTagsOnHead() {
+    return showTagsOnHeadCheckBox.isSelected();
+  }
+
+  public void setShowProjectViewTagsOnHead(boolean showTagsOnHead) {
+    showTagsOnHeadCheckBox.setSelected(showTagsOnHead);
   }
 
   public UpdateProjectAction getUpdateProjectAction() {

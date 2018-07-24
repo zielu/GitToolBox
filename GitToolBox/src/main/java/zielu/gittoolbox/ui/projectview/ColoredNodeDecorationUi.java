@@ -2,7 +2,7 @@ package zielu.gittoolbox.ui.projectview;
 
 import static zielu.gittoolbox.config.DecorationColors.LOCAL_BRANCH_ATTRIBUTES;
 import static zielu.gittoolbox.config.DecorationColors.REMOTE_BRANCH_ATTRIBUTES;
-import static zielu.gittoolbox.config.DecorationColors.TAGS_ATTRIBUTES;
+import static zielu.gittoolbox.config.DecorationColors.HEAD_TAGS_ATTRIBUTES;
 
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +22,7 @@ public class ColoredNodeDecorationUi extends NodeDecorationUi {
     return DecorationColors.simpleAttributes(LOCAL_BRANCH_ATTRIBUTES);
   }
 
-  public SimpleTextAttributes getTagsAttributes() {
-    return DecorationColors.simpleAttributes(TAGS_ATTRIBUTES);
+  public SimpleTextAttributes getHeadTagsAttributes() {
+    return DecorationColors.simpleAttributes(HEAD_TAGS_ATTRIBUTES);
   }
 }

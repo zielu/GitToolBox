@@ -25,7 +25,7 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C extends Persisten
   protected void dispose() {
   }
 
-  protected final F getForm() {
+  private F getForm() {
     return form;
   }
 

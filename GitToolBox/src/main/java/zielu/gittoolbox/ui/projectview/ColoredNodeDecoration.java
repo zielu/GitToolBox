@@ -38,7 +38,7 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
   private ColoredFragment getTagsFragment() {
     StringBand text = getTagsText();
     if (text.length() > 0) {
-      return new ColoredFragment(text.toString(), coloredUi.getTagsAttributes());
+      return new ColoredFragment(text.toString(), coloredUi.getHeadTagsAttributes());
     } else {
       return null;
     }
@@ -46,10 +46,12 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
 
   private void appendStatus(PresentationData data) {
     data.addText(makeStatusFragment());
-    ColoredFragment tags = getTagsFragment();
-    if (tags != null) {
-      data.addText(" ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-      data.addText(tags);
+    if (ui.showProjectViewHeadTags()) {
+      ColoredFragment tags = getTagsFragment();
+      if (tags != null) {
+        data.addText(" ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        data.addText(tags);
+      }
     }
   }
 
@@ -73,7 +75,7 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
       if (ui.showProjectViewStatusBeforeLocation()) {
         data.addText(PresentationDataUtil.spacer());
         appendStatus(data);
-        locationString.ifPresent(l -> data.setLocationString("- " + l));
+        locationString.ifPresent(location -> data.setLocationString("- " + location));
       } else {
         if (locationString.isPresent()) {
           StringBand location = new StringBand(FontUtil.spaceAndThinSpace());

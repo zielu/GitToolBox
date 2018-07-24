@@ -22,4 +22,8 @@ public class NodeDecorationUi {
   public boolean showProjectViewStatusBeforeLocation() {
     return config.showProjectViewStatusBeforeLocation;
   }
+
+  public boolean showProjectViewHeadTags() {
+    return config.showProjectViewHeadTags;
+  }
 }
