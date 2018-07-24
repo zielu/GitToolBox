@@ -16,14 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MockMetrics;
 
 @Tag("fast")
 @ExtendWith({MockitoExtension.class})
-@MockitoSettings(strictness = Strictness.WARN)
 class VirtualFileRepoCacheImplTest {
   @Mock(stubOnly = true)
   private GitRepository repository;
@@ -41,6 +38,9 @@ class VirtualFileRepoCacheImplTest {
     when(controller.getMetrics()).thenReturn(mockMetrics);
     cache = new VirtualFileRepoCacheImpl(controller);
     cache.initComponent();
+  }
+
+  private void mockRepository() {
     when(repository.getRoot()).thenReturn(repositoryRoot);
   }
 
@@ -56,6 +56,8 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void getRepoForRootShouldReturnRepositoryForRoot() {
+    mockRepository();
+
     cache.updatedRepoList(ImmutableList.of(repository));
     assertThat(cache.getRepoForRoot(repositoryRoot)).isEqualTo(repository);
   }
@@ -67,6 +69,8 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void getRepoForDirShouldReturnRepositoryForDirInRoot() {
+    mockRepository();
+
     cache.updatedRepoList(ImmutableList.of(repository));
     MockVirtualFile dirInRoot = createDir(repositoryRoot,"dirInRoot");
     assertThat(cache.getRepoForDir(dirInRoot)).isEqualTo(repository);
@@ -74,6 +78,8 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void getRepoForDirShouldReturnSameRepositoryForDirInRootIfCalledMoreThanOnce() {
+    mockRepository();
+
     cache.updatedRepoList(ImmutableList.of(repository));
     MockVirtualFile dirInRoot = createDir(repositoryRoot,"dirInRoot");
     GitRepository repo1 = cache.getRepoForDir(dirInRoot);
@@ -83,6 +89,8 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void getRepoForDirShouldReturnRepositoryForDirInDirInRootBottomUp() {
+    mockRepository();
+
     cache.updatedRepoList(ImmutableList.of(repository));
     MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
     MockVirtualFile dirInDirInRoot = createDir(dirInRoot, "dirInDirInRoot");
@@ -91,6 +99,8 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void getRepoForDirShouldReturnRepositoryForDirInDirInRootTopDown() {
+    mockRepository();
+
     cache.updatedRepoList(ImmutableList.of(repository));
     MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
     MockVirtualFile dirInDirInRoot = createDir(dirInRoot, "dirInDirInRoot");
@@ -103,6 +113,8 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void updatedRepoListPublishesToMessageBus() {
+    mockRepository();
+
     cache.updatedRepoList(ImmutableList.of(repository));
     verify(controller).fireCacheChanged();
   }
