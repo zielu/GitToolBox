@@ -20,14 +20,12 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MockMetrics;
-import zielu.junit5.intellij.IdeaMocks;
-import zielu.junit5.intellij.IdeaMocksExtension;
 
 @Tag("fast")
-@ExtendWith({MockitoExtension.class, IdeaMocksExtension.class})
+@ExtendWith({MockitoExtension.class})
 @MockitoSettings(strictness = Strictness.WARN)
 class VirtualFileRepoCacheImplTest {
-  @Mock
+  @Mock(stubOnly = true)
   private GitRepository repository;
   @Mock
   private VirtualFileRepoCacheController controller;
@@ -104,7 +102,7 @@ class VirtualFileRepoCacheImplTest {
   }
 
   @Test
-  void updatedRepoListPublishesToMessageBus(IdeaMocks mocks) {
+  void updatedRepoListPublishesToMessageBus() {
     cache.updatedRepoList(ImmutableList.of(repository));
     verify(controller).fireCacheChanged();
   }
