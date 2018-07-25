@@ -9,6 +9,8 @@ import com.intellij.ui.ColorUtil;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
+import java.util.ArrayList;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ui.StatusPresenter;
@@ -32,6 +34,7 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
   public boolean projectViewStatusBold = false;
   public boolean projectViewStatusItalic = false;
   public String updateProjectActionId = DefaultUpdateProjectAction.ID;
+  public List<DecorationPartConfig> decorationParts = new ArrayList<>();
 
   public static GitToolBoxConfig getInstance() {
     return ServiceManager.getService(GitToolBoxConfig.class);
