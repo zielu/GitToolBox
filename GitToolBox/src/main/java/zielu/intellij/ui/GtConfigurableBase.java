@@ -32,9 +32,9 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C extends Persisten
   private synchronized void initComponent() {
     if (form == null) {
       form = UIUtil.invokeAndWaitIfNeeded(() -> {
-        F form = createForm();
-        form.init();
-        return form;
+        F newForm = createForm();
+        newForm.init();
+        return newForm;
       });
     }
   }

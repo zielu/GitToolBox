@@ -7,6 +7,14 @@ public class DecorationPartConfig {
   public String prefix = "";
   public String postfix = "";
 
+  public DecorationPartConfig copy() {
+    DecorationPartConfig copy = new DecorationPartConfig();
+    copy.type = type;
+    copy.prefix = prefix;
+    copy.postfix = postfix;
+    return copy;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

@@ -261,7 +261,7 @@
                 <children>
                   <component id="30077" class="javax.swing.JLabel">
                     <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="configurable.app.decorationPart.prefix.label"/>
@@ -269,13 +269,13 @@
                   </component>
                   <component id="eba3c" class="javax.swing.JLabel">
                     <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="configurable.app.decorationPart.postfix.label"/>
                     </properties>
                   </component>
-                  <component id="604c5" class="com.intellij.ui.components.JBTextField" binding="textField1" default-binding="true">
+                  <component id="604c5" class="com.intellij.ui.components.JBTextField" binding="decorationPartPrefixTextField">
                     <constraints>
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
@@ -283,7 +283,7 @@
                     </constraints>
                     <properties/>
                   </component>
-                  <component id="d158a" class="com.intellij.ui.components.JBTextField" binding="textField2" default-binding="true">
+                  <component id="d158a" class="com.intellij.ui.components.JBTextField" binding="decorationPartPostfixTextField">
                     <constraints>
                       <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>

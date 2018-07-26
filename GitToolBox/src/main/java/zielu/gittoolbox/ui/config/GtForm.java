@@ -3,16 +3,24 @@ package zielu.gittoolbox.ui.config;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.ui.CollectionListModel;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
+import com.intellij.ui.components.JBTextField;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Vector;
+import java.util.stream.Collectors;
 import javax.swing.Action;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -20,7 +28,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.ListDataEvent;
+import jodd.util.StringBand;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
@@ -30,10 +42,17 @@ import zielu.gittoolbox.extension.UpdateProjectAction;
 import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
+import zielu.gittoolbox.ui.util.ListDataAnyChangeAdapter;
 import zielu.intellij.ui.GtFormUi;
 
 public class GtForm implements GtFormUi {
-  private ComboBox presentationMode;
+  private final Map<DecorationPartType, Component> decorationPartActions = new LinkedHashMap<>();
+  private final CollectionListModel<DecorationPartConfig> decorationPartsModel =
+      new CollectionListModel<>(new ArrayList<>());
+  private final JBList<DecorationPartConfig> decorationLayoutList = new JBList<>(decorationPartsModel);
+  private final JBPopupMenu addDecorationLayoutPartPopup = new JBPopupMenu();
+
+  private ComboBox<StatusPresenter> presentationMode;
   private JPanel content;
   private JCheckBox showGitStatCheckBox;
   private JCheckBox showProjectViewStatusCheckBox;
@@ -43,18 +62,15 @@ public class GtForm implements GtFormUi {
   private JLabel presentationStatusBarPreview;
   private JLabel presentationProjectViewPreview;
   private JLabel presentationBehindTrackerPreview;
-  private ComboBox updateProjectAction;
+  private ComboBox<UpdateProjectAction> updateProjectAction;
   private JCheckBox showTagsOnHeadCheckBox;
   private JPanel decorationLayoutPanel;
-  private com.intellij.ui.components.JBTextField textField1;
-  private com.intellij.ui.components.JBTextField textField2;
-  private com.intellij.ui.components.JBTextField layoutPreviewTextField;
+  private JBTextField decorationPartPrefixTextField;
+  private JBTextField decorationPartPostfixTextField;
+  private JBTextField layoutPreviewTextField;
 
   @Override
   public void init() {
-    JBPopupMenu addDecorationLayoutPartPopup = new JBPopupMenu();
-    CollectionListModel<DecorationPartConfig> decorationPartsModel = new CollectionListModel<>(new ArrayList<>());
-
     Arrays.stream(DecorationPartType.values()).forEach(type -> {
       Action action = new AbstractActionExt() {
         {
@@ -66,16 +82,35 @@ public class GtForm implements GtFormUi {
           DecorationPartConfig config = new DecorationPartConfig();
           config.type = type;
           decorationPartsModel.add(config);
+          addDecorationLayoutPartPopup.remove(decorationPartActions.get(type));
+          updateDecorationLayoutPreview();
         }
       };
-      addDecorationLayoutPartPopup.add(action);
+      decorationPartActions.put(type, new JMenuItem(action));
+    });
+    decorationPartsModel.addListDataListener(new ListDataAnyChangeAdapter() {
+      @Override
+      public void changed(ListDataEvent e) {
+        updateDecorationLayoutPreview();
+      }
     });
 
-    JBList<DecorationPartConfig> decorationLayoutList = new JBList<>(decorationPartsModel);
     decorationLayoutList.setCellRenderer(new ListCellRendererWrapper<DecorationPartConfig>() {
       @Override
       public void customize(JList list, DecorationPartConfig value, int index, boolean selected, boolean hasFocus) {
         setText(value.prefix + value.type.getPlaceholder() + value.postfix);
+      }
+    });
+    decorationLayoutList.getSelectionModel().addListSelectionListener(event -> {
+      if (!event.getValueIsAdjusting()) {
+        int[] selectedIndices = decorationLayoutList.getSelectedIndices();
+        boolean editorsEnabled = selectedIndices.length == 1;
+        decorationPartPrefixTextField.setEnabled(editorsEnabled);
+        decorationPartPostfixTextField.setEnabled(editorsEnabled);
+        getCurrentDecorationPart().ifPresent(current -> {
+          decorationPartPrefixTextField.setText(current.prefix);
+          decorationPartPostfixTextField.setText(current.postfix);
+        });
       }
     });
     ToolbarDecorator decorationToolbar = ToolbarDecorator.createDecorator(decorationLayoutList);
@@ -84,7 +119,29 @@ public class GtForm implements GtFormUi {
       Point point = popupPoint.getPoint();
       addDecorationLayoutPartPopup.show(popupPoint.getComponent(), point.x, point.y);
     });
+    decorationToolbar.setRemoveAction(button -> {
+      List<DecorationPartConfig> selected = decorationLayoutList.getSelectedValuesList();
+      selected.forEach(config -> {
+        addDecorationLayoutPartPopup.add(decorationPartActions.get(config.type));
+        decorationPartsModel.remove(config);
+      });
+      updateDecorationLayoutPreview();
+    });
     decorationLayoutPanel.add(decorationToolbar.createPanel(), BorderLayout.CENTER);
+    decorationPartPrefixTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+      @Override
+      protected void textChanged(DocumentEvent e) {
+        updateCurrentDecorationPartPrefix(decorationPartPrefixTextField);
+        updateDecorationLayoutPreview();
+      }
+    });
+    decorationPartPostfixTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+      @Override
+      protected void textChanged(DocumentEvent e) {
+        updateCurrentDecorationPartPostfix(decorationPartPostfixTextField);
+        updateDecorationLayoutPreview();
+      }
+    });
 
     presentationMode.setRenderer(new ListCellRendererWrapper<StatusPresenter>() {
       @Override
@@ -103,7 +160,6 @@ public class GtForm implements GtFormUi {
     showProjectViewStatusCheckBox.addItemListener(e -> onProjectViewStatusChange());
     showLocationPathCheckBox.addItemListener(e -> onProjectViewStatusChange());
     updateProjectAction.setRenderer(new ListCellRendererWrapper<UpdateProjectAction>() {
-
       @Override
       public void customize(JList list, UpdateProjectAction action, int index, boolean selected,
                             boolean hasFocus) {
@@ -111,6 +167,62 @@ public class GtForm implements GtFormUi {
       }
     });
     updateProjectAction.setModel(getUpdateModeModel());
+  }
+
+  private Optional<DecorationPartConfig> getCurrentDecorationPart() {
+    int[] selectedIndices = decorationLayoutList.getSelectedIndices();
+    if (selectedIndices.length > 0) {
+      return Optional.of(decorationPartsModel.getElementAt(selectedIndices[0]));
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  private void updateCurrentDecorationPartPrefix(JBTextField textField) {
+    getCurrentDecorationPart().ifPresent(current -> {
+      current.prefix = textField.getText();
+      repaintDecorationPart();
+    });
+  }
+
+  private void updateCurrentDecorationPartPostfix(JBTextField textField) {
+    getCurrentDecorationPart().ifPresent(current -> {
+      current.postfix = textField.getText();
+      repaintDecorationPart();
+    });
+  }
+
+  private void repaintDecorationPart() {
+    decorationLayoutList.repaint();
+  }
+
+  private void updateDecorationLayoutPreview() {
+    String preview = decorationPartsModel.getItems().stream().map(this::getDecorationPartPreview)
+        .collect(Collectors.joining(" "));
+    layoutPreviewTextField.setText(preview);
+  }
+
+  private String getDecorationPartPreview(DecorationPartConfig config) {
+    StringBand preview = new StringBand(config.prefix);
+    switch (config.type) {
+      case STATUS: {
+        preview.append(getPresenter().aheadBehindStatus(3, 2));
+        break;
+      }
+      case LOCATION: {
+        preview.append("/path/to/location");
+        break;
+      }
+      case TAGS_ON_HEAD: {
+        preview.append("1.0.0");
+        break;
+      }
+      default: {
+        preview.append("N/A");
+      }
+    }
+    preview.append(config.postfix);
+    return preview.toString();
   }
 
   @NotNull
@@ -155,6 +267,14 @@ public class GtForm implements GtFormUi {
   @Override
   public void afterStateSet() {
     onProjectViewStatusChange();
+    Arrays.stream(DecorationPartType.values()).filter(type -> !hasDecorationPart(type)).forEach(type -> {
+      addDecorationLayoutPartPopup.add(decorationPartActions.get(type));
+    });
+    updateDecorationLayoutPreview();
+  }
+
+  private boolean hasDecorationPart(DecorationPartType type) {
+    return decorationPartsModel.getItems().stream().anyMatch(config -> type == config.type);
   }
 
   @Override
