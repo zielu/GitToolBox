@@ -154,6 +154,14 @@ public class AutoFetchTask implements Runnable {
     parent.updateLastAutoFetchDate();
   }
 
+  private boolean isNotCancelled() {
+    boolean cancelled = Thread.currentThread().isInterrupted();
+    if (cancelled) {
+      log.info("Auto-fetch task cancelled");
+    }
+    return !cancelled;
+  }
+
   @Override
   public void run() {
     final List<GitRepository> repos = reposForFetch();
@@ -163,12 +171,7 @@ public class AutoFetchTask implements Runnable {
           ResBundle.getString("message.autoFetching")) {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
-          parent.runIfActive(() -> {
-            String title = autoFetchTitle(repos);
-            if (tryToFetch(repos, indicator, title)) {
-              parent.scheduleNextTask();
-            }
-          });
+          runAutoFetch(repos, indicator);
         }
       }));
     } else {
@@ -177,6 +180,17 @@ public class AutoFetchTask implements Runnable {
         AppUtil.invokeLaterIfNeeded(this::finishedWithoutFetch);
       }
     }
+  }
+
+  private void runAutoFetch(List<GitRepository> repos, ProgressIndicator indicator) {
+    parent.runIfActive(() -> {
+      if (isNotCancelled()) {
+        String title = autoFetchTitle(repos);
+        if (tryToFetch(repos, indicator, title) && isNotCancelled()) {
+          parent.scheduleNextTask();
+        }
+      }
+    });
   }
 
   private String autoFetchTitle(List<GitRepository> repos) {

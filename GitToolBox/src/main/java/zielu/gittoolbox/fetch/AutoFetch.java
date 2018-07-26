@@ -1,6 +1,5 @@
 package zielu.gittoolbox.fetch;
 
-import com.google.common.collect.Lists;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -25,6 +24,7 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
 
   private final AtomicLong lastAutoFetchTimestamp = new AtomicLong();
   private final AtomicBoolean active = new AtomicBoolean();
+  private final AtomicBoolean autoFetchEnabled = new AtomicBoolean();
   private final List<ScheduledFuture<?>> scheduledTasks = new LinkedList<>();
   private final Project project;
   private ScheduledExecutorService executor;
@@ -35,6 +35,19 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
     Metrics metrics = MetricsHost.project(project);
     metrics.gauge("auto-fetch-tasks-size", this::autoFetchTasksSize);
     metrics.gauge("auto-fetch-last-timestamp", lastAutoFetchTimestamp::get);
+  }
+
+  @Override
+  public void initComponent() {
+    updateAutoFetchEnabled(getConfig());
+  }
+
+  private GitToolBoxConfigForProject getConfig() {
+    return GitToolBoxConfigForProject.getInstance(project());
+  }
+
+  private void updateAutoFetchEnabled(GitToolBoxConfigForProject config) {
+    autoFetchEnabled.set(config.autoFetch);
   }
 
   private int autoFetchTasksSize() {
@@ -49,9 +62,8 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
   }
 
   private void initializeFirstTask() {
-    GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project());
-    if (config.autoFetch) {
-      scheduleFirstTask(config);
+    if (isAutoFetchEnabled()) {
+      scheduleFirstTask(getConfig());
     }
   }
 
@@ -63,9 +75,8 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
   }
 
   private synchronized void cancelCurrentTasks() {
-    List<ScheduledFuture<?>> tasks = Lists.newArrayList(scheduledTasks);
+    scheduledTasks.forEach(t -> t.cancel(true));
     scheduledTasks.clear();
-    tasks.forEach(t -> t.cancel(true));
   }
 
   private synchronized boolean cleanAndCheckTasks() {
@@ -74,8 +85,9 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
   }
 
   @Override
-  public void configChanged(@NotNull GitToolBoxConfigForProject config) {
-    if (config.autoFetch) {
+  public synchronized void configChanged(@NotNull GitToolBoxConfigForProject config) {
+    updateAutoFetchEnabled(config);
+    if (isAutoFetchEnabled()) {
       log.debug("Auto-fetch enabled");
       autoFetchEnabled(config);
     } else {
@@ -84,7 +96,7 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
     }
   }
 
-  private synchronized void autoFetchEnabled(@NotNull GitToolBoxConfigForProject config) {
+  private void autoFetchEnabled(@NotNull GitToolBoxConfigForProject config) {
     if (currentInterval != config.autoFetchIntervalMinutes) {
       autoFetchIntervalChanged(config);
     } else {
@@ -106,7 +118,7 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
     currentInterval = config.autoFetchIntervalMinutes;
   }
 
-  private synchronized void autoFetchDisabled() {
+  private void autoFetchDisabled() {
     cancelCurrentTasks();
     currentInterval = 0;
     log.debug("Existing task cancelled on auto-fetch disable");
@@ -150,7 +162,7 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
   }
 
   private boolean isAutoFetchEnabled() {
-    return GitToolBoxConfigForProject.getInstance(project()).autoFetch;
+    return autoFetchEnabled.get();
   }
 
   private void scheduleTaskOnStateChange() {
@@ -188,7 +200,7 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
   }
 
   private void scheduleTask(int delayMinutes) {
-    if (isActive()) {
+    if (isActive() && isAutoFetchEnabled()) {
       trySchedulingTask(delayMinutes);
     }
   }
@@ -210,10 +222,8 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
     scheduledTasks.add(executor.schedule(AutoFetchTask.create(this), delay, timeUnit));
   }
 
-  void scheduleNextTask() {
-    synchronized (this) {
-      trySchedulingNextTask();
-    }
+  synchronized void scheduleNextTask() {
+    trySchedulingNextTask();
   }
 
   private void trySchedulingNextTask() {
