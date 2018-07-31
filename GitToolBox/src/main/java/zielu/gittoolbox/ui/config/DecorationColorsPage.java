@@ -16,15 +16,18 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.config.DecorationColors;
 
 public class DecorationColorsPage implements ColorSettingsPage {
-  private static final String DEMO_TEXT = new StringBand("<localBranch>Local_Branch</localBranch>\n")
+  private static final String DEMO_TEXT = new StringBand()
                                                   .append("<remoteBranch>Remote_Branch</remoteBranch>\n")
-                                                  .append("<headTags>1.0.0, 1.1.0</headTags>")
+                                                  .append("<status>1 // 2</status>\n")
+                                                  .append("<headTags>1.0.0, 1.1.0</headTags>\n")
+                                                  .append("<localBranch>Local_Branch</localBranch>")
                                                   .toString();
   private static final Map<String, TextAttributesKey> ADDITIONAL_MAPPINGS =
                                                   ImmutableMap.<String, TextAttributesKey>builder()
-                                                  .put("localBranch", DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
                                                   .put("remoteBranch", DecorationColors.REMOTE_BRANCH_ATTRIBUTES)
+                                                  .put("status", DecorationColors.STATUS_ATTRIBUTES)
                                                   .put("headTags", DecorationColors.HEAD_TAGS_ATTRIBUTES)
+                                                  .put("localBranch", DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
                                                   .build();
 
   @NotNull
@@ -33,10 +36,12 @@ public class DecorationColorsPage implements ColorSettingsPage {
     return new AttributesDescriptor[] {
       new AttributesDescriptor(ResBundle.getString("colors.projectView.remote.branch.decoration.label"),
           DecorationColors.REMOTE_BRANCH_ATTRIBUTES),
-      new AttributesDescriptor(ResBundle.getString("colors.projectView.local.branch.decoration.label"),
-          DecorationColors.LOCAL_BRANCH_ATTRIBUTES),
+      new AttributesDescriptor(ResBundle.getString("colors.projectView.status.decoration.label"),
+            DecorationColors.STATUS_ATTRIBUTES),
       new AttributesDescriptor(ResBundle.getString("colors.projectView.head.tags.decoration.label"),
-          DecorationColors.HEAD_TAGS_ATTRIBUTES)
+            DecorationColors.HEAD_TAGS_ATTRIBUTES),
+      new AttributesDescriptor(ResBundle.getString("colors.projectView.local.branch.decoration.label"),
+          DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
     };
   }
 

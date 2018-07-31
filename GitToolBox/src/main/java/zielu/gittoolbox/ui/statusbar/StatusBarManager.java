@@ -11,7 +11,7 @@ import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.config.ConfigNotifier;
-import zielu.gittoolbox.config.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig2;
 
 public class StatusBarManager implements Disposable, ProjectAware {
   private final AtomicBoolean opened = new AtomicBoolean();
@@ -36,7 +36,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
       statusWidget.installed();
       connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
         @Override
-        public void configChanged(GitToolBoxConfig config) {
+        public void configChanged(GitToolBoxConfig2 config) {
           final boolean showStatusWidget = config.showStatusWidget;
           SwingUtilities.invokeLater(() -> {
             if (opened.get()) {
@@ -62,7 +62,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
       if (hasUi()) {
         statusWidget = GitStatusWidget.create(project);
         install();
-        statusWidget.setVisible(GitToolBoxConfig.getInstance().showStatusWidget);
+        statusWidget.setVisible(GitToolBoxConfig2.getInstance().showStatusWidget);
       }
     }
   }

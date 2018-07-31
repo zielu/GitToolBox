@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config;
+package zielu.gittoolbox.ui.config.app;
 
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.JBPopupMenu;
@@ -39,7 +39,6 @@ import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.config.DecorationPartConfig;
 import zielu.gittoolbox.config.DecorationPartType;
 import zielu.gittoolbox.extension.UpdateProjectAction;
-import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.util.ListDataAnyChangeAdapter;
@@ -72,18 +71,15 @@ public class GtForm implements GtFormUi {
   @Override
   public void init() {
     Arrays.stream(DecorationPartType.values()).forEach(type -> {
-      Action action = new AbstractActionExt() {
-        {
-          setName(type.getLabel());
-        }
-
+      Action action = new AbstractActionExt(type.getLabel()) {
         @Override
         public void actionPerformed(ActionEvent e) {
           DecorationPartConfig config = new DecorationPartConfig();
           config.type = type;
           decorationPartsModel.add(config);
           addDecorationLayoutPartPopup.remove(decorationPartActions.get(type));
-          updateDecorationLayoutPreview();
+          int lastAddedIndex = decorationPartsModel.getSize() - 1;
+          decorationLayoutList.getSelectionModel().setSelectionInterval(lastAddedIndex, lastAddedIndex);
         }
       };
       decorationPartActions.put(type, new JMenuItem(action));
@@ -153,9 +149,9 @@ public class GtForm implements GtFormUi {
     presentationMode.setModel(new DefaultComboBoxModel<>(StatusPresenters.values()));
     presentationMode.addActionListener(e -> {
       StatusPresenter presenter = getPresenter();
-      presentationStatusBarPreview.setText(getStatusBarPreview(presenter));
-      presentationProjectViewPreview.setText(getProjectViewPreview(presenter));
-      presentationBehindTrackerPreview.setText(getBehindTrackerPreview(presenter));
+      presentationStatusBarPreview.setText(PresenterPreview.getStatusBarPreview(presenter));
+      presentationProjectViewPreview.setText(PresenterPreview.getProjectViewPreview(presenter));
+      presentationBehindTrackerPreview.setText(PresenterPreview.getBehindTrackerPreview(presenter));
     });
     showProjectViewStatusCheckBox.addItemListener(e -> onProjectViewStatusChange());
     showLocationPathCheckBox.addItemListener(e -> onProjectViewStatusChange());
@@ -204,24 +200,9 @@ public class GtForm implements GtFormUi {
 
   private String getDecorationPartPreview(DecorationPartConfig config) {
     StringBand preview = new StringBand(config.prefix);
-    switch (config.type) {
-      case STATUS: {
-        preview.append(getPresenter().aheadBehindStatus(3, 2));
-        break;
-      }
-      case LOCATION: {
-        preview.append("/path/to/location");
-        break;
-      }
-      case TAGS_ON_HEAD: {
-        preview.append("1.0.0");
-        break;
-      }
-      default: {
-        preview.append("N/A");
-      }
-    }
-    preview.append(config.postfix);
+    DecorationPartPreview
+        .appendPreview(getPresenter(), config.type, preview)
+        .append(config.postfix);
     return preview.toString();
   }
 
@@ -232,24 +213,6 @@ public class GtForm implements GtFormUi {
 
   @Override
   public void dispose() {
-  }
-
-  private String getStatusBarPreview(StatusPresenter presenter) {
-    return presenter.aheadBehindStatus(3, 2)
-        + " | " + presenter.aheadBehindStatus(3, 0)
-        + " | " + presenter.aheadBehindStatus(0, 2);
-  }
-
-  private String getProjectViewPreview(StatusPresenter presenter) {
-    return presenter.nonZeroAheadBehindStatus(3, 2)
-        + " | " + presenter.nonZeroAheadBehindStatus(3, 0)
-        + " | " + presenter.nonZeroAheadBehindStatus(0, 2);
-  }
-
-  private String getBehindTrackerPreview(StatusPresenter presenter) {
-    return presenter.behindStatus(BehindStatus.create(3, 1))
-        + " | " + presenter.behindStatus(BehindStatus.create(3, -1))
-        + " | " + presenter.behindStatus(BehindStatus.create(3));
   }
 
   private void onProjectViewStatusChange() {
@@ -344,5 +307,14 @@ public class GtForm implements GtFormUi {
 
   public void setUpdateProjectAction(UpdateProjectAction action) {
     updateProjectAction.setSelectedItem(action);
+  }
+
+  public void setDecorationParts(List<DecorationPartConfig> decorationParts) {
+    decorationPartsModel.removeAll();
+    decorationParts.stream().map(DecorationPartConfig::copy).forEach(decorationPartsModel::add);
+  }
+
+  public List<DecorationPartConfig> getDecorationParts() {
+    return decorationPartsModel.toList();
   }
 }

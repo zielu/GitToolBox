@@ -28,13 +28,14 @@
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig"/>
+    <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2"/>
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigForProject"/>
 
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
     <applicationService serviceInterface="zielu.gittoolbox.ui.StatusMessagesUi"
                         serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService"/>
 
-    <applicationConfigurable instance="zielu.gittoolbox.ui.config.GtConfigurable" id="zielu.gittoolbox.app.config"/>
+    <applicationConfigurable instance="zielu.gittoolbox.ui.config.app.GtConfigurable" id="zielu.gittoolbox.app.config"/>
     <projectConfigurable instance="zielu.gittoolbox.ui.config.GtProjectConfigurable" id="zielu.svntoolbox.prj.config"/>
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator"/>
 
@@ -52,6 +53,8 @@
     <colorSettingsPage implementation="zielu.gittoolbox.ui.config.DecorationColorsPage"/>
     <additionalTextAttributes scheme="Default" file="zielu/gittoolbox/colorschemes/GitToolBoxDefault.xml"/>
     <additionalTextAttributes scheme="Darcula" file="zielu/gittoolbox/colorschemes/GitToolBoxDarcula.xml"/>
+
+    <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup" />
   </extensions>
 
   <application-components>

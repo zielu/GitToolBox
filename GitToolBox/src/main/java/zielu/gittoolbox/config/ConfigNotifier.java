@@ -6,14 +6,14 @@ import com.intellij.util.messages.Topic;
 public interface ConfigNotifier {
   Topic<ConfigNotifier> CONFIG_TOPIC = Topic.create("Git ToolBox Config", ConfigNotifier.class);
 
-  void configChanged(GitToolBoxConfig config);
+  void configChanged(GitToolBoxConfig2 config);
 
   void configChanged(Project project, GitToolBoxConfigForProject config);
 
   class Adapter implements ConfigNotifier {
 
     @Override
-    public void configChanged(GitToolBoxConfig config) {
+    public void configChanged(GitToolBoxConfig2 config) {
     }
 
     @Override

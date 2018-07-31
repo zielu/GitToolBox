@@ -11,13 +11,19 @@ public final class PresentationDataUtil {
     throw new IllegalStateException();
   }
 
-  private static final ColoredFragment SPACER = new ColoredFragment(FontUtil.spaceAndThinSpace(),
+  private static final ColoredFragment WIDE_SPACER = new ColoredFragment(FontUtil.spaceAndThinSpace(),
+      SimpleTextAttributes.REGULAR_ATTRIBUTES);
+  private static final ColoredFragment SPACER = new ColoredFragment(FontUtil.thinSpace(),
       SimpleTextAttributes.REGULAR_ATTRIBUTES);
 
   public static Optional<String> getFirstColoredTextValue(PresentationData data) {
     return data.getColoredText().stream()
         .map(ColoredFragment::getText)
         .findFirst();
+  }
+
+  public static ColoredFragment wideSpacer() {
+    return WIDE_SPACER;
   }
 
   public static ColoredFragment spacer() {

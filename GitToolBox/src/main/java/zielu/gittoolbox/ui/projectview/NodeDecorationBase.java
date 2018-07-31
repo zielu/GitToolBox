@@ -2,8 +2,6 @@ package zielu.gittoolbox.ui.projectview;
 
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
-import java.util.List;
-import jodd.util.StringBand;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +23,7 @@ public abstract class NodeDecorationBase implements NodeDecoration {
   }
 
   @Nullable
-  private String getCountText() {
+  protected final String getCountText() {
     return repoInfo.count().filter(count -> count.status() == Status.SUCCESS).map(count -> {
       StatusPresenter presenter = ui.getPresenter();
       return presenter.nonZeroAheadBehindStatus(count.ahead.value(), count.behind.value());
@@ -33,28 +31,17 @@ public abstract class NodeDecorationBase implements NodeDecoration {
   }
 
   @NotNull
-  private String getBranchText() {
+  protected final String getBranchText() {
     return GitBranchUtil.getDisplayableBranchText(repo);
   }
 
-  @NotNull
-  protected final StringBand getStatusText() {
-    String branch = getBranchText();
-    String count = getCountText();
-    StringBand status = new StringBand(branch);
-    if (count != null) {
-      status.append(" ").append(count);
+  @Nullable
+  protected final String getTagsText() {
+    if (repoInfo.tags().isEmpty()) {
+      return null;
+    } else {
+      return String.join(", ", repoInfo.tags());
     }
-    return status;
-  }
-
-  @NotNull
-  protected final StringBand getTagsText() {
-    List<String> tags = repoInfo.tags();
-    if (!tags.isEmpty()) {
-      return new StringBand("(").append(String.join(", ", tags)).append(")");
-    }
-    return new StringBand();
   }
 
   protected final boolean isTrackingBranch() {

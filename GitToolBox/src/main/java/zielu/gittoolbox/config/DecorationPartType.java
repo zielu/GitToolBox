@@ -3,6 +3,7 @@ package zielu.gittoolbox.config;
 import zielu.gittoolbox.ResBundle;
 
 public enum DecorationPartType {
+  BRANCH,
   STATUS,
   TAGS_ON_HEAD,
   LOCATION
