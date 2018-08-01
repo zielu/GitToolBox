@@ -107,7 +107,7 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
         }
       }
     }
-    return true;
+    return false;
   }
 
   private ColoredFragment getSpacer(AtomicBoolean first) {

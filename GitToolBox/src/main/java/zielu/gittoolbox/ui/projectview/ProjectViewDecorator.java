@@ -37,7 +37,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   }
 
   private Timer repoForLatency(ProjectViewNode node) {
-    return MetricsHost.project(node.getProject()).timer("repo-for");
+    return MetricsHost.project(node.getProject()).timer("decorate-repo-for");
   }
 
   private Timer decorateApplyLatency(ProjectViewNode node) {
