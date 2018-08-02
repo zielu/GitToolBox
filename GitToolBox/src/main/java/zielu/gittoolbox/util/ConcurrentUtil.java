@@ -3,7 +3,6 @@ package zielu.gittoolbox.util;
 import com.intellij.openapi.diagnostic.Logger;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 
 public class ConcurrentUtil {

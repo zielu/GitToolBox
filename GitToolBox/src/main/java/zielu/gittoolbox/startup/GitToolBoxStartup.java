@@ -22,7 +22,6 @@ public class GitToolBoxStartup implements StartupActivity, DumbAware {
   @Override
   public void runActivity(@NotNull Project project) {
     migrateAppV1toV2();
-
     saveAppSettings();
   }
 
@@ -35,10 +34,10 @@ public class GitToolBoxStartup implements StartupActivity, DumbAware {
       v2.previousVersionMigrated = true;
     }
   }
+
   private void saveAppSettings() {
     if (!application.isUnitTestMode()) {
       log.info("Saving settings");
-
       try {
         WriteAction.runAndWait((ThrowableRunnable<Exception>) application::saveSettings);
       } catch (Exception exception) {
