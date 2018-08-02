@@ -92,7 +92,7 @@
       <implementation-class>zielu.gittoolbox.fetch.AutoFetchSubscriber</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.fetch.AutoFetchScheduler</implementation-class>
+      <implementation-class>zielu.gittoolbox.fetch.AutoFetchExecutor</implementation-class>
     </component>
     <component>
       <interface-class>zielu.gittoolbox.fetch.AutoFetchComponent</interface-class>

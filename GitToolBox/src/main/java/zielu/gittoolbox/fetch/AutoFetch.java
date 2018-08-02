@@ -15,10 +15,10 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
   private final AtomicBoolean active = new AtomicBoolean();
   private final AtomicBoolean autoFetchEnabled = new AtomicBoolean();
   private final Project project;
-  private final AutoFetchScheduler scheduler;
+  private final AutoFetchExecutor scheduler;
   private int currentInterval;
 
-  AutoFetch(@NotNull Project project, @NotNull AutoFetchScheduler scheduler) {
+  AutoFetch(@NotNull Project project, @NotNull AutoFetchExecutor scheduler) {
     this.project = project;
     this.scheduler = scheduler;
   }

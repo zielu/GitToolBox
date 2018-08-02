@@ -1,5 +1,6 @@
 package zielu.gittoolbox.fetch;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -7,6 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -18,8 +22,9 @@ import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.util.ConcurrentUtil;
 
-public class AutoFetchScheduler implements ProjectComponent {
+public class AutoFetchExecutor implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
 
   private final AtomicBoolean active = new AtomicBoolean();
@@ -30,8 +35,9 @@ public class AutoFetchScheduler implements ProjectComponent {
   private final AtomicInteger scheduledTasksCount = new AtomicInteger();
   private final Project project;
   private ScheduledExecutorService executor;
+  private ExecutorService autoFetchRepoExecutor;
 
-  public AutoFetchScheduler(@NotNull Project project) {
+  public AutoFetchExecutor(@NotNull Project project) {
     this.project = project;
     Metrics metrics = MetricsHost.project(project);
     metrics.gauge("auto-fetch-tasks-size", scheduledTasksCount::get);
@@ -41,6 +47,15 @@ public class AutoFetchScheduler implements ProjectComponent {
   @Override
   public void initComponent() {
     executor = GitToolBoxApp.getInstance().autoFetchExecutor();
+    autoFetchRepoExecutor = Executors.newCachedThreadPool(
+        new ThreadFactoryBuilder().setDaemon(true).setNameFormat("AutoFetchForRepo-%s").build()
+    );
+  }
+
+  @Override
+  public void disposeComponent() {
+    ConcurrentUtil.shutdown(autoFetchRepoExecutor);
+    autoFetchRepoExecutor = null;
   }
 
   @Override
@@ -174,5 +189,9 @@ public class AutoFetchScheduler implements ProjectComponent {
 
   long getLastAutoFetchDate() {
     return lastAutoFetchTimestamp.get();
+  }
+
+  Executor repoFetchExecutor() {
+    return autoFetchRepoExecutor;
   }
 }

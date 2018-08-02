@@ -36,8 +36,11 @@ public class GitToolBoxProject extends AbstractProjectComponent {
   @Override
   public void disposeComponent() {
     statusBarManager.dispose();
+    statusBarManager = null;
     projectViewManager.dispose();
+    projectViewManager = null;
     awares.dispose();
+    awares = null;
   }
 
   @Override

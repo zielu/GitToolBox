@@ -34,12 +34,12 @@ class AutoFetchTask implements Runnable {
   private static final boolean showNotifications = false;
 
   private final Logger log = Logger.getInstance(getClass());
-  private final AutoFetchScheduler owner;
+  private final AutoFetchExecutor owner;
   private final Project project;
 
   private final AtomicReference<NotificationHandle> lastNotification = new AtomicReference<NotificationHandle>();
 
-  AutoFetchTask(@NotNull Project project, AutoFetchScheduler owner) {
+  AutoFetchTask(@NotNull Project project, AutoFetchExecutor owner) {
     this.project = project;
     this.owner = owner;
   }
@@ -142,7 +142,8 @@ class AutoFetchTask implements Runnable {
   }
 
   private void executeFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
-    Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().build(project, indicator).fetchRoots(repos);
+    Collection<GitRepository> fetched = GtFetcher.builder().fetchAll().withExecutor(owner.repoFetchExecutor())
+        .build(project, indicator).fetchRoots(repos);
     PerRepoInfoCache.getInstance(project).refresh(fetched);
   }
 
