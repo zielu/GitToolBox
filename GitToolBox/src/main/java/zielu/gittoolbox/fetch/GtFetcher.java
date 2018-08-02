@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.DoubleAdder;
@@ -30,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.ui.util.AppUtil;
 import zielu.gittoolbox.util.ConcurrentUtil;
 import zielu.gittoolbox.util.FetchResult;
 import zielu.gittoolbox.util.FetchResultsPerRoot;
@@ -81,34 +83,36 @@ public class GtFetcher {
   private ImmutableCollection<GitRepository> doFetchRoots(@NotNull Collection<GitRepository> repositories) {
     Map<VirtualFile, String> additionalInfos = new ConcurrentHashMap<>(repositories.size());
     FetchResultsPerRoot errorsPerRoot = new FetchResultsPerRoot();
-    ImmutableList.Builder<GitRepository> resultBuilder = ImmutableList.builder();
+    List<GitRepository> results = new CopyOnWriteArrayList<>();
     Progress progress = new Progress(1f / repositories.size());
-    progressIndicator.setIndeterminate(false);
+    AppUtil.invokeLaterIfNeeded(() -> progressIndicator.setIndeterminate(false));
     List<CompletableFuture<?>> fetches = new ArrayList<>(repositories.size());
     for (GitRepository repository : repositories) {
       CompletableFuture<Void> fetch = fetchRepository(repository).thenApply(fetchDone -> {
-        progressIndicator.setFraction(progress.increment());
+        AppUtil.invokeLaterIfNeeded(() -> progressIndicator.setFraction(progress.increment()));
         log.debug("Fetched ", repository, ": success=", fetchDone.isSuccess(),
             ", error=", fetchDone.isError());
         return fetchDone;
       }).thenAccept(fetchDone -> {
         fetchDone.getAdditionalInfo().ifPresent(ai -> additionalInfos.put(fetchDone.getRoot(), ai));
         if (fetchDone.isSuccess()) {
-          resultBuilder.add(fetchDone.repository);
+          results.add(fetchDone.repository);
         } else {
           errorsPerRoot.add(fetchDone.repository, new FetchResult(fetchDone.result, fetcher.getErrors()));
         }
       });
       fetches.add(fetch);
     }
-    CompletableFuture<ImmutableList<GitRepository>> repos = ConcurrentUtil.allOf(fetches)
+    CompletableFuture<List<GitRepository>> repos = ConcurrentUtil.allOf(fetches)
         .thenApply(unused -> {
-          errorsPerRoot.showProblems(Notifier.getInstance(project));
-          showAdditionalInfos(additionalInfos);
-          return resultBuilder.build();
+          AppUtil.invokeLaterIfNeeded(() -> {
+            errorsPerRoot.showProblems(Notifier.getInstance(project));
+            showAdditionalInfos(additionalInfos);
+          });
+          return results;
         });
     try {
-      return repos.get();
+      return ImmutableList.copyOf(repos.get());
     } catch (InterruptedException e) {
       log.error(e);
       Thread.currentThread().interrupt();
