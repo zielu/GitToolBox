@@ -81,7 +81,7 @@ public class GtFetcher {
   }
 
   private ImmutableCollection<GitRepository> doFetchRoots(@NotNull Collection<GitRepository> repositories) {
-    Map<VirtualFile, String> additionalInfos = new ConcurrentHashMap<>(repositories.size());
+    Map<VirtualFile, String> additionalInfos = new ConcurrentHashMap<>();
     FetchResultsPerRoot errorsPerRoot = new FetchResultsPerRoot();
     List<GitRepository> results = new CopyOnWriteArrayList<>();
     Progress progress = new Progress(1f / repositories.size());
@@ -138,7 +138,7 @@ public class GtFetcher {
     }
   }
 
-  public static class Builder {
+  public static final class Builder {
     private boolean fetchAll = false;
     private Executor executor = MoreExecutors.directExecutor();
 
@@ -160,7 +160,7 @@ public class GtFetcher {
     }
   }
 
-  private final class Progress {
+  private static final class Progress {
     private final DoubleAdder current = new DoubleAdder();
     private final double fraction;
 
@@ -174,7 +174,7 @@ public class GtFetcher {
     }
   }
 
-  private final class FetchDone {
+  private static final class FetchDone {
     private final GitRepository repository;
     private final GitFetchResult result;
 

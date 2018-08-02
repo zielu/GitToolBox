@@ -1,25 +1,23 @@
 package zielu.gittoolbox.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
 import jodd.util.StringBand;
 import zielu.gittoolbox.compat.Notifier;
 
 public class FetchResultsPerRoot {
   private final Map<GitRepository, FetchResult> errorsPerRoot = Maps.newLinkedHashMap();
-  private boolean anyProblems;
+  private final AtomicBoolean anyProblems = new AtomicBoolean();
 
   public synchronized void add(GitRepository repository, FetchResult result) {
     Preconditions.checkState(errorsPerRoot.put(repository, result) == null);
-    if (!result.result().isSuccess()) {
-      anyProblems = true;
-    }
+    anyProblems.set(!result.result().isSuccess());
   }
 
   private boolean executableValid(GitRepository repository) {
@@ -33,7 +31,7 @@ public class FetchResultsPerRoot {
       errors = Maps.newLinkedHashMap(errorsPerRoot);
     }
 
-    if (anyProblems) {
+    if (anyProblems.get()) {
       boolean anyNotAuthorized = false;
       boolean anyError = false;
       StringBand message = new StringBand();
