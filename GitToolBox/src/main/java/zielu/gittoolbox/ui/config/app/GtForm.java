@@ -56,13 +56,10 @@ public class GtForm implements GtFormUi {
   private JCheckBox showGitStatCheckBox;
   private JCheckBox showProjectViewStatusCheckBox;
   private JCheckBox behindTrackerEnabledCheckBox;
-  private JCheckBox showLocationPathCheckBox;
-  private JCheckBox showStatusBeforeLocationCheckBox;
   private JLabel presentationStatusBarPreview;
   private JLabel presentationProjectViewPreview;
   private JLabel presentationBehindTrackerPreview;
   private ComboBox<UpdateProjectAction> updateProjectAction;
-  private JCheckBox showTagsOnHeadCheckBox;
   private JPanel decorationLayoutPanel;
   private JBTextField decorationPartPrefixTextField;
   private JBTextField decorationPartPostfixTextField;
@@ -154,7 +151,6 @@ public class GtForm implements GtFormUi {
       presentationBehindTrackerPreview.setText(PresenterPreview.getBehindTrackerPreview(presenter));
     });
     showProjectViewStatusCheckBox.addItemListener(e -> onProjectViewStatusChange());
-    showLocationPathCheckBox.addItemListener(e -> onProjectViewStatusChange());
     updateProjectAction.setRenderer(new ListCellRendererWrapper<UpdateProjectAction>() {
       @Override
       public void customize(JList list, UpdateProjectAction action, int index, boolean selected,
@@ -216,14 +212,6 @@ public class GtForm implements GtFormUi {
   }
 
   private void onProjectViewStatusChange() {
-    boolean enabled = showProjectViewStatusCheckBox.isSelected();
-    showLocationPathCheckBox.setEnabled(enabled);
-    showTagsOnHeadCheckBox.setEnabled(enabled);
-    if (enabled) {
-      showStatusBeforeLocationCheckBox.setEnabled(showLocationPathCheckBox.isSelected());
-    } else {
-      showStatusBeforeLocationCheckBox.setEnabled(false);
-    }
     updateProjectAction.setEnabled(updateProjectAction.getItemCount() > 1);
   }
 
@@ -275,30 +263,6 @@ public class GtForm implements GtFormUi {
 
   public void setShowProjectViewStatus(boolean showProjectViewStatus) {
     showProjectViewStatusCheckBox.setSelected(showProjectViewStatus);
-  }
-
-  public boolean getShowProjectViewLocationPath() {
-    return showLocationPathCheckBox.isSelected();
-  }
-
-  public void setShowProjectViewLocationPath(boolean showProjectViewLocationPath) {
-    showLocationPathCheckBox.setSelected(showProjectViewLocationPath);
-  }
-
-  public boolean getShowProjectViewStatusBeforeLocation() {
-    return showStatusBeforeLocationCheckBox.isSelected();
-  }
-
-  public void setShowProjectViewStatusBeforeLocation(boolean showProjectViewStatusBeforeLocation) {
-    showStatusBeforeLocationCheckBox.setSelected(showProjectViewStatusBeforeLocation);
-  }
-
-  public boolean getShowProjectTagsOnHead() {
-    return showTagsOnHeadCheckBox.isSelected();
-  }
-
-  public void setShowProjectViewTagsOnHead(boolean showTagsOnHead) {
-    showTagsOnHeadCheckBox.setSelected(showTagsOnHead);
   }
 
   public UpdateProjectAction getUpdateProjectAction() {

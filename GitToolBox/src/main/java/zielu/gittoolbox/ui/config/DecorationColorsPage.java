@@ -16,12 +16,23 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.config.DecorationColors;
 
 public class DecorationColorsPage implements ColorSettingsPage {
+  private static final String LOCAL_BRANCH_DEMO_TEXT = new StringBand()
+      .append("<localBranch>Local_Branch</localBranch>")
+      .append(" <headTags>1.0.0, 1.1.0</headTags>")
+      .toString();
+
+  private static final String REMOTE_BRANCH_DEMO_TEXT = new StringBand()
+      .append("<remoteBranch>Remote_Branch</remoteBranch>")
+      .append(" <status>1 // 2</status>")
+      .append(" <headTags>1.0.0, 1.1.0</headTags>")
+      .toString();
+
   private static final String DEMO_TEXT = new StringBand()
-                                                  .append("<remoteBranch>Remote_Branch</remoteBranch>\n")
-                                                  .append("<status>1 // 2</status>\n")
-                                                  .append("<headTags>1.0.0, 1.1.0</headTags>\n")
-                                                  .append("<localBranch>Local_Branch</localBranch>")
-                                                  .toString();
+      .append(LOCAL_BRANCH_DEMO_TEXT)
+      .append("\n")
+      .append(REMOTE_BRANCH_DEMO_TEXT)
+      .toString();
+
   private static final Map<String, TextAttributesKey> ADDITIONAL_MAPPINGS =
                                                   ImmutableMap.<String, TextAttributesKey>builder()
                                                   .put("remoteBranch", DecorationColors.REMOTE_BRANCH_ATTRIBUTES)
