@@ -71,16 +71,14 @@ class BehindTrackerTest {
   @Captor
   private ArgumentCaptor<String> notificationCaptor;
   private BehindTracker behindTracker;
-  private StatusMessages statusMessages;
 
   @BeforeEach
   void beforeEach() {
     when(repository.getProject()).thenReturn(project);
     when(repository.getRoot()).thenReturn(repositoryRoot);
     when(statusMessagesUi.presenter()).thenReturn(StatusPresenters.arrows);
-    statusMessages = new StatusMessages(statusMessagesUi);
     when(behindTrackerUi.isNotificationEnabled()).thenReturn(true);
-    when(behindTrackerUi.getStatusMessages()).thenReturn(statusMessages);
+    when(behindTrackerUi.getStatusMessages()).thenReturn(new StatusMessages(statusMessagesUi));
     behindTracker = new BehindTracker(behindTrackerUi);
     behindTracker.projectOpened();
   }
