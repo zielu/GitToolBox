@@ -2,6 +2,7 @@ package zielu.gittoolbox.fetch;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.diagnostic.ControlFlowException;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import java.util.LinkedList;
@@ -175,7 +176,11 @@ public class AutoFetchExecutor implements ProjectComponent {
       try {
         return Optional.of(task.call());
       } catch (Exception e) {
-        log.error("Error while calling if active", e);
+        if (e instanceof ControlFlowException) {
+          log.info("Exception while calling if active", e);
+        } else {
+          log.error("Error while calling if active", e);
+        }
         return Optional.empty();
       }
     } else {
