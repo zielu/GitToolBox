@@ -1,8 +1,10 @@
 package zielu.gittoolbox.cache;
 
 import com.codahale.metrics.Counter;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -15,7 +17,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -33,7 +34,7 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final ConcurrentMap<GitRepository, RepoInfo> behindStatuses = Maps.newConcurrentMap();
-  private final ConcurrentMap<GitRepository, CacheTask> scheduledRepositories = Maps.newConcurrentMap();
+  private final Multimap<GitRepository, CacheTask> scheduledRepositories = HashMultimap.create();
   private final CachedStatusCalculator statusCalculator = new CachedStatusCalculator();
   private final Project project;
   private final GitStatusCalculator calculator;
@@ -105,7 +106,15 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
 
   private void scheduleRefresh(@NotNull GitRepository repository) {
     if (active.get()) {
-      scheduleTask(new RefreshTask(repository));
+      scheduleTask(new RefreshTask(repository), false);
+    } else {
+      log.debug("Inactive - ignored scheduling refresh for: ", repository);
+    }
+  }
+
+  private void scheduleMandatoryRefresh(@NotNull GitRepository repository) {
+    if (active.get()) {
+      scheduleTask(new RefreshTask(repository), true);
     } else {
       log.debug("Inactive - ignored scheduling refresh for: ", repository);
     }
@@ -113,19 +122,32 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
 
   private void scheduleUpdate(@NotNull GitRepository repository) {
     if (active.get()) {
-      scheduleTask(new UpdateTask(repository));
+      scheduleTask(new UpdateTask(repository), false);
     } else {
       log.debug("Inactive - ignored updating refresh for ", repository);
     }
   }
 
-  private void scheduleTask(CacheTask task) {
-    CacheTask alreadyScheduled = scheduledRepositories.putIfAbsent(task.repository, task);
-    if (alreadyScheduled == null) {
+  private synchronized void scheduleTask(CacheTask task, boolean mandatory) {
+    boolean canSubmit;
+    if (mandatory) {
+      scheduledRepositories.put(task.repository, task);
+      canSubmit = true;
+    } else {
+      Collection<CacheTask> alreadyScheduled = scheduledRepositories.get(task.repository);
+      if (alreadyScheduled.isEmpty()) {
+        scheduledRepositories.put(task.repository, task);
+        canSubmit = true;
+      } else {
+        log.debug("Tasks for ", task.repository, " already scheduled: ", alreadyScheduled);
+        canSubmit = false;
+      }
+    }
+
+    if (canSubmit) {
       submitForExecution(task);
     } else {
       discardedTasksCount.inc();
-      log.debug("Task for ", task.repository, " already scheduled: ", alreadyScheduled);
     }
   }
 
@@ -138,7 +160,7 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   @Override
   public void repoChanged(@NotNull GitRepository repository) {
     log.debug("Got repo changed event: ", repository);
-    scheduleRefresh(repository);
+    scheduleMandatoryRefresh(repository);
   }
 
   @Override
@@ -157,9 +179,9 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     repositories.forEach(this::removeRepository);
   }
 
-  private void removeRepository(@NotNull GitRepository repository) {
+  private synchronized void removeRepository(@NotNull GitRepository repository) {
     behindStatuses.remove(repository);
-    Optional.ofNullable(scheduledRepositories.remove(repository)).ifPresent(CacheTask::kill);
+    scheduledRepositories.removeAll(repository).forEach(CacheTask::kill);
   }
 
   private void notifyEvicted(@NotNull Collection<GitRepository> repositories) {
@@ -268,7 +290,9 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     public void run() {
       try {
         if (active.get() && taskActive.get()) {
-          scheduledRepositories.remove(repository);
+          synchronized (PerRepoInfoCacheImpl.this) {
+            scheduledRepositories.remove(repository, this);
+          }
           runImpl();
         }
       } finally {
