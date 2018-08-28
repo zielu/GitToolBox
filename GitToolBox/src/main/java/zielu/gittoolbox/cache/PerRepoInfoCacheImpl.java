@@ -1,11 +1,7 @@
 package zielu.gittoolbox.cache;
 
-import com.codahale.metrics.Counter;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbService;
@@ -15,12 +11,9 @@ import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -34,27 +27,24 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final ConcurrentMap<GitRepository, RepoInfo> behindStatuses = Maps.newConcurrentMap();
-  private final Multimap<GitRepository, CacheTask> scheduledRepositories = HashMultimap.create();
   private final CachedStatusCalculator statusCalculator = new CachedStatusCalculator();
   private final Project project;
   private final GitStatusCalculator calculator;
-  private final Counter statusQueueSize;
-  private final Counter discardedTasksCount;
-  private ExecutorService updateExecutor;
+  private final CacheTaskScheduler taskScheduler;
   private MessageBus messageBus;
 
   PerRepoInfoCacheImpl(@NotNull Project project) {
     this.project = project;
     calculator = GitStatusCalculator.create(project);
+    taskScheduler = new CacheTaskScheduler(project);
     Metrics metrics = MetricsHost.project(project);
     metrics.gauge("info-cache-size", behindStatuses::size);
-    statusQueueSize = metrics.counter("info-cache-queue-size");
-    discardedTasksCount = metrics.counter("info-cache-discarded-updates");
   }
 
   @Override
   public void initComponent() {
     messageBus = project.getMessageBus();
+    taskScheduler.initialize();
   }
 
   private void update(@NotNull GitRepository repository) {
@@ -99,62 +89,20 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   @Override
   public void disposeComponent() {
     messageBus = null;
+    taskScheduler.dispose();
     behindStatuses.clear();
-    updateExecutor = null;
-    scheduledRepositories.clear();
   }
 
   private void scheduleRefresh(@NotNull GitRepository repository) {
-    if (active.get()) {
-      scheduleTask(new RefreshTask(repository), false);
-    } else {
-      log.debug("Inactive - ignored scheduling refresh for: ", repository);
-    }
+    taskScheduler.schedule(repository, new RefreshTask(), false);
   }
 
   private void scheduleMandatoryRefresh(@NotNull GitRepository repository) {
-    if (active.get()) {
-      scheduleTask(new RefreshTask(repository), true);
-    } else {
-      log.debug("Inactive - ignored scheduling refresh for: ", repository);
-    }
+    taskScheduler.schedule(repository, new RefreshTask(), true);
   }
 
   private void scheduleUpdate(@NotNull GitRepository repository) {
-    if (active.get()) {
-      scheduleTask(new UpdateTask(repository), false);
-    } else {
-      log.debug("Inactive - ignored updating refresh for ", repository);
-    }
-  }
-
-  private synchronized void scheduleTask(CacheTask task, boolean mandatory) {
-    boolean canSubmit;
-    if (mandatory) {
-      scheduledRepositories.put(task.repository, task);
-      canSubmit = true;
-    } else {
-      Collection<CacheTask> alreadyScheduled = scheduledRepositories.get(task.repository);
-      if (alreadyScheduled.isEmpty()) {
-        scheduledRepositories.put(task.repository, task);
-        canSubmit = true;
-      } else {
-        log.debug("Tasks for ", task.repository, " already scheduled: ", alreadyScheduled);
-        canSubmit = false;
-      }
-    }
-
-    if (canSubmit) {
-      submitForExecution(task);
-    } else {
-      discardedTasksCount.inc();
-    }
-  }
-
-  private void submitForExecution(CacheTask  task) {
-    updateExecutor.submit(task);
-    statusQueueSize.inc();
-    log.debug("Scheduled: ", task);
+    taskScheduler.schedule(repository, new UpdateTask(), false);
   }
 
   @Override
@@ -179,9 +127,9 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     repositories.forEach(this::removeRepository);
   }
 
-  private synchronized void removeRepository(@NotNull GitRepository repository) {
+  private void removeRepository(@NotNull GitRepository repository) {
+    taskScheduler.removeRepository(repository);
     behindStatuses.remove(repository);
-    scheduledRepositories.removeAll(repository).forEach(CacheTask::kill);
   }
 
   private void notifyEvicted(@NotNull Collection<GitRepository> repositories) {
@@ -195,11 +143,7 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     }
   }
 
-  private void refreshSync(GitRepository repository) {
-    update(repository);
-  }
-
-  private void updateSync(GitRepository repository) {
+  private void refreshRepo(GitRepository repository) {
     update(repository);
   }
 
@@ -218,95 +162,40 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   @Override
   public void projectOpened() {
     if (active.compareAndSet(false, true)) {
-      updateExecutor = createExecutor();
+      taskScheduler.opened();
     }
-  }
-
-  private ExecutorService createExecutor() {
-    ThreadFactoryBuilder threadBuilder = new ThreadFactoryBuilder()
-        .setDaemon(true)
-        .setNameFormat(getClass().getSimpleName() + "-[" + project.getName() + "]-%d");
-    return Executors.newSingleThreadExecutor(threadBuilder.build());
   }
 
   @Override
   public void projectClosed() {
     if (active.compareAndSet(true, false)) {
-      destroyExecutor();
+      taskScheduler.closed();
     }
   }
 
-  private void destroyExecutor() {
-    List<Runnable> notStartedTasks = updateExecutor.shutdownNow();
-    statusQueueSize.dec(notStartedTasks.size());
-    notStartedTasks.forEach(notStarted -> log.info("Task " + notStarted + " was never started"));
-  }
-
-  private class RefreshTask extends CacheTask {
-    private RefreshTask(@NotNull GitRepository repository) {
-      super(repository);
-    }
-
+  private class RefreshTask implements CacheTaskScheduler.Task {
     @Override
-    public void runImpl() {
-      refreshSync(repository);
+    public void run(@NotNull GitRepository repository) {
+      refreshRepo(repository);
     }
-
-    @Override
-    public String toString() {
-      return "RefreshTask for " + repository;
-    }
-  }
-
-  private class UpdateTask extends CacheTask {
-    private UpdateTask(@NotNull GitRepository repository) {
-      super(repository);
-    }
-
-    @Override
-    public void runImpl() {
-      updateSync(repository);
-    }
-
-    @Override
-    public String toString() {
-      return "UpdateTask for " + repository;
-    }
-  }
-
-  private abstract class CacheTask implements Runnable {
-    private final AtomicBoolean taskActive = new AtomicBoolean(true);
-    final GitRepository repository;
-
-    CacheTask(GitRepository repository) {
-      this.repository = repository;
-    }
-
-    void kill() {
-      taskActive.set(false);
-    }
-
-    @Override
-    public void run() {
-      try {
-        if (active.get() && taskActive.get()) {
-          synchronized (PerRepoInfoCacheImpl.this) {
-            scheduledRepositories.remove(repository, this);
-          }
-          runImpl();
-        }
-      } finally {
-        statusQueueSize.dec();
-      }
-    }
-
-    abstract void runImpl();
 
     @Override
     public String toString() {
       return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-          .append("repository", repository)
-          .toString();
+          .build();
+    }
+  }
+
+  private class UpdateTask implements CacheTaskScheduler.Task {
+    @Override
+    public void run(@NotNull GitRepository repository) {
+      update(repository);
+    }
+
+    @Override
+    public String toString() {
+      return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+          .build();
     }
   }
 }
