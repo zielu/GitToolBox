@@ -38,6 +38,12 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
   }
 
   @Override
+  protected void afterInit(GtPrjForm form) {
+    form.setProject(project);
+    form.afterInit();
+  }
+
+  @Override
   protected GitToolBoxConfigForProject getConfig() {
     return GitToolBoxConfigForProject.getInstance(project);
   }
@@ -50,7 +56,6 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     form.setCommitCompletionEnabled(config.commitDialogCompletion);
     form.setCommitCompletionConfigs(config.completionConfigs);
     form.setAutoFetchExclusions(config.autoFetchExclusions);
-    form.setProject(project);
   }
 
   @Override
