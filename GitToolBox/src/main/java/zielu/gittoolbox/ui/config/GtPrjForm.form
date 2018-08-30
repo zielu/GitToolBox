@@ -78,25 +78,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <scrollpane id="83c14" class="com.intellij.ui.components.JBScrollPane">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <minimum-size width="150" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties/>
-                <border type="none"/>
-                <children>
-                  <component id="5cad4" class="com.intellij.ui.components.JBList" binding="completionItemList">
-                    <constraints/>
-                    <properties>
-                      <minimumSize width="0" height="0"/>
-                      <selectionMode value="0"/>
-                    </properties>
-                  </component>
-                </children>
-              </scrollpane>
-              <grid id="6642a" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="6642a" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -106,43 +88,13 @@
                 <children>
                   <grid id="eeea9" binding="completionItemConfigPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
                     <constraints>
-                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="2" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="2" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
                         <minimum-size width="350" height="-1"/>
                       </grid>
                     </constraints>
                     <properties/>
                     <border type="none"/>
                     <children/>
-                  </grid>
-                  <grid id="8d32d" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="none"/>
-                    <children>
-                      <component id="92f4b" class="zielu.gittoolbox.ui.util.ButtonWithPopup" binding="completionItemAdd" custom-create="true">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                      </component>
-                      <vspacer id="84414">
-                        <constraints>
-                          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                      </vspacer>
-                      <component id="6cf13" class="javax.swing.JButton" binding="completionItemRemove">
-                        <constraints>
-                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text value=""/>
-                          <toolTipText resource-bundle="zielu/gittoolbox/ResourceBundle" key="commit.dialog.completion.formatters.remove.tooltip"/>
-                        </properties>
-                      </component>
-                    </children>
                   </grid>
                 </children>
               </grid>
@@ -169,6 +121,17 @@
                     <properties/>
                   </component>
                 </children>
+              </grid>
+              <grid id="263ad" binding="commitCompletionPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <minimum-size width="250" height="-1"/>
+                    <preferred-size width="250" height="150"/>
+                  </grid>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children/>
               </grid>
             </children>
           </grid>
@@ -214,7 +177,7 @@
                   </component>
                 </children>
               </grid>
-              <grid id="d3d09" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="d3d09" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -222,55 +185,20 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <scrollpane id="48b18" class="com.intellij.ui.components.JBScrollPane">
+                  <grid id="d3ade" binding="autoFetchExclusionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
                     <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="2" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                        <minimum-size width="350" height="-1"/>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="2" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                        <minimum-size width="250" height="-1"/>
+                        <preferred-size width="250" height="150"/>
                       </grid>
                     </constraints>
                     <properties/>
                     <border type="none"/>
-                    <children>
-                      <component id="bdb61" class="com.intellij.ui.components.JBList" binding="autoFetchExclusionsList">
-                        <constraints/>
-                        <properties/>
-                      </component>
-                    </children>
-                  </scrollpane>
-                  <grid id="d3ade" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints>
-                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="none"/>
-                    <children>
-                      <component id="9f62a" class="javax.swing.JButton" binding="autoFetchExclusionAdd">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text value=""/>
-                        </properties>
-                      </component>
-                      <vspacer id="f3e20">
-                        <constraints>
-                          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                      </vspacer>
-                      <component id="33dd4" class="javax.swing.JButton" binding="autoFetchExclusionRemove">
-                        <constraints>
-                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text value=""/>
-                        </properties>
-                      </component>
-                    </children>
+                    <children/>
                   </grid>
                   <hspacer id="92a81">
                     <constraints>
-                      <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
                         <minimum-size width="130" height="-1"/>
                       </grid>
                     </constraints>
