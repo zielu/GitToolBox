@@ -89,6 +89,9 @@
       <implementation-class>zielu.gittoolbox.cache.CacheSourcesSubscriber</implementation-class>
     </component>
     <component>
+      <implementation-class>zielu.gittoolbox.cache.InfoCachePublisher</implementation-class>
+    </component>
+    <component>
       <implementation-class>zielu.gittoolbox.fetch.AutoFetchSubscriber</implementation-class>
     </component>
     <component>

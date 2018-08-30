@@ -6,7 +6,6 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.messages.MessageBus;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
@@ -31,10 +30,11 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   private final Project project;
   private final GitStatusCalculator calculator;
   private final CacheTaskScheduler taskScheduler;
-  private MessageBus messageBus;
+  private final InfoCachePublisher publisher;
 
-  PerRepoInfoCacheImpl(@NotNull Project project) {
+  PerRepoInfoCacheImpl(@NotNull Project project, @NotNull InfoCachePublisher publisher) {
     this.project = project;
+    this.publisher = publisher;
     calculator = GitStatusCalculator.create(project);
     taskScheduler = new CacheTaskScheduler(project);
     Metrics metrics = MetricsHost.project(project);
@@ -43,7 +43,6 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
 
   @Override
   public void initComponent() {
-    messageBus = project.getMessageBus();
     taskScheduler.initialize();
   }
 
@@ -65,7 +64,7 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     if (!Objects.equals(info.status(), currentStatus)) {
       RepoInfo freshInfo = behindStatuses.computeIfPresent(repository, (repo, oldInfo) ->
           statusCalculator.update(repo, calculator, currentStatus));
-      onRepoChanged(repository, freshInfo);
+      publisher.notifyRepoChanged(repository, freshInfo);
     } else {
       log.debug("Status did not change [", GtUtil.name(repository), "]");
     }
@@ -88,7 +87,6 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
 
   @Override
   public void disposeComponent() {
-    messageBus = null;
     taskScheduler.dispose();
     behindStatuses.clear();
   }
@@ -120,7 +118,7 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
 
   private void purgeRepositories(@NotNull Collection<GitRepository> repositories) {
     removeRepositories(repositories);
-    notifyEvicted(repositories);
+    publisher.notifyEvicted(repositories);
   }
 
   private void removeRepositories(@NotNull Collection<GitRepository> repositories) {
@@ -130,17 +128,6 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   private void removeRepository(@NotNull GitRepository repository) {
     taskScheduler.removeRepository(repository);
     behindStatuses.remove(repository);
-  }
-
-  private void notifyEvicted(@NotNull Collection<GitRepository> repositories) {
-    messageBus.syncPublisher(CACHE_CHANGE).evicted(repositories);
-  }
-
-  private void onRepoChanged(GitRepository repo, RepoInfo info) {
-    if (active.get()) {
-      messageBus.syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
-      log.debug("Published cache changed event: ", repo);
-    }
   }
 
   private void refreshRepo(GitRepository repository) {
