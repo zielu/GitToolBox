@@ -18,9 +18,10 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.metrics.Metrics;
-import zielu.gittoolbox.metrics.MetricsHost;
 
 class CacheTaskScheduler implements ProjectAware {
+  private static final long TASK_DELAY_MILLIS = 170;
+
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final Project project;
@@ -29,9 +30,8 @@ class CacheTaskScheduler implements ProjectAware {
   private final Counter discardedTasksCount;
   private ScheduledExecutorService updateExecutor;
 
-  CacheTaskScheduler(@NotNull Project project) {
+  CacheTaskScheduler(@NotNull Project project, @NotNull Metrics metrics) {
     this.project = project;
-    Metrics metrics = MetricsHost.project(project);
     statusQueueSize = metrics.counter("info-cache-queue-size");
     discardedTasksCount = metrics.counter("info-cache-discarded-updates");
   }
@@ -67,11 +67,19 @@ class CacheTaskScheduler implements ProjectAware {
     active.compareAndSet(true, false);
   }
 
-  void schedule(@NotNull GitRepository repository, @NotNull Task task, boolean mandatory) {
+  void scheduleOptional(@NotNull GitRepository repository, @NotNull Task task) {
     if (active.get()) {
-      scheduleInternal(repository, task, mandatory);
+      scheduleInternal(repository, task, false);
     } else {
-      log.debug("Inactive - ignored scheduling ", task, " for ", repository);
+      log.debug("Inactive - ignored scheduling optional ", task, " for ", repository);
+    }
+  }
+
+  void scheduleMandatory(@NotNull GitRepository repository, @NotNull Task task) {
+    if (active.get()) {
+      scheduleInternal(repository, task, true);
+    } else {
+      log.debug("Inactive - ignored scheduling mandatory ", task, " for ", repository);
     }
   }
 
@@ -103,7 +111,7 @@ class CacheTaskScheduler implements ProjectAware {
   }
 
   private void submitForExecution(CacheTask task) {
-    updateExecutor.schedule(task, 200, TimeUnit.MILLISECONDS);
+    updateExecutor.schedule(task, TASK_DELAY_MILLIS, TimeUnit.MILLISECONDS);
     statusQueueSize.inc();
     log.debug("Scheduled: ", task);
   }
@@ -124,16 +132,13 @@ class CacheTaskScheduler implements ProjectAware {
 
     @Override
     public void run() {
-      try {
-        if (active.get() && taskActive.get()) {
-          task.run(repository);
+      synchronized (CacheTaskScheduler.this) {
+        if (scheduledRepositories.remove(repository, this)) {
+          statusQueueSize.dec();
         }
-      } finally {
-        synchronized (CacheTaskScheduler.this) {
-          if (scheduledRepositories.remove(repository, this)) {
-            statusQueueSize.dec();
-          }
-        }
+      }
+      if (active.get() && taskActive.get()) {
+        task.run(repository);
       }
     }
 

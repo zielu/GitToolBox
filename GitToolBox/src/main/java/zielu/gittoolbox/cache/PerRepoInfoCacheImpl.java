@@ -36,8 +36,8 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
     this.project = project;
     this.publisher = publisher;
     calculator = GitStatusCalculator.create(project);
-    taskScheduler = new CacheTaskScheduler(project);
     Metrics metrics = MetricsHost.project(project);
+    taskScheduler = new CacheTaskScheduler(project, metrics);
     metrics.gauge("info-cache-size", behindStatuses::size);
   }
 
@@ -92,15 +92,15 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   }
 
   private void scheduleRefresh(@NotNull GitRepository repository) {
-    taskScheduler.schedule(repository, new RefreshTask(), false);
+    taskScheduler.scheduleOptional(repository, new RefreshTask());
   }
 
   private void scheduleMandatoryRefresh(@NotNull GitRepository repository) {
-    taskScheduler.schedule(repository, new RefreshTask(), true);
+    taskScheduler.scheduleMandatory(repository, new RefreshTask());
   }
 
   private void scheduleUpdate(@NotNull GitRepository repository) {
-    taskScheduler.schedule(repository, new UpdateTask(), false);
+    taskScheduler.scheduleOptional(repository, new UpdateTask());
   }
 
   @Override
