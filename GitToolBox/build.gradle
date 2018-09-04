@@ -52,7 +52,7 @@ compileTestJava.options.encoding = encoding
 
 patchPluginXml {
     changeNotes "${file('change-notes.html').getText('UTF-8')}"
-    pluginDescription "${file('description.html').getText('UTF-8')}"
+    pluginDescription "${file('description.html').getText('UTF-8')}".replace("RELEASE_DATETIME", buildTime());
 }
 
 jar {
