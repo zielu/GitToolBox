@@ -20,10 +20,6 @@ Decisions are stored [here](./GitToolBox/doc/arch).
 
 ## Building & running
 
-### Development builds
-If version set in [gradle.properties](./GitToolBox/gradle.properties) ends with `-dev` then build datetime in UTC timezone will be appended.
-For example dev build on `2018-01-13 13:06:12 CET` will produce version `173.1.2-dev.20180113.120612.adddfbcd10`
-
 ### Releases
 
 #### Release current `-SNAPSHOT`
