@@ -7,7 +7,7 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.4"
+    id "org.jetbrains.intellij" version "0.3.9"
     id 'com.palantir.git-version' version '0.10.1'
     id 'ch.netzwerg.release' version '1.2.5'
 }
