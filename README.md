@@ -75,11 +75,8 @@ Add following line to **Help > Debug Log Settings...**
 #zielu.gittoolbox
 ```
 
-### Performance logging
-Add following line to **Help > Debug Log Settings...**
-```
-#zielu.gittoolbox.perf:trace
-```
+## Performance metrics
+Metrics are exposed via JMX beans under `zielu.gittoolbox` domain.
 
 ## Icons attribution:
 

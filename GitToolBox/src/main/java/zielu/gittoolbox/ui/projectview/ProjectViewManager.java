@@ -14,7 +14,7 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.config.ConfigNotifier;
-import zielu.gittoolbox.config.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.ui.util.AppUtil;
 
 public class ProjectViewManager implements Disposable, ProjectAware {
@@ -27,7 +27,7 @@ public class ProjectViewManager implements Disposable, ProjectAware {
     connection = this.project.getMessageBus().connect();
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
       @Override
-      public void configChanged(GitToolBoxConfig config) {
+      public void configChanged(GitToolBoxConfig2 config) {
         refreshProjectView();
       }
     });

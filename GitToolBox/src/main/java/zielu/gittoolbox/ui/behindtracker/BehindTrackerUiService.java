@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project;
 import javax.swing.event.HyperlinkEvent;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.Notifier;
-import zielu.gittoolbox.config.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.ui.StatusMessages;
 import zielu.gittoolbox.ui.UpdateProject;
 
@@ -24,7 +24,6 @@ class BehindTrackerUiService implements BehindTrackerUi {
         UpdateProject.create(project).execute();
       }
     };
-    ;
   }
 
   @Override
@@ -34,7 +33,7 @@ class BehindTrackerUiService implements BehindTrackerUi {
 
   @Override
   public boolean isNotificationEnabled() {
-    return GitToolBoxConfig.getInstance().behindTracker;
+    return GitToolBoxConfig2.getInstance().behindTracker;
   }
 
   @Override

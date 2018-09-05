@@ -15,7 +15,6 @@ public class CompletionCheckinHandler extends CheckinHandler {
 
   public CompletionCheckinHandler(CheckinProjectPanel panel) {
     this.panel = panel;
-    captureSelectedRepositories(this.panel);
   }
 
   @Override

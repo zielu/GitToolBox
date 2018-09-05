@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config;
+package zielu.gittoolbox.ui.config.app;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
@@ -8,10 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.config.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.intellij.ui.GtConfigurableBase;
 
-public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
+public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2>
     implements SearchableConfigurable {
   private final Logger log = Logger.getInstance(getClass());
 
@@ -33,45 +33,47 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig>
   }
 
   @Override
-  protected GitToolBoxConfig getConfig() {
-    return GitToolBoxConfig.getInstance();
+  protected GitToolBoxConfig2 getConfig() {
+    return GitToolBoxConfig2.getInstance();
   }
 
   @Override
-  protected void setFormState(GtForm form, GitToolBoxConfig config) {
+  protected void setFormState(GtForm form, GitToolBoxConfig2 config) {
     log.debug("Set form state");
     form.setPresenter(config.getPresenter());
     form.setShowGitStatus(config.showStatusWidget);
     form.setShowProjectViewStatus(config.showProjectViewStatus);
-    form.setShowProjectViewLocationPath(config.showProjectViewLocationPath);
-    form.setShowProjectViewStatusBeforeLocation(config.showProjectViewStatusBeforeLocation);
     form.setBehindTrackerEnabled(config.behindTracker);
     form.setUpdateProjectAction(GitToolBoxUpdateProjectApp.getInstance().getById(config.getUpdateProjectActionId()));
+    form.setDecorationParts(config.decorationParts);
   }
 
   @Override
-  protected boolean checkModified(GtForm form, GitToolBoxConfig config) {
+  protected boolean checkModified(GtForm form, GitToolBoxConfig2 config) {
     boolean modified = config.isPresenterChanged(form.getPresenter());
     modified = modified || config.isShowStatusWidgetChanged(form.getShowGitStatus());
     modified = modified || config.isShowProjectViewStatusChanged(form.getShowProjectViewStatus());
-    modified = modified || config.isShowProjectViewLocationPathChanged(form.getShowProjectViewLocationPath());
-    modified = modified || config.isShowProjectViewStatusBeforeLocationChanged(
-        form.getShowProjectViewStatusBeforeLocation());
     modified = modified || config.isBehindTrackerChanged(form.getBehindTrackerEnabled());
     modified = modified || config.isUpdateProjectActionId(form.getUpdateProjectAction().getId());
+    modified = modified || config.isDecorationPartsChanged(form.getDecorationParts());
     log.debug("Modified: ", modified);
     return modified;
   }
 
   @Override
-  protected void doApply(GtForm form, GitToolBoxConfig config) throws ConfigurationException {
+  protected void doApply(GtForm form, GitToolBoxConfig2 config) throws ConfigurationException {
     config.setPresenter(form.getPresenter());
     config.showStatusWidget = form.getShowGitStatus();
     config.showProjectViewStatus = form.getShowProjectViewStatus();
-    config.showProjectViewLocationPath = form.getShowProjectViewLocationPath();
-    config.showProjectViewStatusBeforeLocation = form.getShowProjectViewStatusBeforeLocation();
+    config.decorationParts = form.getDecorationParts();
     config.behindTracker = form.getBehindTrackerEnabled();
     config.updateProjectActionId = form.getUpdateProjectAction().getId();
+    config.decorationParts = form.getDecorationParts();
+
+    //Mark migrated here to handle case when config is modified without opening a project
+    //Example: from launch dialog
+    config.previousVersionMigrated = true;
+
     config.fireChanged();
     log.debug("Applied");
   }

@@ -21,7 +21,7 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.ConfigNotifier;
-import zielu.gittoolbox.config.GitToolBoxConfig;
+import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.ui.util.AppUtil;
 import zielu.gittoolbox.util.DisposeSafeRunnable;
@@ -50,7 +50,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     });
     myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
       @Override
-      public void configChanged(GitToolBoxConfig config) {
+      public void configChanged(GitToolBoxConfig2 config) {
         if (isActive()) {
           runUpdateLater(project);
         }

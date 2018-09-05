@@ -6,6 +6,7 @@ import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import zielu.gittoolbox.util.ConcurrentUtil;
 
 public class GitToolBoxApp implements ApplicationComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -26,7 +27,7 @@ public class GitToolBoxApp implements ApplicationComponent {
 
   @Override
   public void initComponent() {
-    autoFetchExecutor = Executors.newSingleThreadScheduledExecutor(
+    autoFetchExecutor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(),
         new ThreadFactoryBuilder().setDaemon(true).setNameFormat("AutoFetch-%s").build()
     );
     log.debug("Created auto-fetch executor: ", autoFetchExecutor);
@@ -38,13 +39,9 @@ public class GitToolBoxApp implements ApplicationComponent {
 
   @Override
   public void disposeComponent() {
-    shutdown(autoFetchExecutor);
-    shutdown(tasksExecutor);
+    ConcurrentUtil.shutdown(autoFetchExecutor);
+    ConcurrentUtil.shutdown(tasksExecutor);
     autoFetchExecutor = null;
     tasksExecutor = null;
-  }
-
-  private void shutdown(ScheduledExecutorService executor) {
-    executor.shutdownNow().forEach(notStarted -> log.info("Task " + notStarted + " was never started"));
   }
 }

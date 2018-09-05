@@ -22,19 +22,23 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C extends Persisten
 
   protected abstract void doApply(F form, C config) throws ConfigurationException;
 
+  protected void afterInit(F form) {
+  }
+
   protected void dispose() {
   }
 
-  protected final F getForm() {
+  private F getForm() {
     return form;
   }
 
   private synchronized void initComponent() {
     if (form == null) {
       form = UIUtil.invokeAndWaitIfNeeded(() -> {
-        F form = createForm();
-        form.init();
-        return form;
+        F newForm = createForm();
+        newForm.init();
+        afterInit(newForm);
+        return newForm;
       });
     }
   }

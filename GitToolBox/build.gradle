@@ -7,7 +7,7 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.4"
+    id "org.jetbrains.intellij" version "0.3.9"
     id 'com.palantir.git-version' version '0.10.1'
     id 'ch.netzwerg.release' version '1.2.5'
 }
@@ -52,7 +52,7 @@ compileTestJava.options.encoding = encoding
 
 patchPluginXml {
     changeNotes "${file('change-notes.html').getText('UTF-8')}"
-    pluginDescription "${file('description.html').getText('UTF-8')}"
+    pluginDescription "${file('description.html').getText('UTF-8')}".replace("RELEASE_DATETIME", buildTime());
 }
 
 jar {
@@ -138,9 +138,9 @@ dependencies {
 
     testImplementation ("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
     testImplementation ("org.mockito:mockito-core:${mockitoVersion}")
-    testImplementation 'name.falgout.jeffrey.testing.junit5:mockito-extension:1.0.0'
+    testImplementation ("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
     testImplementation ("org.assertj:assertj-core:${assertjCoreVersion}")
-    // JUnit 5
+
     testImplementation ("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
     testImplementation ("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
 

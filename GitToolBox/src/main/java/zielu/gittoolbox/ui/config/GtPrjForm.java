@@ -1,15 +1,18 @@
 package zielu.gittoolbox.ui.config;
 
-import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.ColoredListCellRenderer;
+import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.awt.BorderLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -17,7 +20,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.Action;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -33,38 +35,33 @@ import zielu.gittoolbox.config.CommitCompletionConfig;
 import zielu.gittoolbox.config.CommitCompletionType;
 import zielu.gittoolbox.fetch.AutoFetchParams;
 import zielu.gittoolbox.ui.util.AppUtil;
-import zielu.gittoolbox.ui.util.ButtonWithPopup;
-import zielu.gittoolbox.ui.util.SimpleAction;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.intellij.ui.GtFormUi;
 
 public class GtPrjForm implements GtFormUi {
   private final Logger log = Logger.getInstance(getClass());
+  private final CollectionListModel<String> autoFetchExclusionsModel = new CollectionListModel<>();
+  private final JBList<String> autoFetchExclusionsList = new JBList<>(autoFetchExclusionsModel);
+  private final CollectionListModel<CommitCompletionConfig> completionItemModel = new CollectionListModel<>();
+  private final JBList<CommitCompletionConfig> completionItemList = new JBList<>(completionItemModel);
+  private final JBPopupMenu addCommitCompletionPopup = new JBPopupMenu();
 
   private JPanel content;
   private JCheckBox autoFetchEnabledCheckBox;
   private JSpinner autoFetchIntervalSpinner;
   private JCheckBox commitCompletionCheckBox;
   private JPanel completionItemConfigPanel;
-  private JBList<CommitCompletionConfig> completionItemList;
-  private CollectionListModel<CommitCompletionConfig> completionItemModel = new CollectionListModel<>();
-  private ButtonWithPopup completionItemAdd;
-  private JButton completionItemRemove;
+  private JPanel commitCompletionPanel;
 
-  private JButton autoFetchExclusionAdd;
-  private JButton autoFetchExclusionRemove;
-  private JBList<String> autoFetchExclusionsList;
-  private CollectionListModel<String> autoFetchExclusionsModel = new CollectionListModel<>();
+  private JPanel autoFetchExclusionsPanel;
 
   private GtPatternFormatterForm completionItemPatternForm;
-
   private Action addSimpleCompletionAction;
-  private Action addAutoFetchExclusionAction;
-  private Action removeAutoFetchExclusionAction;
-
+  private ToolbarDecorator autoFetchExclusionsDecorator;
   private Project project;
 
-  private void createUIComponents() {
+  @Override
+  public void init() {
     addSimpleCompletionAction = new AbstractActionExt() {
       {
         setName(ResBundle.getString("commit.dialog.completion.formatters.simple.add.label"));
@@ -77,6 +74,7 @@ public class GtPrjForm implements GtFormUi {
         updateCompletionItemActions();
       }
     };
+    addCommitCompletionPopup.add(addSimpleCompletionAction);
     Action addPatternCompletionAction = new AbstractActionExt() {
       {
         setName(ResBundle.getString("commit.dialog.completion.formatters.pattern.add.label"));
@@ -89,36 +87,8 @@ public class GtPrjForm implements GtFormUi {
         updateCompletionItemActions();
       }
     };
+    addCommitCompletionPopup.add(addPatternCompletionAction);
 
-    SimpleAction addCompletionAction = new SimpleAction(General.Add);
-    addCompletionAction.setShortDescription(ResBundle.getString("commit.dialog.completion.formatters.add.tooltip"));
-    completionItemAdd = new ButtonWithPopup(addCompletionAction, addSimpleCompletionAction, addPatternCompletionAction);
-    addAutoFetchExclusionAction = new AbstractActionExt() {
-      {
-        setShortDescription(ResBundle.getString("configurable.prj.autoFetch.exclusions.add.label"));
-        setSmallIcon(General.Add);
-      }
-
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        onAddAutoFetchExclusion();
-      }
-    };
-    removeAutoFetchExclusionAction = new AbstractActionExt() {
-      {
-        setShortDescription(ResBundle.getString("configurable.prj.autoFetch.exclusions.remove.label"));
-        setSmallIcon(General.Remove);
-      }
-
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        onRemoveAutoFetchExclusion();
-      }
-    };
-  }
-
-  @Override
-  public void init() {
     completionItemPatternForm = new GtPatternFormatterForm();
     completionItemPatternForm.init();
 
@@ -134,10 +104,6 @@ public class GtPrjForm implements GtFormUi {
     autoFetchIntervalSpinner.setEnabled(false);
     autoFetchEnabledCheckBox.addItemListener(e ->
         autoFetchIntervalSpinner.setEnabled(autoFetchEnabledCheckBox.isSelected()));
-    autoFetchExclusionAdd.setAction(addAutoFetchExclusionAction);
-    autoFetchExclusionRemove.setAction(removeAutoFetchExclusionAction);
-    autoFetchExclusionsList.setModel(autoFetchExclusionsModel);
-    completionItemList.setModel(completionItemModel);
     completionItemList.addListSelectionListener(e -> {
       if (!e.getValueIsAdjusting()) {
         ListSelectionModel selectionModel = completionItemList.getSelectionModel();
@@ -150,16 +116,25 @@ public class GtPrjForm implements GtFormUi {
       }
     });
     completionItemList.setCellRenderer(new CommitCompletionConfigCellRenderer());
-    completionItemRemove.setIcon(General.Remove);
-    completionItemRemove.addActionListener(e -> {
-      int selectedIndex = completionItemList.getSelectionModel().getMinSelectionIndex();
-      if (selectedIndex > -1) {
-        completionItemModel.removeRow(selectedIndex);
-        updateCompletionItemActions();
-      }
-    });
-
     completionItemPatternForm.addPatternUpdate(text -> AppUtil.invokeLaterIfNeeded(() -> completionItemList.repaint()));
+    ToolbarDecorator commitCompletionDecorator = ToolbarDecorator.createDecorator(completionItemList);
+    commitCompletionDecorator.setAddAction(button -> {
+      RelativePoint popupPoint = button.getPreferredPopupPoint();
+      Point point = popupPoint.getPoint();
+      addCommitCompletionPopup.show(popupPoint.getComponent(), point.x, point.y);
+    });
+    commitCompletionDecorator.setAddActionName(ResBundle.getString("commit.dialog.completion.formatters.add.tooltip"));
+    commitCompletionDecorator.setRemoveAction(button -> onCommitCompletionItemRemove());
+    commitCompletionDecorator.setRemoveActionName("commit.dialog.completion.formatters.remove.tooltip");
+    commitCompletionPanel.add(commitCompletionDecorator.createPanel(), BorderLayout.CENTER);
+
+    autoFetchExclusionsDecorator = ToolbarDecorator.createDecorator(autoFetchExclusionsList);
+    autoFetchExclusionsDecorator.setAddAction(button -> onAddAutoFetchExclusion());
+    autoFetchExclusionsDecorator.setAddActionName(
+        ResBundle.getString("configurable.prj.autoFetch.exclusions.add.label"));
+    autoFetchExclusionsDecorator.setRemoveAction(button -> onRemoveAutoFetchExclusion());
+    autoFetchExclusionsDecorator.setRemoveActionName(
+        ResBundle.getString("configurable.prj.autoFetch.exclusions.remove.label"));
   }
 
   private void onCompletionItemSelected(CommitCompletionConfig config) {
@@ -180,6 +155,14 @@ public class GtPrjForm implements GtFormUi {
 
   private CommitCompletionConfig getSimpleCompletion() {
     return CommitCompletionConfig.create(CommitCompletionType.SIMPLE);
+  }
+
+  private void onCommitCompletionItemRemove() {
+    int selectedIndex = completionItemList.getSelectionModel().getMinSelectionIndex();
+    if (selectedIndex > -1) {
+      completionItemModel.removeRow(selectedIndex);
+      updateCompletionItemActions();
+    }
   }
 
   private void onAddAutoFetchExclusion() {
@@ -215,14 +198,18 @@ public class GtPrjForm implements GtFormUi {
   @Override
   public void afterStateSet() {
     updateCompletionItemActions();
+  }
+
+  public void afterInit() {
     autoFetchExclusionsList.setCellRenderer(new GitRepositoryRenderer(project));
     boolean defaultProject = project.isDefault();
     log.debug("Project.isDefault={}", defaultProject);
-    addAutoFetchExclusionAction.setEnabled(!defaultProject);
-    removeAutoFetchExclusionAction.setEnabled(!defaultProject);
     if (defaultProject) {
+      autoFetchExclusionsDecorator.disableAddAction();
+      autoFetchExclusionsDecorator.disableRemoveAction();
       autoFetchExclusionsList.setEmptyText(ResBundle.getString("configurable.prj.default.na"));
     }
+    autoFetchExclusionsPanel.add(autoFetchExclusionsDecorator.createPanel(), BorderLayout.CENTER);
   }
 
   @Override

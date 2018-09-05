@@ -6,6 +6,18 @@
             <option name="FONT_TYPE" value="1" />
         </value>
     </option>
+    <option name="GIT_TOOLBOX.STATUS_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="F8B889" />
+            <option name="FONT_TYPE" value="1" />
+        </value>
+    </option>
+    <option name="GIT_TOOLBOX.HEAD_TAGS_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="72B0F4" />
+            <option name="FONT_TYPE" value="1" />
+        </value>
+    </option>
     <option name="GIT_TOOLBOX.LOCAL_BRANCH_ATTRIBUTES">
         <value>
             <option name="FOREGROUND" value="F88BB8" />
