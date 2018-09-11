@@ -7,8 +7,8 @@ import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,6 @@ class GtRepoChooser extends DialogWrapper {
   GtRepoChooser(@NotNull Project project, @Nullable Component parentComponent) {
     super(project, parentComponent, false, IdeModalityType.PROJECT);
     this.project = project;
-    centerPanel = new JPanel(new BorderLayout());
     repoList = new JBList<>();
     repoList.setCellRenderer(new ColoredListCellRenderer<GitRepository>() {
       @Override
@@ -45,7 +44,8 @@ class GtRepoChooser extends DialogWrapper {
       }
     });
     JBScrollPane scrollPane = new JBScrollPane(repoList);
-    centerPanel.add(scrollPane, BorderLayout.CENTER);
+    centerPanel = JBUI.Panels.simplePanel().addToCenter(scrollPane);
+    centerPanel.setPreferredSize(JBUI.size(400, 300));
     setTitle(ResBundle.getString("configurable.prj.autoFetch.exclusions.add.title"));
     init();
   }
