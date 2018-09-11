@@ -1,14 +1,17 @@
 package zielu.gittoolbox.cache;
 
 import com.codahale.metrics.Counter;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,15 +28,20 @@ class CacheTaskScheduler implements ProjectAware {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final Project project;
-  private final Multimap<GitRepository, CacheTask> scheduledRepositories = HashMultimap.create();
+  private final Map<GitRepository, Collection<CacheTask>> scheduledRepositories = new ConcurrentHashMap<>();
   private final Counter statusQueueSize;
   private final Counter discardedTasksCount;
   private ScheduledExecutorService updateExecutor;
+  private long taskDelayMillis = TASK_DELAY_MILLIS;
 
   CacheTaskScheduler(@NotNull Project project, @NotNull Metrics metrics) {
     this.project = project;
     statusQueueSize = metrics.counter("info-cache-queue-size");
     discardedTasksCount = metrics.counter("info-cache-discarded-updates");
+  }
+
+  void setTaskDelayMillis(long delayMillis) {
+    taskDelayMillis = delayMillis;
   }
 
   void initialize() {
@@ -69,49 +77,42 @@ class CacheTaskScheduler implements ProjectAware {
 
   void scheduleOptional(@NotNull GitRepository repository, @NotNull Task task) {
     if (active.get()) {
-      scheduleInternal(repository, task, false);
+      CacheTask taskToSubmit = storeTask(new SingleCacheTask(repository, task));
+      if (taskToSubmit != null) {
+        submitForExecution(taskToSubmit);
+      } else {
+        discardedTasksCount.inc();
+        task.discarded();
+        log.debug("Tasks for ", repository, " already scheduled");
+      }
     } else {
+      task.discarded();
       log.debug("Inactive - ignored scheduling optional ", task, " for ", repository);
     }
   }
 
   void scheduleMandatory(@NotNull GitRepository repository, @NotNull Task task) {
     if (active.get()) {
-      scheduleInternal(repository, task, true);
+      submitForExecution(storeTask(new CacheTask(repository, task)));
     } else {
+      task.discarded();
       log.debug("Inactive - ignored scheduling mandatory ", task, " for ", repository);
     }
   }
 
-  private synchronized void scheduleInternal(@NotNull GitRepository repository, @NotNull Task task,
-                                             boolean mandatory) {
-    CacheTask taskToSubmit = null;
-    if (mandatory) {
-      taskToSubmit = new CacheTask(repository, task);
-      scheduledRepositories.put(repository, taskToSubmit);
-    } else {
-      Collection<CacheTask> alreadyScheduled = scheduledRepositories.get(repository);
-      if (alreadyScheduled.isEmpty()) {
-        taskToSubmit = new CacheTask(repository, task);
-        scheduledRepositories.put(repository, taskToSubmit);
-      } else {
-        log.debug("Tasks for ", repository, " already scheduled: ", alreadyScheduled);
-      }
+  private CacheTask storeTask(@NotNull CacheTask task) {
+    if (scheduledRepositories.computeIfAbsent(task.repository, repo -> ConcurrentHashMap.newKeySet()).add(task)) {
+      return task;
     }
-
-    if (taskToSubmit != null) {
-      submitForExecution(taskToSubmit);
-    } else {
-      discardedTasksCount.inc();
-    }
+    return null;
   }
 
-  synchronized void removeRepository(@NotNull GitRepository repository) {
-    scheduledRepositories.removeAll(repository).forEach(CacheTask::kill);
+  void removeRepository(@NotNull GitRepository repository) {
+    Optional.ofNullable(scheduledRepositories.remove(repository)).ifPresent(tasks -> tasks.forEach(CacheTask::kill));
   }
 
   private void submitForExecution(CacheTask task) {
-    updateExecutor.schedule(task, TASK_DELAY_MILLIS, TimeUnit.MILLISECONDS);
+    updateExecutor.schedule(task, taskDelayMillis, TimeUnit.MILLISECONDS);
     statusQueueSize.inc();
     log.debug("Scheduled: ", task);
   }
@@ -132,13 +133,13 @@ class CacheTaskScheduler implements ProjectAware {
 
     @Override
     public void run() {
-      synchronized (CacheTaskScheduler.this) {
-        if (scheduledRepositories.remove(repository, this)) {
-          statusQueueSize.dec();
-        }
+      if (scheduledRepositories.getOrDefault(repository, Collections.emptySet()).remove(this)) {
+        statusQueueSize.dec();
       }
-      if (active.get() && taskActive.get()) {
+      if (taskActive.get() && active.get()) {
         task.run(repository);
+      } else {
+        task.notRun();
       }
     }
 
@@ -151,7 +152,33 @@ class CacheTaskScheduler implements ProjectAware {
     }
   }
 
+  private class SingleCacheTask extends CacheTask {
+    SingleCacheTask(@NotNull GitRepository repository, @NotNull Task task) {
+      super(repository, task);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(repository);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof CacheTask) {
+        CacheTask other = (CacheTask) obj;
+        return Objects.equals(repository, other.repository);
+      }
+      return false;
+    }
+  }
+
   interface Task {
     void run(@NotNull GitRepository repository);
+
+    default void discarded() {
+    }
+
+    default void notRun() {
+    }
   }
 }
