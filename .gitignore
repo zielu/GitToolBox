@@ -1,5 +1,7 @@
 *.iml
+.DS_Store
 
 .idea/
 GitToolBox.jar
 testRun/
+.gradle/
