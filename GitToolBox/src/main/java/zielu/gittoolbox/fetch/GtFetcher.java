@@ -1,20 +1,17 @@
 package zielu.gittoolbox.fetch;
 
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.progress.DumbProgressIndicator;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcsUtil.VcsImplUtil;
-import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryManager;
 import git4idea.update.GitFetchResult;
-import git4idea.update.GitFetcher;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,57 +23,34 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.DoubleAdder;
-import jodd.util.StringBand;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.metrics.Metrics;
-import zielu.gittoolbox.metrics.MetricsHost;
-import zielu.gittoolbox.ui.util.AppUtil;
 import zielu.gittoolbox.util.ConcurrentUtil;
 import zielu.gittoolbox.util.FetchResult;
 import zielu.gittoolbox.util.FetchResultsPerRoot;
-import zielu.gittoolbox.util.Html;
 
 public class GtFetcher {
   private final Logger log = Logger.getInstance(getClass());
-
-  private final Project project;
   private final ProgressIndicator progressIndicator;
   private final Executor executor;
-  private final GitFetcher fetcher;
-  private final GitRepositoryManager repositoryManager;
+  private final GtFetchClient fetcher;
+  private final GtFetcherUi ui;
+  private final Metrics metrics;
 
-  private GtFetcher(Project project, ProgressIndicator progress, Builder builder) {
-    this.project = project;
+  private GtFetcher(ProgressIndicator progress, Builder builder) {
     progressIndicator = progress;
-    this.executor = builder.executor;
-    fetcher = new GitFetcher(this.project, DumbProgressIndicator.INSTANCE, builder.fetchAll);
-    repositoryManager = GitUtil.getRepositoryManager(this.project);
+    this.executor = Preconditions.checkNotNull(builder.executor, "Null executor");
+    fetcher = Preconditions.checkNotNull(builder.client, "Null client");
+    this.ui = Preconditions.checkNotNull(builder.ui, "Null ui");
+    this.metrics = Preconditions.checkNotNull(builder.metrics, "Null metrics");
   }
 
   public static Builder builder() {
     return new Builder();
   }
 
-  @NotNull
-  private String makeAdditionalInfoByRoot(@NotNull Map<VirtualFile, String> additionalInfo) {
-    if (additionalInfo.isEmpty()) {
-      return "";
-    }
-    StringBand info = new StringBand();
-    if (repositoryManager.moreThanOneRoot()) {
-      for (Map.Entry<VirtualFile, String> entry : additionalInfo.entrySet()) {
-        info.append(entry.getValue()).append(" in ").append(VcsImplUtil.getShortVcsRootName(project, entry.getKey()))
-            .append(Html.BR);
-      }
-    } else {
-      info.append(additionalInfo.values().iterator().next());
-    }
-    return info.toString();
-  }
-
   public ImmutableCollection<GitRepository> fetchRoots(@NotNull Collection<GitRepository> repositories) {
-    Metrics metrics = MetricsHost.project(this.project);
     return metrics.timer("fetch-roots").timeSupplier(() -> doFetchRoots(repositories));
   }
 
@@ -85,39 +59,44 @@ public class GtFetcher {
     FetchResultsPerRoot errorsPerRoot = new FetchResultsPerRoot();
     List<GitRepository> results = new CopyOnWriteArrayList<>();
     Progress progress = new Progress(1f / repositories.size());
-    AppUtil.invokeLaterIfNeeded(() -> progressIndicator.setIndeterminate(false));
+    ui.invokeLaterIfNeeded(() -> progressIndicator.setIndeterminate(false));
     List<CompletableFuture<?>> fetches = new ArrayList<>(repositories.size());
     for (GitRepository repository : repositories) {
-      CompletableFuture<Void> fetch = fetchRepository(repository).thenApply(fetchDone -> {
-        AppUtil.invokeLaterIfNeeded(() -> progressIndicator.setFraction(progress.increment()));
-        log.debug("Fetched ", repository, ": success=", fetchDone.isSuccess(),
-            ", error=", fetchDone.isError());
+      CompletableFuture<Void> fetch = fetchRepository(repository).handleAsync((fetchDone, error) -> {
+        ui.invokeLaterIfNeeded(() -> progressIndicator.setFraction(progress.increment()));
+        log.debug("Fetched ", repository, ": ", fetchDone);
+        if (error != null) {
+          throw new RuntimeException("Repository " + repository + " fetch failed", error);
+        }
         return fetchDone;
-      }).thenAccept(fetchDone -> {
+      }, executor).thenAcceptAsync(fetchDone -> {
         fetchDone.getAdditionalInfo().ifPresent(ai -> additionalInfos.put(fetchDone.getRoot(), ai));
         if (fetchDone.isSuccess()) {
           results.add(fetchDone.repository);
         } else {
-          errorsPerRoot.add(fetchDone.repository, new FetchResult(fetchDone.result, fetcher.getErrors()));
+          errorsPerRoot.add(fetchDone.repository, new FetchResult(fetchDone.result));
         }
-      });
+      }, executor);
       fetches.add(fetch);
     }
     CompletableFuture<List<GitRepository>> repos = ConcurrentUtil.allOf(fetches)
-        .thenApply(unused -> {
-          AppUtil.invokeLaterIfNeeded(() -> {
-            errorsPerRoot.showProblems(Notifier.getInstance(project));
-            showAdditionalInfos(additionalInfos);
-          });
+        .handleAsync((unused, error) -> {
+          ui.showProblems(errorsPerRoot);
+          ui.showAdditionalInfo(additionalInfos);
+          if (error != null) {
+            log.warn("Some fetches failed", error);
+          }
           return results;
-        });
+        }, executor);
     try {
       return ImmutableList.copyOf(repos.get());
     } catch (InterruptedException e) {
-      log.error(e);
+      log.warn("Fetch interrupted", e);
       Thread.currentThread().interrupt();
     } catch (ExecutionException e) {
-      log.error(e);
+      log.warn("Fetch failed", e);
+    } finally {
+      ui.invokeLaterIfNeeded(() -> progressIndicator.setFraction(1));
     }
     return ImmutableList.of();
   }
@@ -125,28 +104,22 @@ public class GtFetcher {
   private CompletableFuture<FetchDone> fetchRepository(GitRepository repository) {
     return CompletableFuture.supplyAsync(() -> {
       log.debug("Fetching ", repository);
-      Metrics metrics = MetricsHost.project(this.project);
       GitFetchResult fetch = metrics.timer("fetch-root").timeSupplier(() -> fetcher.fetch(repository));
       return new FetchDone(repository, fetch);
     }, executor);
   }
 
-  private void showAdditionalInfos(Map<VirtualFile, String> additionalInfos) {
-    String additionalInfo = makeAdditionalInfoByRoot(additionalInfos);
-    if (!StringUtil.isEmptyOrSpaces(additionalInfo)) {
-      Notifier.getInstance(project).fetchInfo("Fetch details", additionalInfo);
-    }
-  }
-
   public static final class Builder {
-    private boolean fetchAll = false;
     private Executor executor = MoreExecutors.directExecutor();
+    private Metrics metrics;
+    private GtFetcherUi ui;
+    private GtFetchClient client;
 
     private Builder() {
     }
 
-    public Builder fetchAll() {
-      fetchAll = true;
+    public Builder withClient(@NotNull GtFetchClient client) {
+      this.client = client;
       return this;
     }
 
@@ -155,8 +128,18 @@ public class GtFetcher {
       return this;
     }
 
-    public GtFetcher build(@NotNull Project project, @NotNull ProgressIndicator progress) {
-      return new GtFetcher(project, progress, this);
+    public Builder withMetrics(@NotNull Metrics metrics) {
+      this.metrics = metrics;
+      return this;
+    }
+
+    public Builder withUi(@NotNull GtFetcherUi ui) {
+      this.ui = ui;
+      return this;
+    }
+
+    public GtFetcher build(@NotNull ProgressIndicator progress) {
+      return new GtFetcher(progress, this);
     }
   }
 
@@ -197,6 +180,14 @@ public class GtFetcher {
 
     VirtualFile getRoot() {
       return repository.getRoot();
+    }
+
+    @Override
+    public String toString() {
+      return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
+          .append("success", isSuccess())
+          .append("error", isError())
+          .build();
     }
   }
 }

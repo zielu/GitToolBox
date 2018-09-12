@@ -58,7 +58,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     });
     myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> {
       if (isActive()) {
-        AppUtil.invokeLaterIfNeeded(this::updateStatusBar);
+        AppUtil.INSTANCE.invokeLaterIfNeeded(this::updateStatusBar);
       }
     });
   }
@@ -75,7 +75,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         updateStatusBar();
       }
     });
-    AppUtil.invokeLaterIfNeeded(onCacheChange);
+    AppUtil.INSTANCE.invokeLaterIfNeeded(onCacheChange);
   }
 
   private void runUpdateLater(Project project) {
@@ -84,7 +84,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         runUpdate(project);
       }
     });
-    AppUtil.invokeLaterIfNeeded(update);
+    AppUtil.INSTANCE.invokeLaterIfNeeded(update);
   }
 
   void setVisible(boolean visible) {

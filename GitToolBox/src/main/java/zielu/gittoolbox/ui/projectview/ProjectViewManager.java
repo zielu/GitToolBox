@@ -51,7 +51,7 @@ public class ProjectViewManager implements Disposable, ProjectAware {
 
   private void refreshProjectView() {
     if (active.get()) {
-      AppUtil.invokeLater(() -> {
+      AppUtil.INSTANCE.invokeLater(() -> {
         if (active.get()) {
           ProjectView.getInstance(project).refresh();
         }

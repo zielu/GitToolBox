@@ -34,6 +34,6 @@ public class UpdateProject {
   }
 
   public void execute() {
-    AppUtil.invokeLaterIfNeeded(this::invokeAction);
+    AppUtil.INSTANCE.invokeLaterIfNeeded(this::invokeAction);
   }
 }

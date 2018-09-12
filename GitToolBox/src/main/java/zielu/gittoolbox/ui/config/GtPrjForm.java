@@ -116,7 +116,8 @@ public class GtPrjForm implements GtFormUi {
       }
     });
     completionItemList.setCellRenderer(new CommitCompletionConfigCellRenderer());
-    completionItemPatternForm.addPatternUpdate(text -> AppUtil.invokeLaterIfNeeded(() -> completionItemList.repaint()));
+    completionItemPatternForm.addPatternUpdate(text -> AppUtil.INSTANCE
+        .invokeLaterIfNeeded(completionItemList::repaint));
     ToolbarDecorator commitCompletionDecorator = ToolbarDecorator.createDecorator(completionItemList);
     commitCompletionDecorator.setAddAction(button -> {
       RelativePoint popupPoint = button.getPreferredPopupPoint();
