@@ -41,7 +41,7 @@ class CacheTaskSchedulerTest {
   }
 
   @Test
-  void scheduleOptional() throws InterruptedException {
+  void scheduleOptionalShouldDiscardSecondTask() throws InterruptedException {
     CountDownLatch executedCount = new CountDownLatch(1);
     CountDownLatch discardedCount = new CountDownLatch(1);
     scheduler.scheduleOptional(repository, new DummyTask(executedCount));
@@ -52,7 +52,7 @@ class CacheTaskSchedulerTest {
   }
 
   @Test
-  void scheduleMandatory() throws InterruptedException {
+  void scheduleMandatoryShouldExecuteTwoTasks() throws InterruptedException {
     CountDownLatch executedCount = new CountDownLatch(2);
     scheduler.scheduleMandatory(repository, new DummyTask(executedCount));
     scheduler.scheduleMandatory(repository, new DummyTask(executedCount));
@@ -84,7 +84,7 @@ class CacheTaskSchedulerTest {
     }
 
     @Override
-    public void discarded(@NotNull GitRepository repository) {
+    public void discarded() {
       discardedLatch.countDown();
     }
   }

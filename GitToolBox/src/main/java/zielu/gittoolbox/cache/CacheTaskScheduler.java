@@ -77,34 +77,26 @@ class CacheTaskScheduler implements ProjectAware {
 
   void scheduleOptional(@NotNull GitRepository repository, @NotNull Task task) {
     if (active.get()) {
-      scheduleInternal(repository, task, false);
+      CacheTask taskToSubmit = storeTask(new SingleCacheTask(repository, task));
+      if (taskToSubmit != null) {
+        submitForExecution(taskToSubmit);
+      } else {
+        discardedTasksCount.inc();
+        task.discarded();
+        log.debug("Tasks for ", repository, " already scheduled");
+      }
     } else {
-      task.discarded(repository);
+      task.discarded();
       log.debug("Inactive - ignored scheduling optional ", task, " for ", repository);
     }
   }
 
   void scheduleMandatory(@NotNull GitRepository repository, @NotNull Task task) {
     if (active.get()) {
-      scheduleInternal(repository, task, true);
-    } else {
-      task.discarded(repository);
-      log.debug("Inactive - ignored scheduling mandatory ", task, " for ", repository);
-    }
-  }
-
-  private void scheduleInternal(@NotNull GitRepository repository, @NotNull Task task, boolean mandatory) {
-    if (mandatory) {
       submitForExecution(storeTask(new CacheTask(repository, task)));
     } else {
-      CacheTask taskToSubmit = storeTask(new SingleCacheTask(repository, task));
-      if (taskToSubmit != null) {
-        submitForExecution(taskToSubmit);
-      } else {
-        discardedTasksCount.inc();
-        task.discarded(repository);
-        log.debug("Tasks for ", repository, " already scheduled");
-      }
+      task.discarded();
+      log.debug("Inactive - ignored scheduling mandatory ", task, " for ", repository);
     }
   }
 
@@ -141,13 +133,13 @@ class CacheTaskScheduler implements ProjectAware {
 
     @Override
     public void run() {
-      synchronized (CacheTaskScheduler.this) {
-        if (scheduledRepositories.getOrDefault(repository, Collections.emptySet()).remove(this)) {
-          statusQueueSize.dec();
-        }
+      if (scheduledRepositories.getOrDefault(repository, Collections.emptySet()).remove(this)) {
+        statusQueueSize.dec();
       }
-      if (active.get() && taskActive.get()) {
+      if (taskActive.get() && active.get()) {
         task.run(repository);
+      } else {
+        task.notRun();
       }
     }
 
@@ -183,7 +175,10 @@ class CacheTaskScheduler implements ProjectAware {
   interface Task {
     void run(@NotNull GitRepository repository);
 
-    default void discarded(@NotNull GitRepository repository) {
+    default void discarded() {
+    }
+
+    default void notRun() {
     }
   }
 }
