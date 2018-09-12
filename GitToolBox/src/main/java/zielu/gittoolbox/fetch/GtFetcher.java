@@ -1,5 +1,7 @@
 package zielu.gittoolbox.fetch;
 
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
@@ -21,6 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.DoubleAdder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.util.ConcurrentUtil;
@@ -61,10 +64,9 @@ public class GtFetcher {
     for (GitRepository repository : repositories) {
       CompletableFuture<Void> fetch = fetchRepository(repository).handleAsync((fetchDone, error) -> {
         ui.invokeLaterIfNeeded(() -> progressIndicator.setFraction(progress.increment()));
-        log.debug("Fetched ", repository, ": success=", fetchDone.isSuccess(),
-            ", error=", fetchDone.isError());
+        log.debug("Fetched ", repository, ": ", fetchDone);
         if (error != null) {
-          log.info("Fetch of " + repository + " failed", error);
+          throw new RuntimeException("Repository " + repository + " fetch failed", error);
         }
         return fetchDone;
       }, executor).thenAcceptAsync(fetchDone -> {
@@ -94,10 +96,7 @@ public class GtFetcher {
     } catch (ExecutionException e) {
       log.warn("Fetch failed", e);
     } finally {
-      ui.invokeLaterIfNeeded(() -> {
-        progressIndicator.setFraction(1);
-        progressIndicator.setIndeterminate(false);
-      });
+      ui.invokeLaterIfNeeded(() -> progressIndicator.setFraction(1));
     }
     return ImmutableList.of();
   }
@@ -181,6 +180,14 @@ public class GtFetcher {
 
     VirtualFile getRoot() {
       return repository.getRoot();
+    }
+
+    @Override
+    public String toString() {
+      return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
+          .append("success", isSuccess())
+          .append("error", isError())
+          .build();
     }
   }
 }

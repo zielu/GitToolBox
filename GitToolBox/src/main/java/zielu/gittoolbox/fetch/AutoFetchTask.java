@@ -169,17 +169,18 @@ class AutoFetchTask implements Runnable {
     final List<GitRepository> repos = reposForFetch();
     boolean shouldFetch = !repos.isEmpty();
     if (shouldFetch && isNotCancelled()) {
-      AppUtil.invokeLaterIfNeeded(() -> GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project),
+      AppUtil.INSTANCE
+          .invokeLaterIfNeeded(() -> GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project),
           ResBundle.getString("message.autoFetching")) {
-        @Override
-        public void run(@NotNull ProgressIndicator indicator) {
-          runAutoFetch(repos, indicator);
-        }
-      }));
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+              runAutoFetch(repos, indicator);
+            }
+          }));
     } else {
       log.debug("Fetched skipped");
       if (showNotifications) {
-        AppUtil.invokeLaterIfNeeded(this::finishedWithoutFetch);
+        AppUtil.INSTANCE.invokeLaterIfNeeded(this::finishedWithoutFetch);
       }
     }
   }

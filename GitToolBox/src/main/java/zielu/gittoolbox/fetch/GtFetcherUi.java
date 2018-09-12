@@ -32,7 +32,7 @@ class GtFetcherUi {
   }
 
   void invokeLaterIfNeeded(Runnable task) {
-    AppUtil.invokeLaterIfNeeded(task);
+    AppUtil.INSTANCE.invokeLaterIfNeeded(task);
   }
 
   private void showAdditionalInfoInternal(@NotNull Map<VirtualFile, String> additionalInfos) {
