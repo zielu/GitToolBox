@@ -2,10 +2,11 @@ package zielu.gittoolbox.cache;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +50,24 @@ public class RepoInfo {
 
   public boolean isEmpty() {
     return status.isEmpty() && count == null;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    RepoInfo that = (RepoInfo) o;
+    return Objects.equals(status, that.status)
+        && Objects.equals(Sets.newHashSet(tags), Sets.newHashSet(that.tags));
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(status, tags);
   }
 
   @Override

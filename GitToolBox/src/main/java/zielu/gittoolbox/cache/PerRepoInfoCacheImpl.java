@@ -61,12 +61,13 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   private void updateAction(@NotNull GitRepository repository) {
     RepoInfo info = getRepoInfo(repository);
     RepoStatus currentStatus = RepoStatus.create(repository);
-    if (!Objects.equals(info.status(), currentStatus)) {
-      RepoInfo freshInfo = behindStatuses.computeIfPresent(repository, (repo, oldInfo) ->
-          statusCalculator.update(repo, calculator, currentStatus));
+    RepoInfo freshInfo = behindStatuses.computeIfPresent(repository, (repo, oldInfo) ->
+        statusCalculator.update(repo, calculator, currentStatus));
+
+    if (!Objects.equals(info, freshInfo)) {
       publisher.notifyRepoChanged(repository, freshInfo);
     } else {
-      log.debug("Status did not change [", GtUtil.name(repository), "]");
+      log.debug("Status did not change [", GtUtil.name(repository), "]: ", freshInfo);
     }
   }
 
