@@ -3,6 +3,7 @@ package zielu.gittoolbox.cache;
 import com.codahale.metrics.Timer;
 import com.intellij.openapi.diagnostic.Logger;
 import git4idea.repo.GitRepository;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.MetricsHost;
 import zielu.gittoolbox.status.GitAheadBehindCount;
@@ -29,7 +30,10 @@ public class CachedStatusCalculator {
     if (!status.sameHashes(count)) {
       log.warn("Hash mismatch between count and status: " + count + " <> " + status);
     }
-    List<String> tags = GitTagCalculator.create(repo.getProject()).tagsForHead(repo.getRoot());
+    GitTagCalculator tagCalculator = GitTagCalculator.create(repo.getProject());
+    List<String> tags = Optional.ofNullable(status.localHash())
+        .map(hash -> tagCalculator.tagsForCommit(repo.getRoot(), hash))
+        .orElseGet(() -> tagCalculator.tagsForHead(repo.getRoot()));
     return RepoInfo.create(status, count, tags);
   }
 }
