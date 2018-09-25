@@ -48,8 +48,6 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
     GitRepository repo = repoForLatency(node).timeSupplier(() -> repoFinder.getRepoFor(node));
     if (repo != null) {
       decorateApplyLatency(node).time(() -> applyDecoration(node.getProject(), repo, node, presentation));
-    } else {
-      log.debug("No git repo: ", node);
     }
   }
 
