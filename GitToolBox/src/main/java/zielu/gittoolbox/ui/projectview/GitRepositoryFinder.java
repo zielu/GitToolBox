@@ -25,10 +25,11 @@ public class GitRepositoryFinder {
     GitRepository repository = null;
     if (isModuleNode(node)) {
       repository = findForModule(node);
-    } else if (node instanceof PsiDirectoryNode) {
+      log.debug("Repo for module ", node, " is: ", repository);
+    } else if (isDirectoryNode(node)) {
       repository = findForDirectory(node);
+      log.debug("Repo for dir ", node, " is: ", repository);
     }
-    log.debug("Repo for ", node, " is: ", repository);
     return repository;
   }
 
@@ -49,6 +50,10 @@ public class GitRepositoryFinder {
       return finder.apply(cache, file);
     }
     return null;
+  }
+
+  private boolean isDirectoryNode(ProjectViewNode node) {
+    return node instanceof PsiDirectoryNode;
   }
 
   private boolean isModuleNode(ProjectViewNode node) {
