@@ -38,6 +38,7 @@ import zielu.junit5.intellij.PlatformTestCaseExtension;
 @Tag("integration")
 @ExtendWith(PlatformTestCaseExtension.class)
 class PerRepoInfoCacheImplIntegTest {
+  private static final String TAG = "1.0.0";
   private static Path myTestDataPath;
 
   @BeforeAll
@@ -57,6 +58,7 @@ class PerRepoInfoCacheImplIntegTest {
     Files.write(testDataDir.resolve("file.txt"), Collections.singleton("abc"), Charsets.UTF_8);
     git.add().addFilepattern("file.txt").call();
     git.commit().setMessage("Initial commit").call();
+    git.tag().setName(TAG).call();
     git.close();
   }
 
@@ -97,6 +99,7 @@ class PerRepoInfoCacheImplIntegTest {
       softly.assertThat(info).isNotNull();
       softly.assertThat(info.count()).isNotEmpty();
       softly.assertThat(info.count().get().status()).isEqualTo(Status.NO_REMOTE);
+      softly.assertThat(info.tags()).containsOnly(TAG);
     });
   }
 }
