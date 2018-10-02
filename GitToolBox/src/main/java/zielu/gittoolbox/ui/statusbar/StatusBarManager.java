@@ -18,6 +18,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
   private final Project project;
   private final MessageBusConnection connection;
   private GitStatusWidget statusWidget;
+  private BlameLensStatusWidget blameLensWidget;
 
   private StatusBarManager(Project project) {
     this.project = project;
@@ -34,6 +35,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
     if (statusBar != null) {
       statusBar.addWidget(statusWidget, project);
       statusWidget.installed();
+      statusBar.addWidget(blameLensWidget, project);
       connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
         @Override
         public void configChanged(GitToolBoxConfig2 config) {
@@ -41,6 +43,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
           SwingUtilities.invokeLater(() -> {
             if (opened.get()) {
               statusWidget.setVisible(showStatusWidget);
+              blameLensWidget.setVisible(true); //TODO: make configurable
             }
           });
         }
@@ -51,8 +54,15 @@ public class StatusBarManager implements Disposable, ProjectAware {
   private void uninstall() {
     StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
     if (statusBar != null) {
-      statusBar.removeWidget(statusWidget.ID());
-      statusWidget.uninstalled();
+      if (statusWidget != null) {
+        statusBar.removeWidget(statusWidget.ID());
+        statusWidget.uninstalled();
+        statusWidget = null;
+      }
+      if (blameLensWidget != null) {
+        statusBar.removeWidget(blameLensWidget.ID());
+        blameLensWidget = null;
+      }
     }
   }
 
@@ -61,8 +71,10 @@ public class StatusBarManager implements Disposable, ProjectAware {
     if (opened.compareAndSet(false, true)) {
       if (hasUi()) {
         statusWidget = GitStatusWidget.create(project);
+        blameLensWidget = new BlameLensStatusWidget(project);
         install();
         statusWidget.setVisible(GitToolBoxConfig2.getInstance().showStatusWidget);
+        blameLensWidget.setVisible(true);  //TODO: make configurable
       }
     }
   }
@@ -81,10 +93,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
   private void cleanUp() {
     connection.disconnect();
     if (hasUi()) {
-      if (statusWidget != null) {
-        uninstall();
-        statusWidget = null;
-      }
+      uninstall();
     }
   }
 
