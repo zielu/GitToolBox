@@ -18,13 +18,13 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
 
-class LensServiceImpl implements LensService {
+class LensBlameServiceImpl implements LensBlameService {
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
   private final Timer fileBlameTimer;
   private final Timer lineBlameTimer;
 
-  LensServiceImpl(@NotNull Project project) {
+  LensBlameServiceImpl(@NotNull Project project) {
     this.project = project;
     Metrics metrics = MetricsHost.project(project);
     fileBlameTimer = metrics.timer("lens-file-blame");

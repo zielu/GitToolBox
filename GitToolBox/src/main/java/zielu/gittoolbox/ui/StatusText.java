@@ -19,7 +19,7 @@ public final class StatusText {
         return StatusMessages.getInstance().aheadBehindStatus(aheadBehind);
       }
     } else {
-      return ResBundle.getString("git.na");
+      return ResBundle.na();
     }
   }
 

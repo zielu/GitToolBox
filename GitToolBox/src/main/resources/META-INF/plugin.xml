@@ -56,8 +56,8 @@
 
     <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup" />
 
-    <projectService serviceInterface="zielu.gittoolbox.lens.LensService"
-                    serviceImplementation="zielu.gittoolbox.lens.LensServiceImpl"/>
+    <projectService serviceInterface="zielu.gittoolbox.lens.LensBlameService"
+                    serviceImplementation="zielu.gittoolbox.lens.LensBlameServiceImpl"/>
   </extensions>
 
   <application-components>

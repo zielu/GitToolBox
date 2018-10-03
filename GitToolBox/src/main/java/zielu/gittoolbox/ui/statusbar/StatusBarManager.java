@@ -18,7 +18,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
   private final Project project;
   private final MessageBusConnection connection;
   private GitStatusWidget statusWidget;
-  private BlameLensStatusWidget blameLensWidget;
+  private LensBlameStatusWidget blameLensWidget;
 
   private StatusBarManager(Project project) {
     this.project = project;
@@ -71,7 +71,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
     if (opened.compareAndSet(false, true)) {
       if (hasUi()) {
         statusWidget = GitStatusWidget.create(project);
-        blameLensWidget = new BlameLensStatusWidget(project);
+        blameLensWidget = new LensBlameStatusWidget(project);
         install();
         statusWidget.setVisible(GitToolBoxConfig2.getInstance().showStatusWidget);
         blameLensWidget.setVisible(true);  //TODO: make configurable

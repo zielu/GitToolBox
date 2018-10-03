@@ -27,29 +27,29 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.lens.LensBlame;
-import zielu.gittoolbox.lens.LensService;
+import zielu.gittoolbox.lens.LensBlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
 
-public class BlameLensStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
+public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
     StatusBarWidget.TextPresentation {
-  private static final String ID = BlameLensStatusWidget.class.getName();
-  private final LensService lens;
+  private static final String ID = LensBlameStatusWidget.class.getName();
+  private final LensBlameService lens;
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
   private final Timer updateForSelectionTimer;
   // store editor here to avoid expensive and EDT-only getSelectedEditor() retrievals
   private volatile Reference<Editor> editor = new WeakReference<>(null);
   private volatile Reference<VirtualFile> file = new WeakReference<>(null);
-  private String blameText = "";
+  private String blameText = ResBundle.na();
 
-  public BlameLensStatusWidget(@NotNull Project project) {
+  public LensBlameStatusWidget(@NotNull Project project) {
     super(project);
     Metrics metrics = MetricsHost.project(project);
     updateForDocumentTimer = metrics.timer("lens-statusbar-update-for-document");
     updateForCaretTimer = metrics.timer("lens-statusbar-update-for-caret");
     updateForSelectionTimer = metrics.timer("lens-statusbar-update-for-selection");
-    lens = LensService.getInstance(project);
+    lens = LensBlameService.getInstance(project);
     clearBlame();
   }
 
@@ -103,7 +103,7 @@ public class BlameLensStatusWidget extends EditorBasedWidget implements StatusBa
 
   @Override
   public StatusBarWidget copy() {
-    return new BlameLensStatusWidget(myProject);
+    return new LensBlameStatusWidget(myProject);
   }
 
   @NotNull
@@ -202,6 +202,6 @@ public class BlameLensStatusWidget extends EditorBasedWidget implements StatusBa
   }
 
   private void clearBlame() {
-    blameText = ResBundle.getString("git.na");
+    blameText = ResBundle.na();
   }
 }

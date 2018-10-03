@@ -167,7 +167,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
   private void updateData(@NotNull GitRepository repository, RepoInfo repoInfo) {
     toolTip.update(repository, repoInfo.count().orElse(null));
     text = ResBundle.getString("status.prefix") + " " + repoInfo.count().map(StatusText::format)
-        .orElse(ResBundle.getString("git.na"));
+        .orElse(ResBundle.na());
   }
 
   private void runUpdate(@Nullable Project project) {

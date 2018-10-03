@@ -38,4 +38,8 @@ public final class ResBundle {
     }
     return bundle;
   }
+
+  public static String na() {
+    return getString("git.na");
+  }
 }
