@@ -1,7 +1,10 @@
 package zielu.gittoolbox.lens;
 
 import com.codahale.metrics.Timer;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
 import com.intellij.openapi.project.Project;
@@ -21,14 +24,20 @@ import zielu.gittoolbox.metrics.MetricsHost;
 class LensBlameServiceImpl implements LensBlameService {
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
+  private final Cache<Document, CachedAnnotation> annotationCache = CacheBuilder.newBuilder()
+      .weakKeys()
+      .build();
   private final Timer fileBlameTimer;
   private final Timer lineBlameTimer;
+  private final Timer annotationTimer;
 
   LensBlameServiceImpl(@NotNull Project project) {
     this.project = project;
     Metrics metrics = MetricsHost.project(project);
     fileBlameTimer = metrics.timer("lens-file-blame");
     lineBlameTimer = metrics.timer("lens-line-blame");
+    annotationTimer = metrics.timer("lens-annotation");
+    metrics.gauge("lens-annotation-cache-size", annotationCache::size);
   }
 
   @Nullable
@@ -75,14 +84,69 @@ class LensBlameServiceImpl implements LensBlameService {
   @Nullable
   private LensBlame getCurrentLineBlameInternal(@NotNull Editor editor, @NotNull VirtualFile file) {
     int currentLine = editor.getCaretModel().getLogicalPosition().line;
-    UpToDateLineNumberProvider lineNumberProvider = new UpToDateLineNumberProviderImpl(editor.getDocument(), project);
-    int correctedLine = lineNumberProvider.getLineNumber(currentLine);
-    try {
-      FileAnnotation annotation = getGit().getAnnotationProvider().annotate(file);
-      return LensLineBlame.create(annotation, correctedLine);
-    } catch (VcsException e) {
-      log.warn("Failed to blame current line of " + file, e);
+    Document document = editor.getDocument();
+    UpToDateLineNumberProvider lineNumberProvider = new UpToDateLineNumberProviderImpl(document, project);
+    if (lineNumberProvider.isLineChanged(currentLine)) {
+      return null;
+    } else {
+      int correctedLine = lineNumberProvider.getLineNumber(currentLine);
+      FileAnnotation annotation = getAnnotation(document, file);
+      if (annotation != null) {
+        return LensLineBlame.create(annotation, correctedLine);
+      }
     }
     return null;
+  }
+
+  @Nullable
+  private FileAnnotation getAnnotation(@NotNull Document document, @NotNull VirtualFile file) {
+    CachedAnnotation cachedAnnotation = getCachedAnnotation(document, file);
+    if (cachedAnnotation != null) {
+      if (cachedAnnotation.modificationStamp != document.getModificationStamp()) {
+        annotationCache.invalidate(document);
+        cachedAnnotation = getCachedAnnotation(document, file);
+      }
+    }
+    if (cachedAnnotation != null) {
+      return cachedAnnotation.annotation;
+    }
+    return null;
+  }
+
+  @Nullable
+  private CachedAnnotation getCachedAnnotation(@NotNull Document document, @NotNull VirtualFile file) {
+    try {
+      return annotationCache.get(document, () -> annotationTimer.time(() -> {
+        FileAnnotation annotation = loadAnnotation(file);
+        return new CachedAnnotation(document.getModificationStamp(), annotation);
+      }));
+    } catch (Exception e) {
+      log.warn("Failed to get cached annotation for " + file, e);
+    }
+    return null;
+  }
+
+  @Nullable
+  private FileAnnotation loadAnnotation(@NotNull VirtualFile file) {
+    try {
+      return getGit().getAnnotationProvider().annotate(file);
+    } catch (VcsException e) {
+      log.warn("Failed to annotate " + file, e);
+    }
+    return null;
+  }
+
+  @Override
+  public void fileClosed(@NotNull VirtualFile file) {
+  }
+
+  private static final class CachedAnnotation {
+    private final long modificationStamp;
+    private final FileAnnotation annotation;
+
+    private CachedAnnotation(long modificationStamp, FileAnnotation annotation) {
+      this.modificationStamp = modificationStamp;
+      this.annotation = annotation;
+    }
   }
 }

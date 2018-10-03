@@ -64,6 +64,7 @@ public class GtForm implements GtFormUi {
   private JBTextField decorationPartPrefixTextField;
   private JBTextField decorationPartPostfixTextField;
   private JBTextField layoutPreviewTextField;
+  private JCheckBox lensBlameEnabledCheckBox;
 
   @Override
   public void init() {
@@ -263,6 +264,14 @@ public class GtForm implements GtFormUi {
 
   public void setShowProjectViewStatus(boolean showProjectViewStatus) {
     showProjectViewStatusCheckBox.setSelected(showProjectViewStatus);
+  }
+
+  public void setShowLensBlame(boolean showLensBlame) {
+    lensBlameEnabledCheckBox.setSelected(showLensBlame);
+  }
+
+  public boolean getShowLensBlame() {
+    return lensBlameEnabledCheckBox.isSelected();
   }
 
   public UpdateProjectAction getUpdateProjectAction() {

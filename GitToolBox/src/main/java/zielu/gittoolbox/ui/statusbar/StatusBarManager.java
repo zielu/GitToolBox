@@ -40,10 +40,11 @@ public class StatusBarManager implements Disposable, ProjectAware {
         @Override
         public void configChanged(GitToolBoxConfig2 config) {
           final boolean showStatusWidget = config.showStatusWidget;
+          final boolean showLensBlame = config.showLensBlame;
           SwingUtilities.invokeLater(() -> {
             if (opened.get()) {
               statusWidget.setVisible(showStatusWidget);
-              blameLensWidget.setVisible(true); //TODO: make configurable
+              blameLensWidget.setVisible(showLensBlame);
             }
           });
         }
@@ -73,8 +74,9 @@ public class StatusBarManager implements Disposable, ProjectAware {
         statusWidget = GitStatusWidget.create(project);
         blameLensWidget = new LensBlameStatusWidget(project);
         install();
-        statusWidget.setVisible(GitToolBoxConfig2.getInstance().showStatusWidget);
-        blameLensWidget.setVisible(true);  //TODO: make configurable
+        GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
+        statusWidget.setVisible(config.showStatusWidget);
+        blameLensWidget.setVisible(config.showLensBlame);
       }
     }
   }

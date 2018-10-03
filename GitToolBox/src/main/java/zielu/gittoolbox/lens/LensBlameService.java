@@ -14,6 +14,8 @@ public interface LensBlameService {
   @Nullable
   LensBlame getCurrentLineBlame(@NotNull Editor editor, @NotNull VirtualFile file);
 
+  void fileClosed(@NotNull VirtualFile file);
+
   static LensBlameService getInstance(@NotNull Project project) {
     return ServiceManager.getService(project, LensBlameService.class);
   }

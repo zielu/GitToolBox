@@ -13,6 +13,7 @@ import com.intellij.openapi.editor.event.EditorEventMulticaster;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBar;
@@ -42,6 +43,7 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
   private volatile Reference<Editor> editor = new WeakReference<>(null);
   private volatile Reference<VirtualFile> file = new WeakReference<>(null);
   private String blameText = ResBundle.na();
+  private boolean visible;
 
   public LensBlameStatusWidget(@NotNull Project project) {
     super(project);
@@ -148,7 +150,22 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
   }
 
   public void setVisible(boolean visible) {
+    this.visible = visible;
+    if (shouldShow()) {
+      VirtualFile currentFile = file.get();
+      if (currentFile != null) {
+        fileChanged(editor.get(), currentFile);
+      } else {
+        clearBlame();
+      }
+    } else {
+      clearBlame();
+    }
     updateWidget();
+  }
+
+  private boolean shouldShow() {
+    return visible && DumbService.isDumb(myProject);
   }
 
   private void updateWidget() {
@@ -164,6 +181,7 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
 
   @Override
   public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+    lens.fileClosed(file);
     clearBlame();
     updateWidget();
   }
@@ -174,9 +192,11 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
       updateForSelectionTimer.time(() -> {
         editor = new WeakReference<>(getEditor());
         file = new WeakReference<>(event.getNewFile());
-        VirtualFile currentFile = file.get();
-        if (currentFile != null) {
-          fileChanged(editor.get(), currentFile);
+        if (shouldShow()) {
+          VirtualFile currentFile = file.get();
+          if (currentFile != null) {
+            fileChanged(editor.get(), currentFile);
+          }
         }
       });
     }
