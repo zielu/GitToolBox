@@ -16,15 +16,43 @@ import com.intellij.openapi.vcs.history.VcsFileRevision;
 import com.intellij.openapi.vcs.impl.UpToDateLineNumberProviderImpl;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitVcs;
+import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
 
 class LensBlameServiceImpl implements LensBlameService {
+  private static final UpToDateLineNumberProvider EMPTY_PROVIDER = new UpToDateLineNumberProvider() {
+    @Override
+    public int getLineCount() {
+      return 0;
+    }
+
+    @Override
+    public int getLineNumber(int currentNumber) {
+      return ABSENT_LINE_NUMBER;
+    }
+
+    @Override
+    public boolean isLineChanged(int currentNumber) {
+      return true;
+    }
+
+    @Override
+    public boolean isRangeChanged(int start, int end) {
+      return true;
+    }
+  };
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
   private final Cache<Document, CachedAnnotation> annotationCache = CacheBuilder.newBuilder()
+      .weakKeys()
+      .build();
+  private final Cache<Document, CachedBlame> blameCache = CacheBuilder.newBuilder()
+      .weakKeys()
+      .build();
+  private final Cache<Document, UpToDateLineNumberProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
       .weakKeys()
       .build();
   private final Timer fileBlameTimer;
@@ -88,14 +116,53 @@ class LensBlameServiceImpl implements LensBlameService {
     if (document.isLineModified(currentLine)) {
       return null;
     }
-    UpToDateLineNumberProvider lineNumberProvider = new UpToDateLineNumberProviderImpl(document, project);
+    UpToDateLineNumberProvider lineNumberProvider = getLineNumberProvider(document);
     if (lineNumberProvider.isLineChanged(currentLine)) {
       return null;
     } else {
       int correctedLine = lineNumberProvider.getLineNumber(currentLine);
-      FileAnnotation annotation = getAnnotation(document, file);
-      if (annotation != null) {
-        return LensLineBlame.create(annotation, correctedLine);
+      return getCurrentLineBlameInternal(document, file, correctedLine);
+    }
+  }
+
+  @Nullable
+  private LensBlame getCurrentLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
+                                                int currentLine) {
+    LensBlame cachedBlame = getCachedBlame(document, currentLine);
+    if (cachedBlame != null) {
+      return cachedBlame;
+    }
+    FileAnnotation annotation = getAnnotation(document, file);
+    if (annotation != null) {
+      LensBlame blame = LensLineBlame.create(annotation, currentLine);
+      blameCache.put(document, new CachedBlame(document.getModificationStamp(), currentLine, blame));
+      return blame;
+    }
+    return null;
+  }
+
+  @NotNull
+  private UpToDateLineNumberProvider getLineNumberProvider(@NotNull Document document) {
+    try {
+      return lineNumberProviderCache.get(document,
+          () -> new UpToDateLineNumberProviderImpl(document, project));
+    } catch (ExecutionException e) {
+      log.warn("Failed to get line number provider for " + document, e);
+      return EMPTY_PROVIDER;
+    }
+  }
+
+  @Nullable
+  private LensBlame getCachedBlame(@NotNull Document document, int line) {
+    CachedBlame cachedBlame = blameCache.getIfPresent(document);
+    if (cachedBlame != null) {
+      if (cachedBlame.modificationStamp < document.getModificationStamp()) {
+        blameCache.invalidate(document);
+      }
+      if (cachedBlame.lineNumber == line) {
+        return cachedBlame.blame;
+      } else {
+        blameCache.invalidate(document);
       }
     }
     return null;
@@ -150,6 +217,18 @@ class LensBlameServiceImpl implements LensBlameService {
     private CachedAnnotation(long modificationStamp, FileAnnotation annotation) {
       this.modificationStamp = modificationStamp;
       this.annotation = annotation;
+    }
+  }
+
+  private static final class CachedBlame {
+    private final long modificationStamp;
+    private final int lineNumber;
+    private final LensBlame blame;
+
+    private CachedBlame(long modificationStamp, int lineNumber, LensBlame blame) {
+      this.modificationStamp = modificationStamp;
+      this.lineNumber = lineNumber;
+      this.blame = blame;
     }
   }
 }

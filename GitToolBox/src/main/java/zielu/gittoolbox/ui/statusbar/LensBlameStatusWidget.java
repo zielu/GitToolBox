@@ -1,6 +1,8 @@
 package zielu.gittoolbox.ui.statusbar;
 
 import com.codahale.metrics.Timer;
+import com.google.common.base.Ascii;
+import com.google.common.base.Strings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -35,6 +37,7 @@ import zielu.gittoolbox.metrics.MetricsHost;
 public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
     StatusBarWidget.TextPresentation {
   private static final String ID = LensBlameStatusWidget.class.getName();
+  private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", 27);
   private final LensBlameService lens;
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
@@ -43,6 +46,7 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
   private volatile Reference<Editor> editor = new WeakReference<>(null);
   private volatile Reference<VirtualFile> file = new WeakReference<>(null);
   private String blameText = ResBundle.na();
+  private String blameDetails;
   private boolean visible;
 
   public LensBlameStatusWidget(@NotNull Project project) {
@@ -123,13 +127,13 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
   @NotNull
   @Override
   public String getText() {
-    return "Blame: " + blameText;
+    return "Blame: " + Ascii.truncate(blameText, 20, "...");
   }
 
   @NotNull
   @Override
   public String getMaxPossibleText() {
-    return "00000000000";
+    return MAX_POSSIBLE_TEXT;
   }
 
   @Override
@@ -140,7 +144,7 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
   @Nullable
   @Override
   public String getTooltipText() {
-    return null;
+    return blameDetails;
   }
 
   @Nullable
@@ -176,7 +180,13 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
 
   @Override
   public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-    fileChanged(source.getSelectedTextEditor(), file);
+    if (shouldShow()) {
+      if (!file.equals(this.file.get())) {
+        Editor selectedEditor = source.getSelectedTextEditor();
+        editor = new WeakReference<>(selectedEditor);
+        fileChanged(selectedEditor, file);
+      }
+    }
   }
 
   @Override
@@ -215,7 +225,8 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
 
   private void updateBlame(@Nullable LensBlame blame) {
     if (blame != null) {
-      blameText = blame.getPresentableText();
+      blameText = blame.getShortText();
+      blameDetails = blame.getDetailedText();
     } else {
       clearBlame();
     }
@@ -223,5 +234,6 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
 
   private void clearBlame() {
     blameText = ResBundle.na();
+    blameDetails = null;
   }
 }
