@@ -85,6 +85,9 @@ class LensBlameServiceImpl implements LensBlameService {
   private LensBlame getCurrentLineBlameInternal(@NotNull Editor editor, @NotNull VirtualFile file) {
     int currentLine = editor.getCaretModel().getLogicalPosition().line;
     Document document = editor.getDocument();
+    if (document.isLineModified(currentLine)) {
+      return null;
+    }
     UpToDateLineNumberProvider lineNumberProvider = new UpToDateLineNumberProviderImpl(document, project);
     if (lineNumberProvider.isLineChanged(currentLine)) {
       return null;
@@ -102,7 +105,7 @@ class LensBlameServiceImpl implements LensBlameService {
   private FileAnnotation getAnnotation(@NotNull Document document, @NotNull VirtualFile file) {
     CachedAnnotation cachedAnnotation = getCachedAnnotation(document, file);
     if (cachedAnnotation != null) {
-      if (cachedAnnotation.modificationStamp != document.getModificationStamp()) {
+      if (cachedAnnotation.modificationStamp < document.getModificationStamp()) {
         annotationCache.invalidate(document);
         cachedAnnotation = getCachedAnnotation(document, file);
       }

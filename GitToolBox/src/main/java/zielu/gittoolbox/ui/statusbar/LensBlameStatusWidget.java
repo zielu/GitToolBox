@@ -165,7 +165,7 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
   }
 
   private boolean shouldShow() {
-    return visible && DumbService.isDumb(myProject);
+    return visible && !DumbService.isDumb(myProject);
   }
 
   private void updateWidget() {
