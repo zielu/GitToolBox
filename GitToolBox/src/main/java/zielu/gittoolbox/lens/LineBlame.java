@@ -5,18 +5,18 @@ import com.intellij.openapi.vcs.annotate.LineAnnotationAspect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class LensLineBlame extends AbstractLensBlame {
+public class LineBlame extends AbstractBlame {
   private final String author;
   private final String revisionDate;
   private final String detailedText;
 
-  private LensLineBlame(String author, String revisionDate, String detailedText) {
+  private LineBlame(String author, String revisionDate, String detailedText) {
     this.author = prepareAuthor(author);
     this.revisionDate = revisionDate;
     this.detailedText = detailedText;
   }
 
-  public static LensBlame create(@NotNull FileAnnotation annotation, int line) {
+  public static Blame create(@NotNull FileAnnotation annotation, int line) {
     LineAnnotationAspect[] aspects = annotation.getAspects();
     String author = null;
     String revisionDate = null;
@@ -27,7 +27,7 @@ public class LensLineBlame extends AbstractLensBlame {
         revisionDate = aspect.getValue(line);
       }
     }
-    return new LensLineBlame(author, revisionDate, annotation.getToolTip(line));
+    return new LineBlame(author, revisionDate, annotation.getToolTip(line));
   }
 
   @NotNull

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
 
-class LensBlameServiceImpl implements LensBlameService {
+class BlameServiceImpl implements BlameService {
   private static final UpToDateLineNumberProvider EMPTY_PROVIDER = new UpToDateLineNumberProvider() {
     @Override
     public int getLineCount() {
@@ -59,7 +59,7 @@ class LensBlameServiceImpl implements LensBlameService {
   private final Timer lineBlameTimer;
   private final Timer annotationTimer;
 
-  LensBlameServiceImpl(@NotNull Project project) {
+  BlameServiceImpl(@NotNull Project project) {
     this.project = project;
     Metrics metrics = MetricsHost.project(project);
     fileBlameTimer = metrics.timer("lens-file-blame");
@@ -70,14 +70,14 @@ class LensBlameServiceImpl implements LensBlameService {
 
   @Nullable
   @Override
-  public LensBlame getFileBlame(@NotNull VirtualFile file) {
+  public Blame getFileBlame(@NotNull VirtualFile file) {
     return fileBlameTimer.timeSupplier(() -> getFileBlameInternal(file));
   }
 
   @Nullable
-  private LensBlame getFileBlameInternal(@NotNull VirtualFile file) {
+  private Blame getFileBlameInternal(@NotNull VirtualFile file) {
     GitVcs git = getGit();
-    LensBlame blame = null;
+    Blame blame = null;
     try {
       VcsFileRevision revision = git.getVcsHistoryProvider().getLastRevision(createFilePath(file));
       blame = blameForRevision(revision);
@@ -96,21 +96,21 @@ class LensBlameServiceImpl implements LensBlameService {
   }
 
   @Nullable
-  private LensBlame blameForRevision(@Nullable VcsFileRevision revision) {
+  private Blame blameForRevision(@Nullable VcsFileRevision revision) {
     if (revision != null && revision != VcsFileRevision.NULL) {
-      return LensFileBlame.create(revision);
+      return FileBlame.create(revision);
     }
     return null;
   }
 
   @Nullable
   @Override
-  public LensBlame getCurrentLineBlame(@NotNull Editor editor, @NotNull VirtualFile file) {
+  public Blame getCurrentLineBlame(@NotNull Editor editor, @NotNull VirtualFile file) {
     return lineBlameTimer.timeSupplier(() -> getCurrentLineBlameInternal(editor, file));
   }
 
   @Nullable
-  private LensBlame getCurrentLineBlameInternal(@NotNull Editor editor, @NotNull VirtualFile file) {
+  private Blame getCurrentLineBlameInternal(@NotNull Editor editor, @NotNull VirtualFile file) {
     int currentLine = editor.getCaretModel().getLogicalPosition().line;
     Document document = editor.getDocument();
     if (document.isLineModified(currentLine)) {
@@ -126,15 +126,15 @@ class LensBlameServiceImpl implements LensBlameService {
   }
 
   @Nullable
-  private LensBlame getCurrentLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
-                                                int currentLine) {
-    LensBlame cachedBlame = getCachedBlame(document, currentLine);
+  private Blame getCurrentLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
+                                            int currentLine) {
+    Blame cachedBlame = getCachedBlame(document, currentLine);
     if (cachedBlame != null) {
       return cachedBlame;
     }
     FileAnnotation annotation = getAnnotation(document, file);
     if (annotation != null) {
-      LensBlame blame = LensLineBlame.create(annotation, currentLine);
+      Blame blame = LineBlame.create(annotation, currentLine);
       blameCache.put(document, new CachedBlame(document.getModificationStamp(), currentLine, blame));
       return blame;
     }
@@ -153,7 +153,7 @@ class LensBlameServiceImpl implements LensBlameService {
   }
 
   @Nullable
-  private LensBlame getCachedBlame(@NotNull Document document, int line) {
+  private Blame getCachedBlame(@NotNull Document document, int line) {
     CachedBlame cachedBlame = blameCache.getIfPresent(document);
     if (cachedBlame != null) {
       if (cachedBlame.modificationStamp < document.getModificationStamp()) {
@@ -223,9 +223,9 @@ class LensBlameServiceImpl implements LensBlameService {
   private static final class CachedBlame {
     private final long modificationStamp;
     private final int lineNumber;
-    private final LensBlame blame;
+    private final Blame blame;
 
-    private CachedBlame(long modificationStamp, int lineNumber, LensBlame blame) {
+    private CachedBlame(long modificationStamp, int lineNumber, Blame blame) {
       this.modificationStamp = modificationStamp;
       this.lineNumber = lineNumber;
       this.blame = blame;

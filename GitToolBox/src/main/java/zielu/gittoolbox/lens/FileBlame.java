@@ -7,22 +7,22 @@ import java.util.Date;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class LensFileBlame extends AbstractLensBlame {
+public final class FileBlame extends AbstractBlame {
   private final String author;
   private final Date date;
   private final String detailedText;
 
-  private LensFileBlame(String author, Date date, String detailedText) {
+  private FileBlame(String author, Date date, String detailedText) {
     this.author = prepareAuthor(author);
     this.date = date;
     this.detailedText = detailedText;
   }
 
-  public static LensBlame create(@NotNull VcsFileRevision revision) {
+  public static Blame create(@NotNull VcsFileRevision revision) {
     String detailedText = revision.getCommitMessage() + "\n...";
     detailedText = GitBundle.message("annotation.tool.tip", revision.getRevisionNumber().asString(),
         revision.getAuthor(), DateFormatUtil.formatDateTime(revision.getRevisionDate()), detailedText);
-    return new LensFileBlame(revision.getAuthor(), revision.getRevisionDate(), detailedText);
+    return new FileBlame(revision.getAuthor(), revision.getRevisionDate(), detailedText);
   }
 
   @NotNull

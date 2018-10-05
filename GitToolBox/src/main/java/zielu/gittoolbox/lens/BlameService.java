@@ -7,16 +7,16 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface LensBlameService {
+public interface BlameService {
   @Nullable
-  LensBlame getFileBlame(@NotNull VirtualFile file);
+  Blame getFileBlame(@NotNull VirtualFile file);
 
   @Nullable
-  LensBlame getCurrentLineBlame(@NotNull Editor editor, @NotNull VirtualFile file);
+  Blame getCurrentLineBlame(@NotNull Editor editor, @NotNull VirtualFile file);
 
   void fileClosed(@NotNull VirtualFile file);
 
-  static LensBlameService getInstance(@NotNull Project project) {
-    return ServiceManager.getService(project, LensBlameService.class);
+  static BlameService getInstance(@NotNull Project project) {
+    return ServiceManager.getService(project, BlameService.class);
   }
 }

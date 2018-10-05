@@ -31,16 +31,16 @@ import javax.swing.JTextArea;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.lens.LensBlame;
-import zielu.gittoolbox.lens.LensBlameService;
+import zielu.gittoolbox.lens.Blame;
+import zielu.gittoolbox.lens.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
 
-public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
+public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
     StatusBarWidget.TextPresentation {
-  private static final String ID = LensBlameStatusWidget.class.getName();
+  private static final String ID = BlameStatusWidget.class.getName();
   private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", 27);
-  private final LensBlameService lens;
+  private final BlameService lens;
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
   private final Timer updateForSelectionTimer;
@@ -51,13 +51,13 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
   private String blameDetails;
   private boolean visible;
 
-  public LensBlameStatusWidget(@NotNull Project project) {
+  public BlameStatusWidget(@NotNull Project project) {
     super(project);
     Metrics metrics = MetricsHost.project(project);
     updateForDocumentTimer = metrics.timer("lens-statusbar-update-for-document");
     updateForCaretTimer = metrics.timer("lens-statusbar-update-for-caret");
     updateForSelectionTimer = metrics.timer("lens-statusbar-update-for-selection");
-    lens = LensBlameService.getInstance(project);
+    lens = BlameService.getInstance(project);
     clearBlame();
   }
 
@@ -111,7 +111,7 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
 
   @Override
   public StatusBarWidget copy() {
-    return new LensBlameStatusWidget(myProject);
+    return new BlameStatusWidget(myProject);
   }
 
   @NotNull
@@ -229,7 +229,7 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
   }
 
   private void fileChanged(@Nullable Editor editor, @NotNull VirtualFile file) {
-    LensBlame blame;
+    Blame blame;
     if (editor != null) {
       blame = lens.getCurrentLineBlame(editor, file);
     } else {
@@ -239,7 +239,7 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
     updateWidget();
   }
 
-  private void updateBlame(@Nullable LensBlame blame) {
+  private void updateBlame(@Nullable Blame blame) {
     if (blame != null) {
       blameText = blame.getShortText();
       blameDetails = blame.getDetailedText();

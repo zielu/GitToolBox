@@ -18,7 +18,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
   private final Project project;
   private final MessageBusConnection connection;
   private GitStatusWidget statusWidget;
-  private LensBlameStatusWidget blameLensWidget;
+  private BlameStatusWidget blameWidget;
 
   private StatusBarManager(Project project) {
     this.project = project;
@@ -35,16 +35,16 @@ public class StatusBarManager implements Disposable, ProjectAware {
     if (statusBar != null) {
       statusBar.addWidget(statusWidget, project);
       statusWidget.installed();
-      statusBar.addWidget(blameLensWidget, project);
+      statusBar.addWidget(blameWidget, project);
       connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
         @Override
         public void configChanged(GitToolBoxConfig2 config) {
           final boolean showStatusWidget = config.showStatusWidget;
-          final boolean showLensBlame = config.showLensBlame;
+          final boolean showLensBlame = config.showBlame;
           SwingUtilities.invokeLater(() -> {
             if (opened.get()) {
               statusWidget.setVisible(showStatusWidget);
-              blameLensWidget.setVisible(showLensBlame);
+              blameWidget.setVisible(showLensBlame);
             }
           });
         }
@@ -60,9 +60,9 @@ public class StatusBarManager implements Disposable, ProjectAware {
         statusWidget.uninstalled();
         statusWidget = null;
       }
-      if (blameLensWidget != null) {
-        statusBar.removeWidget(blameLensWidget.ID());
-        blameLensWidget = null;
+      if (blameWidget != null) {
+        statusBar.removeWidget(blameWidget.ID());
+        blameWidget = null;
       }
     }
   }
@@ -72,11 +72,11 @@ public class StatusBarManager implements Disposable, ProjectAware {
     if (opened.compareAndSet(false, true)) {
       if (hasUi()) {
         statusWidget = GitStatusWidget.create(project);
-        blameLensWidget = new LensBlameStatusWidget(project);
+        blameWidget = new BlameStatusWidget(project);
         install();
         GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
         statusWidget.setVisible(config.showStatusWidget);
-        blameLensWidget.setVisible(config.showLensBlame);
+        blameWidget.setVisible(config.showBlame);
       }
     }
   }
