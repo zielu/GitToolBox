@@ -39,7 +39,10 @@ import zielu.gittoolbox.metrics.MetricsHost;
 public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
     StatusBarWidget.TextPresentation {
   private static final String ID = BlameStatusWidget.class.getName();
-  private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", 27);
+  private static final int MAX_LENGTH = 27;
+  private static final String PREFIX = ResBundle.getString("blame.prefix");
+  private static final int BLAME_LENGTH = MAX_LENGTH - PREFIX.length() - 1;
+  private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", MAX_LENGTH);
   private final BlameService lens;
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
@@ -129,7 +132,9 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   @NotNull
   @Override
   public String getText() {
-    return "Blame: " + Ascii.truncate(blameText, 20, "...");
+    String blamePart = Ascii.truncate(blameText, BLAME_LENGTH, "...");
+    blamePart = Strings.padEnd(blamePart, BLAME_LENGTH, ' ');
+    return PREFIX + " " + blamePart;
   }
 
   @NotNull

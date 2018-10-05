@@ -113,7 +113,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
   @Override
   public ListPopup getPopupStep() {
     if (rootActions.update()) {
-      String title = ResBundle.getString("statusBar.menu.title");
+      String title = ResBundle.getString("statusBar.status.menu.title");
       return new StatusActionGroupPopup(title, rootActions, myProject, Condition.TRUE);
     } else {
       return null;
