@@ -1,4 +1,4 @@
-package zielu.gittoolbox.lens;
+package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.vcs.actions.ShortNameType;
 import com.intellij.openapi.vcs.actions.ShowShortenNames;

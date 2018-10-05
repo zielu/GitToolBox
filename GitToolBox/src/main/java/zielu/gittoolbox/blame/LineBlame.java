@@ -1,4 +1,4 @@
-package zielu.gittoolbox.lens;
+package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.annotate.LineAnnotationAspect;

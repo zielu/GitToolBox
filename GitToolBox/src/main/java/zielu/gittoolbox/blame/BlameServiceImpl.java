@@ -1,4 +1,4 @@
-package zielu.gittoolbox.lens;
+package zielu.gittoolbox.blame;
 
 import com.codahale.metrics.Timer;
 import com.google.common.cache.Cache;
@@ -62,10 +62,10 @@ class BlameServiceImpl implements BlameService {
   BlameServiceImpl(@NotNull Project project) {
     this.project = project;
     Metrics metrics = MetricsHost.project(project);
-    fileBlameTimer = metrics.timer("lens-file-blame");
-    lineBlameTimer = metrics.timer("lens-line-blame");
-    annotationTimer = metrics.timer("lens-annotation");
-    metrics.gauge("lens-annotation-cache-size", annotationCache::size);
+    fileBlameTimer = metrics.timer("blame-file-blame");
+    lineBlameTimer = metrics.timer("blame-line-blame");
+    annotationTimer = metrics.timer("blame-annotation");
+    metrics.gauge("blame-annotation-cache-size", annotationCache::size);
   }
 
   @Nullable

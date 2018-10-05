@@ -1,4 +1,4 @@
-package zielu.gittoolbox.lens;
+package zielu.gittoolbox.blame;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

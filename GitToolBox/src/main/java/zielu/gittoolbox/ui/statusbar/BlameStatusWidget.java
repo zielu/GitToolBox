@@ -31,8 +31,8 @@ import javax.swing.JTextArea;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.lens.Blame;
-import zielu.gittoolbox.lens.BlameService;
+import zielu.gittoolbox.blame.Blame;
+import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
 
@@ -54,9 +54,9 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   public BlameStatusWidget(@NotNull Project project) {
     super(project);
     Metrics metrics = MetricsHost.project(project);
-    updateForDocumentTimer = metrics.timer("lens-statusbar-update-for-document");
-    updateForCaretTimer = metrics.timer("lens-statusbar-update-for-caret");
-    updateForSelectionTimer = metrics.timer("lens-statusbar-update-for-selection");
+    updateForDocumentTimer = metrics.timer("blame-statusbar-update-for-document");
+    updateForCaretTimer = metrics.timer("blame-statusbar-update-for-caret");
+    updateForSelectionTimer = metrics.timer("blame-statusbar-update-for-selection");
     lens = BlameService.getInstance(project);
     clearBlame();
   }

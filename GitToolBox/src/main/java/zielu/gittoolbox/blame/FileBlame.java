@@ -1,4 +1,4 @@
-package zielu.gittoolbox.lens;
+package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.vcs.history.VcsFileRevision;
 import com.intellij.util.text.DateFormatUtil;
