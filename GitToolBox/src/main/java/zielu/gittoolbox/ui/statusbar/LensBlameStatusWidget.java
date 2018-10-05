@@ -17,6 +17,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
@@ -26,6 +27,7 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import javax.swing.JTextArea;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
@@ -150,7 +152,21 @@ public class LensBlameStatusWidget extends EditorBasedWidget implements StatusBa
   @Nullable
   @Override
   public Consumer<MouseEvent> getClickConsumer() {
-    return null;
+    Editor editor = this.editor.get();
+    if (blameDetails == null || editor == null) {
+      return null;
+    } else {
+      return event -> {
+        JTextArea content = new JTextArea(blameDetails);
+        content.setEditable(false);
+        JBPopupFactory.getInstance()
+            .createDialogBalloonBuilder(content, "Blame")
+            .setDialogMode(true)
+            .setCloseButtonEnabled(false)
+            .setHideOnClickOutside(true)
+            .createBalloon().showInCenterOf(editor.getComponent());
+      };
+    }
   }
 
   public void setVisible(boolean visible) {
