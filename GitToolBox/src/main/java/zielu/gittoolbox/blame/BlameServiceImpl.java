@@ -4,23 +4,29 @@ import com.codahale.metrics.Timer;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.LocalFilePath;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsFileRevision;
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vcs.impl.UpToDateLineNumberProviderImpl;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitVcs;
+import git4idea.repo.GitRepository;
+import gnu.trove.TIntObjectHashMap;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.util.GtUtil;
 
 class BlameServiceImpl implements BlameService {
   private static final UpToDateLineNumberProvider EMPTY_PROVIDER = new UpToDateLineNumberProvider() {
@@ -46,10 +52,12 @@ class BlameServiceImpl implements BlameService {
   };
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
+  private final VirtualFileRepoCache repoCache;
+  private final GitVcs git;
   private final Cache<Document, CachedAnnotation> annotationCache = CacheBuilder.newBuilder()
       .weakKeys()
       .build();
-  private final Cache<Document, CachedBlame> blameCache = CacheBuilder.newBuilder()
+  private final Cache<Document, CachedBlames> blameCache = CacheBuilder.newBuilder()
       .weakKeys()
       .build();
   private final Cache<Document, UpToDateLineNumberProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
@@ -58,13 +66,17 @@ class BlameServiceImpl implements BlameService {
   private final Timer fileBlameTimer;
   private final Timer lineBlameTimer;
   private final Timer annotationTimer;
+  private final Timer currentRevisionTimer;
 
   BlameServiceImpl(@NotNull Project project) {
     this.project = project;
+    repoCache = VirtualFileRepoCache.getInstance(project);
+    git = GitVcs.getInstance(project);
     Metrics metrics = MetricsHost.project(project);
     fileBlameTimer = metrics.timer("blame-file-blame");
     lineBlameTimer = metrics.timer("blame-line-blame");
     annotationTimer = metrics.timer("blame-annotation");
+    currentRevisionTimer = metrics.timer("blame-current-revision");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
   }
 
@@ -79,7 +91,7 @@ class BlameServiceImpl implements BlameService {
     GitVcs git = getGit();
     Blame blame = null;
     try {
-      VcsFileRevision revision = git.getVcsHistoryProvider().getLastRevision(createFilePath(file));
+      VcsFileRevision revision = git.getVcsHistoryProvider().getLastRevision(GtUtil.localFilePath(file));
       blame = blameForRevision(revision);
     } catch (VcsException e) {
       log.warn("Failed to blame " + file, e);
@@ -89,10 +101,6 @@ class BlameServiceImpl implements BlameService {
 
   private GitVcs getGit() {
     return GitVcs.getInstance(project);
-  }
-
-  private FilePath createFilePath(@NotNull VirtualFile file) {
-    return new LocalFilePath(file.getPath(), file.isDirectory());
   }
 
   @Nullable
@@ -109,11 +117,31 @@ class BlameServiceImpl implements BlameService {
     return lineBlameTimer.timeSupplier(() -> getCurrentLineBlameInternal(editor, file));
   }
 
+  private int getCurrentLineNumber(Editor editor) {
+    CaretModel caretModel = editor.getCaretModel();
+    if (!caretModel.isUpToDate()) {
+      return Integer.MIN_VALUE;
+    }
+    return caretModel.getLogicalPosition().line;
+  }
+
+  private boolean isDocumentInInvalidState(Document document) {
+    if (document instanceof DocumentEx) {
+      DocumentEx docEx = (DocumentEx) document;
+      return docEx.isInBulkUpdate();
+    }
+    return false;
+  }
+
   @Nullable
   private Blame getCurrentLineBlameInternal(@NotNull Editor editor, @NotNull VirtualFile file) {
-    int currentLine = editor.getCaretModel().getLogicalPosition().line;
     Document document = editor.getDocument();
+    int currentLine = getCurrentLineNumber(editor);
+    if (currentLine == Integer.MIN_VALUE) {
+      return null;
+    }
     if (document.isLineModified(currentLine)) {
+      //return file blame
       return null;
     }
     UpToDateLineNumberProvider lineNumberProvider = getLineNumberProvider(document);
@@ -128,17 +156,12 @@ class BlameServiceImpl implements BlameService {
   @Nullable
   private Blame getCurrentLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
                                             int currentLine) {
-    Blame cachedBlame = getCachedBlame(document, currentLine);
+    VcsRevisionNumber currentRevision = currentRevisionTimer.timeSupplier(() -> currentRepoRevision(file));
+    Blame cachedBlame = getCachedBlame(document, currentRevision, currentLine);
     if (cachedBlame != null) {
       return cachedBlame;
     }
-    FileAnnotation annotation = getAnnotation(document, file);
-    if (annotation != null) {
-      Blame blame = LineBlame.create(annotation, currentLine);
-      blameCache.put(document, new CachedBlame(document.getModificationStamp(), currentLine, blame));
-      return blame;
-    }
-    return null;
+    return cacheBlame(document, file, currentRevision, currentLine);
   }
 
   @NotNull
@@ -153,26 +176,42 @@ class BlameServiceImpl implements BlameService {
   }
 
   @Nullable
-  private Blame getCachedBlame(@NotNull Document document, int line) {
-    CachedBlame cachedBlame = blameCache.getIfPresent(document);
-    if (cachedBlame != null) {
-      if (cachedBlame.modificationStamp < document.getModificationStamp()) {
+  private Blame getCachedBlame(@NotNull Document document, @NotNull VcsRevisionNumber currentRevision, int line) {
+    CachedBlames cachedBlames = blameCache.getIfPresent(document);
+    if (cachedBlames != null) {
+      if (cachedBlames.isRevisionChanged(currentRevision)) {
         blameCache.invalidate(document);
       }
-      if (cachedBlame.lineNumber == line) {
-        return cachedBlame.blame;
-      } else {
-        blameCache.invalidate(document);
-      }
+      return cachedBlames.getBlame(line);
     }
     return null;
   }
 
   @Nullable
-  private FileAnnotation getAnnotation(@NotNull Document document, @NotNull VirtualFile file) {
+  private Blame cacheBlame(@NotNull Document document, @NotNull VirtualFile file,
+                           @NotNull VcsRevisionNumber currentRevision, int line) {
+    FileAnnotation annotation = getAnnotation(document, currentRevision, file);
+    if (annotation != null) {
+      CachedBlames blames = cachedBlames(document, currentRevision);
+      return blames.putBlame(line, LineBlame.create(annotation, line));
+    }
+    return null;
+  }
+
+  private CachedBlames cachedBlames(@NotNull Document document, @NotNull VcsRevisionNumber currentRevision) {
+    try {
+      return blameCache.get(document, () -> new CachedBlames(currentRevision));
+    } catch (ExecutionException e) {
+      throw new IllegalStateException("Failed to load cache blames " + document, e);
+    }
+  }
+
+  @Nullable
+  private FileAnnotation getAnnotation(@NotNull Document document, @NotNull VcsRevisionNumber currentRevision,
+                                       @NotNull VirtualFile file) {
     CachedAnnotation cachedAnnotation = getCachedAnnotation(document, file);
     if (cachedAnnotation != null) {
-      if (cachedAnnotation.modificationStamp < document.getModificationStamp()) {
+      if (cachedAnnotation.isRevisionChanged(currentRevision)) {
         annotationCache.invalidate(document);
         cachedAnnotation = getCachedAnnotation(document, file);
       }
@@ -183,12 +222,24 @@ class BlameServiceImpl implements BlameService {
     return null;
   }
 
+  private VcsRevisionNumber currentRepoRevision(@NotNull VirtualFile file) {
+    GitRepository repo = repoCache.getRepoForFile(file);
+    if (repo != null) {
+      try {
+        return git.parseRevisionNumber(repo.getCurrentRevision());
+      } catch (VcsException e) {
+        log.warn("Could not get current revision for " + file);
+      }
+    }
+    return VcsRevisionNumber.NULL;
+  }
+
   @Nullable
   private CachedAnnotation getCachedAnnotation(@NotNull Document document, @NotNull VirtualFile file) {
     try {
       return annotationCache.get(document, () -> annotationTimer.time(() -> {
         FileAnnotation annotation = loadAnnotation(file);
-        return new CachedAnnotation(document.getModificationStamp(), annotation);
+        return new CachedAnnotation(annotation);
       }));
     } catch (Exception e) {
       log.warn("Failed to get cached annotation for " + file, e);
@@ -211,24 +262,36 @@ class BlameServiceImpl implements BlameService {
   }
 
   private static final class CachedAnnotation {
-    private final long modificationStamp;
     private final FileAnnotation annotation;
 
-    private CachedAnnotation(long modificationStamp, FileAnnotation annotation) {
-      this.modificationStamp = modificationStamp;
+    private CachedAnnotation(FileAnnotation annotation) {
       this.annotation = annotation;
+    }
+
+    private boolean isRevisionChanged(VcsRevisionNumber revision) {
+      return annotation.isBaseRevisionChanged(revision);
     }
   }
 
-  private static final class CachedBlame {
-    private final long modificationStamp;
-    private final int lineNumber;
-    private final Blame blame;
+  private static final class CachedBlames {
+    private final VcsRevisionNumber revision;
+    private final TIntObjectHashMap<Blame> blames = new TIntObjectHashMap<>();
 
-    private CachedBlame(long modificationStamp, int lineNumber, Blame blame) {
-      this.modificationStamp = modificationStamp;
-      this.lineNumber = lineNumber;
-      this.blame = blame;
+    private CachedBlames(VcsRevisionNumber revision) {
+      this.revision = revision;
+    }
+
+    private boolean isRevisionChanged(VcsRevisionNumber revision) {
+      return !Objects.equals(this.revision, revision);
+    }
+
+    @Nullable
+    public Blame getBlame(int lineNumber) {
+      return blames.get(lineNumber);
+    }
+
+    public Blame putBlame(int lineNumber, @NotNull Blame blame) {
+      return blames.put(lineNumber, blame);
     }
   }
 }

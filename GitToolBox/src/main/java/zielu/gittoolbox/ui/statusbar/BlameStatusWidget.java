@@ -23,6 +23,7 @@ import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
+import git4idea.GitVcs;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.lang.ref.Reference;
@@ -35,6 +36,7 @@ import zielu.gittoolbox.blame.Blame;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.util.GtUtil;
 
 public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
     StatusBarWidget.TextPresentation {
@@ -43,10 +45,12 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   private static final String PREFIX = ResBundle.getString("blame.prefix");
   private static final int BLAME_LENGTH = MAX_LENGTH - PREFIX.length() - 1;
   private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", MAX_LENGTH);
+  private final GitVcs git;
   private final BlameService lens;
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
   private final Timer updateForSelectionTimer;
+  private final Timer underVcsTimer;
   // store editor here to avoid expensive and EDT-only getSelectedEditor() retrievals
   private volatile Reference<Editor> editor = new WeakReference<>(null);
   private volatile Reference<VirtualFile> file = new WeakReference<>(null);
@@ -56,10 +60,12 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
 
   public BlameStatusWidget(@NotNull Project project) {
     super(project);
+    git = GitVcs.getInstance(project);
     Metrics metrics = MetricsHost.project(project);
     updateForDocumentTimer = metrics.timer("blame-statusbar-update-for-document");
     updateForCaretTimer = metrics.timer("blame-statusbar-update-for-caret");
     updateForSelectionTimer = metrics.timer("blame-statusbar-update-for-selection");
+    underVcsTimer = metrics.timer("blame-statusbar-under-vcs");
     lens = BlameService.getInstance(project);
     clearBlame();
   }
@@ -95,9 +101,13 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
       file = new WeakReference<>(null);
     }
     VirtualFile currentFile = file.get();
-    if (currentFile != null) {
+    if (currentFile != null && isUnderVcs(currentFile)) {
       fileChanged(selectedEditor, currentFile);
     }
+  }
+
+  private boolean isUnderVcs(@NotNull VirtualFile file) {
+    return underVcsTimer.timeSupplier(() -> git.fileIsUnderVcs(GtUtil.localFilePath(file)));
   }
 
   private void updateForEditor(@NotNull Editor updatedEditor) {
@@ -107,7 +117,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     }
     file = new WeakReference<>(FileDocumentManager.getInstance().getFile(updatedEditor.getDocument()));
     VirtualFile currentFile = file.get();
-    if (currentFile != null) {
+    if (currentFile != null && isUnderVcs(currentFile)) {
       fileChanged(selectedEditor, currentFile);
     }
   }
@@ -178,7 +188,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     this.visible = visible;
     if (shouldShow()) {
       VirtualFile currentFile = file.get();
-      if (currentFile != null) {
+      if (currentFile != null && isUnderVcs(currentFile)) {
         fileChanged(editor.get(), currentFile);
       } else {
         clearBlame();
@@ -202,7 +212,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   @Override
   public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
     if (shouldShow()) {
-      if (!file.equals(this.file.get())) {
+      if (!file.equals(this.file.get()) && isUnderVcs(file)) {
         Editor selectedEditor = source.getSelectedTextEditor();
         editor = new WeakReference<>(selectedEditor);
         fileChanged(selectedEditor, file);
@@ -225,7 +235,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
         file = new WeakReference<>(event.getNewFile());
         if (shouldShow()) {
           VirtualFile currentFile = file.get();
-          if (currentFile != null) {
+          if (currentFile != null && isUnderVcs(currentFile)) {
             fileChanged(editor.get(), currentFile);
           }
         }

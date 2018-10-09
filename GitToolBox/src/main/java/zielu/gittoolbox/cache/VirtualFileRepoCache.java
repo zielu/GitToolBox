@@ -1,5 +1,6 @@
 package zielu.gittoolbox.cache;
 
+import com.google.common.base.Preconditions;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
@@ -21,4 +22,10 @@ public interface VirtualFileRepoCache extends DirMappingAware {
 
   @Nullable
   GitRepository getRepoForDir(@NotNull VirtualFile dir);
+
+  @Nullable
+  default GitRepository getRepoForFile(@NotNull VirtualFile file) {
+    Preconditions.checkArgument(!file.isDirectory(), "%s is not file", file);
+    return getRepoForDir(file.getParent());
+  }
 }
