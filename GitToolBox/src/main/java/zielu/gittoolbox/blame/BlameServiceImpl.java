@@ -19,6 +19,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import gnu.trove.TIntObjectHashMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +68,6 @@ class BlameServiceImpl implements BlameService {
   private final Timer fileBlameTimer;
   private final Timer lineBlameTimer;
   private final Timer annotationTimer;
-  private final Timer currentRevisionTimer;
 
   BlameServiceImpl(@NotNull Project project) {
     this.project = project;
@@ -76,7 +77,6 @@ class BlameServiceImpl implements BlameService {
     fileBlameTimer = metrics.timer("blame-file-blame");
     lineBlameTimer = metrics.timer("blame-line-blame");
     annotationTimer = metrics.timer("blame-annotation");
-    currentRevisionTimer = metrics.timer("blame-current-repoRevision");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
   }
 
@@ -156,7 +156,7 @@ class BlameServiceImpl implements BlameService {
   @Nullable
   private Blame getCurrentLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
                                             int currentLine) {
-    VcsRevisionNumber repoRevision = currentRevisionTimer.timeSupplier(() -> currentRepoRevision(file));
+    VcsRevisionNumber repoRevision = currentRepoRevision(file);
     Blame cachedBlame = getCachedBlame(document, repoRevision, currentLine);
     if (cachedBlame != null) {
       return cachedBlame;
@@ -194,7 +194,7 @@ class BlameServiceImpl implements BlameService {
     FileAnnotation annotation = getAnnotation(document, repoRevision, file);
     if (annotation != null) {
       CachedBlames blames = cachedBlames(document, repoRevision);
-      return blames.putBlame(line, LineBlame.create(annotation, line));
+      return blames.createBlame(line, annotation);
     }
     return null;
   }
@@ -279,7 +279,8 @@ class BlameServiceImpl implements BlameService {
 
   private static final class CachedBlames {
     private final VcsRevisionNumber repoRevision;
-    private final TIntObjectHashMap<Blame> blames = new TIntObjectHashMap<>();
+    private final Map<VcsRevisionNumber, Blame> blames = new HashMap<>();
+    private final TIntObjectHashMap<Blame> lineBlames = new TIntObjectHashMap<>();
 
     private CachedBlames(VcsRevisionNumber repoRevision) {
       this.repoRevision = repoRevision;
@@ -290,12 +291,16 @@ class BlameServiceImpl implements BlameService {
     }
 
     @Nullable
-    public Blame getBlame(int lineNumber) {
-      return blames.get(lineNumber);
+    private Blame getBlame(int lineNumber) {
+      return lineBlames.get(lineNumber);
     }
 
-    public Blame putBlame(int lineNumber, @NotNull Blame blame) {
-      return blames.put(lineNumber, blame);
+    @NotNull
+    private Blame createBlame(int lineNumber, @NotNull FileAnnotation annotation) {
+      VcsRevisionNumber lineRevision = annotation.getLineRevisionNumber(lineNumber);
+      Blame blame = blames.computeIfAbsent(lineRevision, lineRev -> LineBlame.create(annotation, lineNumber));
+      lineBlames.put(lineNumber, blame);
+      return blame;
     }
   }
 }
