@@ -76,7 +76,7 @@ class BlameServiceImpl implements BlameService {
     fileBlameTimer = metrics.timer("blame-file-blame");
     lineBlameTimer = metrics.timer("blame-line-blame");
     annotationTimer = metrics.timer("blame-annotation");
-    currentRevisionTimer = metrics.timer("blame-current-revision");
+    currentRevisionTimer = metrics.timer("blame-current-repoRevision");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
   }
 
@@ -156,12 +156,12 @@ class BlameServiceImpl implements BlameService {
   @Nullable
   private Blame getCurrentLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
                                             int currentLine) {
-    VcsRevisionNumber currentRevision = currentRevisionTimer.timeSupplier(() -> currentRepoRevision(file));
-    Blame cachedBlame = getCachedBlame(document, currentRevision, currentLine);
+    VcsRevisionNumber repoRevision = currentRevisionTimer.timeSupplier(() -> currentRepoRevision(file));
+    Blame cachedBlame = getCachedBlame(document, repoRevision, currentLine);
     if (cachedBlame != null) {
       return cachedBlame;
     }
-    return cacheBlame(document, file, currentRevision, currentLine);
+    return cacheBlame(document, file, repoRevision, currentLine);
   }
 
   @NotNull
@@ -176,44 +176,45 @@ class BlameServiceImpl implements BlameService {
   }
 
   @Nullable
-  private Blame getCachedBlame(@NotNull Document document, @NotNull VcsRevisionNumber currentRevision, int line) {
+  private Blame getCachedBlame(@NotNull Document document, @NotNull VcsRevisionNumber repoRevision, int line) {
     CachedBlames cachedBlames = blameCache.getIfPresent(document);
     if (cachedBlames != null) {
-      if (cachedBlames.isRevisionChanged(currentRevision)) {
+      if (cachedBlames.isRevisionChanged(repoRevision)) {
         blameCache.invalidate(document);
+      } else {
+        return cachedBlames.getBlame(line);
       }
-      return cachedBlames.getBlame(line);
     }
     return null;
   }
 
   @Nullable
   private Blame cacheBlame(@NotNull Document document, @NotNull VirtualFile file,
-                           @NotNull VcsRevisionNumber currentRevision, int line) {
-    FileAnnotation annotation = getAnnotation(document, currentRevision, file);
+                           @NotNull VcsRevisionNumber repoRevision, int line) {
+    FileAnnotation annotation = getAnnotation(document, repoRevision, file);
     if (annotation != null) {
-      CachedBlames blames = cachedBlames(document, currentRevision);
+      CachedBlames blames = cachedBlames(document, repoRevision);
       return blames.putBlame(line, LineBlame.create(annotation, line));
     }
     return null;
   }
 
-  private CachedBlames cachedBlames(@NotNull Document document, @NotNull VcsRevisionNumber currentRevision) {
+  private CachedBlames cachedBlames(@NotNull Document document, @NotNull VcsRevisionNumber repoRevision) {
     try {
-      return blameCache.get(document, () -> new CachedBlames(currentRevision));
+      return blameCache.get(document, () -> new CachedBlames(repoRevision));
     } catch (ExecutionException e) {
       throw new IllegalStateException("Failed to load cache blames " + document, e);
     }
   }
 
   @Nullable
-  private FileAnnotation getAnnotation(@NotNull Document document, @NotNull VcsRevisionNumber currentRevision,
+  private FileAnnotation getAnnotation(@NotNull Document document, @NotNull VcsRevisionNumber repoRevision,
                                        @NotNull VirtualFile file) {
-    CachedAnnotation cachedAnnotation = getCachedAnnotation(document, file);
+    CachedAnnotation cachedAnnotation = getCachedAnnotation(document, repoRevision, file);
     if (cachedAnnotation != null) {
-      if (cachedAnnotation.isRevisionChanged(currentRevision)) {
+      if (cachedAnnotation.isRevisionChanged(repoRevision)) {
         annotationCache.invalidate(document);
-        cachedAnnotation = getCachedAnnotation(document, file);
+        cachedAnnotation = getCachedAnnotation(document, repoRevision, file);
       }
     }
     if (cachedAnnotation != null) {
@@ -228,18 +229,19 @@ class BlameServiceImpl implements BlameService {
       try {
         return git.parseRevisionNumber(repo.getCurrentRevision());
       } catch (VcsException e) {
-        log.warn("Could not get current revision for " + file);
+        log.warn("Could not get current repoRevision for " + file);
       }
     }
     return VcsRevisionNumber.NULL;
   }
 
   @Nullable
-  private CachedAnnotation getCachedAnnotation(@NotNull Document document, @NotNull VirtualFile file) {
+  private CachedAnnotation getCachedAnnotation(@NotNull Document document, @NotNull VcsRevisionNumber repoRevision,
+                                               @NotNull VirtualFile file) {
     try {
       return annotationCache.get(document, () -> annotationTimer.time(() -> {
         FileAnnotation annotation = loadAnnotation(file);
-        return new CachedAnnotation(annotation);
+        return new CachedAnnotation(repoRevision, annotation);
       }));
     } catch (Exception e) {
       log.warn("Failed to get cached annotation for " + file, e);
@@ -262,27 +264,29 @@ class BlameServiceImpl implements BlameService {
   }
 
   private static final class CachedAnnotation {
+    private VcsRevisionNumber repoRevision;
     private final FileAnnotation annotation;
 
-    private CachedAnnotation(FileAnnotation annotation) {
+    private CachedAnnotation(@NotNull VcsRevisionNumber repoRevision, FileAnnotation annotation) {
+      this.repoRevision = repoRevision;
       this.annotation = annotation;
     }
 
-    private boolean isRevisionChanged(VcsRevisionNumber revision) {
-      return annotation.isBaseRevisionChanged(revision);
+    private boolean isRevisionChanged(VcsRevisionNumber repoRevision) {
+      return !Objects.equals(this.repoRevision, repoRevision);
     }
   }
 
   private static final class CachedBlames {
-    private final VcsRevisionNumber revision;
+    private final VcsRevisionNumber repoRevision;
     private final TIntObjectHashMap<Blame> blames = new TIntObjectHashMap<>();
 
-    private CachedBlames(VcsRevisionNumber revision) {
-      this.revision = revision;
+    private CachedBlames(VcsRevisionNumber repoRevision) {
+      this.repoRevision = repoRevision;
     }
 
-    private boolean isRevisionChanged(VcsRevisionNumber revision) {
-      return !Objects.equals(this.revision, revision);
+    private boolean isRevisionChanged(VcsRevisionNumber repoRevision) {
+      return !Objects.equals(this.repoRevision, repoRevision);
     }
 
     @Nullable
