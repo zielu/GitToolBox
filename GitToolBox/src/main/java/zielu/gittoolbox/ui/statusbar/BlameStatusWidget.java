@@ -100,9 +100,11 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     } else {
       file = new WeakReference<>(null);
     }
-    VirtualFile currentFile = file.get();
-    if (currentFile != null && isUnderVcs(currentFile)) {
-      fileChanged(selectedEditor, currentFile);
+    if (shouldShow()) {
+      VirtualFile currentFile = file.get();
+      if (currentFile != null && isUnderVcs(currentFile)) {
+        fileChanged(selectedEditor, currentFile);
+      }
     }
   }
 
@@ -116,9 +118,11 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
       return;
     }
     file = new WeakReference<>(FileDocumentManager.getInstance().getFile(updatedEditor.getDocument()));
-    VirtualFile currentFile = file.get();
-    if (currentFile != null && isUnderVcs(currentFile)) {
-      fileChanged(selectedEditor, currentFile);
+    if (shouldShow()) {
+      VirtualFile currentFile = file.get();
+      if (currentFile != null && isUnderVcs(currentFile)) {
+        fileChanged(selectedEditor, currentFile);
+      }
     }
   }
 
