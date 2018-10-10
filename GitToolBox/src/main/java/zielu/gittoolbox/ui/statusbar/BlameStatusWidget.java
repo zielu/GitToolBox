@@ -68,6 +68,15 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     underVcsTimer = metrics.timer("blame-statusbar-under-vcs");
     lens = BlameService.getInstance(project);
     clearBlame();
+    myConnection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
+      @Override
+      public void exitDumbMode() {
+        Editor editor = getEditor();
+        if (editor != null) {
+          updateForEditor(editor);
+        }
+      }
+    });
   }
 
   @Override
@@ -101,11 +110,20 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
       file = new WeakReference<>(null);
     }
     if (shouldShow()) {
-      VirtualFile currentFile = file.get();
-      if (currentFile != null && isUnderVcs(currentFile)) {
+      VirtualFile currentFile = getCurrentFileUnderVcs();
+      if (currentFile != null) {
         fileChanged(selectedEditor, currentFile);
       }
     }
+  }
+
+  @Nullable
+  private VirtualFile getCurrentFileUnderVcs() {
+    VirtualFile currentFile = file.get();
+    if (currentFile != null && isUnderVcs(currentFile)) {
+      return currentFile;
+    }
+    return null;
   }
 
   private boolean isUnderVcs(@NotNull VirtualFile file) {
@@ -119,8 +137,8 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     }
     file = new WeakReference<>(FileDocumentManager.getInstance().getFile(updatedEditor.getDocument()));
     if (shouldShow()) {
-      VirtualFile currentFile = file.get();
-      if (currentFile != null && isUnderVcs(currentFile)) {
+      VirtualFile currentFile = getCurrentFileUnderVcs();
+      if (currentFile != null) {
         fileChanged(selectedEditor, currentFile);
       }
     }
@@ -171,28 +189,26 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   @Nullable
   @Override
   public Consumer<MouseEvent> getClickConsumer() {
-    Editor editor = this.editor.get();
-    if (blameDetails == null || editor == null) {
-      return null;
-    } else {
-      return event -> {
+    return event -> {
+      Editor editor = this.editor.get();
+      if (blameDetails != null && editor != null) {
         JTextArea content = new JTextArea(blameDetails);
         content.setEditable(false);
         JBPopupFactory.getInstance()
-            .createDialogBalloonBuilder(content, "Blame")
+            .createDialogBalloonBuilder(content, ResBundle.getString("statusBar.blame.popup.title"))
             .setDialogMode(true)
             .setCloseButtonEnabled(false)
             .setHideOnClickOutside(true)
             .createBalloon().showInCenterOf(editor.getComponent());
-      };
-    }
+      }
+    };
   }
 
   public void setVisible(boolean visible) {
     this.visible = visible;
     if (shouldShow()) {
-      VirtualFile currentFile = file.get();
-      if (currentFile != null && isUnderVcs(currentFile)) {
+      VirtualFile currentFile = getCurrentFileUnderVcs();
+      if (currentFile != null) {
         fileChanged(editor.get(), currentFile);
       } else {
         clearBlame();
@@ -238,8 +254,8 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
         editor = new WeakReference<>(getEditor());
         file = new WeakReference<>(event.getNewFile());
         if (shouldShow()) {
-          VirtualFile currentFile = file.get();
-          if (currentFile != null && isUnderVcs(currentFile)) {
+          VirtualFile currentFile = getCurrentFileUnderVcs();
+          if (currentFile != null) {
             fileChanged(editor.get(), currentFile);
           }
         }
