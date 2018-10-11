@@ -7,6 +7,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
 import com.intellij.openapi.project.Project;
@@ -31,27 +32,6 @@ import zielu.gittoolbox.metrics.MetricsHost;
 import zielu.gittoolbox.util.GtUtil;
 
 class BlameServiceImpl implements BlameService {
-  private static final UpToDateLineNumberProvider EMPTY_PROVIDER = new UpToDateLineNumberProvider() {
-    @Override
-    public int getLineCount() {
-      return 0;
-    }
-
-    @Override
-    public int getLineNumber(int currentNumber) {
-      return ABSENT_LINE_NUMBER;
-    }
-
-    @Override
-    public boolean isLineChanged(int currentNumber) {
-      return true;
-    }
-
-    @Override
-    public boolean isRangeChanged(int start, int end) {
-      return true;
-    }
-  };
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
   private final VirtualFileRepoCache repoCache;
@@ -62,7 +42,7 @@ class BlameServiceImpl implements BlameService {
   private final Cache<Document, CachedBlames> blameCache = CacheBuilder.newBuilder()
       .weakKeys()
       .build();
-  private final Cache<Document, UpToDateLineNumberProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
+  private final Cache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
       .weakKeys()
       .build();
   private final Timer fileBlameTimer;
@@ -122,10 +102,11 @@ class BlameServiceImpl implements BlameService {
     if (!caretModel.isUpToDate()) {
       return Integer.MIN_VALUE;
     }
-    return caretModel.getLogicalPosition().line;
+    LogicalPosition position = caretModel.getLogicalPosition();
+    return position.line;
   }
 
-  private boolean isDocumentInInvalidState(Document document) {
+  private boolean isDocumentInBulkUpdate(Document document) {
     if (document instanceof DocumentEx) {
       DocumentEx docEx = (DocumentEx) document;
       return docEx.isInBulkUpdate();
@@ -136,21 +117,30 @@ class BlameServiceImpl implements BlameService {
   @Nullable
   private Blame getCurrentLineBlameInternal(@NotNull Editor editor, @NotNull VirtualFile file) {
     Document document = editor.getDocument();
+    if (invalidateOnBulkUpdate(document)) {
+      return null;
+    }
     int currentLine = getCurrentLineNumber(editor);
     if (currentLine == Integer.MIN_VALUE) {
       return null;
     }
-    if (document.isLineModified(currentLine)) {
-      //return file blame
-      return null;
+    CachedLineProvider lineNumberProvider = getLineNumberProvider(document);
+    if (lineNumberProvider != null) {
+      if (!lineNumberProvider.isLineChanged(currentLine)) {
+        int correctedLine = lineNumberProvider.getLineNumber(currentLine);
+        return getCurrentLineBlameInternal(document, file, correctedLine);
+      }
     }
-    UpToDateLineNumberProvider lineNumberProvider = getLineNumberProvider(document);
-    if (lineNumberProvider.isLineChanged(currentLine)) {
-      return null;
-    } else {
-      int correctedLine = lineNumberProvider.getLineNumber(currentLine);
-      return getCurrentLineBlameInternal(document, file, correctedLine);
+    return null;
+  }
+
+  private boolean invalidateOnBulkUpdate(Document document) {
+    if (isDocumentInBulkUpdate(document)) {
+      annotationCache.invalidate(document);
+      blameCache.invalidate(document);
+      return true;
     }
+    return false;
   }
 
   @Nullable
@@ -164,14 +154,14 @@ class BlameServiceImpl implements BlameService {
     return cacheBlame(document, file, repoRevision, currentLine);
   }
 
-  @NotNull
-  private UpToDateLineNumberProvider getLineNumberProvider(@NotNull Document document) {
+  @Nullable
+  private CachedLineProvider getLineNumberProvider(@NotNull Document document) {
     try {
       return lineNumberProviderCache.get(document,
-          () -> new UpToDateLineNumberProviderImpl(document, project));
+          () -> new CachedLineProvider(new UpToDateLineNumberProviderImpl(document, project)));
     } catch (ExecutionException e) {
       log.warn("Failed to get line number provider for " + document, e);
-      return EMPTY_PROVIDER;
+      return null;
     }
   }
 
@@ -295,12 +285,31 @@ class BlameServiceImpl implements BlameService {
       return lineBlames.get(lineNumber);
     }
 
-    @NotNull
+    @Nullable
     private Blame createBlame(int lineNumber, @NotNull FileAnnotation annotation) {
       VcsRevisionNumber lineRevision = annotation.getLineRevisionNumber(lineNumber);
-      Blame blame = blames.computeIfAbsent(lineRevision, lineRev -> LineBlame.create(annotation, lineNumber));
-      lineBlames.put(lineNumber, blame);
-      return blame;
+      if (lineRevision != null) {
+        Blame blame = blames.computeIfAbsent(lineRevision, lineRev -> LineBlame.create(annotation, lineNumber));
+        lineBlames.put(lineNumber, blame);
+        return blame;
+      }
+      return null;
+    }
+  }
+
+  private static final class CachedLineProvider {
+    private final UpToDateLineNumberProvider lineProvider;
+
+    private CachedLineProvider(UpToDateLineNumberProvider lineProvider) {
+      this.lineProvider = lineProvider;
+    }
+
+    private boolean isLineChanged(int currentNumber) {
+      return lineProvider.isLineChanged(currentNumber);
+    }
+
+    private int getLineNumber(int currentNumber) {
+      return lineProvider.getLineNumber(currentNumber);
     }
   }
 }
