@@ -134,15 +134,6 @@ class BlameServiceImpl implements BlameService {
     return null;
   }
 
-  private boolean invalidateOnBulkUpdate(Document document) {
-    if (isDocumentInBulkUpdate(document)) {
-      annotationCache.invalidate(document);
-      blameCache.invalidate(document);
-      return true;
-    }
-    return false;
-  }
-
   @Nullable
   private Blame getCurrentLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
                                             int currentLine) {
@@ -152,6 +143,15 @@ class BlameServiceImpl implements BlameService {
       return cachedBlame;
     }
     return cacheBlame(document, file, repoRevision, currentLine);
+  }
+
+  private boolean invalidateOnBulkUpdate(Document document) {
+    if (isDocumentInBulkUpdate(document)) {
+      annotationCache.invalidate(document);
+      blameCache.invalidate(document);
+      return true;
+    }
+    return false;
   }
 
   @Nullable
