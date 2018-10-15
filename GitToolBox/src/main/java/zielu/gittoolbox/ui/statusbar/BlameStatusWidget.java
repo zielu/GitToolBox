@@ -42,8 +42,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     StatusBarWidget.TextPresentation {
   private static final String ID = BlameStatusWidget.class.getName();
   private static final int MAX_LENGTH = 27;
-  private static final String PREFIX = ResBundle.getString("blame.prefix");
-  private static final int BLAME_LENGTH = MAX_LENGTH - PREFIX.length() - 1;
   private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", MAX_LENGTH);
   private final GitVcs git;
   private final BlameService lens;
@@ -164,9 +162,9 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   @NotNull
   @Override
   public String getText() {
-    String blamePart = Ascii.truncate(blameText, BLAME_LENGTH, "...");
-    blamePart = Strings.padEnd(blamePart, BLAME_LENGTH, ' ');
-    return PREFIX + " " + blamePart;
+    String blamePart = Ascii.truncate(blameText, MAX_LENGTH, "...");
+    blamePart = Strings.padEnd(blamePart, MAX_LENGTH, ' ');
+    return blamePart;
   }
 
   @NotNull
@@ -199,6 +197,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
             .setDialogMode(true)
             .setCloseButtonEnabled(false)
             .setHideOnClickOutside(true)
+            .setShowCallout(false)
             .createBalloon().showInCenterOf(editor.getComponent());
       }
     };
@@ -214,7 +213,11 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
         clearBlame();
       }
     } else {
-      clearBlame();
+      if (visible) {
+        clearBlame();
+      } else {
+        disabled();
+      }
     }
     updateWidget();
   }
@@ -276,7 +279,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
 
   private void updateBlame(@Nullable Blame blame) {
     if (blame != null) {
-      blameText = blame.getShortText();
+      blameText = blame.getShortStatus();
       blameDetails = blame.getDetailedText();
     } else {
       clearBlame();
@@ -285,6 +288,11 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
 
   private void clearBlame() {
     blameText = ResBundle.na();
+    blameDetails = null;
+  }
+
+  private void disabled() {
+    blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.disabled();
     blameDetails = null;
   }
 }

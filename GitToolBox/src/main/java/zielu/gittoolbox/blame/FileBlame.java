@@ -6,6 +6,7 @@ import git4idea.i18n.GitBundle;
 import java.util.Date;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.ResBundle;
 
 public final class FileBlame extends AbstractBlame {
   private final String author;
@@ -29,6 +30,11 @@ public final class FileBlame extends AbstractBlame {
   @Override
   public String getShortText() {
     return author + " " + DateFormatUtil.formatBetweenDates(date.getTime(), System.currentTimeMillis());
+  }
+
+  @Override
+  protected String getStatusPrefix() {
+    return ResBundle.getString("blame.file.prefix");
   }
 
   @Nullable

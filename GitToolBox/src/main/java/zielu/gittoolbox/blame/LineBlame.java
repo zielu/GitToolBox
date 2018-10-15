@@ -4,6 +4,7 @@ import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.annotate.LineAnnotationAspect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.ResBundle;
 
 public class LineBlame extends AbstractBlame {
   private final String author;
@@ -34,6 +35,11 @@ public class LineBlame extends AbstractBlame {
   @Override
   public String getShortText() {
     return author + " " + revisionDate;
+  }
+
+  @Override
+  protected String getStatusPrefix() {
+    return ResBundle.getString("blame.line.prefix");
   }
 
   @Nullable

@@ -7,6 +7,9 @@ public interface Blame {
   @NotNull
   String getShortText();
 
+  @NotNull
+  String getShortStatus();
+
   @Nullable
   String getDetailedText();
 }

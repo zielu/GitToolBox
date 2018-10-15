@@ -164,6 +164,11 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     text = "";
   }
 
+  private void disabled() {
+    toolTip.clear();
+    text = ResBundle.getString("status.prefix") + " " + ResBundle.disabled();
+  }
+
   private void updateData(@NotNull GitRepository repository, RepoInfo repoInfo) {
     toolTip.update(repository, repoInfo.count().orElse(null));
     text = ResBundle.getString("status.prefix") + " " + repoInfo.count().map(StatusText::format)
@@ -192,7 +197,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         empty();
       }
     } else {
-      empty();
+      disabled();
     }
   }
 
