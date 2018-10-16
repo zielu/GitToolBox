@@ -28,6 +28,7 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.Objects;
 import javax.swing.JTextArea;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,6 +53,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   // store editor here to avoid expensive and EDT-only getSelectedEditor() retrievals
   private volatile Reference<Editor> editor = new WeakReference<>(null);
   private volatile Reference<VirtualFile> file = new WeakReference<>(null);
+  private volatile Reference<Blame> blame = new WeakReference<>(null);
   private String blameText = ResBundle.na();
   private String blameDetails;
   private boolean visible;
@@ -205,21 +207,25 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
 
   public void setVisible(boolean visible) {
     this.visible = visible;
+    boolean updated = false;
     if (shouldShow()) {
       VirtualFile currentFile = getCurrentFileUnderVcs();
       if (currentFile != null) {
         fileChanged(editor.get(), currentFile);
       } else {
-        clearBlame();
+        updated = clearBlame();
       }
     } else {
       if (visible) {
-        clearBlame();
+        updated = clearBlame();
       } else {
         disabled();
+        updated = true;
       }
     }
-    updateWidget();
+    if (updated) {
+      updateWidget();
+    }
   }
 
   private boolean shouldShow() {
@@ -246,8 +252,9 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   @Override
   public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
     lens.fileClosed(file);
-    clearBlame();
-    updateWidget();
+    if (clearBlame()) {
+      updateWidget();
+    }
   }
 
   @Override
@@ -273,22 +280,34 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     } else {
       blame = lens.getFileBlame(file);
     }
-    updateBlame(blame);
-    updateWidget();
-  }
-
-  private void updateBlame(@Nullable Blame blame) {
-    if (blame != null) {
-      blameText = blame.getShortStatus();
-      blameDetails = blame.getDetailedText();
-    } else {
-      clearBlame();
+    if (updateBlame(blame)) {
+      updateWidget();
     }
   }
 
-  private void clearBlame() {
-    blameText = ResBundle.na();
-    blameDetails = null;
+  private boolean updateBlame(@Nullable Blame blame) {
+    if (blame != null) {
+      Blame currentBlame = this.blame.get();
+      if (!Objects.equals(blame, currentBlame)) {
+        blameText = blame.getShortStatus();
+        blameDetails = blame.getDetailedText();
+        this.blame = new WeakReference<>(blame);
+        return true;
+      }
+      return false;
+    } else {
+      return clearBlame();
+    }
+  }
+
+  private boolean clearBlame() {
+    if (blame.get() != null) {
+      blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.na();
+      blameDetails = null;
+      blame = new WeakReference<>(null);
+      return true;
+    }
+    return false;
   }
 
   private void disabled() {
