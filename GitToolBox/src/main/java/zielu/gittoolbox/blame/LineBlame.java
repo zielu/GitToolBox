@@ -7,13 +7,11 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 
 public class LineBlame extends AbstractBlame {
-  private final String author;
-  private final String revisionDate;
+  private final String shortText;
   private final String detailedText;
 
   private LineBlame(String author, String revisionDate, String detailedText) {
-    this.author = prepareAuthor(author);
-    this.revisionDate = revisionDate;
+    shortText = prepareAuthor(author) + " " + revisionDate;
     this.detailedText = detailedText;
   }
 
@@ -34,7 +32,7 @@ public class LineBlame extends AbstractBlame {
   @NotNull
   @Override
   public String getShortText() {
-    return author + " " + revisionDate;
+    return shortText;
   }
 
   @Override

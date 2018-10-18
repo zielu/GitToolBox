@@ -9,13 +9,12 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 
 public final class FileBlame extends AbstractBlame {
-  private final String author;
-  private final Date date;
+  private final String shortText;
   private final String detailedText;
 
   private FileBlame(String author, Date date, String detailedText) {
-    this.author = prepareAuthor(author);
-    this.date = date;
+    shortText = prepareAuthor(author) + " " +
+        DateFormatUtil.formatBetweenDates(date.getTime(), System.currentTimeMillis());
     this.detailedText = detailedText;
   }
 
@@ -29,7 +28,7 @@ public final class FileBlame extends AbstractBlame {
   @NotNull
   @Override
   public String getShortText() {
-    return author + " " + DateFormatUtil.formatBetweenDates(date.getTime(), System.currentTimeMillis());
+    return shortText;
   }
 
   @Override
