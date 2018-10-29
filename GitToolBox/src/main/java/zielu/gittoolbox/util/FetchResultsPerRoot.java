@@ -6,6 +6,7 @@ import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import jodd.util.StringBand;
 import zielu.gittoolbox.compat.Notifier;
@@ -33,15 +34,20 @@ public class FetchResultsPerRoot {
         message.append(Html.BR);
         String boldName = GitUIUtil.bold(GtUtil.name(entry.getKey()));
         FetchResult entryResult = entry.getValue();
+        Optional<String> additionalInfo = Optional.empty();
         if (entryResult.result().isCancelled()) {
-          message.append(boldName).append(": cancelled by user").append(entryResult.result().getAdditionalInfo());
+          message.append(boldName).append(": cancelled by user");
+          additionalInfo = entryResult.result().getAdditionalInfo();
         } else if (entryResult.result().isNotAuthorized()) {
-          message.append(boldName).append(": couldn't authorize").append(entryResult.result().getAdditionalInfo());
+          message.append(boldName).append(": couldn't authorize");
+          additionalInfo = entryResult.result().getAdditionalInfo();
           anyNotAuthorized = true;
         } else if (entryResult.result().isError()) {
-          message.append(boldName).append(": fetch failed").append(entryResult.result().getAdditionalInfo());
+          message.append(boldName).append(": fetch failed");
+          additionalInfo = entryResult.result().getAdditionalInfo();
           anyError = true;
         }
+        additionalInfo.ifPresent(message::append);
       }
       if (anyError || anyNotAuthorized) {
         notifier.fetchError("Fetch problems:" + Html.BR + message.toString());
