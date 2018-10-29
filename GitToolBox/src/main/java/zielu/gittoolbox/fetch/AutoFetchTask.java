@@ -144,7 +144,7 @@ class AutoFetchTask implements Runnable {
 
   private void executeFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
     Collection<GitRepository> fetched = GtFetcher.builder()
-        .withClient(new DefaultGtFetchClient(project, true))
+        .withClient(GtFetchClientFactory.create(project))
         .withMetrics(MetricsHost.project(project))
         .withUi(new GtFetcherUi(project))
         .withExecutor(owner.repoFetchExecutor())

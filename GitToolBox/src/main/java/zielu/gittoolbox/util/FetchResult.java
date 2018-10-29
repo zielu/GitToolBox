@@ -1,15 +1,15 @@
 package zielu.gittoolbox.util;
 
-import git4idea.update.GitFetchResult;
+import zielu.gittoolbox.fetch.GtFetchResult;
 
 public class FetchResult {
-  private final GitFetchResult result;
+  private final GtFetchResult result;
 
-  public FetchResult(GitFetchResult result) {
+  public FetchResult(GtFetchResult result) {
     this.result = result;
   }
 
-  public GitFetchResult result() {
+  public GtFetchResult result() {
     return result;
   }
 }

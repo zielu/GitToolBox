@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.progress.ProgressIndicator;
 import git4idea.repo.GitRepository;
-import git4idea.update.GitFetchResult;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executors;
@@ -62,7 +61,7 @@ class GtFetcherTest {
 
   @Test
   void fetchRootsShouldReturnRepositoryIfSuccessful() {
-    when(client.fetch(repository)).thenReturn(GitFetchResult.success());
+    when(client.fetch(repository)).thenReturn(DefaultGtFetchResult.success());
 
     Collection<GitRepository> repositories = fetcher.fetchRoots(Collections.singletonList(repository));
 
@@ -71,7 +70,7 @@ class GtFetcherTest {
 
   @Test
   void fetchRootsShouldNotReturnRepositoryWithError() {
-    when(client.fetch(repository)).thenReturn(GitFetchResult.error(new Exception("Test error")));
+    when(client.fetch(repository)).thenReturn(DefaultGtFetchResult.error(new Exception("Test error")));
 
     Collection<GitRepository> repositories = fetcher.fetchRoots(Collections.singletonList(repository));
 
@@ -105,9 +104,9 @@ class GtFetcherTest {
         if (repo.equals(repository)) {
           throw new RuntimeException("Test error 1");
         } else if (repo.equals(repo3)) {
-          return GitFetchResult.error(new Exception("Test error 2"));
+          return DefaultGtFetchResult.error(new Exception("Test error 2"));
         } else if (repo.equals(repo2) || repo.equals(repo4)) {
-          return GitFetchResult.success();
+          return DefaultGtFetchResult.success();
         } else {
           fail("Unsupported repo");
           return null;

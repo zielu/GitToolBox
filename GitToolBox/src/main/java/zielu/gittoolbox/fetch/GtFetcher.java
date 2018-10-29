@@ -8,10 +8,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.repo.GitRepository;
-import git4idea.update.GitFetchResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -104,7 +102,7 @@ public class GtFetcher {
   private CompletableFuture<FetchDone> fetchRepository(GitRepository repository) {
     return CompletableFuture.supplyAsync(() -> {
       log.debug("Fetching ", repository);
-      GitFetchResult fetch = metrics.timer("fetch-root").timeSupplier(() -> fetcher.fetch(repository));
+      GtFetchResult fetch = metrics.timer("fetch-root").timeSupplier(() -> fetcher.fetch(repository));
       return new FetchDone(repository, fetch);
     }, executor);
   }
@@ -159,9 +157,9 @@ public class GtFetcher {
 
   private static final class FetchDone {
     private final GitRepository repository;
-    private final GitFetchResult result;
+    private final GtFetchResult result;
 
-    FetchDone(GitRepository repository, GitFetchResult result) {
+    FetchDone(GitRepository repository, GtFetchResult result) {
       this.repository = repository;
       this.result = result;
     }
@@ -175,7 +173,7 @@ public class GtFetcher {
     }
 
     Optional<String> getAdditionalInfo() {
-      return Optional.of(result.getAdditionalInfo()).filter(value -> !StringUtil.isEmptyOrSpaces(value));
+      return result.getAdditionalInfo();
     }
 
     VirtualFile getRoot() {

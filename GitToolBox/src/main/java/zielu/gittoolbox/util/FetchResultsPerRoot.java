@@ -2,7 +2,6 @@ package zielu.gittoolbox.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Map;
@@ -18,11 +17,6 @@ public class FetchResultsPerRoot {
   public synchronized void add(GitRepository repository, FetchResult result) {
     Preconditions.checkState(errorsPerRoot.put(repository, result) == null);
     anyProblems.set(!result.result().isSuccess());
-  }
-
-  private boolean executableValid(GitRepository repository) {
-    GitVcs instance = GitVcs.getInstance(repository.getProject());
-    return instance != null && instance.getExecutableValidator().isExecutableValid();
   }
 
   public void showProblems(Notifier notifier) {
@@ -44,7 +38,7 @@ public class FetchResultsPerRoot {
         } else if (entryResult.result().isNotAuthorized()) {
           message.append(boldName).append(": couldn't authorize").append(entryResult.result().getAdditionalInfo());
           anyNotAuthorized = true;
-        } else if (entryResult.result().isError() && executableValid(entry.getKey())) {
+        } else if (entryResult.result().isError()) {
           message.append(boldName).append(": fetch failed").append(entryResult.result().getAdditionalInfo());
           anyError = true;
         }
