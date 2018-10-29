@@ -13,8 +13,8 @@ public final class FileBlame extends AbstractBlame {
   private final String detailedText;
 
   private FileBlame(String author, Date date, String detailedText) {
-    shortText = prepareAuthor(author) + " " +
-        DateFormatUtil.formatBetweenDates(date.getTime(), System.currentTimeMillis());
+    shortText = prepareAuthor(author) + " "
+        + DateFormatUtil.formatBetweenDates(date.getTime(), System.currentTimeMillis());
     this.detailedText = detailedText;
   }
 
