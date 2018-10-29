@@ -46,6 +46,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     form.setBehindTrackerEnabled(config.behindTracker);
     form.setUpdateProjectAction(GitToolBoxUpdateProjectApp.getInstance().getById(config.getUpdateProjectActionId()));
     form.setDecorationParts(config.decorationParts);
+    form.setShowBlame(config.showBlame);
   }
 
   @Override
@@ -56,6 +57,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     modified = modified || config.isBehindTrackerChanged(form.getBehindTrackerEnabled());
     modified = modified || config.isUpdateProjectActionId(form.getUpdateProjectAction().getId());
     modified = modified || config.isDecorationPartsChanged(form.getDecorationParts());
+    modified = modified || config.isShowBlameChanged(form.getShowBlame());
     log.debug("Modified: ", modified);
     return modified;
   }
@@ -69,6 +71,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     config.behindTracker = form.getBehindTrackerEnabled();
     config.updateProjectActionId = form.getUpdateProjectAction().getId();
     config.decorationParts = form.getDecorationParts();
+    config.showBlame = form.getShowBlame();
 
     //Mark migrated here to handle case when config is modified without opening a project
     //Example: from launch dialog

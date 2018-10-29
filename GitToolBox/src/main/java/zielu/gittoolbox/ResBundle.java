@@ -38,4 +38,16 @@ public final class ResBundle {
     }
     return bundle;
   }
+
+  public static String na() {
+    return getString("common.na");
+  }
+
+  public static String on() {
+    return getString("common.on");
+  }
+
+  public static String disabled() {
+    return getString("common.disabled");
+  }
 }

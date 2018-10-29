@@ -11,6 +11,7 @@ public final class ResIcons {
   public static final Icon Ok = IconLoader.getIcon("/zielu/gittoolbox/tick-circle-frame.png");
   public static final Icon Edit = IconLoader.getIcon("/zielu/gittoolbox/edit.png");
   public static final Icon RegExp = IconLoader.getIcon("/zielu/gittoolbox/regular-expression-search.png");
+  public static final Icon Commit = IconLoader.getIcon("/zielu/gittoolbox/commit.png");
 
   private ResIcons() {
     throw new IllegalStateException();

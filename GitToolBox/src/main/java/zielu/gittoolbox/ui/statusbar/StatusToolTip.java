@@ -105,7 +105,7 @@ public class StatusToolTip {
       if (lastAutoFetch != 0) {
         result.append(DateFormatUtil.formatBetweenDates(lastAutoFetch, System.currentTimeMillis()));
       } else {
-        result.append(ResBundle.getString("common.on"));
+        result.append(ResBundle.on());
       }
     }
 

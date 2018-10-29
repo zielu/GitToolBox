@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,9 +49,15 @@ public class AutoFetchExecutor implements ProjectComponent {
   @Override
   public void initComponent() {
     executor = GitToolBoxApp.getInstance().autoFetchExecutor();
-    autoFetchRepoExecutor = Executors.newCachedThreadPool(
-        new ThreadFactoryBuilder().setDaemon(true).setNameFormat("AutoFetchForRepo-%s").build()
-    );
+    autoFetchRepoExecutor = createExecutorService();
+  }
+
+  private ExecutorService createExecutorService() {
+    return Executors.newFixedThreadPool(4, createThreadFactory());
+  }
+
+  private ThreadFactory createThreadFactory() {
+    return new ThreadFactoryBuilder().setDaemon(true).setNameFormat("AutoFetchForRepo-%s").build();
   }
 
   @Override

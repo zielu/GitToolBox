@@ -55,6 +55,9 @@
     <additionalTextAttributes scheme="Darcula" file="zielu/gittoolbox/colorschemes/GitToolBoxDarcula.xml"/>
 
     <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup" />
+
+    <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
+                    serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl"/>
   </extensions>
 
   <application-components>

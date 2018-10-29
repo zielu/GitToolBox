@@ -7,8 +7,8 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.9"
-    id 'com.palantir.git-version' version '0.10.1'
+    id "org.jetbrains.intellij" version "0.3.11"
+    id 'com.palantir.git-version' version '0.11.0'
     id 'ch.netzwerg.release' version '1.2.5'
 }
 
@@ -52,7 +52,9 @@ compileTestJava.options.encoding = encoding
 
 patchPluginXml {
     changeNotes "${file('change-notes.html').getText('UTF-8')}"
-    pluginDescription "${file('description.html').getText('UTF-8')}".replace("RELEASE_DATETIME", buildTime());
+    pluginDescription "${file('description.html').getText('UTF-8')}"
+            .replace("RELEASE_DATETIME", buildTime())
+            .replace("RELEASE_TYPE", buildType());
 }
 
 jar {
@@ -153,4 +155,9 @@ def static buildTime() {
     def df = new SimpleDateFormat("yyyyMMdd.HHmmss")
     df.setTimeZone(TimeZone.getTimeZone("UTC"))
     return df.format(new Date())
+}
+
+def buildType() {
+    def details = versionDetails()
+    return details.branchName != "master" ? "EAP" : "Stable"
 }

@@ -3,6 +3,9 @@ package zielu.gittoolbox.util;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.FilePath;
+import com.intellij.openapi.vcs.LocalFilePath;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.HashImpl;
@@ -74,5 +77,10 @@ public final class GtUtil {
     GitRepositoryManager manager = GitRepositoryManager.getInstance(project);
     VirtualFileManager vfManager = VirtualFileManager.getInstance();
     return Optional.ofNullable(root).map(vfManager::findFileByUrl).map(manager::getRepositoryForRoot);
+  }
+
+  @NotNull
+  public static FilePath localFilePath(@NotNull VirtualFile file) {
+    return new LocalFilePath(file.getPath(), file.isDirectory());
   }
 }

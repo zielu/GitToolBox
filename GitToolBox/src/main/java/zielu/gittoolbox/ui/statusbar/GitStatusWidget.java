@@ -113,7 +113,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
   @Override
   public ListPopup getPopupStep() {
     if (rootActions.update()) {
-      String title = ResBundle.getString("statusBar.menu.title");
+      String title = ResBundle.getString("statusBar.status.menu.title");
       return new StatusActionGroupPopup(title, rootActions, myProject, Condition.TRUE);
     } else {
       return null;
@@ -164,10 +164,15 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     text = "";
   }
 
+  private void disabled() {
+    toolTip.clear();
+    text = ResBundle.getString("status.prefix") + " " + ResBundle.disabled();
+  }
+
   private void updateData(@NotNull GitRepository repository, RepoInfo repoInfo) {
     toolTip.update(repository, repoInfo.count().orElse(null));
     text = ResBundle.getString("status.prefix") + " " + repoInfo.count().map(StatusText::format)
-        .orElse(ResBundle.getString("git.na"));
+        .orElse(ResBundle.na());
   }
 
   private void runUpdate(@Nullable Project project) {
@@ -192,7 +197,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
         empty();
       }
     } else {
-      empty();
+      disabled();
     }
   }
 
