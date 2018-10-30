@@ -31,40 +31,20 @@ public class StatusBarManager implements Disposable, ProjectAware {
   }
 
   private void install() {
-    StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-    if (statusBar != null) {
-      statusBar.addWidget(statusWidget, project);
-      statusWidget.installed();
-      statusBar.addWidget(blameWidget, project);
-      connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
-        @Override
-        public void configChanged(GitToolBoxConfig2 config) {
-          final boolean showStatusWidget = config.showStatusWidget;
-          final boolean showLensBlame = config.showBlame;
-          SwingUtilities.invokeLater(() -> {
-            if (opened.get()) {
-              statusWidget.setVisible(showStatusWidget);
-              blameWidget.setVisible(showLensBlame);
-            }
-          });
-        }
-      });
-    }
+    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
+      @Override
+      public void configChanged(GitToolBoxConfig2 config) {
+        SwingUtilities.invokeLater(() -> {
+          if (opened.get()) {
+            setVisible(config.showStatusWidget, config.showBlame);
+          }
+        });
+      }
+    });
   }
 
   private void uninstall() {
-    StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-    if (statusBar != null) {
-      if (statusWidget != null) {
-        statusBar.removeWidget(statusWidget.ID());
-        statusWidget.uninstalled();
-        statusWidget = null;
-      }
-      if (blameWidget != null) {
-        statusBar.removeWidget(blameWidget.ID());
-        blameWidget = null;
-      }
-    }
+    setVisible(false, false);
   }
 
   @Override
@@ -72,11 +52,48 @@ public class StatusBarManager implements Disposable, ProjectAware {
     if (opened.compareAndSet(false, true)) {
       if (hasUi()) {
         statusWidget = GitStatusWidget.create(project);
+        statusWidget.opened();
         blameWidget = new BlameStatusWidget(project);
+        blameWidget.opened();
         install();
+
         GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
-        statusWidget.setVisible(config.showStatusWidget);
-        blameWidget.setVisible(config.showBlame);
+        setVisible(config.showStatusWidget, config.showBlame);
+      }
+    }
+  }
+
+  private void setVisible(boolean showStatusWidget, boolean showBlame) {
+    StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+    if (statusBar != null) {
+      if (showStatusWidget) {
+        if (statusWidget == null) {
+          statusWidget = GitStatusWidget.create(project);
+          statusWidget.opened();
+        }
+        statusBar.addWidget(statusWidget, project);
+        statusWidget.setVisible(true);
+      } else {
+        if (statusWidget != null) {
+          statusBar.removeWidget(statusWidget.ID());
+          statusWidget.closed();
+          statusWidget = null;
+        }
+      }
+
+      if (showBlame) {
+        if (blameWidget == null) {
+          blameWidget = new BlameStatusWidget(project);
+          blameWidget.opened();
+        }
+        statusBar.addWidget(blameWidget, project);
+        blameWidget.setVisible(true);
+      } else {
+        if (blameWidget != null) {
+          statusBar.removeWidget(blameWidget.ID());
+          blameWidget.closed();
+          blameWidget = null;
+        }
       }
     }
   }
