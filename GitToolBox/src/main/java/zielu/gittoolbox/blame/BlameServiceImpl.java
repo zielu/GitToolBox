@@ -189,6 +189,7 @@ class BlameServiceImpl implements BlameService {
     return null;
   }
 
+  @NotNull
   private CachedBlames cachedBlames(@NotNull Document document, @NotNull VcsRevisionNumber repoRevision) {
     try {
       return blameCache.get(document, () -> new CachedBlames(repoRevision));
@@ -213,11 +214,15 @@ class BlameServiceImpl implements BlameService {
     return null;
   }
 
+  @NotNull
   private VcsRevisionNumber currentRepoRevision(@NotNull VirtualFile file) {
     GitRepository repo = repoCache.getRepoForFile(file);
     if (repo != null) {
       try {
-        return git.parseRevisionNumber(repo.getCurrentRevision());
+        VcsRevisionNumber parsedRevision = git.parseRevisionNumber(repo.getCurrentRevision());
+        if (parsedRevision != null) {
+          return parsedRevision;
+        }
       } catch (VcsException e) {
         log.warn("Could not get current repoRevision for " + file);
       }
