@@ -12,6 +12,7 @@ import com.intellij.openapi.editor.event.CaretListener;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.EditorEventMulticaster;
+import com.intellij.openapi.editor.ex.DocumentBulkUpdateListener;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
@@ -23,12 +24,14 @@ import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
+import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitVcs;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
+import java.util.Set;
 import javax.swing.JTextArea;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,6 +49,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", MAX_LENGTH);
   private final GitVcs git;
   private final BlameService lens;
+  private final Set<Document> inBulkUpdate = ContainerUtil.newConcurrentSet();
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
   private final Timer updateForSelectionTimer;
@@ -77,6 +81,19 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
         }
       }
     });
+    myConnection.subscribe(DocumentBulkUpdateListener.TOPIC, new DocumentBulkUpdateListener() {
+      @Override
+      public void updateStarted(@NotNull Document doc) {
+        inBulkUpdate.add(doc);
+      }
+
+      @Override
+      public void updateFinished(@NotNull Document doc) {
+        if (inBulkUpdate.remove(doc)) {
+          updateForDocument(doc);
+        }
+      }
+    });
   }
 
   @Override
@@ -87,7 +104,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
       @Override
       public void documentChanged(DocumentEvent e) {
         Document document = e.getDocument();
-        updateForDocumentTimer.time(() -> updateForDocument(document));
+        updateForDocument(document);
       }
     }, this);
     eventMulticaster.addCaretListener(new CaretListener() {
@@ -100,8 +117,11 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   }
 
   private void updateForDocument(@Nullable Document document) {
-    Editor selectedEditor = editor.get();
-    if (document != null && (selectedEditor == null || selectedEditor.getDocument() != document)) {
+    updateForDocumentTimer.time(() -> runUpdateForDocument(document));
+  }
+
+  private void runUpdateForDocument(@Nullable Document document) {
+    if (isDocumentInvalid(document)) {
       return;
     }
     if (document != null) {
@@ -112,9 +132,18 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     if (shouldShow()) {
       VirtualFile currentFile = getCurrentFileUnderVcs();
       if (currentFile != null) {
+        Editor selectedEditor = editor.get();
         fileChanged(selectedEditor, currentFile);
       }
     }
+  }
+
+  private boolean isDocumentInvalid(@Nullable Document document) {
+    if (inBulkUpdate.contains(document)) {
+      return true;
+    }
+    Editor selectedEditor = editor.get();
+    return document != null && (selectedEditor == null || selectedEditor.getDocument() != document);
   }
 
   @Nullable
@@ -313,5 +342,11 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   private void disabled() {
     blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.disabled();
     blameDetails = null;
+  }
+
+  @Override
+  public void dispose() {
+    super.dispose();
+    inBulkUpdate.clear();
   }
 }
