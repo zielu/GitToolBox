@@ -12,8 +12,6 @@ import com.intellij.openapi.editor.event.CaretListener;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.EditorEventMulticaster;
-import com.intellij.openapi.editor.ex.DocumentBulkUpdateListener;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.DumbService;
@@ -24,14 +22,8 @@ import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
-import com.intellij.util.containers.ContainerUtil;
-import git4idea.GitVcs;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import java.util.Objects;
-import java.util.Set;
 import javax.swing.JTextArea;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,60 +32,43 @@ import zielu.gittoolbox.blame.Blame;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
-import zielu.gittoolbox.util.GtUtil;
 
 public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
     StatusBarWidget.TextPresentation {
   private static final String ID = BlameStatusWidget.class.getName();
   private static final int MAX_LENGTH = 27;
   private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", MAX_LENGTH);
-  private final GitVcs git;
   private final BlameService lens;
-  private final Set<Document> inBulkUpdate = ContainerUtil.newConcurrentSet();
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
   private final Timer updateForSelectionTimer;
-  private final Timer underVcsTimer;
-  // store editor here to avoid expensive and EDT-only getSelectedEditor() retrievals
-  private volatile Reference<Editor> editor = new WeakReference<>(null);
-  private volatile Reference<VirtualFile> file = new WeakReference<>(null);
-  private volatile Reference<Blame> blame = new WeakReference<>(null);
+  private final BlameStatusUi blameStatusUi;
+  private final BlameStateHolder stateHolder;
+  private final Runnable blameDumbModeExitAction;
+  private final Consumer<Document> bulkUpdateFinishedAction;
   private String blameText = ResBundle.na();
   private String blameDetails;
   private boolean visible;
 
   public BlameStatusWidget(@NotNull Project project) {
     super(project);
-    git = GitVcs.getInstance(project);
+    stateHolder = new BlameStateHolder();
     Metrics metrics = MetricsHost.project(project);
     updateForDocumentTimer = metrics.timer("blame-statusbar-update-for-document");
     updateForCaretTimer = metrics.timer("blame-statusbar-update-for-caret");
     updateForSelectionTimer = metrics.timer("blame-statusbar-update-for-selection");
-    underVcsTimer = metrics.timer("blame-statusbar-under-vcs");
     lens = BlameService.getInstance(project);
     clearBlame();
-    myConnection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
-      @Override
-      public void exitDumbMode() {
-        Editor editor = getEditor();
-        if (editor != null) {
-          updateForEditor(editor);
-        }
+    blameDumbModeExitAction = () -> {
+      Editor editor = getEditor();
+      if (editor != null) {
+        updateForEditor(editor);
       }
-    });
-    myConnection.subscribe(DocumentBulkUpdateListener.TOPIC, new DocumentBulkUpdateListener() {
-      @Override
-      public void updateStarted(@NotNull Document doc) {
-        inBulkUpdate.add(doc);
-      }
-
-      @Override
-      public void updateFinished(@NotNull Document doc) {
-        if (inBulkUpdate.remove(doc)) {
-          updateForDocument(doc);
-        }
-      }
-    });
+    };
+    bulkUpdateFinishedAction = this::updateForDocument;
+    blameStatusUi = BlameStatusUi.getInstance(project);
+    blameStatusUi.addDumbModeExitAction(blameDumbModeExitAction);
+    blameStatusUi.addBulkUpdateFinishedAction(bulkUpdateFinishedAction);
   }
 
   @Override
@@ -102,14 +77,14 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     EditorEventMulticaster eventMulticaster = EditorFactory.getInstance().getEventMulticaster();
     eventMulticaster.addDocumentListener(new DocumentListener() {
       @Override
-      public void documentChanged(DocumentEvent e) {
+      public void documentChanged(@NotNull DocumentEvent e) {
         Document document = e.getDocument();
         updateForDocument(document);
       }
     }, this);
     eventMulticaster.addCaretListener(new CaretListener() {
       @Override
-      public void caretPositionChanged(CaretEvent e) {
+      public void caretPositionChanged(@NotNull CaretEvent e) {
         Editor editor = e.getEditor();
         updateForCaretTimer.time(() -> updateForEditor(editor));
       }
@@ -124,47 +99,38 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     if (isDocumentInvalid(document)) {
       return;
     }
-    if (document != null) {
-      file = new WeakReference<>(FileDocumentManager.getInstance().getFile(document));
-    } else {
-      file = new WeakReference<>(null);
-    }
+    stateHolder.updateCurrentFile(document);
     if (shouldShow()) {
       VirtualFile currentFile = getCurrentFileUnderVcs();
       if (currentFile != null) {
-        Editor selectedEditor = editor.get();
+        Editor selectedEditor = stateHolder.getCurrentEditor();
         fileChanged(selectedEditor, currentFile);
       }
     }
   }
 
   private boolean isDocumentInvalid(@Nullable Document document) {
-    if (inBulkUpdate.contains(document)) {
+    if (blameStatusUi.isInBulkUpdate(document)) {
       return true;
     }
-    Editor selectedEditor = editor.get();
-    return document != null && (selectedEditor == null || selectedEditor.getDocument() != document);
+    return stateHolder.isCurrentEditorDocument(document);
   }
 
   @Nullable
   private VirtualFile getCurrentFileUnderVcs() {
-    VirtualFile currentFile = file.get();
-    if (currentFile != null && isUnderVcs(currentFile)) {
+    VirtualFile currentFile = stateHolder.getCurrentFile();
+    if (currentFile != null && blameStatusUi.isUnderVcs(currentFile)) {
       return currentFile;
     }
     return null;
   }
 
-  private boolean isUnderVcs(@NotNull VirtualFile file) {
-    return underVcsTimer.timeSupplier(() -> git.fileIsUnderVcs(GtUtil.localFilePath(file)));
-  }
-
   private void updateForEditor(@NotNull Editor updatedEditor) {
-    Editor selectedEditor = editor.get();
+    Editor selectedEditor = stateHolder.getCurrentEditor();
     if (selectedEditor == null || selectedEditor.getDocument() != updatedEditor.getDocument()) {
       return;
     }
-    file = new WeakReference<>(FileDocumentManager.getInstance().getFile(updatedEditor.getDocument()));
+    stateHolder.updateCurrentFile(updatedEditor.getDocument());
     if (shouldShow()) {
       VirtualFile currentFile = getCurrentFileUnderVcs();
       if (currentFile != null) {
@@ -219,7 +185,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   @Override
   public Consumer<MouseEvent> getClickConsumer() {
     return event -> {
-      Editor editor = this.editor.get();
+      Editor editor = stateHolder.getCurrentEditor();
       if (blameDetails != null && editor != null) {
         JTextArea content = new JTextArea(blameDetails);
         content.setEditable(false);
@@ -240,7 +206,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     if (shouldShow()) {
       VirtualFile currentFile = getCurrentFileUnderVcs();
       if (currentFile != null) {
-        fileChanged(editor.get(), currentFile);
+        fileChanged(stateHolder.getCurrentEditor(), currentFile);
       } else {
         updated = clearBlame();
       }
@@ -270,9 +236,10 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   @Override
   public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
     if (shouldShow()) {
-      if (!file.equals(this.file.get()) && isUnderVcs(file)) {
+      VirtualFile currentFile = stateHolder.getCurrentFile();
+      if (!file.equals(currentFile) && blameStatusUi.isUnderVcs(file)) {
         Editor selectedEditor = source.getSelectedTextEditor();
-        editor = new WeakReference<>(selectedEditor);
+        stateHolder.updateCurrentEditor(selectedEditor);
         fileChanged(selectedEditor, file);
       }
     }
@@ -290,12 +257,12 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   public void selectionChanged(@NotNull FileEditorManagerEvent event) {
     if (!ApplicationManager.getApplication().isUnitTestMode()) {
       updateForSelectionTimer.time(() -> {
-        editor = new WeakReference<>(getEditor());
-        file = new WeakReference<>(event.getNewFile());
+        Editor editor = stateHolder.updateCurrentEditor(getEditor());
+        stateHolder.updateCurrentFile(event.getNewFile());
         if (shouldShow()) {
           VirtualFile currentFile = getCurrentFileUnderVcs();
           if (currentFile != null) {
-            fileChanged(editor.get(), currentFile);
+            fileChanged(editor, currentFile);
           }
         }
       });
@@ -316,11 +283,9 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
 
   private boolean updateBlame(@Nullable Blame blame) {
     if (blame != null) {
-      Blame currentBlame = this.blame.get();
-      if (!Objects.equals(blame, currentBlame)) {
+      if (stateHolder.updateBlame(blame)) {
         blameText = blame.getShortStatus();
         blameDetails = blame.getDetailedText();
-        this.blame = new WeakReference<>(blame);
         return true;
       }
       return false;
@@ -330,10 +295,9 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   }
 
   private boolean clearBlame() {
-    if (blame.get() != null) {
+    if (stateHolder.clearBlame()) {
       blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.na();
       blameDetails = null;
-      blame = new WeakReference<>(null);
       return true;
     }
     return false;
@@ -347,6 +311,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
   @Override
   public void dispose() {
     super.dispose();
-    inBulkUpdate.clear();
+    blameStatusUi.removeDumbModeExitAction(blameDumbModeExitAction);
+    blameStatusUi.removeBulkUpdateFinishedAction(bulkUpdateFinishedAction);
   }
 }

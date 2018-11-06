@@ -56,6 +56,8 @@
 
     <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup" />
 
+    <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusUi"
+                    serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusUiImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl"/>
   </extensions>
