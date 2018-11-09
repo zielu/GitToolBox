@@ -4,6 +4,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
+import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.util.messages.MessageBusConnection;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,12 +72,10 @@ public class StatusBarManager implements Disposable, ProjectAware {
           statusWidget = GitStatusWidget.create(project);
           statusWidget.opened();
         }
-        statusBar.addWidget(statusWidget, project);
-        statusWidget.setVisible(true);
+        setVisible(statusBar, statusWidget, true);
       } else {
         if (statusWidget != null) {
-          statusBar.removeWidget(statusWidget.ID());
-          statusWidget.closed();
+          setVisible(statusBar, statusWidget, false);
           statusWidget = null;
         }
       }
@@ -86,15 +85,25 @@ public class StatusBarManager implements Disposable, ProjectAware {
           blameWidget = new BlameStatusWidget(project);
           blameWidget.opened();
         }
-        statusBar.addWidget(blameWidget, project);
-        blameWidget.setVisible(true);
+        setVisible(statusBar, blameWidget, true);
       } else {
         if (blameWidget != null) {
-          statusBar.removeWidget(blameWidget.ID());
-          blameWidget.closed();
+          setVisible(statusBar, blameWidget, false);
           blameWidget = null;
         }
       }
+    }
+  }
+
+  private <T extends StatusBarWidget & StatusBarUi> void setVisible(StatusBar statusBar, T widget, boolean visible) {
+    if (visible) {
+      if (statusBar.getWidget(widget.ID()) == null) {
+        statusBar.addWidget(widget, project);
+      }
+      widget.setVisible(true);
+    } else {
+      widget.setVisible(false);
+      statusBar.removeWidget(widget.ID());
     }
   }
 

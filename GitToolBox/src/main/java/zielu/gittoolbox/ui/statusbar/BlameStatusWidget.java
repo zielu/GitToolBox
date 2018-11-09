@@ -213,13 +213,19 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     boolean updated = false;
     if (shouldShow()) {
       VirtualFile currentFile = getCurrentFileUnderVcs();
-      if (currentFile != null) {
-        fileChanged(editor.get(), currentFile);
-      } else {
-        updated = clearBlame();
-        if (oldVisible != visible) {
-          updated = true;
+      if (currentFile == null) {
+        Editor editor = getEditor();
+        this.editor = new WeakReference<>(editor);
+        if (editor != null) {
+          updateForEditor(editor);
+        } else {
+          updated = clearBlame();
+          if (oldVisible != visible) {
+            updated = true;
+          }
         }
+      } else {
+        fileChanged(editor.get(), currentFile);
       }
     } else {
       if (visible) {
