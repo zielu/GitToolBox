@@ -27,8 +27,9 @@ import zielu.gittoolbox.ui.util.AppUtil;
 import zielu.gittoolbox.util.DisposeSafeRunnable;
 import zielu.gittoolbox.util.GtUtil;
 
-public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
-    StatusBarWidget.MultipleTextValuesPresentation {
+public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
+    StatusBarWidget.Multiframe, StatusBarWidget.MultipleTextValuesPresentation {
+
   private static final String ID = GitStatusWidget.class.getName();
   private final AtomicBoolean opened = new AtomicBoolean();
   private final StatusToolTip toolTip;
@@ -87,7 +88,8 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     AppUtil.INSTANCE.invokeLaterIfNeeded(update);
   }
 
-  void setVisible(boolean visible) {
+  @Override
+  public void setVisible(boolean visible) {
     this.visible = visible;
     Optional.ofNullable(myProject).ifPresent(this::runUpdateLater);
   }
@@ -202,7 +204,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
   }
 
   private boolean isActive() {
-    return !isDisposed() && opened.get();
+    return !isDisposed() && opened.get() && visible;
   }
 
   @Nullable
@@ -211,11 +213,11 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarWidge
     return null;
   }
 
-  public void installed() {
+  public void opened() {
     opened.compareAndSet(false, true);
   }
 
-  public void uninstalled() {
+  public void closed() {
     opened.compareAndSet(true, false);
   }
 }
