@@ -33,8 +33,9 @@ import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
 
-public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe,
-    StatusBarWidget.TextPresentation {
+public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
+    StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
+
   private static final String ID = BlameStatusWidget.class.getName();
   private static final int MAX_LENGTH = 27;
   private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", MAX_LENGTH);
@@ -200,22 +201,32 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarWid
     };
   }
 
+  @Override
   public void setVisible(boolean visible) {
+    boolean oldVisible = this.visible;
     this.visible = visible;
     boolean updated = false;
     if (shouldShow()) {
       VirtualFile currentFile = getCurrentFileUnderVcs();
-      if (currentFile != null) {
-        fileChanged(stateHolder.getCurrentEditor(), currentFile);
+      if (currentFile == null) {
+        Editor editor = getEditor();
+        stateHolder.updateCurrentEditor(editor);
+        if (editor != null) {
+          updateForEditor(editor);
+        } else {
+          updated = clearBlame();
+          if (oldVisible != visible) {
+            updated = true;
+          }
+        }
       } else {
-        updated = clearBlame();
+        fileChanged(stateHolder.getCurrentEditor(), currentFile);
       }
     } else {
       if (visible) {
         updated = clearBlame();
       } else {
         disabled();
-        updated = true;
       }
     }
     if (updated) {
