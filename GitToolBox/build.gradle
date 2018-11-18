@@ -7,9 +7,10 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.11"
+    id "org.jetbrains.intellij" version "0.3.12"
     id 'com.palantir.git-version' version '0.11.0'
     id 'ch.netzwerg.release' version '1.2.5'
+    id "com.github.spotbugs" version "1.6.5"
 }
 
 repositories {
@@ -103,9 +104,8 @@ test {
     }
 }
 
-apply plugin: 'findbugs'
-findbugs {
-    toolVersion = "3.0.1"
+spotbugs {
+    toolVersion = "${spotbugsVersion}"
     ignoreFailures = false
     effort = 'default'
     includeFilter = file("${projectDir}/config/findbugs/includeFilter.xml")
@@ -124,6 +124,7 @@ dependencies {
 
     checkstyle ("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
     testAgent ("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.8.0'
 
     //keep compile instead of implementation for org.jetbrains.intellij to package plugin correctly
     compile ("org.jodd:jodd-core:${joddVersion}")
@@ -136,7 +137,7 @@ dependencies {
     }
 
     compileOnly ('com.google.code.findbugs:jsr305:3.0.2')
-    compileOnly ('com.google.code.findbugs:findbugs:3.0.1')
+    compileOnly ("com.github.spotbugs:spotbugs:${spotbugsVersion}")
 
     testImplementation ("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
     testImplementation ("org.mockito:mockito-core:${mockitoVersion}")
