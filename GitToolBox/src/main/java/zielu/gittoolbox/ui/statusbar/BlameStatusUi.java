@@ -17,6 +17,10 @@ public interface BlameStatusUi {
 
   void removeBulkUpdateFinishedAction(Consumer<Document> action);
 
+  void addBlameUpdatedAction(Consumer<VirtualFile> action);
+
+  void removeBlameUpdateAction(Consumer<VirtualFile> action);
+
   boolean isInBulkUpdate(@Nullable Document document);
 
   boolean isUnderVcs(@NotNull VirtualFile file);

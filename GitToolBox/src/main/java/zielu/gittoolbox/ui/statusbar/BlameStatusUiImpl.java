@@ -2,6 +2,7 @@ package zielu.gittoolbox.ui.statusbar;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.DocumentBulkUpdateListener;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
@@ -14,12 +15,18 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.blame.BlameAnnotation;
+import zielu.gittoolbox.blame.BlameCache;
+import zielu.gittoolbox.blame.BlameCacheListener;
+import zielu.gittoolbox.blame.BlameListener;
+import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 
 class BlameStatusUiImpl implements BlameStatusUi, Disposable {
   private final Set<Document> inBulkUpdate = ContainerUtil.newConcurrentSet();
   private final Set<Runnable> exitDumbModeActions = new LinkedHashSet<>();
   private final Set<Consumer<Document>> bulkUpdateFinishedActions = new LinkedHashSet<>();
+  private final Set<Consumer<VirtualFile>> cacheUpdatedActions = new LinkedHashSet<>();
   private final VirtualFileRepoCache repoCache;
   private MessageBusConnection connection;
 
@@ -46,6 +53,17 @@ class BlameStatusUiImpl implements BlameStatusUi, Disposable {
         }
       }
     });
+    connection.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
+      @Override
+      public void blameUpdated(@NotNull VirtualFile file) {
+        cacheUpdatedActions.forEach(action -> action.consume(file));
+      }
+
+      @Override
+      public void blameUpdated(@NotNull Editor editor, @NotNull VirtualFile file) {
+        cacheUpdatedActions.forEach(action -> action.consume(file));
+      }
+    });
   }
 
   @Override
@@ -66,6 +84,16 @@ class BlameStatusUiImpl implements BlameStatusUi, Disposable {
   @Override
   public void removeBulkUpdateFinishedAction(Consumer<Document> action) {
     bulkUpdateFinishedActions.remove(action);
+  }
+
+  @Override
+  public void addBlameUpdatedAction(Consumer<VirtualFile> action) {
+    cacheUpdatedActions.add(action);
+  }
+
+  @Override
+  public void removeBlameUpdateAction(Consumer<VirtualFile> action) {
+    cacheUpdatedActions.remove(action);
   }
 
   @Override

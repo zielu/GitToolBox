@@ -32,6 +32,7 @@ import zielu.gittoolbox.blame.Blame;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.ui.util.AppUtil;
 
 public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
@@ -39,7 +40,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private static final String ID = BlameStatusWidget.class.getName();
   private static final int MAX_LENGTH = 27;
   private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", MAX_LENGTH);
-  private final BlameService lens;
+  private final BlameService blame;
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
   private final Timer updateForSelectionTimer;
@@ -47,6 +48,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private final BlameStateHolder stateHolder;
   private final Runnable blameDumbModeExitAction;
   private final Consumer<Document> bulkUpdateFinishedAction;
+  private final Consumer<VirtualFile> blameUpdatedAction;
   private String blameText = ResBundle.na();
   private String blameDetails;
   private boolean visible;
@@ -58,7 +60,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     updateForDocumentTimer = metrics.timer("blame-statusbar-update-for-document");
     updateForCaretTimer = metrics.timer("blame-statusbar-update-for-caret");
     updateForSelectionTimer = metrics.timer("blame-statusbar-update-for-selection");
-    lens = BlameService.getInstance(project);
+    blame = BlameService.getInstance(project);
     clearBlame();
     blameDumbModeExitAction = () -> {
       Editor editor = getEditor();
@@ -67,9 +69,11 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
       }
     };
     bulkUpdateFinishedAction = this::updateForDocument;
+    blameUpdatedAction = this::blameUpdate;
     blameStatusUi = BlameStatusUi.getInstance(project);
     blameStatusUi.addDumbModeExitAction(blameDumbModeExitAction);
     blameStatusUi.addBulkUpdateFinishedAction(bulkUpdateFinishedAction);
+    blameStatusUi.addBlameUpdatedAction(blameUpdatedAction);
   }
 
   @Override
@@ -90,6 +94,14 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
         updateForCaretTimer.time(() -> updateForEditor(editor));
       }
     }, this);
+  }
+
+  private void blameUpdate(@NotNull VirtualFile file) {
+    AppUtil.INSTANCE.invokeLaterIfNeeded(() -> {
+      if (file.equals(stateHolder.getCurrentFile())) {
+        fileChanged(stateHolder.getCurrentEditor(), file);
+      }
+    });
   }
 
   private void updateForDocument(@Nullable Document document) {
@@ -270,7 +282,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   @Override
   public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-    lens.fileClosed(file);
+    blame.fileClosed(file);
     if (clearBlame()) {
       updateWidget();
     }
@@ -292,9 +304,9 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private void fileChanged(@Nullable Editor editor, @NotNull VirtualFile file) {
     Blame blame;
     if (editor != null) {
-      blame = lens.getCurrentLineBlame(editor, file);
+      blame = this.blame.getCurrentLineBlame(editor, file);
     } else {
-      blame = lens.getFileBlame(file);
+      blame = this.blame.getFileBlame(file);
     }
     if (updateBlame(blame)) {
       updateWidget();
@@ -333,5 +345,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     super.dispose();
     blameStatusUi.removeDumbModeExitAction(blameDumbModeExitAction);
     blameStatusUi.removeBulkUpdateFinishedAction(bulkUpdateFinishedAction);
+    blameStatusUi.removeBlameUpdateAction(blameUpdatedAction);
   }
 }
