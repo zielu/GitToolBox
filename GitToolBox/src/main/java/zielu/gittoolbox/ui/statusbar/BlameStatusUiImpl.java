@@ -10,22 +10,21 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Consumer;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.messages.MessageBusConnection;
-import git4idea.GitVcs;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.util.GtUtil;
+import zielu.gittoolbox.cache.VirtualFileRepoCache;
 
 class BlameStatusUiImpl implements BlameStatusUi, Disposable {
   private final Set<Document> inBulkUpdate = ContainerUtil.newConcurrentSet();
   private final Set<Runnable> exitDumbModeActions = new LinkedHashSet<>();
   private final Set<Consumer<Document>> bulkUpdateFinishedActions = new LinkedHashSet<>();
-  private final GitVcs git;
+  private final VirtualFileRepoCache repoCache;
   private MessageBusConnection connection;
 
-  BlameStatusUiImpl(@NotNull Project project) {
-    git = GitVcs.getInstance(project);
+  BlameStatusUiImpl(@NotNull Project project, @NotNull VirtualFileRepoCache repoCache) {
+    this.repoCache = repoCache;
     connection = project.getMessageBus().connect(this);
     Disposer.register(project, this);
     connection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
@@ -76,7 +75,7 @@ class BlameStatusUiImpl implements BlameStatusUi, Disposable {
 
   @Override
   public boolean isUnderVcs(@NotNull VirtualFile file) {
-    return git.fileIsUnderVcs(GtUtil.localFilePath(file));
+    return repoCache.isUnderGitRoot(file);
   }
 
   @Override

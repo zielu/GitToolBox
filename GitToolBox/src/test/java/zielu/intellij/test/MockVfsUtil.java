@@ -16,4 +16,14 @@ public final class MockVfsUtil {
     parent.addChild(dir);
     return dir;
   }
+
+  public static MockVirtualFile createFile(String name) {
+    return new MockVirtualFile(false, name);
+  }
+
+  public static MockVirtualFile createFile(MockVirtualFile parent, String name) {
+    MockVirtualFile file = createFile(name);
+    parent.addChild(file);
+    return file;
+  }
 }

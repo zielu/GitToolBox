@@ -27,6 +27,13 @@ public interface VirtualFileRepoCache extends DirMappingAware {
   default GitRepository getRepoForFile(@NotNull VirtualFile file) {
     Preconditions.checkArgument(!file.isDirectory(), "%s is not file", file);
     VirtualFile parent = file.getParent();
-    return parent == null ? null : getRepoForDir(parent);
+    if (parent != null && parent.isDirectory()) {
+      return getRepoForDir(parent);
+    }
+    return null;
+  }
+
+  default boolean isUnderGitRoot(@NotNull VirtualFile file) {
+    return (file.isDirectory() ? getRepoForDir(file) : getRepoForFile(file)) != null;
   }
 }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static zielu.intellij.test.MockVfsUtil.createDir;
+import static zielu.intellij.test.MockVfsUtil.createFile;
 
 import com.google.common.collect.ImmutableList;
 import com.intellij.mock.MockVirtualFile;
@@ -56,10 +57,14 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void getRepoForRootShouldReturnRepositoryForRoot() {
-    mockRepository();
+    setupRepo();
 
-    cache.updatedRepoList(ImmutableList.of(repository));
     assertThat(cache.getRepoForRoot(repositoryRoot)).isEqualTo(repository);
+  }
+
+  void setupRepo() {
+    mockRepository();
+    cache.updatedRepoList(ImmutableList.of(repository));
   }
 
   @Test
@@ -69,18 +74,16 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void getRepoForDirShouldReturnRepositoryForDirInRoot() {
-    mockRepository();
+    setupRepo();
 
-    cache.updatedRepoList(ImmutableList.of(repository));
     MockVirtualFile dirInRoot = createDir(repositoryRoot,"dirInRoot");
     assertThat(cache.getRepoForDir(dirInRoot)).isEqualTo(repository);
   }
 
   @Test
   void getRepoForDirShouldReturnSameRepositoryForDirInRootIfCalledMoreThanOnce() {
-    mockRepository();
+    setupRepo();
 
-    cache.updatedRepoList(ImmutableList.of(repository));
     MockVirtualFile dirInRoot = createDir(repositoryRoot,"dirInRoot");
     GitRepository repo1 = cache.getRepoForDir(dirInRoot);
     GitRepository repo2 = cache.getRepoForDir(dirInRoot);
@@ -89,9 +92,8 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void getRepoForDirShouldReturnRepositoryForDirInDirInRootBottomUp() {
-    mockRepository();
+    setupRepo();
 
-    cache.updatedRepoList(ImmutableList.of(repository));
     MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
     MockVirtualFile dirInDirInRoot = createDir(dirInRoot, "dirInDirInRoot");
     assertThat(cache.getRepoForDir(dirInDirInRoot)).isEqualTo(repository);
@@ -99,9 +101,8 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void getRepoForDirShouldReturnRepositoryForDirInDirInRootTopDown() {
-    mockRepository();
+    setupRepo();
 
-    cache.updatedRepoList(ImmutableList.of(repository));
     MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
     MockVirtualFile dirInDirInRoot = createDir(dirInRoot, "dirInDirInRoot");
     assertSoftly(softly -> {
@@ -113,9 +114,48 @@ class VirtualFileRepoCacheImplTest {
 
   @Test
   void updatedRepoListPublishesToMessageBus() {
-    mockRepository();
+    setupRepo();
 
-    cache.updatedRepoList(ImmutableList.of(repository));
     verify(controller).fireCacheChanged();
+  }
+
+  @Test
+  void isUnderGitRootShouldReturnTrueForDirUnderRoot() {
+    setupRepo();
+
+    MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
+    assertSoftly(softly -> {
+      softly.assertThat(cache.isUnderGitRoot(dirInRoot)).isTrue();
+    });
+  }
+
+  @Test
+  void isUnderGitRootShouldReturnFalseForDirNotUnderRoot() {
+    setupRepo();
+
+    MockVirtualFile dirInRoot = createDir("dirInRoot");
+    assertSoftly(softly -> {
+      softly.assertThat(cache.isUnderGitRoot(dirInRoot)).isFalse();
+    });
+  }
+
+  @Test
+  void isUnderGitRootShouldReturnTrueForFileUnderRoot() {
+    setupRepo();
+
+    MockVirtualFile fileInRoot = createFile(repositoryRoot, "fileInRoot.txt");
+    assertSoftly(softly -> {
+      softly.assertThat(cache.isUnderGitRoot(fileInRoot)).isTrue();
+    });
+  }
+
+  @Test
+  void isUnderGitRootShouldReturnFalseForFileNotUnderRoot() {
+    setupRepo();
+
+    MockVirtualFile fileInRoot = createFile("fileInRoot.txt");
+    assertSoftly(softly -> {
+      softly.assertThat(cache.isUnderGitRoot(fileInRoot)).isFalse();
+    });
   }
 }

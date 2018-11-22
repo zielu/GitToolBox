@@ -61,7 +61,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
   }
 
   @NotNull
-  private CacheEntry computeRepoForDir(@NotNull  VirtualFile dir) {
+  private CacheEntry computeRepoForDir(@NotNull VirtualFile dir) {
     CacheEntry entry = findRepoForDir(dir);
     log.debug("Cached repo ", entry.repository, " for dir ", dir);
     return entry;
