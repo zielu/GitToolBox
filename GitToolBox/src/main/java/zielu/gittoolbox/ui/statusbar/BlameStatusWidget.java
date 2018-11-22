@@ -106,6 +106,10 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
       if (currentFile != null) {
         Editor selectedEditor = stateHolder.getCurrentEditor();
         fileChanged(selectedEditor, currentFile);
+      } else {
+        if (clearBlame()) {
+          updateWidget();
+        }
       }
     }
   }
@@ -132,10 +136,18 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
       return;
     }
     stateHolder.updateCurrentFile(updatedEditor.getDocument());
+    updateForEditorWithCurrentFile(updatedEditor);
+  }
+
+  private void updateForEditorWithCurrentFile(@NotNull Editor updatedEditor) {
     if (shouldShow()) {
       VirtualFile currentFile = getCurrentFileUnderVcs();
       if (currentFile != null) {
-        fileChanged(selectedEditor, currentFile);
+        fileChanged(updatedEditor, currentFile);
+      } else {
+        if (clearBlame()) {
+          updateWidget();
+        }
       }
     }
   }
@@ -270,11 +282,8 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
       updateForSelectionTimer.time(() -> {
         Editor editor = stateHolder.updateCurrentEditor(getEditor());
         stateHolder.updateCurrentFile(event.getNewFile());
-        if (shouldShow()) {
-          VirtualFile currentFile = getCurrentFileUnderVcs();
-          if (currentFile != null) {
-            fileChanged(editor, currentFile);
-          }
+        if (editor != null) {
+          updateForEditorWithCurrentFile(editor);
         }
       });
     }
