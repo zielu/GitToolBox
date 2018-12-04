@@ -9,17 +9,17 @@ import com.intellij.openapi.project.Project;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
-class GitToolBoxProjectMetrics implements ProjectComponent, Metrics {
+class ProjectMetricsImpl implements ProjectComponent, ProjectMetrics {
   private final MetricManager metrics = new MetricManager();
   private final Project project;
   private JmxReporter reporter;
 
-  GitToolBoxProjectMetrics(@NotNull Project project) {
+  ProjectMetricsImpl(@NotNull Project project) {
     this.project = project;
   }
 
   static Metrics getInstance(@NotNull Project project) {
-    return project.getComponent(GitToolBoxProjectMetrics.class);
+    return project.getComponent(ProjectMetricsImpl.class);
   }
 
   @Override

@@ -7,13 +7,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.Metrics;
-import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 
-class VirtualFileRepoCacheController implements ProjectComponent {
+class VirtualFileRepoCacheGateway implements ProjectComponent {
   private final Project project;
   private MessageBus messageBus;
 
-  VirtualFileRepoCacheController(@NotNull Project project) {
+  VirtualFileRepoCacheGateway(@NotNull Project project) {
     this.project = project;
   }
 
@@ -28,7 +28,7 @@ class VirtualFileRepoCacheController implements ProjectComponent {
   }
 
   Metrics getMetrics() {
-    return MetricsHost.project(project);
+    return ProjectMetrics.getInstance(project);
   }
 
   void fireCacheChanged() {

@@ -26,7 +26,7 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
-import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.ui.util.AppUtil;
 import zielu.gittoolbox.util.DisposeSafeCallable;
 import zielu.gittoolbox.util.GtUtil;
@@ -145,7 +145,7 @@ class AutoFetchTask implements Runnable {
   private void executeFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
     Collection<GitRepository> fetched = GtFetcher.builder()
         .withClient(GtFetchClientFactory.create(project))
-        .withMetrics(MetricsHost.project(project))
+        .withMetrics(ProjectMetrics.getInstance(project))
         .withUi(new GtFetcherUi(project))
         .withExecutor(owner.repoFetchExecutor())
         .build(indicator).fetchRoots(repos);

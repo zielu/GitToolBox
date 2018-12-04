@@ -11,7 +11,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import git4idea.repo.GitRepository;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
-import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 
 public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   private final Logger log = Logger.getInstance(getClass());
@@ -33,15 +33,15 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   }
 
   private Timer decorateLatency(ProjectViewNode node) {
-    return MetricsHost.project(node.getProject()).timer("decorate");
+    return ProjectMetrics.getInstance(node.getProject()).timer("decorate");
   }
 
   private Timer repoForLatency(ProjectViewNode node) {
-    return MetricsHost.project(node.getProject()).timer("decorate-repo-for");
+    return ProjectMetrics.getInstance(node.getProject()).timer("decorate-repo-for");
   }
 
   private Timer decorateApplyLatency(ProjectViewNode node) {
-    return MetricsHost.project(node.getProject()).timer("decorate-apply");
+    return ProjectMetrics.getInstance(node.getProject()).timer("decorate-apply");
   }
 
   private void doDecorate(ProjectViewNode node, PresentationData presentation) {

@@ -5,7 +5,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import git4idea.repo.GitRepository;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.tag.GitTagCalculator;
@@ -13,8 +13,13 @@ import zielu.gittoolbox.util.GtUtil;
 
 import java.util.List;
 
-public class CachedStatusCalculator {
+class CachedStatusCalculator {
   private final Logger log = Logger.getInstance(getClass());
+  private final Metrics metrics;
+
+  CachedStatusCalculator(Metrics metrics) {
+    this.metrics = metrics;
+  }
 
   public RepoInfo update(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
                          @NotNull RepoStatus currentStatus) {
@@ -23,7 +28,7 @@ public class CachedStatusCalculator {
 
   private RepoInfo updateStatus(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
                             RepoStatus status) {
-    Timer statusUpdateLatency = MetricsHost.project(repo.getProject()).timer("status-update");
+    Timer statusUpdateLatency = metrics.timer("status-update");
     GitAheadBehindCount count = statusUpdateLatency
         .timeSupplier(() -> calculator.aheadBehindStatus(repo, status.localHash(), status.remoteHash()));
     log.debug("Calculated status [", GtUtil.name(repo), "]: ", count);

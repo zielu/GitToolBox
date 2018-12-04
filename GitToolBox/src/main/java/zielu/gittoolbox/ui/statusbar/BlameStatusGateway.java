@@ -8,7 +8,7 @@ import com.intellij.util.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface BlameStatusUi {
+public interface BlameStatusGateway {
   void addDumbModeExitAction(Runnable action);
 
   void removeDumbModeExitAction(Runnable action);
@@ -25,7 +25,7 @@ public interface BlameStatusUi {
 
   boolean isUnderVcs(@NotNull VirtualFile file);
 
-  static BlameStatusUi getInstance(@NotNull Project project) {
-    return ServiceManager.getService(project, BlameStatusUi.class);
+  static BlameStatusGateway getInstance(@NotNull Project project) {
+    return ServiceManager.getService(project, BlameStatusGateway.class);
   }
 }

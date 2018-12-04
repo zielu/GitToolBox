@@ -6,16 +6,16 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.jmx.JmxReporter;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.components.BaseComponent;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
-class GitToolBoxAppMetrics implements ApplicationComponent, Metrics {
+class AppMetricsImpl implements BaseComponent, AppMetrics {
   private final MetricManager metrics = new MetricManager();
   private JmxReporter reporter;
 
   static Metrics getInstance() {
-    return ApplicationManager.getApplication().getComponent(GitToolBoxAppMetrics.class);
+    return ApplicationManager.getApplication().getComponent(AppMetricsImpl.class);
   }
 
   private String name(@NotNull String simpleName) {

@@ -26,7 +26,7 @@ class VirtualFileRepoCacheImplTest {
   @Mock(stubOnly = true)
   private GitRepository repository;
   @Mock
-  private VirtualFileRepoCacheController controller;
+  private VirtualFileRepoCacheGateway gateway;
 
   private Metrics mockMetrics = new MockMetrics();
 
@@ -36,8 +36,8 @@ class VirtualFileRepoCacheImplTest {
 
   @BeforeEach
   void beforeEach() {
-    when(controller.getMetrics()).thenReturn(mockMetrics);
-    cache = new VirtualFileRepoCacheImpl(controller);
+    when(gateway.getMetrics()).thenReturn(mockMetrics);
+    cache = new VirtualFileRepoCacheImpl(gateway);
     cache.initComponent();
   }
 
@@ -116,7 +116,7 @@ class VirtualFileRepoCacheImplTest {
   void updatedRepoListPublishesToMessageBus() {
     setupRepo();
 
-    verify(controller).fireCacheChanged();
+    verify(gateway).fireCacheChanged();
   }
 
   @Test

@@ -15,14 +15,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.blame.BlameAnnotation;
-import zielu.gittoolbox.blame.BlameCache;
-import zielu.gittoolbox.blame.BlameCacheListener;
 import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 
-class BlameStatusUiImpl implements BlameStatusUi, Disposable {
+class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
   private final Set<Document> inBulkUpdate = ContainerUtil.newConcurrentSet();
   private final Set<Runnable> exitDumbModeActions = new LinkedHashSet<>();
   private final Set<Consumer<Document>> bulkUpdateFinishedActions = new LinkedHashSet<>();
@@ -30,7 +27,7 @@ class BlameStatusUiImpl implements BlameStatusUi, Disposable {
   private final VirtualFileRepoCache repoCache;
   private MessageBusConnection connection;
 
-  BlameStatusUiImpl(@NotNull Project project, @NotNull VirtualFileRepoCache repoCache) {
+  BlameStatusGatewayImpl(@NotNull Project project, @NotNull VirtualFileRepoCache repoCache) {
     this.repoCache = repoCache;
     connection = project.getMessageBus().connect(this);
     Disposer.register(project, this);

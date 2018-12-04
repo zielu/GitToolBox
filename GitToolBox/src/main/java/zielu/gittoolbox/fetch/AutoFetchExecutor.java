@@ -22,8 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
-import zielu.gittoolbox.metrics.Metrics;
-import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.util.ConcurrentUtil;
 
 public class AutoFetchExecutor implements ProjectComponent {
@@ -39,9 +38,8 @@ public class AutoFetchExecutor implements ProjectComponent {
   private ScheduledExecutorService executor;
   private ExecutorService autoFetchRepoExecutor;
 
-  public AutoFetchExecutor(@NotNull Project project) {
+  public AutoFetchExecutor(@NotNull Project project, @NotNull ProjectMetrics metrics) {
     this.project = project;
-    Metrics metrics = MetricsHost.project(project);
     metrics.gauge("auto-fetch-tasks-size", scheduledTasksCount::get);
     metrics.gauge("auto-fetch-last-timestamp", lastAutoFetchTimestamp::get);
   }

@@ -17,8 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.metrics.Metrics;
-import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.util.GtUtil;
 
@@ -26,17 +25,18 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final ConcurrentMap<GitRepository, RepoInfo> behindStatuses = Maps.newConcurrentMap();
-  private final CachedStatusCalculator statusCalculator = new CachedStatusCalculator();
+  private final CachedStatusCalculator statusCalculator;
   private final Project project;
   private final GitStatusCalculator calculator;
   private final CacheTaskScheduler taskScheduler;
   private final InfoCachePublisher publisher;
 
-  PerRepoInfoCacheImpl(@NotNull Project project, @NotNull InfoCachePublisher publisher) {
+  PerRepoInfoCacheImpl(@NotNull Project project, @NotNull InfoCachePublisher publisher,
+                       @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.publisher = publisher;
+    statusCalculator = new CachedStatusCalculator(metrics);
     calculator = GitStatusCalculator.create(project);
-    Metrics metrics = MetricsHost.project(project);
     taskScheduler = new CacheTaskScheduler(project, metrics);
     metrics.gauge("info-cache-size", behindStatuses::size);
   }

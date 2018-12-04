@@ -31,7 +31,7 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.blame.Blame;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
-import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.ui.util.AppUtil;
 
 public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
@@ -44,7 +44,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
   private final Timer updateForSelectionTimer;
-  private final BlameStatusUi blameStatusUi;
+  private final BlameStatusGateway blameStatusGateway;
   private final BlameStateHolder stateHolder;
   private final Runnable blameDumbModeExitAction;
   private final Consumer<Document> bulkUpdateFinishedAction;
@@ -56,7 +56,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   public BlameStatusWidget(@NotNull Project project) {
     super(project);
     stateHolder = new BlameStateHolder();
-    Metrics metrics = MetricsHost.project(project);
+    Metrics metrics = ProjectMetrics.getInstance(project);
     updateForDocumentTimer = metrics.timer("blame-statusbar-update-for-document");
     updateForCaretTimer = metrics.timer("blame-statusbar-update-for-caret");
     updateForSelectionTimer = metrics.timer("blame-statusbar-update-for-selection");
@@ -70,10 +70,10 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     };
     bulkUpdateFinishedAction = this::updateForDocument;
     blameUpdatedAction = this::blameUpdate;
-    blameStatusUi = BlameStatusUi.getInstance(project);
-    blameStatusUi.addDumbModeExitAction(blameDumbModeExitAction);
-    blameStatusUi.addBulkUpdateFinishedAction(bulkUpdateFinishedAction);
-    blameStatusUi.addBlameUpdatedAction(blameUpdatedAction);
+    blameStatusGateway = BlameStatusGateway.getInstance(project);
+    blameStatusGateway.addDumbModeExitAction(blameDumbModeExitAction);
+    blameStatusGateway.addBulkUpdateFinishedAction(bulkUpdateFinishedAction);
+    blameStatusGateway.addBlameUpdatedAction(blameUpdatedAction);
   }
 
   @Override
@@ -127,7 +127,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private boolean isDocumentInvalid(@Nullable Document document) {
-    if (blameStatusUi.isInBulkUpdate(document)) {
+    if (blameStatusGateway.isInBulkUpdate(document)) {
       return true;
     }
     return stateHolder.isCurrentEditorDocument(document);
@@ -136,7 +136,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Nullable
   private VirtualFile getCurrentFileUnderVcs() {
     VirtualFile currentFile = stateHolder.getCurrentFile();
-    if (currentFile != null && blameStatusUi.isUnderVcs(currentFile)) {
+    if (currentFile != null && blameStatusGateway.isUnderVcs(currentFile)) {
       return currentFile;
     }
     return null;
@@ -272,7 +272,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
     if (shouldShow()) {
       VirtualFile currentFile = stateHolder.getCurrentFile();
-      if (!file.equals(currentFile) && blameStatusUi.isUnderVcs(file)) {
+      if (!file.equals(currentFile) && blameStatusGateway.isUnderVcs(file)) {
         Editor selectedEditor = source.getSelectedTextEditor();
         stateHolder.updateCurrentEditor(selectedEditor);
         fileChanged(selectedEditor, file);
@@ -343,8 +343,8 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Override
   public void dispose() {
     super.dispose();
-    blameStatusUi.removeDumbModeExitAction(blameDumbModeExitAction);
-    blameStatusUi.removeBulkUpdateFinishedAction(bulkUpdateFinishedAction);
-    blameStatusUi.removeBlameUpdateAction(blameUpdatedAction);
+    blameStatusGateway.removeDumbModeExitAction(blameDumbModeExitAction);
+    blameStatusGateway.removeBulkUpdateFinishedAction(bulkUpdateFinishedAction);
+    blameStatusGateway.removeBlameUpdateAction(blameUpdatedAction);
   }
 }

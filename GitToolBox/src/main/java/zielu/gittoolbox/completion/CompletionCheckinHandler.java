@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
-import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 
 public class CompletionCheckinHandler extends CheckinHandler {
   private final CheckinProjectPanel panel;
@@ -31,7 +31,7 @@ public class CompletionCheckinHandler extends CheckinHandler {
 
   private void updateAffectedFiles(CheckinProjectPanel panel) {
     Project project = panel.getProject();
-    Collection<File> affected = MetricsHost.project(project)
+    Collection<File> affected = ProjectMetrics.getInstance(project)
         .timer("completion-get-affected").timeSupplier(panel::getFiles);
     GitToolBoxCompletionProject.getInstance(project).updateAffected(affected);
   }

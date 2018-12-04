@@ -56,8 +56,8 @@
 
     <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup" />
 
-    <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusUi"
-                    serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusUiImpl"/>
+    <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
+                    serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusGatewayImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameCache"
                     serviceImplementation="zielu.gittoolbox.blame.BlameCacheImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
@@ -72,7 +72,8 @@
       <implementation-class>zielu.gittoolbox.GitToolBoxUpdateProjectApp</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.metrics.GitToolBoxAppMetrics</implementation-class>
+      <interface-class>zielu.gittoolbox.metrics.AppMetrics</interface-class>
+      <implementation-class>zielu.gittoolbox.metrics.AppMetricsImpl</implementation-class>
     </component>
   </application-components>
 
@@ -86,7 +87,7 @@
       <implementation-class>zielu.gittoolbox.cache.PerRepoInfoCacheImpl</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheController</implementation-class>
+      <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheGateway</implementation-class>
     </component>
     <component>
       <interface-class>zielu.gittoolbox.cache.VirtualFileRepoCache</interface-class>
@@ -121,7 +122,8 @@
       <implementation-class>zielu.gittoolbox.completion.GitToolBoxCompletionProject</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.metrics.GitToolBoxProjectMetrics</implementation-class>
+      <interface-class>zielu.gittoolbox.metrics.ProjectMetrics</interface-class>
+      <implementation-class>zielu.gittoolbox.metrics.ProjectMetricsImpl</implementation-class>
     </component>
     <!--
     <component>

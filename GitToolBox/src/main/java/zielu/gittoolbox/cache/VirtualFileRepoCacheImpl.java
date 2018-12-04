@@ -26,16 +26,16 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
   private final Logger log = Logger.getInstance(getClass());
   private final ConcurrentMap<VirtualFile, GitRepository> rootsCache = new ConcurrentHashMap<>();
   private final ConcurrentMap<VirtualFile, CacheEntry> dirsCache = new ConcurrentHashMap<>();
-  private final VirtualFileRepoCacheController controller;
+  private final VirtualFileRepoCacheGateway gateway;
   private Metrics metrics;
 
-  VirtualFileRepoCacheImpl(VirtualFileRepoCacheController controller) {
-    this.controller = controller;
+  VirtualFileRepoCacheImpl(VirtualFileRepoCacheGateway gateway) {
+    this.gateway = gateway;
   }
 
   @Override
   public void initComponent() {
-    metrics = controller.getMetrics();
+    metrics = gateway.getMetrics();
     metrics.gauge("vfile-repo-roots-cache-size", rootsCache::size);
     metrics.gauge("vfile-repo-dirs-cache-size", dirsCache::size);
   }
@@ -99,7 +99,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
     RepoListUpdate update = buildUpdate(repositories);
     rebuildRootsCache(update);
     purgeDirsCache(update);
-    controller.fireCacheChanged();
+    gateway.fireCacheChanged();
   }
 
   private RepoListUpdate buildUpdate(ImmutableList<GitRepository> repositories) {

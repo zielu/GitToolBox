@@ -16,7 +16,7 @@ import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.ConfigNotifier.Adapter;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatter;
-import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 
 public class GitToolBoxCompletionProject implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -81,7 +81,7 @@ public class GitToolBoxCompletionProject implements ProjectComponent {
   }
 
   private Collection<GitRepository> findAffectedRepositories() {
-    return MetricsHost.project(project).timer("completion-get-repos")
+    return ProjectMetrics.getInstance(project).timer("completion-get-repos")
       .timeSupplier(() -> getRepositories(project, affectedFiles));
   }
 

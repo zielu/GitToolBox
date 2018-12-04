@@ -3,7 +3,7 @@ package zielu.gittoolbox.blame;
 import com.codahale.metrics.Timer;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalNotification;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
@@ -21,17 +21,14 @@ import git4idea.GitVcs;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.metrics.Metrics;
-import zielu.gittoolbox.metrics.MetricsHost;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.util.GtUtil;
 
-class BlameServiceImpl implements BlameService {
+class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
   private final BlameCache blameCache;
-  private final Cache<Document, BlameAnnotation> annotationCache = CacheBuilder.newBuilder()
-      .weakKeys()
-      .removalListener(this::onAnnotationCacheRemoval)
+  private final Cache<VirtualFile, BlameAnnotation> annotationCache = CacheBuilder.newBuilder()
       .build();
   private final Cache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
       .weakKeys()
@@ -40,27 +37,25 @@ class BlameServiceImpl implements BlameService {
   private final Timer lineBlameTimer;
   private final MessageBusConnection connection;
 
-  BlameServiceImpl(@NotNull Project project, @NotNull BlameCache blameCache) {
+  BlameServiceImpl(@NotNull Project project, @NotNull BlameCache blameCache, @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.blameCache = blameCache;
-    Metrics metrics = MetricsHost.project(project);
-    fileBlameTimer = metrics.timer("blame-file-blame");
-    lineBlameTimer = metrics.timer("blame-line-blame");
+    fileBlameTimer = metrics.timer("blame-file");
+    lineBlameTimer = metrics.timer("blame-line");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
     connection = project.getMessageBus().connect(project);
     connection.subscribe(BlameCache.TOPIC, new BlameCacheListener() {
       @Override
       public void cacheUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
+        annotationCache.put(file, annotation);
         project.getMessageBus().syncPublisher(BLAME_UPDATE).blameUpdated(file);
       }
     });
   }
 
-  private void onAnnotationCacheRemoval(RemovalNotification<Document, BlameAnnotation> entry) {
-    VirtualFile file = entry.getValue().getVirtualFile();
-    if (file != null) {
-      blameCache.invalidate(file);
-    }
+  @Override
+  public void dispose() {
+    connection.disconnect();
   }
 
   @Nullable
@@ -131,17 +126,17 @@ class BlameServiceImpl implements BlameService {
     if (lineNumberProvider != null) {
       if (!lineNumberProvider.isLineChanged(currentLine)) {
         int correctedLine = lineNumberProvider.getLineNumber(currentLine);
-        return getCurrentLineBlameInternal(document, file, correctedLine);
+        return getCurrentLineBlameInternal(file, correctedLine);
       }
     }
     return null;
   }
 
   @Nullable
-  private Blame getCurrentLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
+  private Blame getCurrentLineBlameInternal(@NotNull VirtualFile file,
                                             int currentLine) {
     try {
-      BlameAnnotation blameAnnotation = annotationCache.get(document, () -> blameCache.getAnnotation(file));
+      BlameAnnotation blameAnnotation = annotationCache.get(file, () -> blameCache.getAnnotation(file));
       return blameAnnotation.getBlame(currentLine);
     } catch (ExecutionException e) {
       log.warn("Failed to blame " + file + ": " + currentLine);

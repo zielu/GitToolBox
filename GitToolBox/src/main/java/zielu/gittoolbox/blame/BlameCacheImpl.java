@@ -1,5 +1,7 @@
 package zielu.gittoolbox.blame;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Timer;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -15,10 +17,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 
 class BlameCacheImpl implements BlameCache {
   private static final BlameAnnotation EMPTY = new BlameAnnotation() {
@@ -45,23 +49,38 @@ class BlameCacheImpl implements BlameCache {
   private final Map<VirtualFile, BlameAnnotation> annotations = new ConcurrentHashMap<>();
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
   private final GitVcs git;
+  private final Timer getTimer;
+  private final Timer loadTimer;
+  private final Timer queueWaitTimer;
+  private final Counter discardedSubmitCounter;
 
   private ExecutorService executor;
 
-  BlameCacheImpl(@NotNull Project project, @NotNull VirtualFileRepoCache fileRepoCache) {
+  BlameCacheImpl(@NotNull Project project, @NotNull VirtualFileRepoCache fileRepoCache,
+                 @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.fileRepoCache = fileRepoCache;
     git = GitVcs.getInstance(project);
-    executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
+    executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
         .setDaemon(true)
         .setNameFormat("blame-cache-%d")
         .build()
     );
+    metrics.gauge("blame-cache-size", annotations::size);
+    metrics.gauge("blame-cache-queued-count", queued::size);
+    discardedSubmitCounter = metrics.counter("blame-cache-discarded-count");
+    getTimer = metrics.timer("blame-cache-get");
+    loadTimer = metrics.timer("blame-cache-load");
+    queueWaitTimer = metrics.timer("blame-cache-queue-wait");
   }
 
   @NotNull
   @Override
   public BlameAnnotation getAnnotation(@NotNull VirtualFile file) {
+    return getTimer.timeSupplier(() -> getAnnotationInternal(file));
+  }
+
+  private BlameAnnotation getAnnotationInternal(@NotNull VirtualFile file) {
     return annotations.compute(file, (fileKey, existingAnnotation) -> {
       if (existingAnnotation == null) {
         submitTask(fileKey);
@@ -74,19 +93,29 @@ class BlameCacheImpl implements BlameCache {
 
   private void submitTask(@NotNull VirtualFile file) {
     if (queued.add(file)) {
-      executor.execute(new FileAnnotationLoader(file, git, this::updateAnnotation));
+      executor.execute(new FileAnnotationLoader(file, git, loaderTimers(), this::updateAnnotation));
+    } else {
+      discardedSubmitCounter.inc();
     }
+  }
+
+  private LoaderTimers loaderTimers() {
+    return new LoaderTimers(loadTimer, queueWaitTimer);
   }
 
   @NotNull
   private BlameAnnotation handleExistingAnnotation(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-    VcsRevisionNumber currentRevision = currentRepoRevision(file);
-    if (annotation.isChanged(currentRevision)) {
+    if (isChanged(file, annotation)) {
       submitTask(file);
       return EMPTY;
     } else {
       return annotation;
     }
+  }
+
+  private boolean isChanged(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
+    VcsRevisionNumber currentRevision = currentRepoRevision(file);
+    return annotation.isChanged(currentRevision);
   }
 
   private void updateAnnotation(@NotNull FileAnnotation fileAnnotation) {
@@ -123,24 +152,47 @@ class BlameCacheImpl implements BlameCache {
     annotations.remove(file);
   }
 
+  private static class LoaderTimers {
+    final Timer load;
+    final Timer queueWait;
+
+    private LoaderTimers(Timer load, Timer queueWait) {
+      this.load = load;
+      this.queueWait = queueWait;
+    }
+  }
+
   private static class FileAnnotationLoader implements Runnable {
     private final VirtualFile file;
     private final GitVcs git;
     private final Consumer<FileAnnotation> loaded;
+    private final LoaderTimers timers;
+    private final long createdAt = System.currentTimeMillis();
 
-    private FileAnnotationLoader(@NotNull VirtualFile file, @NotNull GitVcs git, @NotNull Consumer<FileAnnotation> loaded) {
+    private FileAnnotationLoader(@NotNull VirtualFile file, @NotNull GitVcs git, @NotNull LoaderTimers timers,
+                                 @NotNull Consumer<FileAnnotation> loaded) {
       this.file = file;
       this.git = git;
+      this.timers = timers;
       this.loaded = loaded;
     }
 
     @Override
     public void run() {
+      timers.queueWait.update(System.currentTimeMillis() - createdAt, TimeUnit.MILLISECONDS);
+      FileAnnotation annotation = timers.load.timeSupplier(this::load);
+      if (annotation != null) {
+        loaded.accept(annotation);
+      }
+    }
+
+    @Nullable
+    private FileAnnotation load() {
       try {
-        FileAnnotation fileAnnotation = git.getAnnotationProvider().annotate(file);
-        loaded.accept(fileAnnotation);
+        return git.getAnnotationProvider().annotate(file);
       } catch (VcsException e) {
         log.warn("Failed to annotate " + file, e);
+        return null;
       }
     }
   }
