@@ -58,6 +58,8 @@
 
     <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
                     serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusGatewayImpl"/>
+    <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"
+                    serviceImplementation="zielu.gittoolbox.blame.BlameLoaderImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameCache"
                     serviceImplementation="zielu.gittoolbox.blame.BlameCacheImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"

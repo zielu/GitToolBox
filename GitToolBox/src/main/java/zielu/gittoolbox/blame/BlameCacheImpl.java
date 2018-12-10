@@ -10,7 +10,6 @@ import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
-import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
@@ -43,12 +42,12 @@ class BlameCacheImpl implements BlameCache {
       return null;
     }
   };
-  private static final Logger log = Logger.getInstance(BlameCacheImpl.class);
+  private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
   private final Project project;
   private final VirtualFileRepoCache fileRepoCache;
+  private final BlameLoader blameLoader;
   private final Map<VirtualFile, BlameAnnotation> annotations = new ConcurrentHashMap<>();
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
-  private final GitVcs git;
   private final Timer getTimer;
   private final Timer loadTimer;
   private final Timer queueWaitTimer;
@@ -57,17 +56,17 @@ class BlameCacheImpl implements BlameCache {
   private ExecutorService executor;
 
   BlameCacheImpl(@NotNull Project project, @NotNull VirtualFileRepoCache fileRepoCache,
-                 @NotNull ProjectMetrics metrics) {
+                 @NotNull BlameLoader blameLoader, @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.fileRepoCache = fileRepoCache;
-    git = GitVcs.getInstance(project);
+    this.blameLoader = blameLoader;
     executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
         .setDaemon(true)
         .setNameFormat("blame-cache-%d")
         .build()
     );
     metrics.gauge("blame-cache-size", annotations::size);
-    metrics.gauge("blame-cache-queued-count", queued::size);
+    metrics.gauge("blame-cache-queue-count", queued::size);
     discardedSubmitCounter = metrics.counter("blame-cache-discarded-count");
     getTimer = metrics.timer("blame-cache-get");
     loadTimer = metrics.timer("blame-cache-load");
@@ -93,8 +92,10 @@ class BlameCacheImpl implements BlameCache {
 
   private void submitTask(@NotNull VirtualFile file) {
     if (queued.add(file)) {
-      executor.execute(new FileAnnotationLoader(file, git, loaderTimers(), this::updateAnnotation));
+      LOG.debug("Add annotation task for ", file);
+      executor.execute(new FileAnnotationLoader(file, blameLoader, loaderTimers(), this::updateAnnotation));
     } else {
+      LOG.debug("Discard annotation task for ", file);
       discardedSubmitCounter.inc();
     }
   }
@@ -118,10 +119,14 @@ class BlameCacheImpl implements BlameCache {
     return annotation.isChanged(currentRevision);
   }
 
-  private void updateAnnotation(@NotNull FileAnnotation fileAnnotation) {
-    VirtualFile file = fileAnnotation.getFile();
-    if (file != null && queued.remove(file)) {
-      BlameAnnotation blameAnnotation = new BlameAnnotationImpl(fileAnnotation);
+  private void updateAnnotation(@NotNull VirtualFile file, @Nullable FileAnnotation fileAnnotation) {
+    if (queued.remove(file)) {
+      BlameAnnotation blameAnnotation;
+      if (fileAnnotation != null) {
+        blameAnnotation = new BlameAnnotationImpl(fileAnnotation);
+      } else {
+        blameAnnotation = EMPTY;
+      }
       annotations.put(file, blameAnnotation);
       fireUpdated(file, blameAnnotation);
     }
@@ -136,12 +141,12 @@ class BlameCacheImpl implements BlameCache {
     GitRepository repo = fileRepoCache.getRepoForFile(file);
     if (repo != null) {
       try {
-        VcsRevisionNumber parsedRevision = git.parseRevisionNumber(repo.getCurrentRevision());
+        VcsRevisionNumber parsedRevision = blameLoader.getCurrentRevision(repo);
         if (parsedRevision != null) {
           return parsedRevision;
         }
       } catch (VcsException e) {
-        log.warn("Could not get current repoRevision for " + file);
+        LOG.warn("Could not get current repoRevision for " + file, e);
       }
     }
     return VcsRevisionNumber.NULL;
@@ -164,15 +169,15 @@ class BlameCacheImpl implements BlameCache {
 
   private static class FileAnnotationLoader implements Runnable {
     private final VirtualFile file;
-    private final GitVcs git;
-    private final Consumer<FileAnnotation> loaded;
+    private final BlameLoader loader;
+    private final BiConsumer<VirtualFile, FileAnnotation> loaded;
     private final LoaderTimers timers;
     private final long createdAt = System.currentTimeMillis();
 
-    private FileAnnotationLoader(@NotNull VirtualFile file, @NotNull GitVcs git, @NotNull LoaderTimers timers,
-                                 @NotNull Consumer<FileAnnotation> loaded) {
+    private FileAnnotationLoader(@NotNull VirtualFile file, @NotNull BlameLoader loader, @NotNull LoaderTimers timers,
+                                 @NotNull BiConsumer<VirtualFile, FileAnnotation> loaded) {
       this.file = file;
-      this.git = git;
+      this.loader = loader;
       this.timers = timers;
       this.loaded = loaded;
     }
@@ -181,17 +186,17 @@ class BlameCacheImpl implements BlameCache {
     public void run() {
       timers.queueWait.update(System.currentTimeMillis() - createdAt, TimeUnit.MILLISECONDS);
       FileAnnotation annotation = timers.load.timeSupplier(this::load);
-      if (annotation != null) {
-        loaded.accept(annotation);
-      }
+      LOG.info("Annotated " + file + ": " + annotation);
+      loaded.accept(file, annotation);
     }
 
     @Nullable
     private FileAnnotation load() {
+      LOG.debug("Annotate ", file);
       try {
-        return git.getAnnotationProvider().annotate(file);
+        return loader.annotate(file);
       } catch (VcsException e) {
-        log.warn("Failed to annotate " + file, e);
+        LOG.warn("Failed to annotate " + file, e);
         return null;
       }
     }
