@@ -8,6 +8,8 @@ import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.Project;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
+import git4idea.fetch.GitFetchResult;
+import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
@@ -26,14 +28,13 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.ui.util.AppUtil;
 import zielu.gittoolbox.util.DisposeSafeCallable;
 import zielu.gittoolbox.util.GtUtil;
 
 class AutoFetchTask implements Runnable {
-  private static final boolean showNotifications = false;
-
   private final Logger log = Logger.getInstance(getClass());
   private final AutoFetchExecutor owner;
   private final Project project;
@@ -133,16 +134,28 @@ class AutoFetchTask implements Runnable {
   private boolean tryExecuteFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
     return owner.callIfActive(new DisposeSafeCallable<>(project, () -> {
       log.debug("Auto-fetching...");
-      executeFetch(repos, indicator);
+      executeIdeaFetch(repos, indicator);
       log.debug("Finished auto-fetch");
-      if (showNotifications) {
-        finishedNotification();
-      }
       return true;
     }, false)).orElse(false);
   }
 
-  private void executeFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
+  private void executeIdeaFetch(@NotNull List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
+    Collection<GitRepository> fetched = ImmutableList.copyOf(repos);
+    GitFetchSupport fetchSupport = GitFetchSupport.fetchSupport(project);
+    Metrics metrics = ProjectMetrics.getInstance(project);
+    GitFetchResult fetchResult = metrics.timer("fetch-roots-idea").timeSupplier(() -> fetchSupport.fetch(repos));
+    if (fetchResult.showNotificationIfFailed(autoFetchFailedTitle())) {
+      finishedNotification();
+    }
+    PerRepoInfoCache.getInstance(project).refresh(fetched);
+  }
+
+  private String autoFetchFailedTitle() {
+    return ResBundle.getString("message.autoFetch") + " " + ResBundle.getString("message.failure");
+  }
+
+  private void executeBuiltInFetch(@NotNull List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
     Collection<GitRepository> fetched = GtFetcher.builder()
         .withClient(GtFetchClientFactory.create(project))
         .withMetrics(ProjectMetrics.getInstance(project))
@@ -179,9 +192,6 @@ class AutoFetchTask implements Runnable {
           }));
     } else {
       log.debug("Fetched skipped");
-      if (showNotifications) {
-        AppUtil.INSTANCE.invokeLaterIfNeeded(this::finishedWithoutFetch);
-      }
     }
   }
 

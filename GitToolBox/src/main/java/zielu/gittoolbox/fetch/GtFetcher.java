@@ -49,7 +49,7 @@ public class GtFetcher {
   }
 
   public ImmutableCollection<GitRepository> fetchRoots(@NotNull Collection<GitRepository> repositories) {
-    return metrics.timer("fetch-roots").timeSupplier(() -> doFetchRoots(repositories));
+    return metrics.timer("fetch-roots-custom").timeSupplier(() -> doFetchRoots(repositories));
   }
 
   private ImmutableCollection<GitRepository> doFetchRoots(@NotNull Collection<GitRepository> repositories) {
