@@ -144,7 +144,8 @@ class AutoFetchTask implements Runnable {
     Collection<GitRepository> fetched = ImmutableList.copyOf(repos);
     GitFetchSupport fetchSupport = GitFetchSupport.fetchSupport(project);
     Metrics metrics = ProjectMetrics.getInstance(project);
-    GitFetchResult fetchResult = metrics.timer("fetch-roots-idea").timeSupplier(() -> fetchSupport.fetch(repos));
+    GitFetchResult fetchResult = metrics.timer("fetch-roots-idea")
+        .timeSupplier(() -> fetchSupport.fetchAllRemotes(repos));
     if (fetchResult.showNotificationIfFailed(autoFetchFailedTitle())) {
       finishedNotification();
     }
