@@ -41,10 +41,23 @@ public class BehindTracker implements ProjectComponent {
   private Optional<BehindMessage> prepareMessage(
       @NotNull ImmutableMap<GitRepository, PendingChange> changes) {
     Map<GitRepository, BehindStatus> statuses = mapStateAsStatuses(changes);
-    if (statuses.isEmpty()) {
+    if (statuses.isEmpty() || allAreNone(changes)) {
       return Optional.empty();
     } else {
       return Optional.of(createBehindMessage(statuses));
+    }
+  }
+
+  private boolean allAreNone(@NotNull ImmutableMap<GitRepository, PendingChange> changes) {
+    if (changes.isEmpty()) {
+      return false;
+    } else {
+      for (PendingChange change : changes.values()) {
+        if (change.type != ChangeType.NONE) {
+          return false;
+        }
+      }
+      return true;
     }
   }
 
