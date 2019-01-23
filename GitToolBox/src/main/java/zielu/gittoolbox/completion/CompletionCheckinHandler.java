@@ -6,47 +6,47 @@ import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.checkin.CheckinHandler;
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
-public class CompletionCheckinHandler extends CheckinHandler {
+class CompletionCheckinHandler extends CheckinHandler implements CompletionScopeProvider {
   private final CheckinProjectPanel panel;
 
-  public CompletionCheckinHandler(CheckinProjectPanel panel) {
+  CompletionCheckinHandler(CheckinProjectPanel panel) {
     this.panel = panel;
   }
 
   @Override
   public void includedChangesChanged() {
-    captureSelectedRepositories(panel);
-  }
-
-  private void captureSelectedRepositories(CheckinProjectPanel panel) {
-    GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(panel.getProject());
-    if (config.commitDialogCompletion) {
-      updateAffectedFiles(panel);
-    }
-  }
-
-  private void updateAffectedFiles(CheckinProjectPanel panel) {
-    Project project = panel.getProject();
-    Collection<File> affected = ProjectMetrics.getInstance(project)
-        .timer("completion-get-affected").timeSupplier(panel::getFiles);
-    GitToolBoxCompletionProject.getInstance(project).updateAffected(affected);
+    //do nothing
   }
 
   @Override
   public void checkinSuccessful() {
-    dispose();
+    //do nothing
   }
 
   @Override
   public void checkinFailed(List<VcsException> exception) {
-    dispose();
+    //do nothing
   }
 
-  private void dispose() {
-    GitToolBoxCompletionProject.getInstance(panel.getProject()).clearAffected();
+  @NotNull
+  @Override
+  public Collection<File> getAffectedFiles() {
+    GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(panel.getProject());
+    if (config.commitDialogCompletion) {
+      return pullCurrentAffectedFiles();
+    }
+    return Collections.emptyList();
+  }
+
+  private Collection<File> pullCurrentAffectedFiles() {
+    Project project = panel.getProject();
+    return ProjectMetrics.getInstance(project).timer("completion-get-affected")
+        .timeSupplier(panel::getFiles);
   }
 }

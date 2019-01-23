@@ -121,7 +121,8 @@
       <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTrackerController</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.completion.GitToolBoxCompletionProject</implementation-class>
+      <interface-class>zielu.gittoolbox.completion.CompletionService</interface-class>
+      <implementation-class>zielu.gittoolbox.completion.CompletionServiceImpl</implementation-class>
     </component>
     <component>
       <interface-class>zielu.gittoolbox.metrics.ProjectMetrics</interface-class>

@@ -6,6 +6,7 @@ import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.patterns.PlatformPatterns;
@@ -18,7 +19,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.Icon;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResIcons;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
@@ -29,6 +29,8 @@ import zielu.gittoolbox.formatter.SimpleFormatter;
 import zielu.gittoolbox.util.GtUtil;
 
 public class CurrentBranchCompletionContributor extends CompletionContributor {
+  private static final Logger LOG = Logger.getInstance(CurrentBranchCompletionContributor.class);
+
   public CurrentBranchCompletionContributor() {
     extend(CompletionType.BASIC, PlatformPatterns.psiElement(PsiPlainText.class), new Completer());
   }
@@ -46,7 +48,9 @@ public class CurrentBranchCompletionContributor extends CompletionContributor {
     private void setupCompletions(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
       Project project = getProject(parameters);
       List<Formatter> formatters = getFormatters(project);
-      getBranchInfo(project).forEach(branchInfo -> {
+      Collection<Pair<String, String>> branchInfos = getBranchInfo(project);
+      LOG.debug("Setup completions for: ", branchInfos);
+      branchInfos.forEach(branchInfo -> {
         String branchName = branchInfo.getFirst();
         formatters.forEach(formatter -> addCompletion(result, formatter, branchName, branchInfo.getSecond()));
       });
@@ -54,10 +58,12 @@ public class CurrentBranchCompletionContributor extends CompletionContributor {
 
     private void addCompletion(CompletionResultSet result, Formatter formatter, String branchName, String repoName) {
       Formatted formatted = formatter.format(branchName);
-      if (formatted.matches && StringUtils.isNotBlank(formatted.text)) {
-        result.addElement(LookupElementBuilder.create(formatted.text)
+      if (formatted.isDisplayable()) {
+        result.addElement(LookupElementBuilder.create(formatted.getText())
             .withTypeText(repoName, true)
             .withIcon(getIcon(formatter)));
+      } else {
+        LOG.debug("Skipped completion: ", formatted);
       }
     }
 
@@ -72,7 +78,7 @@ public class CurrentBranchCompletionContributor extends CompletionContributor {
     }
 
     private List<Formatter> getFormatters(Project project) {
-      return project.getComponent(GitToolBoxCompletionProject.class).getFormatters();
+      return project.getComponent(CompletionService.class).getFormatters();
     }
 
     @NotNull
@@ -81,7 +87,7 @@ public class CurrentBranchCompletionContributor extends CompletionContributor {
     }
 
     private Collection<Pair<String, String>> getBranchInfo(@NotNull Project project) {
-      GitToolBoxCompletionProject completion = GitToolBoxCompletionProject.getInstance(project);
+      CompletionService completion = CompletionService.getInstance(project);
       return completion.getAffected().stream().map(getGitRepositoryNames()).collect(Collectors.toList());
     }
 
@@ -96,7 +102,7 @@ public class CurrentBranchCompletionContributor extends CompletionContributor {
 
     private boolean shouldComplete(@NotNull CompletionParameters parameters) {
       GitToolBoxConfigForProject config = getConfig(parameters);
-      return config.commitDialogCompletion && !parameters.getEditor().isOneLineMode();
+      return config.commitDialogCompletion;
     }
 
     @NotNull

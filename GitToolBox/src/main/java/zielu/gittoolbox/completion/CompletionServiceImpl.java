@@ -7,8 +7,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
 import java.io.File;
-import java.util.ArrayList;
+import java.lang.ref.WeakReference;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.GitCompatUtil;
@@ -18,21 +19,15 @@ import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
-public class GitToolBoxCompletionProject implements ProjectComponent {
+class CompletionServiceImpl implements ProjectComponent, CompletionService {
   private final Logger log = Logger.getInstance(getClass());
-  private final List<File> affectedFiles = new ArrayList<>();
   private final Project project;
-  private Collection<GitRepository> affectedRepositories;
+  private WeakReference<CompletionScopeProvider> scopeProviderRef;
   private MessageBusConnection connection;
-  private List<Formatter> formatters = ImmutableList.of();
+  private List<Formatter> formatters = Collections.emptyList();
 
-  public GitToolBoxCompletionProject(@NotNull Project project) {
+  CompletionServiceImpl(@NotNull Project project) {
     this.project = project;
-  }
-
-  @NotNull
-  public static GitToolBoxCompletionProject getInstance(@NotNull Project project) {
-    return project.getComponent(GitToolBoxCompletionProject.class);
   }
 
   @Override
@@ -63,24 +58,35 @@ public class GitToolBoxCompletionProject implements ProjectComponent {
     fillFormatters(GitToolBoxConfigForProject.getInstance(project));
   }
 
-  public synchronized void updateAffected(Collection<File> affected) {
-    clearAffected();
-    affectedFiles.addAll(affected);
+  @Override
+  public void setScopeProvider(@NotNull CompletionScopeProvider scopeProvider) {
+    log.debug("Set scope provider: ", scopeProvider);
+    scopeProviderRef = new WeakReference<>(scopeProvider);
   }
 
-  public synchronized void clearAffected() {
-    affectedRepositories = null;
-    affectedFiles.clear();
-  }
-
-  public synchronized Collection<GitRepository> getAffected() {
-    if (affectedRepositories == null) {
-      affectedRepositories = findAffectedRepositories();
-    }
+  @Override
+  @NotNull
+  public Collection<GitRepository> getAffected() {
+    CompletionScopeProvider scopeProvider = getScopeProvider();
+    Collection<File> affectedFiles = scopeProvider.getAffectedFiles();
+    log.debug("Get affected files: ", affectedFiles);
+    Collection<GitRepository> affectedRepositories = findAffectedRepositories(affectedFiles);
+    log.debug("Get affected repositories: ", affectedRepositories);
     return affectedRepositories;
   }
 
-  private Collection<GitRepository> findAffectedRepositories() {
+  private CompletionScopeProvider getScopeProvider() {
+    CompletionScopeProvider scopeProvider = CompletionScopeProvider.EMPTY;
+    if (scopeProviderRef != null) {
+      CompletionScopeProvider provider = scopeProviderRef.get();
+      if (provider != null) {
+        return provider;
+      }
+    }
+    return scopeProvider;
+  }
+
+  private Collection<GitRepository> findAffectedRepositories(Collection<File> affectedFiles) {
     return ProjectMetrics.getInstance(project).timer("completion-get-repos")
       .timeSupplier(() -> getRepositories(project, affectedFiles));
   }
@@ -89,20 +95,24 @@ public class GitToolBoxCompletionProject implements ProjectComponent {
     return GitCompatUtil.getRepositoriesForFiles(project, selectedFiles);
   }
 
+  @Override
+  @NotNull
   public List<Formatter> getFormatters() {
     return formatters;
   }
 
   @Override
   public void projectClosed() {
-    clearAffected();
+    if (scopeProviderRef != null) {
+      scopeProviderRef.clear();
+      scopeProviderRef = null;
+    }
   }
 
   @Override
   public void disposeComponent() {
     disconnectFromMessageBus();
     clearFormatters();
-    clearAffected();
   }
 
   private void disconnectFromMessageBus() {

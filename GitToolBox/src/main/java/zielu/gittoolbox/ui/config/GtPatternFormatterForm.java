@@ -69,9 +69,8 @@ public class GtPatternFormatterForm implements GtFormUi {
 
   private void updateCommitCompletionOutput(String pattern, String testInput) {
     Formatted formatted = RegExpFormatter.create(pattern).format(testInput);
-    commitCompletionPatternOutput.setText(formatted.text);
-    boolean matches = formatted.matches;
-    if (matches) {
+    commitCompletionPatternOutput.setText(formatted.getText());
+    if (formatted.matches()) {
       commitCompletionPatternMatchStatus.setIcon(ResIcons.Ok);
       commitCompletionPatternMatchStatus.setToolTipText(getMatchedToolTip());
     } else {

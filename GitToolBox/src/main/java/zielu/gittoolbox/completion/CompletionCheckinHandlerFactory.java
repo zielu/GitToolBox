@@ -15,6 +15,8 @@ public class CompletionCheckinHandlerFactory extends VcsCheckinHandlerFactory {
   @NotNull
   @Override
   protected CheckinHandler createVcsHandler(CheckinProjectPanel panel) {
-    return new CompletionCheckinHandler(panel);
+    CompletionCheckinHandler handler = new CompletionCheckinHandler(panel);
+    CompletionService.getInstance(panel.getProject()).setScopeProvider(handler);
+    return handler;
   }
 }

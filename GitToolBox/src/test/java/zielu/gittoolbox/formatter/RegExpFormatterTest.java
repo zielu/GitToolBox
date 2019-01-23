@@ -1,6 +1,6 @@
 package zielu.gittoolbox.formatter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -20,7 +20,7 @@ class RegExpFormatterTest {
   })
   void formatShouldReturnExpectedResult(String pattern, String input, String expected) {
     RegExpFormatter formatter = RegExpFormatter.create(pattern);
-    assertEquals(expected, formatter.format(input).text);
+    assertThat(formatter.format(input).getText()).isEqualTo(expected);
   }
 
   @DisplayName("Formatting with empty")
@@ -28,6 +28,6 @@ class RegExpFormatterTest {
   @ValueSource(strings = {"   ", ""})
   void formatShouldReturnInputIfPatternEmpty(String pattern) {
     final String input = "abc";
-    assertEquals(input, RegExpFormatter.create(pattern).format(input).text);
+    assertThat(RegExpFormatter.create(pattern).format(input).getText()).isEqualTo(input);
   }
 }
