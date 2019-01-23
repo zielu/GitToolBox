@@ -65,7 +65,7 @@ public class BehindTrackerController implements ProjectComponent {
   private void scheduleNotifyTask() {
     if (active.get()) {
       BehindNotifyTask task = new BehindNotifyTask(project);
-      executor.schedule("behind-notify", new DisposeSafeRunnable(project, task), 20, TimeUnit.SECONDS);
+      executor.schedule("behind-notify", new DisposeSafeRunnable(project, task), 10, TimeUnit.SECONDS);
     }
   }
 

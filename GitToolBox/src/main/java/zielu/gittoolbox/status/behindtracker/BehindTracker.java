@@ -41,24 +41,20 @@ public class BehindTracker implements ProjectComponent {
   private Optional<BehindMessage> prepareMessage(
       @NotNull ImmutableMap<GitRepository, PendingChange> changes) {
     Map<GitRepository, BehindStatus> statuses = mapStateAsStatuses(changes);
-    if (statuses.isEmpty() || allAreNone(changes)) {
+    if (statuses.isEmpty() || allAreInvisible(changes)) {
       return Optional.empty();
     } else {
       return Optional.of(createBehindMessage(statuses));
     }
   }
 
-  private boolean allAreNone(@NotNull ImmutableMap<GitRepository, PendingChange> changes) {
-    if (changes.isEmpty()) {
-      return false;
-    } else {
-      for (PendingChange change : changes.values()) {
-        if (change.type != ChangeType.NONE) {
-          return false;
-        }
+  private boolean allAreInvisible(@NotNull ImmutableMap<GitRepository, PendingChange> changes) {
+    for (PendingChange change : changes.values()) {
+      if (change.type.isVisible()) {
+        return false;
       }
-      return true;
     }
+    return true;
   }
 
   private synchronized Map<GitRepository, BehindStatus> mapStateAsStatuses(
@@ -117,8 +113,9 @@ public class BehindTracker implements ProjectComponent {
       } else if (info.count().isPresent()) {
         status = calculateBehindStatus(info, count -> calculateBehindStatus(previousInfo, count));
       }
-      Optional.ofNullable(status)
-          .ifPresent(stat -> pendingChanges.put(repository, new PendingChange(stat, changeType)));
+      if (status != null) {
+        pendingChanges.put(repository, new PendingChange(status, changeType));
+      }
     } else if (changeType != ChangeType.NONE) {
       pendingChanges.remove(repository);
     }
