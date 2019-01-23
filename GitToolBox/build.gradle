@@ -1,16 +1,18 @@
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 
 buildscript {
     repositories {
         mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.12"
+    id "org.jetbrains.intellij" version "0.4.1"
     id 'com.palantir.git-version' version '0.11.0'
     id 'ch.netzwerg.release' version '1.2.5'
-    id "com.github.spotbugs" version "1.6.5"
+    id "com.github.spotbugs" version "1.6.9"
 }
 
 repositories {
@@ -29,7 +31,8 @@ configurations {
     }
 }
 
-def ideaCacheDir = System.getProperty('user.home') + File.separator + 'intellij-gradle-cache'
+def ideaCacheDir = Paths.get(System.getProperty('user.home')).resolve('intellij-gradle-cache').toAbsolutePath().toString()
+println("Idea cache dir: " + ideaCacheDir)
 
 intellij {
     version = ideaVersion
