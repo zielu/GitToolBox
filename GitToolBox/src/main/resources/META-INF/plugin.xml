@@ -54,7 +54,7 @@
     <additionalTextAttributes scheme="Default" file="zielu/gittoolbox/colorschemes/GitToolBoxDefault.xml"/>
     <additionalTextAttributes scheme="Darcula" file="zielu/gittoolbox/colorschemes/GitToolBoxDarcula.xml"/>
 
-    <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup" />
+    <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup"/>
 
     <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
                     serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusGatewayImpl"/>
@@ -64,6 +64,8 @@
                     serviceImplementation="zielu.gittoolbox.blame.BlameCacheImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl"/>
+    <projectService serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheGateway"/>
+    <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheGateway" />
   </extensions>
 
   <application-components>
@@ -89,17 +91,11 @@
       <implementation-class>zielu.gittoolbox.cache.PerRepoInfoCacheImpl</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheGateway</implementation-class>
-    </component>
-    <component>
       <interface-class>zielu.gittoolbox.cache.VirtualFileRepoCache</interface-class>
       <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheImpl</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.cache.CacheSourcesSubscriber</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.cache.InfoCachePublisher</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.fetch.AutoFetchSubscriber</implementation-class>
