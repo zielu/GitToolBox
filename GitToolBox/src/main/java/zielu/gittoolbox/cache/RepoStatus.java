@@ -6,11 +6,8 @@ import com.google.common.base.Objects;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
-import git4idea.repo.GitRepoInfo;
-import git4idea.repo.GitRepository;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
@@ -29,30 +26,9 @@ public class RepoStatus {
     this.remoteHash = remoteHash;
   }
 
-  public static RepoStatus create(@NotNull GitRepository repository) {
-    Hash localHash = null;
-    GitRemoteBranch remote = null;
-    Hash remoteHash = null;
-
-    GitLocalBranch localBranch = getLocalBranch(repository);
-    if (localBranch != null) {
-      GitRepoInfo repoInfo = repository.getInfo();
-      localHash = repoInfo.getLocalBranchesWithHashes().get(localBranch);
-      remote = localBranch.findTrackedBranch(repository);
-      remoteHash = repoInfo.getRemoteBranchesWithHashes().get(remote);
-    }
-
-    return new RepoStatus(localBranch, localHash, remote, remoteHash);
-  }
-
   public static RepoStatus create(GitLocalBranch localBranch, Hash localHash,
                                   GitRemoteBranch remoteBranch, Hash remoteHash) {
     return new RepoStatus(localBranch, localHash, remoteBranch, remoteHash);
-  }
-
-  @Nullable
-  private static GitLocalBranch getLocalBranch(@NotNull GitRepository repository) {
-    return repository.getCurrentBranch();
   }
 
   public static RepoStatus empty() {
