@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,8 +45,20 @@ public class BehindTracker implements ProjectComponent {
     if (statuses.isEmpty() || allAreInvisible(changes)) {
       return Optional.empty();
     } else {
-      return Optional.of(createBehindMessage(statuses));
+      statuses = removeZeros(statuses);
+      if (statuses.isEmpty()) {
+        return Optional.empty();
+      } else {
+        return Optional.of(createBehindMessage(statuses));
+      }
     }
+  }
+
+  private synchronized Map<GitRepository, BehindStatus> mapStateAsStatuses(
+      @NotNull ImmutableMap<GitRepository, PendingChange> changes) {
+    Map<GitRepository, BehindStatus> statuses = new HashMap<>();
+    changes.forEach((repo, change) -> statuses.put(repo, change.status));
+    return statuses;
   }
 
   private boolean allAreInvisible(@NotNull ImmutableMap<GitRepository, PendingChange> changes) {
@@ -57,11 +70,10 @@ public class BehindTracker implements ProjectComponent {
     return true;
   }
 
-  private synchronized Map<GitRepository, BehindStatus> mapStateAsStatuses(
-      @NotNull ImmutableMap<GitRepository, PendingChange> changes) {
-    Map<GitRepository, BehindStatus> statuses = new HashMap<>();
-    changes.forEach((repo, change) -> statuses.put(repo, change.status));
-    return statuses;
+  private Map<GitRepository, BehindStatus> removeZeros(@NotNull Map<GitRepository, BehindStatus> statuses) {
+    return statuses.entrySet().stream()
+        .filter(entry -> entry.getValue().behind() > 0)
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   private BehindMessage createBehindMessage(Map<GitRepository, BehindStatus> statuses) {
