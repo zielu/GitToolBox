@@ -3,14 +3,16 @@ package zielu.gittoolbox.status;
 import com.intellij.openapi.util.Key;
 import com.intellij.vcs.log.Hash;
 import git4idea.commands.GitLineHandlerListener;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.util.GtUtil;
 
 public class GitRevListLeftRightCounter implements GitLineHandlerListener {
-  private int ahead = 0;
-  private Hash aheadHash;
-  private int behind = 0;
-  private Hash behindHash;
+  private final AtomicInteger ahead = new AtomicInteger();
+  private final AtomicReference<Hash> aheadHash = new AtomicReference<>();
+  private final AtomicInteger behind = new AtomicInteger();
+  private final AtomicReference<Hash> behindHash = new AtomicReference<>();
 
   private int exitCode;
   @Nullable
@@ -26,16 +28,16 @@ public class GitRevListLeftRightCounter implements GitLineHandlerListener {
   }
 
   private void onAheadLine(String line) {
-    ahead++;
-    if (aheadHash == null) {
-      aheadHash = hashFromLine(line);
+    ahead.incrementAndGet();
+    if (aheadHash.get() == null) {
+      aheadHash.set(hashFromLine(line));
     }
   }
 
   private void onBehindLine(String line) {
-    behind++;
-    if (behindHash == null) {
-      behindHash = hashFromLine(line);
+    behind.incrementAndGet();
+    if (behindHash.get() == null) {
+      behindHash.set(hashFromLine(line));
     }
   }
 
@@ -52,21 +54,21 @@ public class GitRevListLeftRightCounter implements GitLineHandlerListener {
   }
 
   public int ahead() {
-    return ahead;
+    return ahead.get();
   }
 
   public int behind() {
-    return behind;
+    return behind.get();
   }
 
   @Nullable
   public Hash aheadTop() {
-    return aheadHash;
+    return aheadHash.get();
   }
 
   @Nullable
   public Hash behindTop() {
-    return behindHash;
+    return behindHash.get();
   }
 
   public boolean isSuccess() {
