@@ -16,7 +16,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
@@ -24,7 +23,6 @@ import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
-import javax.swing.JTextArea;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
@@ -32,6 +30,7 @@ import zielu.gittoolbox.blame.Blame;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.ui.blame.BlameUi;
 import zielu.gittoolbox.ui.util.AppUtil;
 
 public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
@@ -212,15 +211,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     return event -> {
       Editor editor = stateHolder.getCurrentEditor();
       if (blameDetails != null && editor != null) {
-        JTextArea content = new JTextArea(blameDetails);
-        content.setEditable(false);
-        JBPopupFactory.getInstance()
-            .createDialogBalloonBuilder(content, ResBundle.getString("statusBar.blame.popup.title"))
-            .setDialogMode(true)
-            .setCloseButtonEnabled(false)
-            .setHideOnClickOutside(true)
-            .setShowCallout(false)
-            .createBalloon().showInCenterOf(editor.getComponent());
+        BlameUi.showBlameDetails(editor, blameDetails);
       }
     };
   }

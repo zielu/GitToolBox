@@ -1,4 +1,4 @@
-package zielu.gittoolbox.actions;
+package zielu.gittoolbox.ui.actions;
 
 import static zielu.gittoolbox.push.GtPushResult.Type.ERROR;
 import static zielu.gittoolbox.push.GtPushResult.Type.NOT_AUTHORIZED;
