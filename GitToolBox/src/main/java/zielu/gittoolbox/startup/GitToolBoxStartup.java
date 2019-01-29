@@ -21,18 +21,21 @@ public class GitToolBoxStartup implements StartupActivity, DumbAware {
 
   @Override
   public void runActivity(@NotNull Project project) {
-    migrateAppV1toV2();
-    saveAppSettings();
+    if (migrateAppV1toV2()) {
+      saveAppSettings();
+    }
   }
 
-  private void migrateAppV1toV2() {
+  private boolean migrateAppV1toV2() {
     GitToolBoxConfig2 v2 = GitToolBoxConfig2.getInstance();
     if (!v2.previousVersionMigrated) {
       GitToolBoxConfig v1 = GitToolBoxConfig.getInstance();
       ConfigMigratorV1toV2 migrator = new ConfigMigratorV1toV2();
       migrator.migrate(v1, v2);
       v2.previousVersionMigrated = true;
+      return true;
     }
+    return false;
   }
 
   private void saveAppSettings() {
