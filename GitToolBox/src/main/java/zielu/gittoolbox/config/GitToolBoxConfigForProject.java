@@ -28,6 +28,7 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
   public List<String> autoFetchExclusions = new ArrayList<>();
   public boolean commitDialogCompletion = true;
   public List<CommitCompletionConfig> completionConfigs = Lists.newArrayList(new CommitCompletionConfig());
+  public ReferencePointForStatusConfig referencePointForStatus = new ReferencePointForStatusConfig();
 
   public static GitToolBoxConfigForProject getInstance(Project project) {
     return ServiceManager.getService(project, GitToolBoxConfigForProject.class);
@@ -66,6 +67,10 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     return !this.autoFetchExclusions.equals(autoFetchExclusions);
   }
 
+  public boolean isReferencePointForStatusChanged(ReferencePointForStatusConfig config) {
+    return !this.referencePointForStatus.isChanged(config);
+  }
+
   public void fireChanged(@NotNull Project project) {
     project.getMessageBus().syncPublisher(ConfigNotifier.CONFIG_TOPIC).configChanged(project, this);
   }
@@ -82,7 +87,7 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
   }
 
   @Override
-  public void loadState(GitToolBoxConfigForProject state) {
+  public void loadState(@NotNull GitToolBoxConfigForProject state) {
     XmlSerializerUtil.copyBean(state, this);
   }
 }
