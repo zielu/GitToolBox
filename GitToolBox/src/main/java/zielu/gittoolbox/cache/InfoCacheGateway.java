@@ -4,14 +4,18 @@ import static zielu.gittoolbox.cache.PerRepoInfoCache.CACHE_CHANGE;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Pair;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
+import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepoInfo;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.ReferencePointForStatusType;
 
 class InfoCacheGateway {
   private final Logger log = Logger.getInstance(getClass());
@@ -43,10 +47,29 @@ class InfoCacheGateway {
     if (localBranch != null) {
       GitRepoInfo repoInfo = repository.getInfo();
       localHash = repoInfo.getLocalBranchesWithHashes().get(localBranch);
-      remote = localBranch.findTrackedBranch(repository);
-      remoteHash = repoInfo.getRemoteBranchesWithHashes().get(remote);
+      Pair<GitRemoteBranch, Hash> remoteRef = findRemoteReference(repository, localBranch);
+      remote = remoteRef.first;
+      remoteHash = remoteRef.second;
     }
 
     return RepoStatus.create(localBranch, localHash, remote, remoteHash);
+  }
+
+  private Pair<GitRemoteBranch, Hash> findRemoteReference(@NotNull GitRepository repository,
+                                                          GitLocalBranch localBranch) {
+    GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project);
+    GitRemoteBranch remote = null;
+    GitRepoInfo repoInfo = repository.getInfo();
+    ReferencePointForStatusType type = config.referencePointForStatus.getType();
+    if (type == ReferencePointForStatusType.TRACKED_REMOTE_BRANCH) {
+      remote = localBranch.findTrackedBranch(repository);
+    } else if (type == ReferencePointForStatusType.SELECTED_PARENT_BRANCH)  {
+      GitBranchTrackInfo trackInfo = repository.getBranchTrackInfo(config.referencePointForStatus.name);
+      if (trackInfo != null) {
+        remote = trackInfo.getRemoteBranch();
+      }
+    }
+    Hash remoteHash = repoInfo.getRemoteBranchesWithHashes().get(remote);
+    return Pair.create(remote, remoteHash);
   }
 }

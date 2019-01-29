@@ -3,15 +3,15 @@ package zielu.gittoolbox.config;
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.NotNull;
 
-public enum ReferencePointForStatus {
+public enum ReferencePointForStatusType {
   TRACKED_REMOTE_BRANCH("trackedRemoteBranch"),
   SELECTED_PARENT_BRANCH("selectedParentBranch");
 
-  private static final ImmutableMap<String, ReferencePointForStatus> VALUES;
+  private static final ImmutableMap<String, ReferencePointForStatusType> VALUES;
 
   static {
-    ImmutableMap.Builder<String, ReferencePointForStatus> builder = ImmutableMap.builder();
-    for (ReferencePointForStatus value : ReferencePointForStatus.values()) {
+    ImmutableMap.Builder<String, ReferencePointForStatusType> builder = ImmutableMap.builder();
+    for (ReferencePointForStatusType value : ReferencePointForStatusType.values()) {
       builder.put(value.key(), value);
     }
     VALUES = builder.build();
@@ -19,7 +19,7 @@ public enum ReferencePointForStatus {
 
   private final String key;
 
-  ReferencePointForStatus(String key) {
+  ReferencePointForStatusType(String key) {
     this.key = key;
   }
 
@@ -27,7 +27,7 @@ public enum ReferencePointForStatus {
     return key;
   }
 
-  public static ReferencePointForStatus forKey(@NotNull String key) {
+  public static ReferencePointForStatusType forKey(@NotNull String key) {
     return VALUES.get(key);
   }
 }

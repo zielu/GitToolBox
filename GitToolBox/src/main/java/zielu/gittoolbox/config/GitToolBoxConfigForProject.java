@@ -68,7 +68,7 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
   }
 
   public boolean isReferencePointForStatusChanged(ReferencePointForStatusConfig config) {
-    return !this.referencePointForStatus.isChanged(config);
+    return this.referencePointForStatus.isChanged(config);
   }
 
   public void fireChanged(@NotNull Project project) {

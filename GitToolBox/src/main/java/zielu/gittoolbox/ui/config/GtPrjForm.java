@@ -1,9 +1,11 @@
 package zielu.gittoolbox.ui.config;
 
+import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.ToolbarDecorator;
@@ -21,10 +23,12 @@ import java.util.stream.Collectors;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import org.jdesktop.swingx.action.AbstractActionExt;
@@ -33,6 +37,8 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.ResIcons;
 import zielu.gittoolbox.config.CommitCompletionConfig;
 import zielu.gittoolbox.config.CommitCompletionType;
+import zielu.gittoolbox.config.ReferencePointForStatusConfig;
+import zielu.gittoolbox.config.ReferencePointForStatusType;
 import zielu.gittoolbox.fetch.AutoFetchParams;
 import zielu.gittoolbox.ui.util.AppUtil;
 import zielu.gittoolbox.util.GtUtil;
@@ -54,6 +60,8 @@ public class GtPrjForm implements GtFormUi {
   private JPanel commitCompletionPanel;
 
   private JPanel autoFetchExclusionsPanel;
+  private JComboBox<ReferencePointForStatusType> referencePointTypeComboBox;
+  private JTextField referencePointNameText;
 
   private GtPatternFormatterForm completionItemPatternForm;
   private Action addSimpleCompletionAction;
@@ -136,6 +144,9 @@ public class GtPrjForm implements GtFormUi {
     autoFetchExclusionsDecorator.setRemoveAction(button -> onRemoveAutoFetchExclusion());
     autoFetchExclusionsDecorator.setRemoveActionName(
         ResBundle.getString("configurable.prj.autoFetch.exclusions.remove.label"));
+    CollectionComboBoxModel<ReferencePointForStatusType> referencePointTypeModel = new CollectionComboBoxModel<>(
+        Lists.newArrayList(ReferencePointForStatusType.values()));
+    referencePointTypeComboBox.setModel(referencePointTypeModel);
   }
 
   private void onCompletionItemSelected(CommitCompletionConfig config) {
@@ -262,6 +273,18 @@ public class GtPrjForm implements GtFormUi {
 
   public List<String> getAutoFetchExclusions() {
     return autoFetchExclusionsModel.toList();
+  }
+
+  public void setReferencePointConfig(ReferencePointForStatusConfig config) {
+    referencePointTypeComboBox.setSelectedItem(config.getType());
+    referencePointNameText.setText(config.name);
+  }
+
+  public ReferencePointForStatusConfig getReferencePointConfig() {
+    ReferencePointForStatusConfig config = new ReferencePointForStatusConfig();
+    config.setType((ReferencePointForStatusType) referencePointTypeComboBox.getSelectedItem());
+    config.name = referencePointNameText.getText();
+    return config;
   }
 
   public void setProject(Project project) {

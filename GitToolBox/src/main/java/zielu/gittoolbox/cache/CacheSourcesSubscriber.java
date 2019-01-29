@@ -11,8 +11,14 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.config.ConfigNotifier;
+import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.ReferencePointForStatusConfig;
+import zielu.gittoolbox.config.ReferencePointForStatusType;
 
 class CacheSourcesSubscriber implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -21,6 +27,7 @@ class CacheSourcesSubscriber implements ProjectComponent {
   private List<DirMappingAware> dirMappingAwares = new ArrayList<>();
   private List<RepoChangeAware> repoChangeAwares = new ArrayList<>();
   private MessageBusConnection connection;
+  private ReferencePointForStatusConfig knownRefPointConfig;
 
   CacheSourcesSubscriber(@NotNull Project project) {
     this.project = project;
@@ -45,11 +52,21 @@ class CacheSourcesSubscriber implements ProjectComponent {
     connection = messageBus.connect();
     connection.subscribe(GitRepository.GIT_REPO_CHANGE, this::onRepoChanged);
     connection.subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this::onDirMappingChanged);
+    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
+      @Override
+      public void configChanged(Project project, GitToolBoxConfigForProject config) {
+        if (Objects.equals(CacheSourcesSubscriber.this.project, project)) {
+          onConfigChanged(project, config);
+        }
+      }
+    });
   }
 
   @Override
   public void projectOpened() {
-    active.compareAndSet(false, true);
+    if (active.compareAndSet(false, true)) {
+      knownRefPointConfig = GitToolBoxConfigForProject.getInstance(project).referencePointForStatus.copy();
+    }
   }
 
   @Override
@@ -97,5 +114,16 @@ class CacheSourcesSubscriber implements ProjectComponent {
     ImmutableList<GitRepository> repositories = ImmutableList.copyOf(gitManager.getRepositories());
     dirMappingAwares.forEach(aware -> aware.updatedRepoList(repositories));
     log.debug("Dir mappings change notification done");
+  }
+
+  private void onConfigChanged(@NotNull Project project, @NotNull GitToolBoxConfigForProject config) {
+    ReferencePointForStatusConfig currentRefPointConfig = config.referencePointForStatus;
+    if (currentRefPointConfig.isChanged(knownRefPointConfig)) {
+      knownRefPointConfig = currentRefPointConfig.copy();
+      GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
+      ImmutableList.copyOf(gitManager.getRepositories()).forEach(repo ->
+          repoChangeAwares.forEach(aware ->
+              aware.repoChanged(repo)));
+    }
   }
 }
