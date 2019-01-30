@@ -65,6 +65,7 @@ public class GtForm implements GtFormUi {
   private JBTextField decorationPartPostfixTextField;
   private JBTextField layoutPreviewTextField;
   private JCheckBox blameEnabledCheckBox;
+  private JCheckBox editorInlineBlameEnabledCheckBox;
 
   @Override
   public void init() {
@@ -160,6 +161,8 @@ public class GtForm implements GtFormUi {
       }
     });
     updateProjectAction.setModel(getUpdateModeModel());
+    blameEnabledCheckBox.addActionListener(e -> editorInlineBlameEnabledCheckBox
+        .setEnabled(blameEnabledCheckBox.isSelected()));
   }
 
   private Optional<DecorationPartConfig> getCurrentDecorationPart() {
@@ -272,6 +275,14 @@ public class GtForm implements GtFormUi {
 
   public boolean getShowBlame() {
     return blameEnabledCheckBox.isSelected();
+  }
+
+  public void setShowEditorInlineBlame(boolean showEditorInlineBlame) {
+    editorInlineBlameEnabledCheckBox.setSelected(showEditorInlineBlame);
+  }
+
+  public boolean getShowEditorInlineBlame() {
+    return editorInlineBlameEnabledCheckBox.isSelected();
   }
 
   public UpdateProjectAction getUpdateProjectAction() {

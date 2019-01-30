@@ -25,6 +25,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public boolean showStatusWidget = true;
   public boolean showProjectViewStatus = true;
   public boolean showBlame = true;
+  public boolean showEditorInlineBlame = false;
   public String updateProjectActionId = DefaultUpdateProjectAction.ID;
   public List<DecorationPartConfig> decorationParts = Lists.newArrayList(
       DecorationPartConfig.builder().withType(DecorationPartType.LOCATION).withPrefix("- ").build(),
@@ -82,6 +83,10 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
 
   public boolean isShowBlameChanged(boolean showBlame) {
     return this.showBlame != showBlame;
+  }
+
+  public boolean isShowEditorInlineBlameChanged(boolean showEditorInlineBlame) {
+    return this.showEditorInlineBlame != showEditorInlineBlame;
   }
 
   @Nullable

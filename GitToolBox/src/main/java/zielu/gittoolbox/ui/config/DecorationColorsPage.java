@@ -27,19 +27,27 @@ public class DecorationColorsPage implements ColorSettingsPage {
       .append(" <headTags>1.0.0, 1.1.0</headTags>")
       .toString();
 
+  private static final String INLINE_BLAME_DEMO_TEXT = new StringBand()
+      .append("var text = \"Some text\"")
+      .append(" <editorInlineBlame>Blame: Kilroy 15.07.1410</editorInlineBlame>")
+      .toString();
+
   private static final String DEMO_TEXT = new StringBand()
       .append(LOCAL_BRANCH_DEMO_TEXT)
       .append("\n")
       .append(REMOTE_BRANCH_DEMO_TEXT)
+      .append("\n")
+      .append(INLINE_BLAME_DEMO_TEXT)
       .toString();
 
   private static final Map<String, TextAttributesKey> ADDITIONAL_MAPPINGS =
-                                                  ImmutableMap.<String, TextAttributesKey>builder()
-                                                  .put("remoteBranch", DecorationColors.REMOTE_BRANCH_ATTRIBUTES)
-                                                  .put("status", DecorationColors.STATUS_ATTRIBUTES)
-                                                  .put("headTags", DecorationColors.HEAD_TAGS_ATTRIBUTES)
-                                                  .put("localBranch", DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
-                                                  .build();
+      ImmutableMap.<String, TextAttributesKey>builder()
+      .put("remoteBranch", DecorationColors.REMOTE_BRANCH_ATTRIBUTES)
+      .put("status", DecorationColors.STATUS_ATTRIBUTES)
+      .put("headTags", DecorationColors.HEAD_TAGS_ATTRIBUTES)
+      .put("localBranch", DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
+      .put("editorInlineBlame", DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES)
+      .build();
 
   @NotNull
   @Override
@@ -52,7 +60,9 @@ public class DecorationColorsPage implements ColorSettingsPage {
       new AttributesDescriptor(ResBundle.getString("colors.projectView.head.tags.decoration.label"),
             DecorationColors.HEAD_TAGS_ATTRIBUTES),
       new AttributesDescriptor(ResBundle.getString("colors.projectView.local.branch.decoration.label"),
-          DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
+          DecorationColors.LOCAL_BRANCH_ATTRIBUTES),
+      new AttributesDescriptor(ResBundle.getString("colors.editor.inline.blame.label"),
+          DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES)
     };
   }
 
