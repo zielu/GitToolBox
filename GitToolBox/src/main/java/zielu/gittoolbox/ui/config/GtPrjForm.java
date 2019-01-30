@@ -3,6 +3,7 @@ package zielu.gittoolbox.ui.config;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.CollectionComboBoxModel;
@@ -16,6 +17,8 @@ import git4idea.repo.GitRepositoryManager;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -23,7 +26,6 @@ import java.util.stream.Collectors;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -60,7 +62,7 @@ public class GtPrjForm implements GtFormUi {
   private JPanel commitCompletionPanel;
 
   private JPanel autoFetchExclusionsPanel;
-  private JComboBox<ReferencePointForStatusType> referencePointTypeComboBox;
+  private ComboBox<ReferencePointForStatusType> referencePointTypeComboBox;
   private JTextField referencePointNameText;
 
   private GtPatternFormatterForm completionItemPatternForm;
@@ -148,6 +150,13 @@ public class GtPrjForm implements GtFormUi {
         Lists.newArrayList(ReferencePointForStatusType.values()));
     referencePointTypeComboBox.setModel(referencePointTypeModel);
     referencePointTypeComboBox.setRenderer(new ReferencePointForStatusTypeRenderer());
+    referencePointTypeComboBox.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent e) {
+        boolean parentBranch = getReferencePointType() == ReferencePointForStatusType.SELECTED_PARENT_BRANCH;
+        referencePointNameText.setEnabled(parentBranch);
+      }
+    });
   }
 
   private void onCompletionItemSelected(CommitCompletionConfig config) {
@@ -283,9 +292,13 @@ public class GtPrjForm implements GtFormUi {
 
   public ReferencePointForStatusConfig getReferencePointConfig() {
     ReferencePointForStatusConfig config = new ReferencePointForStatusConfig();
-    config.type = (ReferencePointForStatusType) referencePointTypeComboBox.getSelectedItem();
+    config.type = getReferencePointType();
     config.name = referencePointNameText.getText();
     return config;
+  }
+
+  private ReferencePointForStatusType getReferencePointType() {
+    return (ReferencePointForStatusType) referencePointTypeComboBox.getSelectedItem();
   }
 
   public void setProject(Project project) {

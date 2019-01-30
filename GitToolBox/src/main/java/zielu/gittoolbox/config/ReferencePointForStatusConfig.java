@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class ReferencePointForStatusConfig {
   public ReferencePointForStatusType type = ReferencePointForStatusType.TRACKED_REMOTE_BRANCH;
-  public String name;
+  public String name = "";
 
   public boolean isChanged(ReferencePointForStatusConfig config) {
     return !equals(config);
