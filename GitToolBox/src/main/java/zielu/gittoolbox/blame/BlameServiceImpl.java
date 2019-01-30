@@ -5,11 +5,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.LogicalPosition;
-import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
@@ -22,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.ui.blame.BlameUi;
 import zielu.gittoolbox.util.GtUtil;
 
 class BlameServiceImpl implements BlameService, Disposable {
@@ -34,14 +32,16 @@ class BlameServiceImpl implements BlameService, Disposable {
       .weakKeys()
       .build();
   private final Timer fileBlameTimer;
-  private final Timer lineBlameTimer;
+  private final Timer currentLineBlameTimer;
+  private final Timer documentLineBlameTimer;
   private final MessageBusConnection connection;
 
   BlameServiceImpl(@NotNull Project project, @NotNull BlameCache blameCache, @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.blameCache = blameCache;
     fileBlameTimer = metrics.timer("blame-file");
-    lineBlameTimer = metrics.timer("blame-line");
+    currentLineBlameTimer = metrics.timer("blame-current-line");
+    documentLineBlameTimer = metrics.timer("blame-document-line");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
     connection = project.getMessageBus().connect(project);
     connection.subscribe(BlameCache.TOPIC, new BlameCacheListener() {
@@ -89,27 +89,15 @@ class BlameServiceImpl implements BlameService, Disposable {
     return null;
   }
 
+  @Override
+  public Blame getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber) {
+    return documentLineBlameTimer.timeSupplier(() -> getLineBlameInternal(document, file, editorLineNumber));
+  }
+
   @Nullable
   @Override
   public Blame getCurrentLineBlame(@NotNull Editor editor, @NotNull VirtualFile file) {
-    return lineBlameTimer.timeSupplier(() -> getCurrentLineBlameInternal(editor, file));
-  }
-
-  private int getCurrentLineNumber(Editor editor) {
-    CaretModel caretModel = editor.getCaretModel();
-    if (!caretModel.isUpToDate()) {
-      return Integer.MIN_VALUE;
-    }
-    LogicalPosition position = caretModel.getLogicalPosition();
-    return position.line;
-  }
-
-  private boolean isDocumentInBulkUpdate(Document document) {
-    if (document instanceof DocumentEx) {
-      DocumentEx docEx = (DocumentEx) document;
-      return docEx.isInBulkUpdate();
-    }
-    return false;
+    return currentLineBlameTimer.timeSupplier(() -> getCurrentLineBlameInternal(editor, file));
   }
 
   @Nullable
@@ -118,23 +106,27 @@ class BlameServiceImpl implements BlameService, Disposable {
     if (invalidateOnBulkUpdate(document)) {
       return null;
     }
-    int currentLine = getCurrentLineNumber(editor);
+    int currentLine = BlameUi.getCurrentLineNumber(editor);
     if (currentLine == Integer.MIN_VALUE) {
       return null;
     }
+    return getLineBlameInternal(document, file, currentLine);
+  }
+
+  private @Nullable Blame getLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
+                                               int editorLineNumber) {
     CachedLineProvider lineNumberProvider = getLineNumberProvider(document);
     if (lineNumberProvider != null) {
-      if (!lineNumberProvider.isLineChanged(currentLine)) {
-        int correctedLine = lineNumberProvider.getLineNumber(currentLine);
-        return getCurrentLineBlameInternal(file, correctedLine);
+      if (!lineNumberProvider.isLineChanged(editorLineNumber)) {
+        int correctedLine = lineNumberProvider.getLineNumber(editorLineNumber);
+        return getLineBlameInternal(file, correctedLine);
       }
     }
     return null;
   }
 
   @Nullable
-  private Blame getCurrentLineBlameInternal(@NotNull VirtualFile file,
-                                            int currentLine) {
+  private Blame getLineBlameInternal(@NotNull VirtualFile file, int currentLine) {
     try {
       BlameAnnotation blameAnnotation = annotationCache.get(file, () -> blameCache.getAnnotation(file));
       return blameAnnotation.getBlame(currentLine);
@@ -145,7 +137,7 @@ class BlameServiceImpl implements BlameService, Disposable {
   }
 
   private boolean invalidateOnBulkUpdate(Document document) {
-    if (isDocumentInBulkUpdate(document)) {
+    if (BlameUi.isDocumentInBulkUpdate(document)) {
       annotationCache.invalidate(document);
       return true;
     }

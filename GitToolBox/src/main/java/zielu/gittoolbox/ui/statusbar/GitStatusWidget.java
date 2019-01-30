@@ -51,7 +51,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     });
     myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
       @Override
-      public void configChanged(GitToolBoxConfig2 config) {
+      public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         if (isActive()) {
           runUpdateLater(project);
         }

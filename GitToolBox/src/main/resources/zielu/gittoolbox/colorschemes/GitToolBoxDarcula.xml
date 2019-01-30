@@ -24,4 +24,10 @@
             <option name="FONT_TYPE" value="1" />
         </value>
     </option>
+    <option name="GIT_TOOLBOX.EDITOR_INLINE_BLAME_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="808080" />
+            <option name="FONT_TYPE" value="2" />
+        </value>
+    </option>
 </list>

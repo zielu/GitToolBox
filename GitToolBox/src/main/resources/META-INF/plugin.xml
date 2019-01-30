@@ -5,12 +5,12 @@
   <vendor url="https://github.com/zielu">Lukasz Zielinski</vendor>
 
   <description><![CDATA[
-      read from description.html
+      inlined during build from description.html
       ]]>
   </description>
 
   <change-notes><![CDATA[
-      read from changenotes.html
+      inlined during build from change-notes.html
       ]]>
   </change-notes>
 
@@ -65,7 +65,9 @@
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl"/>
     <projectService serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheGateway"/>
-    <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheGateway" />
+    <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheGateway"/>
+    <projectService serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiSubscriber"/>
+    <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter"/>
   </extensions>
 
   <application-components>

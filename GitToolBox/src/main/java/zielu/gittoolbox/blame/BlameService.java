@@ -1,6 +1,7 @@
 package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -15,6 +16,8 @@ public interface BlameService {
 
   @Nullable
   Blame getCurrentLineBlame(@NotNull Editor editor, @NotNull VirtualFile file);
+
+  Blame getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber);
 
   void fileClosed(@NotNull VirtualFile file);
 

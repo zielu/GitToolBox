@@ -1,6 +1,6 @@
 package zielu.gittoolbox.repo;
 
-import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -13,12 +13,13 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
-public class GtRepositoryManager extends AbstractProjectComponent implements GitRepositoryChangeListener {
+public class GtRepositoryManager implements ProjectComponent, GitRepositoryChangeListener {
   private final Map<GitRepository, GtConfig> configs = new ConcurrentHashMap<GitRepository, GtConfig>();
+  private final Project project;
   private MessageBusConnection connection;
 
-  public GtRepositoryManager(Project project) {
-    super(project);
+  public GtRepositoryManager(@NotNull Project project) {
+    this.project = project;
   }
 
   @NotNull
@@ -42,7 +43,7 @@ public class GtRepositoryManager extends AbstractProjectComponent implements Git
 
   @Override
   public void initComponent() {
-    connection = myProject.getMessageBus().connect();
+    connection = project.getMessageBus().connect();
     connection.subscribe(GitRepository.GIT_REPO_CHANGE, this);
   }
 
