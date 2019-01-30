@@ -71,12 +71,15 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
 
   @Override
   protected void doApply(GtPrjForm form, GitToolBoxConfigForProject config) throws ConfigurationException {
+    final GitToolBoxConfigForProject previousConfig = config.copy();
+
     config.autoFetch = form.getAutoFetchEnabled();
     config.autoFetchIntervalMinutes = form.getAutoFetchInterval();
     config.commitDialogCompletion = form.getCommitCompletionEnabled();
     config.completionConfigs = form.getCommitCompletionConfigs();
     config.autoFetchExclusions = form.getAutoFetchExclusions();
-    config.fireChanged(project);
+
+    config.fireChanged(project, previousConfig);
     log.debug("Applied");
   }
 

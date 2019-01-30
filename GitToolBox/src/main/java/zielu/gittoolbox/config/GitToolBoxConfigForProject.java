@@ -33,6 +33,17 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     return ServiceManager.getService(project, GitToolBoxConfigForProject.class);
   }
 
+  public GitToolBoxConfigForProject copy() {
+    GitToolBoxConfigForProject copy = new GitToolBoxConfigForProject();
+    copy.autoFetch = autoFetch;
+    copy.autoFetchIntervalMinutes = autoFetchIntervalMinutes;
+    copy.autoFetchStrategy = autoFetchStrategy;
+    copy.autoFetchExclusions = new ArrayList<>(autoFetchExclusions);
+    copy.commitDialogCompletion = commitDialogCompletion;
+    copy.completionConfigs = completionConfigs.stream().map(CommitCompletionConfig::copy).collect(Collectors.toList());
+    return copy;
+  }
+
   @Transient
   public AutoFetchStrategy getAutoFetchStrategy() {
     return AutoFetchStrategy.forKey(autoFetchStrategy);
@@ -66,8 +77,9 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     return !this.autoFetchExclusions.equals(autoFetchExclusions);
   }
 
-  public void fireChanged(@NotNull Project project) {
-    project.getMessageBus().syncPublisher(ConfigNotifier.CONFIG_TOPIC).configChanged(project, this);
+  public void fireChanged(@NotNull Project project, @NotNull GitToolBoxConfigForProject previous) {
+    project.getMessageBus().syncPublisher(ConfigNotifier.CONFIG_TOPIC)
+        .configChanged(project, previous, this);
   }
 
   @Transient

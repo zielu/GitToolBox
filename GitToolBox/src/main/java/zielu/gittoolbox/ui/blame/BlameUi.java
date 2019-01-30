@@ -5,7 +5,10 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ex.DocumentEx;
+import com.intellij.openapi.ui.popup.Balloon;
+import com.intellij.openapi.ui.popup.JBPopupAdapter;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.LightweightWindowEvent;
 import javax.swing.JTextArea;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,13 +22,22 @@ public final class BlameUi {
   public static void showBlameDetails(@NotNull Editor editor, @NotNull String blameDetails) {
     JTextArea content = new JTextArea(blameDetails);
     content.setEditable(false);
-    JBPopupFactory.getInstance()
+    Balloon balloon = JBPopupFactory.getInstance()
         .createDialogBalloonBuilder(content, ResBundle.getString("statusBar.blame.popup.title"))
         .setDialogMode(true)
         .setCloseButtonEnabled(false)
         .setHideOnClickOutside(true)
         .setShowCallout(false)
-        .createBalloon().showInCenterOf(editor.getComponent());
+        .createBalloon();
+    balloon.addListener(new JBPopupAdapter() {
+      @Override
+      public void onClosed(@NotNull LightweightWindowEvent event) {
+        if (!balloon.isDisposed()) {
+          balloon.dispose();
+        }
+      }
+    });
+    balloon.showInCenterOf(editor.getComponent());
   }
 
   public static boolean isDocumentInBulkUpdate(@Nullable Document document) {

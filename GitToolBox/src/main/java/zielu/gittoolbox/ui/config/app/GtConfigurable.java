@@ -66,6 +66,8 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
 
   @Override
   protected void doApply(GtForm form, GitToolBoxConfig2 config) throws ConfigurationException {
+    final GitToolBoxConfig2 previousConfig = config.copy();
+
     config.setPresenter(form.getPresenter());
     config.showStatusWidget = form.getShowGitStatus();
     config.showProjectViewStatus = form.getShowProjectViewStatus();
@@ -80,7 +82,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     //Example: from launch dialog
     config.previousVersionMigrated = true;
 
-    config.fireChanged();
+    config.fireChanged(previousConfig);
     log.debug("Applied");
   }
 

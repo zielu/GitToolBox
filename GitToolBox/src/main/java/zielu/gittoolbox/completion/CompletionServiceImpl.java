@@ -39,8 +39,9 @@ class CompletionServiceImpl implements ProjectComponent, CompletionService {
     connection = project.getMessageBus().connect();
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new Adapter() {
       @Override
-      public void configChanged(Project project, GitToolBoxConfigForProject config) {
-        onConfigChanged(config);
+      public void configChanged(Project project, GitToolBoxConfigForProject previous,
+                                GitToolBoxConfigForProject current) {
+        onConfigChanged(current);
       }
     });
   }

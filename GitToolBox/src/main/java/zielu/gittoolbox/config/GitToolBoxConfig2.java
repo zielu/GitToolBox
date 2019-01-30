@@ -9,6 +9,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ui.StatusPresenter;
@@ -38,6 +39,21 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
 
   public static GitToolBoxConfig2 getInstance() {
     return ServiceManager.getService(GitToolBoxConfig2.class);
+  }
+
+
+  public GitToolBoxConfig2 copy() {
+    GitToolBoxConfig2 copy = new GitToolBoxConfig2();
+    copy.presentationMode = presentationMode;
+    copy.behindTracker = behindTracker;
+    copy.showStatusWidget = showStatusWidget;
+    copy.showProjectViewStatus = showProjectViewStatus;
+    copy.showBlame = showBlame;
+    copy.showEditorInlineBlame = showEditorInlineBlame;
+    copy.updateProjectActionId = updateProjectActionId;
+    copy.decorationParts = decorationParts.stream().map(DecorationPartConfig::copy).collect(Collectors.toList());
+    copy.previousVersionMigrated = previousVersionMigrated;
+    return copy;
   }
 
   @Transient
@@ -95,9 +111,9 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     return this;
   }
 
-  public void fireChanged() {
+  public void fireChanged(@NotNull GitToolBoxConfig2 previousConfig) {
     ApplicationManager.getApplication().getMessageBus().syncPublisher(ConfigNotifier.CONFIG_TOPIC)
-        .configChanged(this);
+        .configChanged(previousConfig, this);
   }
 
   @Override

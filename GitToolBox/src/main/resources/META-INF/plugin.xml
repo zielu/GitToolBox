@@ -66,6 +66,7 @@
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl"/>
     <projectService serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheGateway"/>
     <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheGateway"/>
+    <projectService serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiSubscriber"/>
     <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter"/>
   </extensions>
 
