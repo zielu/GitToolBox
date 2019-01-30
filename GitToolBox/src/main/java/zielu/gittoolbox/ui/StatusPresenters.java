@@ -34,6 +34,11 @@ public enum StatusPresenters implements StatusPresenter {
     }
 
     @Override
+    public String branchAndParent(String branchName, String parentBranchName) {
+      return branchName + " " + UtfSeq.ARROW_RIGHT + " " + parentBranchName;
+    }
+
+    @Override
     public String key() {
       return "arrows";
     }
@@ -67,6 +72,11 @@ public enum StatusPresenters implements StatusPresenter {
         behindText = behind + UtfSeq.ARROWHEAD_DOWN;
       }
       return format(aheadText, behindText);
+    }
+
+    @Override
+    public String branchAndParent(String branchName, String parentBranchName) {
+      return branchName + " " + UtfSeq.ARROWHEAD_RIGHT + " " + parentBranchName;
     }
 
     @Override
@@ -106,6 +116,11 @@ public enum StatusPresenters implements StatusPresenter {
       } else {
         return "";
       }
+    }
+
+    @Override
+    public String branchAndParent(String branchName, String parentBranchName) {
+      return branchName + " > " + parentBranchName;
     }
 
     @Override

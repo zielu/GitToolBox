@@ -1,11 +1,14 @@
 package zielu.gittoolbox.ui.projectview;
 
+import com.intellij.dvcs.repo.Repository;
+import git4idea.GitRemoteBranch;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.cache.RepoStatus;
 import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.ui.StatusPresenter;
 
@@ -32,6 +35,17 @@ public abstract class NodeDecorationBase implements NodeDecoration {
 
   @NotNull
   protected final String getBranchText() {
+    if (repo.getState() == Repository.State.NORMAL) {
+      RepoStatus status = repoInfo.status();
+      if (status.isParentDifferentFromTracking()) {
+        GitRemoteBranch parentBranch = status.parentBranch();
+        if (parentBranch != null) {
+          String branchName = status.localBranch().getName();
+          String parentBranchName = parentBranch.getNameForRemoteOperations();
+          return ui.getPresenter().branchAndParent(branchName, parentBranchName);
+        }
+      }
+    }
     return GitBranchUtil.getDisplayableBranchText(repo);
   }
 
@@ -45,6 +59,6 @@ public abstract class NodeDecorationBase implements NodeDecoration {
   }
 
   protected final boolean isTrackingBranch() {
-    return repoInfo.status().hasRemoteBranch();
+    return repoInfo.status().isTrackingRemote();
   }
 }

@@ -147,6 +147,7 @@ public class GtPrjForm implements GtFormUi {
     CollectionComboBoxModel<ReferencePointForStatusType> referencePointTypeModel = new CollectionComboBoxModel<>(
         Lists.newArrayList(ReferencePointForStatusType.values()));
     referencePointTypeComboBox.setModel(referencePointTypeModel);
+    referencePointTypeComboBox.setRenderer(new ReferencePointForStatusTypeRenderer());
   }
 
   private void onCompletionItemSelected(CommitCompletionConfig config) {
@@ -276,13 +277,13 @@ public class GtPrjForm implements GtFormUi {
   }
 
   public void setReferencePointConfig(ReferencePointForStatusConfig config) {
-    referencePointTypeComboBox.setSelectedItem(config.getType());
+    referencePointTypeComboBox.setSelectedItem(config.type);
     referencePointNameText.setText(config.name);
   }
 
   public ReferencePointForStatusConfig getReferencePointConfig() {
     ReferencePointForStatusConfig config = new ReferencePointForStatusConfig();
-    config.setType((ReferencePointForStatusType) referencePointTypeComboBox.getSelectedItem());
+    config.type = (ReferencePointForStatusType) referencePointTypeComboBox.getSelectedItem();
     config.name = referencePointNameText.getText();
     return config;
   }

@@ -38,7 +38,7 @@ public enum AutoFetchStrategy {
       List<GitRepository> fetchable = Lists.newArrayListWithCapacity(repositories.size());
       for (GitRepository repository : repositories) {
         RepoInfo info = cache.getInfo(repository);
-        if (info.status().hasRemoteBranch()) {
+        if (info.status().isTrackingRemote()) {
           fetchable.add(repository);
         } else {
           if (log.isDebugEnabled()) {

@@ -139,7 +139,7 @@
       <add-to-group group-id="GitRepositoryActions" anchor="after" relative-to-action="Vcs.Push"/>
     </action>
     <action class="zielu.gittoolbox.ui.actions.BlameDetailsAction" id="GitToolBox.BlameDetails"
-            text="Show blame details">
+            text="Show Blame Details" description="Show blame for line at caret in active editor">
       <add-to-group group-id="GitFileActions" anchor="after" relative-to-action="Annotate"/>
       <keyboard-shortcut first-keystroke="alt shift B" keymap="$default"/>
     </action>

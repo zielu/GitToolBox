@@ -2,33 +2,31 @@ package zielu.gittoolbox.cache;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
-import com.google.common.base.Objects;
 import com.intellij.vcs.log.Hash;
+import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
+import java.util.Objects;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 
-public class RepoStatus {
-  private static final RepoStatus empty = new RepoStatus(null, null, null, null);
+public final class RepoStatus {
+  private static final RepoStatus empty = new RepoStatus(null, null, RepoStatusRemote.empty());
 
   private final GitLocalBranch localBranch;
   private final Hash localHash;
-  private final GitRemoteBranch remoteBranch;
-  private final Hash remoteHash;
+  private final RepoStatusRemote remote;
 
-  private RepoStatus(GitLocalBranch localBranch, Hash localHash, GitRemoteBranch remoteBranch, Hash remoteHash) {
+  private RepoStatus(GitLocalBranch localBranch, Hash localHash, RepoStatusRemote remote) {
     this.localBranch = localBranch;
     this.localHash = localHash;
-    this.remoteBranch = remoteBranch;
-    this.remoteHash = remoteHash;
+    this.remote = remote;
   }
 
-  public static RepoStatus create(GitLocalBranch localBranch, Hash localHash,
-                                  GitRemoteBranch remoteBranch, Hash remoteHash) {
-    return new RepoStatus(localBranch, localHash, remoteBranch, remoteHash);
+  public static RepoStatus create(GitLocalBranch localBranch, Hash localHash, RepoStatusRemote remote) {
+    return new RepoStatus(localBranch, localHash, remote);
   }
 
   public static RepoStatus empty() {
@@ -41,35 +39,49 @@ public class RepoStatus {
   }
 
   @Nullable
-  public Hash remoteHash() {
-    return remoteHash;
+  public Hash parentHash() {
+    return remote.parentHash();
+  }
+
+  @Nullable
+  public GitRemoteBranch parentBranch() {
+    return remote.parentBranch();
+  }
+
+  @Nullable
+  public GitBranch localBranch() {
+    return localBranch;
   }
 
   public boolean sameLocalBranch(RepoStatus other) {
-    return Objects.equal(localBranch, other.localBranch);
+    return Objects.equals(localBranch, other.localBranch);
   }
 
-  public boolean sameRemoteHash(RepoStatus other) {
-    return Objects.equal(remoteHash, other.remoteHash);
+  public boolean sameParentHash(RepoStatus other) {
+    return remote.sameParentHash(other.remote);
   }
 
-  public boolean sameRemoteBranch(RepoStatus other) {
-    return Objects.equal(remoteBranch, other.remoteBranch);
+  public boolean sameParentBranch(RepoStatus other) {
+    return remote.sameParentBranch(other.remote);
   }
 
-  public boolean hasRemoteBranch() {
-    return remoteBranch != null;
+  public boolean isTrackingRemote() {
+    return remote.isTrackingRemote();
+  }
+
+  public boolean isParentDifferentFromTracking() {
+    return !remote.isParentSameAsTracking();
   }
 
   public boolean sameHashes(GitAheadBehindCount aheadBehind) {
-    return Objects.equal(localHash, aheadBehind.ahead.top()) && Objects.equal(remoteHash, aheadBehind.behind.top());
+    return Objects.equals(localHash, aheadBehind.ahead.top())
+        && Objects.equals(remote.parentHash(), aheadBehind.behind.top());
   }
 
   public boolean isEmpty() {
     return localHash == null
         && localBranch == null
-        && remoteHash == null
-        && remoteBranch == null;
+        && remote.isEmpty();
   }
 
   @Override
@@ -84,23 +96,21 @@ public class RepoStatus {
     return new EqualsBuilder()
         .append(localBranch, that.localBranch)
         .append(localHash, that.localHash)
-        .append(remoteBranch, that.remoteBranch)
-        .append(remoteHash, that.remoteHash)
+        .append(remote, that.remote)
         .build();
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(localBranch, localHash, remoteBranch, remoteHash);
+    return Objects.hash(localBranch, localHash, remote);
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
         .append("localHash", localHash)
-        .append("remoteHash", remoteHash)
         .append("localBranch", localBranch)
-        .append("remoteBranch", remoteBranch)
+        .append("remote", remote)
         .build();
   }
 }

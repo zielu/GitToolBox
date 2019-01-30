@@ -158,7 +158,7 @@ public class BehindTracker implements ProjectComponent {
 
   @NotNull
   private ChangeType detectChangeTypeIfBothPresent(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
-    if (isSameRemoteBranch(previous, current)) {
+    if (isSameParentBranch(previous, current)) {
       return detectChangeTypeIfSameRemoteBranch(previous, current);
     } else {
       return ChangeType.SWITCHED;
@@ -168,19 +168,19 @@ public class BehindTracker implements ProjectComponent {
   private ChangeType detectChangeTypeIfSameRemoteBranch(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
     if (isLocalBranchSwitched(previous, current)) {
       return ChangeType.SWITCHED;
-    } else if (isRemoteHashChanged(previous, current)) {
+    } else if (isParentHashChanged(previous, current)) {
       return ChangeType.FETCHED;
     } else {
       return ChangeType.NONE;
     }
   }
 
-  private boolean isSameRemoteBranch(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
-    return previous.status().sameRemoteBranch(current.status());
+  private boolean isSameParentBranch(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    return previous.status().sameParentBranch(current.status());
   }
 
-  private boolean isRemoteHashChanged(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
-    return !previous.status().sameRemoteHash(current.status());
+  private boolean isParentHashChanged(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    return !previous.status().sameParentHash(current.status());
   }
 
   private boolean isLocalBranchSwitched(@NotNull RepoInfo previous, @NotNull RepoInfo current) {

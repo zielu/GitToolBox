@@ -42,6 +42,7 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     copy.autoFetchExclusions = new ArrayList<>(autoFetchExclusions);
     copy.commitDialogCompletion = commitDialogCompletion;
     copy.completionConfigs = completionConfigs.stream().map(CommitCompletionConfig::copy).collect(Collectors.toList());
+    copy.referencePointForStatus = referencePointForStatus.copy();
     return copy;
   }
 

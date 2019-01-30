@@ -117,7 +117,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   }
 
   @Override
-  public void loadState(GitToolBoxConfig2 state) {
+  public void loadState(@NotNull GitToolBoxConfig2 state) {
     XmlSerializerUtil.copyBean(state, this);
   }
 }

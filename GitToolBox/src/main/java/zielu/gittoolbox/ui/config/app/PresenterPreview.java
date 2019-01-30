@@ -19,7 +19,8 @@ class PresenterPreview {
   static String getProjectViewPreview(StatusPresenter presenter) {
     return String.join(DELIMITER,presenter.nonZeroAheadBehindStatus(3, 2),
         presenter.nonZeroAheadBehindStatus(3, 0),
-        presenter.nonZeroAheadBehindStatus(0, 2));
+        presenter.nonZeroAheadBehindStatus(0, 2),
+        presenter.branchAndParent("feature", "master"));
   }
 
   static String getBehindTrackerPreview(StatusPresenter presenter) {

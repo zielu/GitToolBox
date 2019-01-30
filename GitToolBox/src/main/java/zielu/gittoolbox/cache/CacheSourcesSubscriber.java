@@ -15,10 +15,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.ConfigNotifier;
-import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
-import zielu.gittoolbox.config.ReferencePointForStatusConfig;
-import zielu.gittoolbox.config.ReferencePointForStatusType;
 
 class CacheSourcesSubscriber implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -27,7 +24,6 @@ class CacheSourcesSubscriber implements ProjectComponent {
   private List<DirMappingAware> dirMappingAwares = new ArrayList<>();
   private List<RepoChangeAware> repoChangeAwares = new ArrayList<>();
   private MessageBusConnection connection;
-  private ReferencePointForStatusConfig knownRefPointConfig;
 
   CacheSourcesSubscriber(@NotNull Project project) {
     this.project = project;
@@ -54,9 +50,10 @@ class CacheSourcesSubscriber implements ProjectComponent {
     connection.subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this::onDirMappingChanged);
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
       @Override
-      public void configChanged(Project project, GitToolBoxConfigForProject config) {
+      public void configChanged(Project project, GitToolBoxConfigForProject previous,
+                                GitToolBoxConfigForProject current) {
         if (Objects.equals(CacheSourcesSubscriber.this.project, project)) {
-          onConfigChanged(project, config);
+          onConfigChanged(project, previous, current);
         }
       }
     });
@@ -64,9 +61,7 @@ class CacheSourcesSubscriber implements ProjectComponent {
 
   @Override
   public void projectOpened() {
-    if (active.compareAndSet(false, true)) {
-      knownRefPointConfig = GitToolBoxConfigForProject.getInstance(project).referencePointForStatus.copy();
-    }
+    active.compareAndSet(false, true);
   }
 
   @Override
@@ -116,14 +111,12 @@ class CacheSourcesSubscriber implements ProjectComponent {
     log.debug("Dir mappings change notification done");
   }
 
-  private void onConfigChanged(@NotNull Project project, @NotNull GitToolBoxConfigForProject config) {
-    ReferencePointForStatusConfig currentRefPointConfig = config.referencePointForStatus;
-    if (currentRefPointConfig.isChanged(knownRefPointConfig)) {
-      knownRefPointConfig = currentRefPointConfig.copy();
+  private void onConfigChanged(@NotNull Project project, GitToolBoxConfigForProject previous,
+                               @NotNull GitToolBoxConfigForProject current) {
+    if (previous.referencePointForStatus.isChanged(current.referencePointForStatus)) {
       GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
       ImmutableList.copyOf(gitManager.getRepositories()).forEach(repo ->
-          repoChangeAwares.forEach(aware ->
-              aware.repoChanged(repo)));
+          repoChangeAwares.forEach(aware -> aware.repoChanged(repo)));
     }
   }
 }
