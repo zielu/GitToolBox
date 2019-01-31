@@ -213,9 +213,10 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   public Consumer<MouseEvent> getClickConsumer() {
     return event -> {
       Editor editor = stateHolder.getCurrentEditor();
+      VirtualFile currentFile = stateHolder.getCurrentFile();
       Blame blame = stateHolder.getBlame();
-      if (editor != null && blame != null) {
-        BlameUi.showBlamePopup(editor, blame);
+      if (editor != null && currentFile != null && blame != null) {
+        BlameUi.showBlamePopup(editor, currentFile, blame);
       }
     };
   }
