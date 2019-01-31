@@ -25,6 +25,8 @@ apply plugin: "java"
 sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
 
+def fast = Boolean.valueOf(findProperty('fast'))
+
 configurations {
     testAgent {
         transitive = false
@@ -92,6 +94,11 @@ jacocoTestReport {
     executionData = files("${project.buildDir.name}/jacoco-junit5/test.exec")
 }
 
+def testTags = ['fast', 'integration']
+if (fast) {
+    testTags = ['fast']
+}
+
 test {
     jacoco {
         destinationFile = file("${project.buildDir.name}/jacoco-junit5/test.exec")
@@ -100,7 +107,7 @@ test {
     useJUnitPlatform {
         //prevent running extensions as Junit 3 tests because of naming convention with TestCase
         exclude('zielu/junit5/**')
-        includeTags 'fast', 'integration'
+        includeTags = testTags
         reports {
             html.enabled = false
         }
@@ -112,6 +119,12 @@ spotbugs {
     ignoreFailures = false
     effort = 'default'
     includeFilter = file("${projectDir}/config/findbugs/includeFilter.xml")
+}
+spotbugsMain.onlyIf {
+    !fast
+}
+spotbugsTest.onlyIf {
+    !fast
 }
 
 apply plugin: 'checkstyle'
