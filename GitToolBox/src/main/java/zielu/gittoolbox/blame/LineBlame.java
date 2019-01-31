@@ -2,6 +2,7 @@ package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.annotate.LineAnnotationAspect;
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
@@ -10,7 +11,9 @@ public class LineBlame extends AbstractBlame {
   private final String shortText;
   private final String detailedText;
 
-  private LineBlame(String author, String revisionDate, String detailedText) {
+  private LineBlame(@NotNull VcsRevisionNumber revisionNumber, String author, String revisionDate,
+                    String detailedText) {
+    super(revisionNumber);
     shortText = prepareAuthor(author) + " " + revisionDate;
     this.detailedText = detailedText;
   }
@@ -26,7 +29,8 @@ public class LineBlame extends AbstractBlame {
         revisionDate = aspect.getValue(line);
       }
     }
-    return new LineBlame(author, revisionDate, annotation.getToolTip(line));
+    return new LineBlame(annotation.getLineRevisionNumber(line),
+        author, revisionDate, annotation.getToolTip(line));
   }
 
   @NotNull

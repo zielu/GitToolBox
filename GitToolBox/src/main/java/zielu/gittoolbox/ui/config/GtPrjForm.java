@@ -17,8 +17,6 @@ import git4idea.repo.GitRepositoryManager;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -150,12 +148,9 @@ public class GtPrjForm implements GtFormUi {
         Lists.newArrayList(ReferencePointForStatusType.values()));
     referencePointTypeComboBox.setModel(referencePointTypeModel);
     referencePointTypeComboBox.setRenderer(new ReferencePointForStatusTypeRenderer());
-    referencePointTypeComboBox.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        boolean parentBranch = getReferencePointType() == ReferencePointForStatusType.SELECTED_PARENT_BRANCH;
-        referencePointNameText.setEnabled(parentBranch);
-      }
+    referencePointTypeComboBox.addActionListener(e -> {
+      boolean parentBranch = getReferencePointType() == ReferencePointForStatusType.SELECTED_PARENT_BRANCH;
+      referencePointNameText.setEnabled(parentBranch);
     });
   }
 
