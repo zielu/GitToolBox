@@ -3,6 +3,7 @@ package zielu.gittoolbox.ui.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
@@ -31,9 +32,12 @@ public class BlameDetailsAction extends AnAction {
     }
     Editor editor = e.getData(CommonDataKeys.EDITOR);
     if (editor != null) {
-      VirtualFile editorFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-      if (editorFile != null) {
-        return VirtualFileRepoCache.getInstance(project).isUnderGitRoot(editorFile);
+      Document document = editor.getDocument();
+      if (!BlameUi.isDocumentInBulkUpdate(document)) {
+        VirtualFile editorFile = FileDocumentManager.getInstance().getFile(document);
+        if (editorFile != null) {
+          return VirtualFileRepoCache.getInstance(project).isUnderGitRoot(editorFile);
+        }
       }
     }
     return false;
