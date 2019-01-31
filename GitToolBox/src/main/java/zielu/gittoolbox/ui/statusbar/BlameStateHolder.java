@@ -58,6 +58,11 @@ class BlameStateHolder {
     return false;
   }
 
+  @Nullable
+  Blame getBlame() {
+    return this.blame.get();
+  }
+
   boolean clearBlame() {
     if (blame.get() != null) {
       blame = new WeakReference<>(null);

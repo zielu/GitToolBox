@@ -51,7 +51,7 @@ public class BlameDetailsAction extends AnAction {
         if (blame != null) {
           String detailsText = blame.getDetailedText();
           if (detailsText != null) {
-            BlameUi.showBlameDetails(editor, blame.getDetailedText());
+            BlameUi.showBlamePopup(editor, blame);
           }
         }
       }

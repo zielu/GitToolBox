@@ -49,7 +49,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private final Consumer<Document> bulkUpdateFinishedAction;
   private final Consumer<VirtualFile> blameUpdatedAction;
   private String blameText = ResBundle.na();
-  private String blameDetails;
   private boolean visible;
 
   public BlameStatusWidget(@NotNull Project project) {
@@ -202,7 +201,11 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Nullable
   @Override
   public String getTooltipText() {
-    return blameDetails;
+    Blame blame = stateHolder.getBlame();
+    if (blame != null) {
+      return blame.getDetailedText();
+    }
+    return null;
   }
 
   @Nullable
@@ -210,8 +213,9 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   public Consumer<MouseEvent> getClickConsumer() {
     return event -> {
       Editor editor = stateHolder.getCurrentEditor();
-      if (blameDetails != null && editor != null) {
-        BlameUi.showBlameDetails(editor, blameDetails);
+      Blame blame = stateHolder.getBlame();
+      if (editor != null && blame != null) {
+        BlameUi.showBlamePopup(editor, blame);
       }
     };
   }
@@ -308,7 +312,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     if (blame != null) {
       if (stateHolder.updateBlame(blame)) {
         blameText = blame.getShortStatus();
-        blameDetails = blame.getDetailedText();
         return true;
       }
       return false;
@@ -320,7 +323,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private boolean clearBlame() {
     if (stateHolder.clearBlame()) {
       blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.na();
-      blameDetails = null;
       return true;
     }
     return false;
@@ -328,7 +330,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   private void disabled() {
     blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.disabled();
-    blameDetails = null;
   }
 
   @Override
