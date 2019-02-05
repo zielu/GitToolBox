@@ -96,6 +96,19 @@ public class GtPrjForm implements GtFormUi {
       }
     };
     addCommitCompletionPopup.add(addPatternCompletionAction);
+    Action addIssuePatternCompletionAction = new AbstractActionExt() {
+      {
+        setName(ResBundle.getString("commit.dialog.completion.formatters.pattern.issue.add.label"));
+        setSmallIcon(ResIcons.BranchViolet);
+      }
+
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        completionItemModel.add(CommitCompletionConfig.createIssue());
+        updateCompletionItemActions();
+      }
+    };
+    addCommitCompletionPopup.add(addIssuePatternCompletionAction);
 
     completionItemPatternForm = new GtPatternFormatterForm();
     completionItemPatternForm.init();
