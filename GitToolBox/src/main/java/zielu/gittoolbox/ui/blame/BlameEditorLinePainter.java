@@ -18,7 +18,6 @@ import java.util.Objects;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.blame.Blame;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
@@ -86,9 +85,8 @@ public class BlameEditorLinePainter extends EditorLinePainter {
   }
 
   private String formatBlameText(Blame blame) {
-    return new StringBand(4)
+    return new StringBand(3)
       .append(FontUtil.spaceAndThinSpace())
-      .append(ResBundle.getString("blame.prefix"))
       .append(" ")
       .append(blame.getShortText())
       .toString();

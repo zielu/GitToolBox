@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import git4idea.repo.GitRepository;
@@ -40,6 +41,11 @@ class BlameCacheImpl implements BlameCache {
     @Override
     public VirtualFile getVirtualFile() {
       return null;
+    }
+
+    @Override
+    public String toString() {
+      return "BlameAnnotation:EMPTY";
     }
   };
   private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
@@ -107,9 +113,11 @@ class BlameCacheImpl implements BlameCache {
   @NotNull
   private BlameAnnotation handleExistingAnnotation(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
     if (isChanged(file, annotation)) {
+      LOG.debug("Annotation changed for ", file);
       submitTask(file);
       return EMPTY;
     } else {
+      LOG.debug("Annotation not changed for ", file);
       return annotation;
     }
   }
@@ -155,6 +163,15 @@ class BlameCacheImpl implements BlameCache {
   @Override
   public void invalidate(@NotNull VirtualFile file) {
     annotations.remove(file);
+  }
+
+  @Override
+  public void refreshForRoot(@NotNull VirtualFile root) {
+    LOG.debug("Refresh for root: ", root);
+    annotations.keySet().stream()
+        .filter(file -> VfsUtilCore.isAncestor(root, file, false))
+        .peek(file -> LOG.debug("Refresh ", file, " under root ", root))
+        .forEach(this::getAnnotation);
   }
 
   private static class LoaderTimers {

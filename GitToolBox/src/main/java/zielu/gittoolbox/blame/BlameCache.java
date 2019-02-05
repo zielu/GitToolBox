@@ -10,5 +10,7 @@ public interface BlameCache {
   @NotNull
   BlameAnnotation getAnnotation(@NotNull VirtualFile file);
 
+  void refreshForRoot(@NotNull VirtualFile root);
+
   void invalidate(@NotNull VirtualFile file);
 }

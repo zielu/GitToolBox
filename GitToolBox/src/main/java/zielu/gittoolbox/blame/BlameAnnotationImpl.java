@@ -6,6 +6,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import gnu.trove.TIntObjectHashMap;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,5 +41,13 @@ class BlameAnnotationImpl implements BlameAnnotation {
   @Override
   public VirtualFile getVirtualFile() {
     return annotation.getFile();
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("file", getVirtualFile())
+        .append("currentRevision", annotation.getCurrentRevision())
+        .toString();
   }
 }

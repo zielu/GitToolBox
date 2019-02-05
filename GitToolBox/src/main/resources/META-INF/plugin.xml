@@ -56,8 +56,6 @@
 
     <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup"/>
 
-    <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
-                    serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusGatewayImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"
                     serviceImplementation="zielu.gittoolbox.blame.BlameLoaderImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameCache"
@@ -66,7 +64,9 @@
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl"/>
     <projectService serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheGateway"/>
     <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheGateway"/>
-    <projectService serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiSubscriber"/>
+
+    <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
+                    serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusGatewayImpl"/>
     <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter"/>
   </extensions>
 
@@ -125,6 +125,12 @@
     <component>
       <interface-class>zielu.gittoolbox.metrics.ProjectMetrics</interface-class>
       <implementation-class>zielu.gittoolbox.metrics.ProjectMetricsImpl</implementation-class>
+    </component>
+    <component>
+        <implementation-class>zielu.gittoolbox.blame.BlameSubscriber</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.ui.blame.BlameUiSubscriber</implementation-class>
     </component>
     <!--
     <component>

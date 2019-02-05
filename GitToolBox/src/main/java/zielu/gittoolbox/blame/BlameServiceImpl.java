@@ -34,7 +34,7 @@ class BlameServiceImpl implements BlameService, Disposable {
   private final Timer fileBlameTimer;
   private final Timer currentLineBlameTimer;
   private final Timer documentLineBlameTimer;
-  private final MessageBusConnection connection;
+  private MessageBusConnection connection;
 
   BlameServiceImpl(@NotNull Project project, @NotNull BlameCache blameCache, @NotNull ProjectMetrics metrics) {
     this.project = project;
@@ -43,7 +43,7 @@ class BlameServiceImpl implements BlameService, Disposable {
     currentLineBlameTimer = metrics.timer("blame-current-line");
     documentLineBlameTimer = metrics.timer("blame-document-line");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
-    connection = project.getMessageBus().connect(project);
+    connection = project.getMessageBus().connect();
     connection.subscribe(BlameCache.TOPIC, new BlameCacheListener() {
       @Override
       public void cacheUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
@@ -55,7 +55,10 @@ class BlameServiceImpl implements BlameService, Disposable {
 
   @Override
   public void dispose() {
-    connection.disconnect();
+    if (connection != null) {
+      connection.disconnect();
+      connection = null;
+    }
   }
 
   @Nullable
