@@ -1,6 +1,5 @@
 package zielu.gittoolbox.status;
 
-import com.google.common.base.Preconditions;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
@@ -18,11 +17,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class GitStatusCalculator {
   private final Logger log = Logger.getInstance(getClass());
-
   private final Project project;
 
   private GitStatusCalculator(@NotNull Project project) {
-    this.project = Preconditions.checkNotNull(project);
+    this.project = project;
   }
 
   @NotNull
