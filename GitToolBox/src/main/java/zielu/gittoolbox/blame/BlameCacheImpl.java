@@ -141,7 +141,7 @@ class BlameCacheImpl implements BlameCache {
   }
 
   private void fireUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-    project.getMessageBus().syncPublisher(BlameCache.TOPIC).cacheUpdated(file, annotation);
+    project.getMessageBus().syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(file, annotation);
   }
 
   @NotNull
@@ -170,8 +170,8 @@ class BlameCacheImpl implements BlameCache {
     LOG.debug("Refresh for root: ", root);
     annotations.keySet().stream()
         .filter(file -> VfsUtilCore.isAncestor(root, file, false))
-        .peek(file -> LOG.debug("Refresh ", file, " under root ", root))
-        .forEach(this::getAnnotation);
+        .peek(file -> LOG.debug("Invalidate ", file, " under root ", root))
+        .forEach(this::invalidate);
   }
 
   private static class LoaderTimers {

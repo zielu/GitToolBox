@@ -48,7 +48,7 @@ class CacheSourcesSubscriber implements ProjectComponent {
     connection = messageBus.connect();
     connection.subscribe(GitRepository.GIT_REPO_CHANGE, this::onRepoChanged);
     connection.subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this::onDirMappingChanged);
-    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
+    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
       public void configChanged(Project project, GitToolBoxConfigForProject previous,
                                 GitToolBoxConfigForProject current) {

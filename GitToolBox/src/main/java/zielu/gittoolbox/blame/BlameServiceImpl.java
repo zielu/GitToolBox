@@ -44,11 +44,17 @@ class BlameServiceImpl implements BlameService, Disposable {
     documentLineBlameTimer = metrics.timer("blame-document-line");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
     connection = project.getMessageBus().connect();
-    connection.subscribe(BlameCache.TOPIC, new BlameCacheListener() {
+    connection.subscribe(BlameCache.CACHE_UPDATES, new BlameCacheListener() {
       @Override
       public void cacheUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
         annotationCache.put(file, annotation);
         project.getMessageBus().syncPublisher(BLAME_UPDATE).blameUpdated(file);
+      }
+
+      @Override
+      public void invalidated(@NotNull VirtualFile file) {
+        annotationCache.invalidate(file);
+        project.getMessageBus().syncPublisher(BLAME_UPDATE).blameInvalidated(file);
       }
     });
   }

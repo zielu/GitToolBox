@@ -11,19 +11,20 @@ import com.intellij.util.messages.MessageBusConnection;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.blame.BlameAnnotation;
-import zielu.gittoolbox.blame.BlameCache;
-import zielu.gittoolbox.blame.BlameCacheListener;
+import zielu.gittoolbox.blame.BlameListener;
+import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 
 class BlameUiSubscriber implements BaseComponent {
   private final Logger log = Logger.getInstance(getClass());
+  private final Project project;
   private MessageBusConnection connection;
 
   BlameUiSubscriber(@NotNull Project project) {
+    this.project = project;
     connection = project.getMessageBus().connect();
-    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
+    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         if (current.showBlame != previous.showBlame
@@ -36,19 +37,28 @@ class BlameUiSubscriber implements BaseComponent {
         }
       }
     });
-    connection.subscribe(BlameCache.TOPIC, new BlameCacheListener() {
+    connection.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
       @Override
-      public void cacheUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-        GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
-        if (config.showBlame && config.showEditorInlineBlame) {
-          VirtualFile fileInEditor = getFileForSelectedEditor(project);
-          if (Objects.equals(fileInEditor, file)) {
-            log.debug("Refresh editor on blame update for ", file);
-            refreshEditorFile(project, file);
-          }
-        }
+      public void blameUpdated(@NotNull VirtualFile file) {
+        onBlameUpdate(file);
+      }
+
+      @Override
+      public void blameInvalidated(@NotNull VirtualFile file) {
+        onBlameUpdate(file);
       }
     });
+  }
+
+  private void onBlameUpdate(@NotNull VirtualFile file) {
+    GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
+    if (config.showBlame && config.showEditorInlineBlame) {
+      VirtualFile fileInEditor = getFileForSelectedEditor(project);
+      if (Objects.equals(fileInEditor, file)) {
+        log.debug("Refresh editor on blame update for ", file);
+        refreshEditorFile(project, file);
+      }
+    }
   }
 
   @Nullable
