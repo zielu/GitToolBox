@@ -298,9 +298,12 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void fileChanged(@Nullable Editor editor, @NotNull VirtualFile file) {
-    Blame blame;
+    Blame blame = null;
     if (editor != null) {
-      blame = this.blame.getCurrentLineBlame(editor, file);
+      int currentLine = BlameUi.getCurrentLineNumber(editor);
+      if (currentLine != BlameUi.NO_LINE) {
+        blame = this.blame.getDocumentLineBlame(editor.getDocument(), file, currentLine);
+      }
     } else {
       blame = this.blame.getFileBlame(file);
     }

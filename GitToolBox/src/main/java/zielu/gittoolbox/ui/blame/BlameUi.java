@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.blame.Blame;
 
 public final class BlameUi {
+  public static final int NO_LINE = Integer.MIN_VALUE;
+
   private BlameUi() {
     //do nothing
   }
@@ -30,7 +32,7 @@ public final class BlameUi {
   public static int getCurrentLineNumber(@NotNull Editor editor) {
     CaretModel caretModel = editor.getCaretModel();
     if (!caretModel.isUpToDate()) {
-      return Integer.MIN_VALUE;
+      return NO_LINE;
     }
     LogicalPosition position = caretModel.getLogicalPosition();
     return position.line;

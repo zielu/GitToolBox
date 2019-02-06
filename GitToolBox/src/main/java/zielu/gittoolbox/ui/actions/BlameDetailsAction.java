@@ -50,12 +50,15 @@ public class BlameDetailsAction extends AnAction {
     if (project != null && editor != null) {
       VirtualFile editorFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
       if (editorFile != null) {
-        BlameService blameService = BlameService.getInstance(project);
-        Blame blame = blameService.getCurrentLineBlame(editor, editorFile);
-        if (blame != null) {
-          String detailsText = blame.getDetailedText();
-          if (detailsText != null) {
-            BlameUi.showBlamePopup(editor, editorFile, blame);
+        int currentLine = BlameUi.getCurrentLineNumber(editor);
+        if (currentLine != BlameUi.NO_LINE) {
+          BlameService blameService = BlameService.getInstance(project);
+          Blame blame = blameService.getDocumentLineBlame(editor.getDocument(), editorFile, currentLine);
+          if (blame != null) {
+            String detailsText = blame.getDetailedText();
+            if (detailsText != null) {
+              BlameUi.showBlamePopup(editor, editorFile, blame);
+            }
           }
         }
       }

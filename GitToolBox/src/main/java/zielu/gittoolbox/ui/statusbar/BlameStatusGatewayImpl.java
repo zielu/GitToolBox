@@ -29,7 +29,6 @@ class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
   BlameStatusGatewayImpl(@NotNull Project project, @NotNull VirtualFileRepoCache repoCache) {
     this.repoCache = repoCache;
     connection = project.getMessageBus().connect(this);
-    Disposer.register(project, this);
     connection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
       @Override
       public void exitDumbMode() {
@@ -60,6 +59,7 @@ class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
         notifyBlameActions(file);
       }
     });
+    Disposer.register(project, this);
   }
 
   private void notifyBlameActions(@NotNull VirtualFile file) {
