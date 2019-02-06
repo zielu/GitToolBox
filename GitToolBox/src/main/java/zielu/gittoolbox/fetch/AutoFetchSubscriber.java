@@ -25,7 +25,7 @@ class AutoFetchSubscriber implements ProjectComponent {
 
   private void connectToMessageBus() {
     connection = project.getMessageBus().connect();
-    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
+    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
       public void configChanged(Project project, GitToolBoxConfigForProject previous,
                                 GitToolBoxConfigForProject current) {

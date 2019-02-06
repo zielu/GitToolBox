@@ -32,7 +32,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
   }
 
   private void install() {
-    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
+    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         SwingUtilities.invokeLater(() -> {
