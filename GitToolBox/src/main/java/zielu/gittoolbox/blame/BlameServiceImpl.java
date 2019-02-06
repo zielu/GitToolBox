@@ -1,5 +1,6 @@
 package zielu.gittoolbox.blame;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -8,23 +9,19 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.history.VcsFileRevision;
-import com.intellij.openapi.vcs.impl.UpToDateLineNumberProviderImpl;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBusConnection;
-import git4idea.GitVcs;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.ui.blame.BlameUi;
-import zielu.gittoolbox.util.GtUtil;
 
 class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
-  private final Project project;
+  private final BlameServiceGateway gateway;
   private final BlameCache blameCache;
   private final Cache<VirtualFile, BlameAnnotation> annotationCache = CacheBuilder.newBuilder()
       .build();
@@ -34,29 +31,18 @@ class BlameServiceImpl implements BlameService, Disposable {
   private final Timer fileBlameTimer;
   private final Timer currentLineBlameTimer;
   private final Timer documentLineBlameTimer;
+  private final Counter invalidatedCounter;
   private MessageBusConnection connection;
 
-  BlameServiceImpl(@NotNull Project project, @NotNull BlameCache blameCache, @NotNull ProjectMetrics metrics) {
-    this.project = project;
+  BlameServiceImpl(@NotNull BlameServiceGateway gateway, @NotNull BlameCache blameCache,
+                   @NotNull ProjectMetrics metrics) {
+    this.gateway = gateway;
     this.blameCache = blameCache;
     fileBlameTimer = metrics.timer("blame-file");
     currentLineBlameTimer = metrics.timer("blame-current-line");
     documentLineBlameTimer = metrics.timer("blame-document-line");
+    invalidatedCounter = metrics.counter("blame-annotation-invalidated-count");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
-    connection = project.getMessageBus().connect();
-    connection.subscribe(BlameCache.CACHE_UPDATES, new BlameCacheListener() {
-      @Override
-      public void cacheUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-        annotationCache.put(file, annotation);
-        project.getMessageBus().syncPublisher(BLAME_UPDATE).blameUpdated(file);
-      }
-
-      @Override
-      public void invalidated(@NotNull VirtualFile file) {
-        annotationCache.invalidate(file);
-        project.getMessageBus().syncPublisher(BLAME_UPDATE).blameInvalidated(file);
-      }
-    });
   }
 
   @Override
@@ -75,19 +61,14 @@ class BlameServiceImpl implements BlameService, Disposable {
 
   @Nullable
   private Blame getFileBlameInternal(@NotNull VirtualFile file) {
-    GitVcs git = getGit();
     Blame blame = null;
     try {
-      VcsFileRevision revision = git.getVcsHistoryProvider().getLastRevision(GtUtil.localFilePath(file));
+      VcsFileRevision revision = gateway.getLastRevision(file);
       blame = blameForRevision(revision);
     } catch (VcsException e) {
       log.warn("Failed to blame " + file, e);
     }
     return blame;
-  }
-
-  private GitVcs getGit() {
-    return GitVcs.getInstance(project);
   }
 
   @Nullable
@@ -157,7 +138,7 @@ class BlameServiceImpl implements BlameService, Disposable {
   private CachedLineProvider getLineNumberProvider(@NotNull Document document) {
     try {
       return lineNumberProviderCache.get(document,
-          () -> new CachedLineProvider(new UpToDateLineNumberProviderImpl(document, project)));
+          () -> new CachedLineProvider(gateway.createUpToDateLineProvider(document)));
     } catch (ExecutionException e) {
       log.warn("Failed to get line number provider for " + document, e);
       return null;
@@ -169,10 +150,23 @@ class BlameServiceImpl implements BlameService, Disposable {
     blameCache.invalidate(file);
   }
 
+  @Override
+  public void invalidate(@NotNull VirtualFile file) {
+    annotationCache.invalidate(file);
+    invalidatedCounter.inc();
+    gateway.fireBlameInvalidated(file);
+  }
+
+  @Override
+  public void blameUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
+    annotationCache.put(file, annotation);
+    gateway.fireBlameUpdated(file);
+  }
+
   private static final class CachedLineProvider {
     private final UpToDateLineNumberProvider lineProvider;
 
-    private CachedLineProvider(UpToDateLineNumberProvider lineProvider) {
+    private CachedLineProvider(@NotNull UpToDateLineNumberProvider lineProvider) {
       this.lineProvider = lineProvider;
     }
 

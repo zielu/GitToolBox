@@ -21,6 +21,10 @@ public interface BlameService {
 
   void fileClosed(@NotNull VirtualFile file);
 
+  void invalidate(@NotNull VirtualFile file);
+
+  void blameUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation);
+
   static BlameService getInstance(@NotNull Project project) {
     return ServiceManager.getService(project, BlameService.class);
   }
