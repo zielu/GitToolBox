@@ -12,7 +12,6 @@ import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.history.VcsFileRevision;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.messages.MessageBusConnection;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +31,6 @@ class BlameServiceImpl implements BlameService, Disposable {
   private final Timer currentLineBlameTimer;
   private final Timer documentLineBlameTimer;
   private final Counter invalidatedCounter;
-  private MessageBusConnection connection;
 
   BlameServiceImpl(@NotNull BlameServiceGateway gateway, @NotNull BlameCache blameCache,
                    @NotNull ProjectMetrics metrics) {
@@ -43,14 +41,13 @@ class BlameServiceImpl implements BlameService, Disposable {
     documentLineBlameTimer = metrics.timer("blame-document-line");
     invalidatedCounter = metrics.counter("blame-annotation-invalidated-count");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
+    this.gateway.disposeWithProject(this);
   }
 
   @Override
   public void dispose() {
-    if (connection != null) {
-      connection.disconnect();
-      connection = null;
-    }
+    annotationCache.invalidateAll();
+    lineNumberProviderCache.invalidateAll();
   }
 
   @Nullable

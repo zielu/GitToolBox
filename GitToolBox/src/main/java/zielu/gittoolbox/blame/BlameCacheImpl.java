@@ -3,6 +3,7 @@ package zielu.gittoolbox.blame;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
-class BlameCacheImpl implements BlameCache {
+class BlameCacheImpl implements BlameCache, Disposable {
   private static final BlameAnnotation EMPTY = new BlameAnnotation() {
     @Nullable
     @Override
@@ -78,6 +79,13 @@ class BlameCacheImpl implements BlameCache {
     Timer loadTimer = metrics.timer("blame-cache-load");
     Timer queueWaitTimer = metrics.timer("blame-cache-queue-wait");
     loaderTimers = new LoaderTimers(loadTimer, queueWaitTimer);
+    this.gateway.disposeWithProject(this);
+  }
+
+  @Override
+  public void dispose() {
+    annotations.clear();
+    queued.clear();
   }
 
   @NotNull
