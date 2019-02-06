@@ -13,23 +13,33 @@ import org.jetbrains.annotations.Nullable;
 
 class BlameAnnotationImpl implements BlameAnnotation {
   private final Map<VcsRevisionNumber, Blame> blames = new HashMap<>();
-  private final TIntObjectHashMap<Blame> lineBlames = new TIntObjectHashMap<>();
+  private final TIntObjectHashMap<Blame> lineBlames;
   private final FileAnnotation annotation;
 
   BlameAnnotationImpl(@NotNull FileAnnotation annotation) {
     this.annotation = annotation;
+    lineBlames =  new TIntObjectHashMap<>(this.annotation.getLineCount());
   }
 
   @Nullable
   @Override
   public Blame getBlame(int lineNumber) {
+    if (lineBlames.containsKey(lineNumber)) {
+      return lineBlames.get(lineNumber);
+    } else {
+      return loadBlame(lineNumber);
+    }
+  }
+
+  @Nullable
+  private Blame loadBlame(int lineNumber) {
+    Blame blame = null;
     VcsRevisionNumber lineRevision = annotation.getLineRevisionNumber(lineNumber);
     if (lineRevision != null) {
-      Blame blame = blames.computeIfAbsent(lineRevision, lineRev -> LineBlame.create(annotation, lineNumber));
-      lineBlames.put(lineNumber, blame);
-      return blame;
+      blame = blames.computeIfAbsent(lineRevision, lineRev -> LineBlame.create(annotation, lineRevision, lineNumber));
     }
-    return null;
+    lineBlames.put(lineNumber, blame);
+    return blame;
   }
 
   @Override

@@ -18,19 +18,18 @@ public class LineBlame extends AbstractBlame {
     this.detailedText = detailedText;
   }
 
-  public static Blame create(@NotNull FileAnnotation annotation, int line) {
-    LineAnnotationAspect[] aspects = annotation.getAspects();
+  public static Blame create(@NotNull FileAnnotation annotation, @NotNull VcsRevisionNumber revisionNumber,
+                             int line) {
     String author = null;
     String revisionDate = null;
-    for (LineAnnotationAspect aspect : aspects) {
+    for (LineAnnotationAspect aspect : annotation.getAspects()) {
       if (LineAnnotationAspect.AUTHOR.equals(aspect.getId())) {
         author = aspect.getValue(line);
       } else if (LineAnnotationAspect.DATE.equals(aspect.getId())) {
         revisionDate = aspect.getValue(line);
       }
     }
-    return new LineBlame(annotation.getLineRevisionNumber(line),
-        author, revisionDate, annotation.getToolTip(line));
+    return new LineBlame(revisionNumber, author, revisionDate, annotation.getToolTip(line));
   }
 
   @NotNull
