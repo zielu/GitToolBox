@@ -38,7 +38,6 @@ class VirtualFileRepoCacheImplTest {
   void beforeEach() {
     when(gateway.getMetrics()).thenReturn(mockMetrics);
     cache = new VirtualFileRepoCacheImpl(gateway);
-    cache.initComponent();
   }
 
   private void mockRepository() {
@@ -47,7 +46,7 @@ class VirtualFileRepoCacheImplTest {
 
   @AfterEach
   void afterEach() {
-    cache.disposeComponent();
+    cache.dispose();
   }
 
   @Test

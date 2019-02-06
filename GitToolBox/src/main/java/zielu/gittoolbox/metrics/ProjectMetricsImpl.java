@@ -6,7 +6,6 @@ import com.codahale.metrics.Timer;
 import com.codahale.metrics.jmx.JmxReporter;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 class ProjectMetricsImpl implements ProjectComponent, ProjectMetrics {
@@ -16,10 +15,6 @@ class ProjectMetricsImpl implements ProjectComponent, ProjectMetrics {
 
   ProjectMetricsImpl(@NotNull Project project) {
     this.project = project;
-  }
-
-  static Metrics getInstance(@NotNull Project project) {
-    return project.getComponent(ProjectMetricsImpl.class);
   }
 
   @Override
@@ -34,7 +29,9 @@ class ProjectMetricsImpl implements ProjectComponent, ProjectMetrics {
 
   @Override
   public void projectClosed() {
-    Optional.ofNullable(reporter).ifPresent(JmxReporter::close);
+    if (reporter != null) {
+      reporter.close();
+    }
   }
 
   @Override

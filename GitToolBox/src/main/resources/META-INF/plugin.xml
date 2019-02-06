@@ -65,6 +65,8 @@
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl"/>
     <projectService serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheGateway"/>
+    <projectService serviceInterface="zielu.gittoolbox.cache.VirtualFileRepoCache"
+                    serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheImpl"/>
     <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheGateway"/>
 
     <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
@@ -93,10 +95,6 @@
     <component>
       <interface-class>zielu.gittoolbox.cache.PerRepoInfoCache</interface-class>
       <implementation-class>zielu.gittoolbox.cache.PerRepoInfoCacheImpl</implementation-class>
-    </component>
-    <component>
-      <interface-class>zielu.gittoolbox.cache.VirtualFileRepoCache</interface-class>
-      <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheImpl</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.cache.CacheSourcesSubscriber</implementation-class>

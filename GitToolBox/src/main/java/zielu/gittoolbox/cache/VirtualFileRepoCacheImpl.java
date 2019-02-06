@@ -2,11 +2,12 @@ package zielu.gittoolbox.cache;
 
 import static java.util.function.Function.identity;
 
+import com.codahale.metrics.Timer;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -22,26 +23,23 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.Metrics;
 
-class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent {
+class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final ConcurrentMap<VirtualFile, GitRepository> rootsCache = new ConcurrentHashMap<>();
   private final ConcurrentMap<VirtualFile, CacheEntry> dirsCache = new ConcurrentHashMap<>();
   private final VirtualFileRepoCacheGateway gateway;
-  private Metrics metrics;
+  private final Timer repoForDirCacheTimer;
 
-  VirtualFileRepoCacheImpl(VirtualFileRepoCacheGateway gateway) {
+  VirtualFileRepoCacheImpl(@NotNull VirtualFileRepoCacheGateway gateway) {
     this.gateway = gateway;
-  }
-
-  @Override
-  public void initComponent() {
-    metrics = gateway.getMetrics();
+    Metrics metrics = gateway.getMetrics();
     metrics.gauge("vfile-repo-roots-cache-size", rootsCache::size);
     metrics.gauge("vfile-repo-dirs-cache-size", dirsCache::size);
+    repoForDirCacheTimer = metrics.timer("repo-for-dir-cache");
   }
 
   @Override
-  public void disposeComponent() {
+  public void dispose() {
     rootsCache.clear();
     dirsCache.clear();
   }
@@ -69,7 +67,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, ProjectComponent
 
   @NotNull
   private CacheEntry findRepoForDir(@NotNull VirtualFile dir) {
-    return metrics.timer("repo-for-dir-cache").timeSupplier(() -> calculateRepoForDir(dir));
+    return repoForDirCacheTimer.timeSupplier(() -> calculateRepoForDir(dir));
   }
 
   @NotNull

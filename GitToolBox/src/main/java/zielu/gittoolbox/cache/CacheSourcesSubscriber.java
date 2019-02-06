@@ -1,7 +1,7 @@
 package zielu.gittoolbox.cache;
 
 import com.google.common.collect.ImmutableList;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
-class CacheSourcesSubscriber implements ProjectComponent {
+class CacheSourcesSubscriber implements BaseComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final Project project;
@@ -31,8 +31,10 @@ class CacheSourcesSubscriber implements ProjectComponent {
 
   @Override
   public void initComponent() {
-    registerOrderedAwares();
-    connectToMessageBus();
+    if (active.compareAndSet(false, true)) {
+      registerOrderedAwares();
+      connectToMessageBus();
+    }
   }
 
   private void registerOrderedAwares() {
@@ -60,24 +62,18 @@ class CacheSourcesSubscriber implements ProjectComponent {
   }
 
   @Override
-  public void projectOpened() {
-    active.compareAndSet(false, true);
-  }
-
-  @Override
-  public void projectClosed() {
-    active.compareAndSet(true, false);
-  }
-
-  @Override
   public void disposeComponent() {
-    disconnectFromMessageBus();
-    clearAwares();
+    if (active.compareAndSet(true, false)) {
+      disconnectFromMessageBus();
+      clearAwares();
+    }
   }
 
   private void disconnectFromMessageBus() {
-    connection.disconnect();
-    connection = null;
+    if (connection != null) {
+      connection.disconnect();
+      connection = null;
+    }
   }
 
   private void clearAwares() {
