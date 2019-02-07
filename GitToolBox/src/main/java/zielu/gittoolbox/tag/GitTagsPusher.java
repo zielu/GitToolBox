@@ -36,6 +36,9 @@ public class GitTagsPusher {
   public GtPushResult push(@NotNull TagsPushSpec pushSpec) {
     Preconditions.checkNotNull(pushSpec);
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(pushSpec.gitRoot());
+    if (repository == null) {
+      return GtPushResult.error("Path " + pushSpec.gitRoot().getPath() + " is not a Git root");
+    }
     Optional<GitBranchTrackInfo> trackInfo = Optional.ofNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
     if (trackInfo.isPresent()) {
       GitRemote remote = trackInfo.get().getRemote();

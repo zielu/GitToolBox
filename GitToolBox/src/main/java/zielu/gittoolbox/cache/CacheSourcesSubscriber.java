@@ -1,7 +1,7 @@
 package zielu.gittoolbox.cache;
 
 import com.google.common.collect.ImmutableList;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
@@ -11,10 +11,13 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.config.ConfigNotifier;
+import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
-class CacheSourcesSubscriber implements ProjectComponent {
+class CacheSourcesSubscriber implements BaseComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final Project project;
@@ -28,8 +31,10 @@ class CacheSourcesSubscriber implements ProjectComponent {
 
   @Override
   public void initComponent() {
-    registerOrderedAwares();
-    connectToMessageBus();
+    if (active.compareAndSet(false, true)) {
+      registerOrderedAwares();
+      connectToMessageBus();
+    }
   }
 
   private void registerOrderedAwares() {
@@ -45,27 +50,30 @@ class CacheSourcesSubscriber implements ProjectComponent {
     connection = messageBus.connect();
     connection.subscribe(GitRepository.GIT_REPO_CHANGE, this::onRepoChanged);
     connection.subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this::onDirMappingChanged);
-  }
-
-  @Override
-  public void projectOpened() {
-    active.compareAndSet(false, true);
-  }
-
-  @Override
-  public void projectClosed() {
-    active.compareAndSet(true, false);
+    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
+      @Override
+      public void configChanged(Project project, GitToolBoxConfigForProject previous,
+                                GitToolBoxConfigForProject current) {
+        if (Objects.equals(CacheSourcesSubscriber.this.project, project)) {
+          onConfigChanged(project, previous, current);
+        }
+      }
+    });
   }
 
   @Override
   public void disposeComponent() {
-    disconnectFromMessageBus();
-    clearAwares();
+    if (active.compareAndSet(true, false)) {
+      disconnectFromMessageBus();
+      clearAwares();
+    }
   }
 
   private void disconnectFromMessageBus() {
-    connection.disconnect();
-    connection = null;
+    if (connection != null) {
+      connection.disconnect();
+      connection = null;
+    }
   }
 
   private void clearAwares() {
@@ -97,5 +105,14 @@ class CacheSourcesSubscriber implements ProjectComponent {
     ImmutableList<GitRepository> repositories = ImmutableList.copyOf(gitManager.getRepositories());
     dirMappingAwares.forEach(aware -> aware.updatedRepoList(repositories));
     log.debug("Dir mappings change notification done");
+  }
+
+  private void onConfigChanged(@NotNull Project project, GitToolBoxConfigForProject previous,
+                               @NotNull GitToolBoxConfigForProject current) {
+    if (previous.referencePointForStatus.isChanged(current.referencePointForStatus)) {
+      GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
+      ImmutableList.copyOf(gitManager.getRepositories()).forEach(repo ->
+          repoChangeAwares.forEach(aware -> aware.repoChanged(repo)));
+    }
   }
 }

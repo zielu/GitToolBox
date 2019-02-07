@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.cache.RepoStatus;
+import zielu.gittoolbox.cache.RepoStatusRemote;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusMessages;
 import zielu.gittoolbox.ui.StatusMessagesUi;
@@ -50,10 +51,10 @@ class BehindTrackerTest {
   private static final Hash REMOTE_HASH_2 = HashImpl.build("2eb9b31b1ec2d9e01587031d87f2c34b57d89ea5");
   private static final GitRemoteBranch REMOTE_BRANCH = new GitStandardRemoteBranch(REMOTE, "master");
 
-  private static final RepoStatus REPO_STATUS_1 = RepoStatus.create(LOCAL_BRANCH, LOCAL_HASH, REMOTE_BRANCH,
-      REMOTE_HASH_1);
-  private static final RepoStatus REPO_STATUS_2 = RepoStatus.create(LOCAL_BRANCH, LOCAL_HASH, REMOTE_BRANCH,
-      REMOTE_HASH_2);
+  private static final RepoStatus REPO_STATUS_1 = RepoStatus.create(LOCAL_BRANCH, LOCAL_HASH,
+      new RepoStatusRemote(REMOTE_BRANCH, REMOTE_HASH_1));
+  private static final RepoStatus REPO_STATUS_2 = RepoStatus.create(LOCAL_BRANCH, LOCAL_HASH,
+      new RepoStatusRemote(REMOTE_BRANCH, REMOTE_HASH_2));
   private static final RepoInfo REPO_INFO_1 = RepoInfo.create(REPO_STATUS_1,
       GitAheadBehindCount.success(1, LOCAL_HASH, 1, REMOTE_HASH_1), ImmutableList.of());
   private static final RepoInfo REPO_INFO_2 = RepoInfo.create(REPO_STATUS_2,

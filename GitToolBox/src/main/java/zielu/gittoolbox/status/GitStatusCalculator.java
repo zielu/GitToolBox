@@ -1,81 +1,50 @@
 package zielu.gittoolbox.status;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.progress.EmptyProgressIndicator;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
+import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
+import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
-import git4idea.commands.GitTask;
-import git4idea.commands.GitTaskResultHandlerAdapter;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepository;
-import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class GitStatusCalculator {
   private final Logger log = Logger.getInstance(getClass());
-
   private final Project project;
-  private final ProgressIndicator indicator;
 
-  private GitStatusCalculator(@NotNull Project project, @NotNull ProgressIndicator indicator) {
-    this.project = Preconditions.checkNotNull(project);
-    this.indicator = Preconditions.checkNotNull(indicator);
+  private GitStatusCalculator(@NotNull Project project) {
+    this.project = project;
   }
 
   @NotNull
-  public static GitStatusCalculator create(@NotNull Project project, @NotNull ProgressIndicator indicator) {
-    return new GitStatusCalculator(project, indicator);
-  }
-
   public static GitStatusCalculator create(@NotNull Project project) {
-    return create(project, new EmptyProgressIndicator());
-  }
-
-  public Map<GitRepository, RevListCount> behindStatus(Collection<GitRepository> repositories) {
-    Map<GitRepository, RevListCount> result = Maps.newLinkedHashMap();
-    for (GitRepository repository : repositories) {
-      result.put(repository, behindStatus(repository));
-    }
-    return result;
+    return new GitStatusCalculator(project);
   }
 
   @NotNull
   public RevListCount behindStatus(GitRepository repository) {
     Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
     if (trackInfo.isPresent()) {
-      return behindStatus(repository.getCurrentBranch(), trackInfo.get(), repository);
+      return behindStatus(trackInfo.get(), repository);
     }
     return RevListCount.noRemote();
   }
 
-  private RevListCount behindStatus(GitLocalBranch currentBranch, GitBranchTrackInfo trackInfo,
-                                    GitRepository repository) {
-    String localName = currentBranch.getName();
+  private RevListCount behindStatus(GitBranchTrackInfo trackInfo, GitRepository repository) {
+    String localName = trackInfo.getLocalBranch().getName();
     String remoteName = trackInfo.getRemoteBranch().getNameForLocalOperations();
     GitAheadBehindCount count = doRevListLeftRight(localName, remoteName, repository);
     return count.behind;
   }
 
   @NotNull
-  public GitAheadBehindCount aheadBehindStatus(@NotNull GitRepository repository) {
-    Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
-    if (trackInfo.isPresent()) {
-      return aheadBehindStatus(repository.getCurrentBranch(), trackInfo.get(), repository);
-    }
-    return GitAheadBehindCount.noRemote();
-  }
-
   public GitAheadBehindCount aheadBehindStatus(@NotNull GitRepository repository, @Nullable Hash localHash,
                                                @Nullable Hash remoteHash) {
     if (localHash != null && remoteHash != null) {
@@ -114,27 +83,14 @@ public class GitStatusCalculator {
   private GitAheadBehindCount executeRevListCount(GitLineHandler handler) {
     GitRevListLeftRightCounter counter = new GitRevListLeftRightCounter();
     handler.addLineListener(counter);
-    //TODO: GitTagCalculator, GitTagsPusher (especially second one) have examples how to do this.
-    GitTask task = new GitTask(project, handler, "rev-list count");
-    task.setProgressIndicator(indicator);
-    AtomicReference<GitAheadBehindCount> result = new AtomicReference<GitAheadBehindCount>();
-    task.execute(true, false, new GitTaskResultHandlerAdapter() {
-      @Override
-      protected void onSuccess() {
-        result.set(GitAheadBehindCount.success(counter.ahead(), counter.aheadTop(), counter.behind(),
-            counter.behindTop()));
-      }
-
-      @Override
-      protected void onCancel() {
-        result.set(GitAheadBehindCount.cancel());
-      }
-
-      @Override
-      protected void onFailure() {
-        result.set(GitAheadBehindCount.failure());
-      }
-    });
-    return Preconditions.checkNotNull(result.get(), "Null rev list left right");
+    GitCommandResult result = Git.getInstance().runCommandWithoutCollectingOutput(handler);
+    if (result.success()) {
+      return GitAheadBehindCount.success(counter.ahead(), counter.aheadTop(), counter.behind(), counter.behindTop());
+    } else if (result.cancelled()) {
+      return GitAheadBehindCount.cancel();
+    } else {
+      log.warn("Ahead/behind count failed:\n" + result.getErrorOutputAsJoinedString());
+      return GitAheadBehindCount.failure();
+    }
   }
 }

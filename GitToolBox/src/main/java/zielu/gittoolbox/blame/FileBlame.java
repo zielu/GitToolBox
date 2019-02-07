@@ -1,6 +1,7 @@
 package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.vcs.history.VcsFileRevision;
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.util.text.DateFormatUtil;
 import git4idea.i18n.GitBundle;
 import java.util.Date;
@@ -12,7 +13,8 @@ public final class FileBlame extends AbstractBlame {
   private final String shortText;
   private final String detailedText;
 
-  private FileBlame(String author, Date date, String detailedText) {
+  private FileBlame(@NotNull VcsRevisionNumber revisionNumber, String author, Date date, String detailedText) {
+    super(revisionNumber);
     shortText = prepareAuthor(author) + " "
         + DateFormatUtil.formatBetweenDates(date.getTime(), System.currentTimeMillis());
     this.detailedText = detailedText;
@@ -22,7 +24,7 @@ public final class FileBlame extends AbstractBlame {
     String detailedText = revision.getCommitMessage() + "\n...";
     detailedText = GitBundle.message("annotation.tool.tip", revision.getRevisionNumber().asString(),
         revision.getAuthor(), DateFormatUtil.formatDateTime(revision.getRevisionDate()), detailedText);
-    return new FileBlame(revision.getAuthor(), revision.getRevisionDate(), detailedText);
+    return new FileBlame(revision.getRevisionNumber(), revision.getAuthor(), revision.getRevisionDate(), detailedText);
   }
 
   @NotNull

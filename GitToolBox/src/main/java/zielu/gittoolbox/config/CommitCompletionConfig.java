@@ -28,6 +28,14 @@ public class CommitCompletionConfig {
     }
   }
 
+  public static CommitCompletionConfig createIssue() {
+    CommitCompletionConfig config = new CommitCompletionConfig();
+    config.type = CommitCompletionType.PATTERN;
+    config.pattern = "(\\w+-\\d+).*";
+    config.testInput = "JIRA4PRJ-1234_branch_name";
+    return config;
+  }
+
   @Transient
   public Formatter createFormatter() {
     if (type == CommitCompletionType.SIMPLE) {

@@ -2,7 +2,6 @@ package zielu.gittoolbox.ui.statusbar;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.DocumentBulkUpdateListener;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
@@ -23,14 +22,13 @@ class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
   private final Set<Document> inBulkUpdate = ContainerUtil.newConcurrentSet();
   private final Set<Runnable> exitDumbModeActions = new LinkedHashSet<>();
   private final Set<Consumer<Document>> bulkUpdateFinishedActions = new LinkedHashSet<>();
-  private final Set<Consumer<VirtualFile>> cacheUpdatedActions = new LinkedHashSet<>();
+  private final Set<Consumer<VirtualFile>> blameUpdatedActions = new LinkedHashSet<>();
   private final VirtualFileRepoCache repoCache;
   private MessageBusConnection connection;
 
   BlameStatusGatewayImpl(@NotNull Project project, @NotNull VirtualFileRepoCache repoCache) {
     this.repoCache = repoCache;
     connection = project.getMessageBus().connect(this);
-    Disposer.register(project, this);
     connection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
       @Override
       public void exitDumbMode() {
@@ -53,14 +51,19 @@ class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
     connection.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
       @Override
       public void blameUpdated(@NotNull VirtualFile file) {
-        cacheUpdatedActions.forEach(action -> action.consume(file));
+        notifyBlameActions(file);
       }
 
       @Override
-      public void blameUpdated(@NotNull Editor editor, @NotNull VirtualFile file) {
-        cacheUpdatedActions.forEach(action -> action.consume(file));
+      public void blameInvalidated(@NotNull VirtualFile file) {
+        notifyBlameActions(file);
       }
     });
+    Disposer.register(project, this);
+  }
+
+  private void notifyBlameActions(@NotNull VirtualFile file) {
+    blameUpdatedActions.forEach(action -> action.consume(file));
   }
 
   @Override
@@ -85,12 +88,12 @@ class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
 
   @Override
   public void addBlameUpdatedAction(Consumer<VirtualFile> action) {
-    cacheUpdatedActions.add(action);
+    blameUpdatedActions.add(action);
   }
 
   @Override
   public void removeBlameUpdateAction(Consumer<VirtualFile> action) {
-    cacheUpdatedActions.remove(action);
+    blameUpdatedActions.remove(action);
   }
 
   @Override

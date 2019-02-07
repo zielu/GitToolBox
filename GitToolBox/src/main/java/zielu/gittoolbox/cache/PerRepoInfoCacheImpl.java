@@ -29,12 +29,12 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   private final Project project;
   private final GitStatusCalculator calculator;
   private final CacheTaskScheduler taskScheduler;
-  private final InfoCachePublisher publisher;
+  private final InfoCacheGateway gateway;
 
-  PerRepoInfoCacheImpl(@NotNull Project project, @NotNull InfoCachePublisher publisher,
+  PerRepoInfoCacheImpl(@NotNull Project project, @NotNull InfoCacheGateway gateway,
                        @NotNull ProjectMetrics metrics) {
     this.project = project;
-    this.publisher = publisher;
+    this.gateway = gateway;
     statusCalculator = new CachedStatusCalculator(metrics);
     calculator = GitStatusCalculator.create(project);
     taskScheduler = new CacheTaskScheduler(project, metrics);
@@ -60,12 +60,12 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
 
   private void updateAction(@NotNull GitRepository repository) {
     RepoInfo info = getRepoInfo(repository);
-    RepoStatus currentStatus = RepoStatus.create(repository);
+    RepoStatus currentStatus = gateway.createRepoStatus(repository);
     RepoInfo freshInfo = behindStatuses.computeIfPresent(repository, (repo, oldInfo) ->
         statusCalculator.update(repo, calculator, currentStatus));
 
-    if (!Objects.equals(info, freshInfo)) {
-      publisher.notifyRepoChanged(repository, freshInfo);
+    if (freshInfo != null && !Objects.equals(info, freshInfo)) {
+      gateway.notifyRepoChanged(repository, freshInfo);
     } else {
       log.debug("Status did not change [", GtUtil.name(repository), "]: ", freshInfo);
     }
@@ -119,7 +119,7 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
 
   private void purgeRepositories(@NotNull Collection<GitRepository> repositories) {
     removeRepositories(repositories);
-    publisher.notifyEvicted(repositories);
+    gateway.notifyEvicted(repositories);
   }
 
   private void removeRepositories(@NotNull Collection<GitRepository> repositories) {

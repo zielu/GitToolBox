@@ -32,12 +32,12 @@ public class StatusBarManager implements Disposable, ProjectAware {
   }
 
   private void install() {
-    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier.Adapter() {
+    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
-      public void configChanged(GitToolBoxConfig2 config) {
+      public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         SwingUtilities.invokeLater(() -> {
           if (opened.get()) {
-            setVisible(config.showStatusWidget, config.showBlame);
+            setVisible(current.showStatusWidget, current.showBlame);
           }
         });
       }

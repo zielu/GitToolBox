@@ -1,6 +1,7 @@
 package zielu.gittoolbox.cache;
 
 import com.google.common.base.Preconditions;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
@@ -14,7 +15,7 @@ public interface VirtualFileRepoCache extends DirMappingAware {
 
   @NotNull
   static VirtualFileRepoCache getInstance(@NotNull Project project) {
-    return project.getComponent(VirtualFileRepoCache.class);
+    return ServiceManager.getService(project, VirtualFileRepoCache.class);
   }
 
   @Nullable

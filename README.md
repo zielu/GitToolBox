@@ -20,6 +20,11 @@ Decisions are stored [here](./GitToolBox/doc/arch).
 
 ## Building & running
 
+### Build parameters
+```-Pfast=true``` speed-up is achieved by:
+* skipping integration tests 
+* skipping spotbugs
+
 ### Releases
 
 #### Release current `-SNAPSHOT`
@@ -42,7 +47,7 @@ gradle clean check jacocoTestReport
 ```
 Quick verification of build
 ```
-gradle clean test jacocoTestReport
+gradle clean test jacocoTestReport -Pfast=true
 ```
 Update gradlew version
 ```

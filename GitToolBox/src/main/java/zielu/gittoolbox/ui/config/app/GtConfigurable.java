@@ -47,6 +47,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     form.setUpdateProjectAction(GitToolBoxUpdateProjectApp.getInstance().getById(config.getUpdateProjectActionId()));
     form.setDecorationParts(config.decorationParts);
     form.setShowBlame(config.showBlame);
+    form.setShowEditorInlineBlame(config.showEditorInlineBlame);
   }
 
   @Override
@@ -58,12 +59,15 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     modified = modified || config.isUpdateProjectActionId(form.getUpdateProjectAction().getId());
     modified = modified || config.isDecorationPartsChanged(form.getDecorationParts());
     modified = modified || config.isShowBlameChanged(form.getShowBlame());
+    modified = modified || config.isShowEditorInlineBlameChanged(form.getShowEditorInlineBlame());
     log.debug("Modified: ", modified);
     return modified;
   }
 
   @Override
   protected void doApply(GtForm form, GitToolBoxConfig2 config) throws ConfigurationException {
+    final GitToolBoxConfig2 previousConfig = config.copy();
+
     config.setPresenter(form.getPresenter());
     config.showStatusWidget = form.getShowGitStatus();
     config.showProjectViewStatus = form.getShowProjectViewStatus();
@@ -72,12 +76,13 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     config.updateProjectActionId = form.getUpdateProjectAction().getId();
     config.decorationParts = form.getDecorationParts();
     config.showBlame = form.getShowBlame();
+    config.showEditorInlineBlame = form.getShowEditorInlineBlame();
 
     //Mark migrated here to handle case when config is modified without opening a project
     //Example: from launch dialog
     config.previousVersionMigrated = true;
 
-    config.fireChanged();
+    config.fireChanged(previousConfig);
     log.debug("Applied");
   }
 

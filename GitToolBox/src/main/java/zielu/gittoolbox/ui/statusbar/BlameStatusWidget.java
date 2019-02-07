@@ -16,7 +16,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
@@ -24,7 +23,6 @@ import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
-import javax.swing.JTextArea;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
@@ -32,6 +30,7 @@ import zielu.gittoolbox.blame.Blame;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.ui.blame.BlameUi;
 import zielu.gittoolbox.ui.util.AppUtil;
 
 public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
@@ -50,7 +49,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private final Consumer<Document> bulkUpdateFinishedAction;
   private final Consumer<VirtualFile> blameUpdatedAction;
   private String blameText = ResBundle.na();
-  private String blameDetails;
   private boolean visible;
 
   public BlameStatusWidget(@NotNull Project project) {
@@ -203,7 +201,11 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Nullable
   @Override
   public String getTooltipText() {
-    return blameDetails;
+    Blame blame = stateHolder.getBlame();
+    if (blame != null) {
+      return blame.getDetailedText();
+    }
+    return null;
   }
 
   @Nullable
@@ -211,16 +213,10 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   public Consumer<MouseEvent> getClickConsumer() {
     return event -> {
       Editor editor = stateHolder.getCurrentEditor();
-      if (blameDetails != null && editor != null) {
-        JTextArea content = new JTextArea(blameDetails);
-        content.setEditable(false);
-        JBPopupFactory.getInstance()
-            .createDialogBalloonBuilder(content, ResBundle.getString("statusBar.blame.popup.title"))
-            .setDialogMode(true)
-            .setCloseButtonEnabled(false)
-            .setHideOnClickOutside(true)
-            .setShowCallout(false)
-            .createBalloon().showInCenterOf(editor.getComponent());
+      VirtualFile currentFile = stateHolder.getCurrentFile();
+      Blame blame = stateHolder.getBlame();
+      if (editor != null && currentFile != null && blame != null) {
+        BlameUi.showBlamePopup(editor, currentFile, blame);
       }
     };
   }
@@ -302,9 +298,12 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void fileChanged(@Nullable Editor editor, @NotNull VirtualFile file) {
-    Blame blame;
+    Blame blame = null;
     if (editor != null) {
-      blame = this.blame.getCurrentLineBlame(editor, file);
+      int currentLine = BlameUi.getCurrentLineNumber(editor);
+      if (currentLine != BlameUi.NO_LINE) {
+        blame = this.blame.getDocumentLineBlame(editor.getDocument(), file, currentLine);
+      }
     } else {
       blame = this.blame.getFileBlame(file);
     }
@@ -317,7 +316,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     if (blame != null) {
       if (stateHolder.updateBlame(blame)) {
         blameText = blame.getShortStatus();
-        blameDetails = blame.getDetailedText();
         return true;
       }
       return false;
@@ -329,7 +327,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private boolean clearBlame() {
     if (stateHolder.clearBlame()) {
       blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.na();
-      blameDetails = null;
       return true;
     }
     return false;
@@ -337,7 +334,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   private void disabled() {
     blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.disabled();
-    blameDetails = null;
   }
 
   @Override

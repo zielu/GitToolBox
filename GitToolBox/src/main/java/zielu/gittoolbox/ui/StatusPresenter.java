@@ -9,6 +9,8 @@ public interface StatusPresenter {
 
   String nonZeroAheadBehindStatus(int ahead, int behind);
 
+  String branchAndParent(String branchName, String parentBranchName);
+
   String key();
 
   String getLabel();

@@ -78,13 +78,17 @@ public class BehindTrackerController implements ProjectComponent {
   }
 
   private void disconnectFromMessageBus() {
-    connection.disconnect();
+    if (connection != null) {
+      connection.disconnect();
+    }
   }
 
   @Override
   public void disposeComponent() {
     connection = null;
-    executor.dispose();
-    executor = null;
+    if (executor != null) {
+      executor.dispose();
+      executor = null;
+    }
   }
 }

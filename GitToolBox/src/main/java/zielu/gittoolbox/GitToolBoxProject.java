@@ -1,6 +1,6 @@
 package zielu.gittoolbox;
 
-import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -8,14 +8,15 @@ import zielu.gittoolbox.ui.projectview.ProjectViewManager;
 import zielu.gittoolbox.ui.statusbar.StatusBarManager;
 import zielu.gittoolbox.util.ProjectAwares;
 
-public class GitToolBoxProject extends AbstractProjectComponent {
+public class GitToolBoxProject implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
+  private final Project project;
   private StatusBarManager statusBarManager;
   private ProjectViewManager projectViewManager;
   private ProjectAwares awares;
 
   public GitToolBoxProject(@NotNull Project project) {
-    super(project);
+    this.project = project;
   }
 
   @NotNull
@@ -25,8 +26,8 @@ public class GitToolBoxProject extends AbstractProjectComponent {
 
   @Override
   public void initComponent() {
-    statusBarManager = StatusBarManager.create(myProject);
-    projectViewManager = ProjectViewManager.create(myProject);
+    statusBarManager = StatusBarManager.create(project);
+    projectViewManager = ProjectViewManager.create(project);
     awares = ProjectAwares.create(
         statusBarManager,
         projectViewManager

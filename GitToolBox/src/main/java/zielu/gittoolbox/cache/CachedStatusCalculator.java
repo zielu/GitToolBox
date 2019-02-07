@@ -3,6 +3,7 @@ package zielu.gittoolbox.cache;
 import com.codahale.metrics.Timer;
 import com.intellij.openapi.diagnostic.Logger;
 import git4idea.repo.GitRepository;
+import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.Metrics;
@@ -10,8 +11,6 @@ import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.tag.GitTagCalculator;
 import zielu.gittoolbox.util.GtUtil;
-
-import java.util.List;
 
 class CachedStatusCalculator {
   private final Logger log = Logger.getInstance(getClass());
@@ -30,7 +29,7 @@ class CachedStatusCalculator {
                             RepoStatus status) {
     Timer statusUpdateLatency = metrics.timer("status-update");
     GitAheadBehindCount count = statusUpdateLatency
-        .timeSupplier(() -> calculator.aheadBehindStatus(repo, status.localHash(), status.remoteHash()));
+        .timeSupplier(() -> calculator.aheadBehindStatus(repo, status.localHash(), status.parentHash()));
     log.debug("Calculated status [", GtUtil.name(repo), "]: ", count);
     if (!status.sameHashes(count)) {
       log.warn("Hash mismatch between count and status: " + count + " <> " + status);

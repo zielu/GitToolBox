@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.1"
+    id "org.jetbrains.intellij" version "0.4.2"
     id 'com.palantir.git-version' version '0.11.0'
     id 'ch.netzwerg.release' version '1.2.5'
     id "com.github.spotbugs" version "1.6.9"
@@ -24,6 +24,8 @@ apply plugin: "java"
 
 sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
+
+def fast = Boolean.valueOf(String.valueOf(findProperty('fast')))
 
 configurations {
     testAgent {
@@ -100,7 +102,7 @@ test {
     useJUnitPlatform {
         //prevent running extensions as Junit 3 tests because of naming convention with TestCase
         exclude('zielu/junit5/**')
-        includeTags 'fast', 'integration'
+        includeTags = fast ? ['fast'] : ['fast', 'integration']
         reports {
             html.enabled = false
         }
@@ -112,6 +114,12 @@ spotbugs {
     ignoreFailures = false
     effort = 'default'
     includeFilter = file("${projectDir}/config/findbugs/includeFilter.xml")
+}
+spotbugsMain.onlyIf {
+    !fast
+}
+spotbugsTest.onlyIf {
+    !fast
 }
 
 apply plugin: 'checkstyle'

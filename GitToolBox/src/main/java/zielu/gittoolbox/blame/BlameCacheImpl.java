@@ -3,11 +3,12 @@ package zielu.gittoolbox.blame;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import git4idea.repo.GitRepository;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
-class BlameCacheImpl implements BlameCache {
+class BlameCacheImpl implements BlameCache, Disposable {
   private static final BlameAnnotation EMPTY = new BlameAnnotation() {
     @Nullable
     @Override
@@ -41,23 +42,28 @@ class BlameCacheImpl implements BlameCache {
     public VirtualFile getVirtualFile() {
       return null;
     }
+
+    @Override
+    public String toString() {
+      return "BlameAnnotation:EMPTY";
+    }
   };
   private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
-  private final Project project;
+  private final BlameCacheGateway gateway;
   private final VirtualFileRepoCache fileRepoCache;
   private final BlameLoader blameLoader;
   private final Map<VirtualFile, BlameAnnotation> annotations = new ConcurrentHashMap<>();
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
   private final Timer getTimer;
-  private final Timer loadTimer;
-  private final Timer queueWaitTimer;
   private final Counter discardedSubmitCounter;
+  private final Counter invalidatedCounter;
+  private final LoaderTimers loaderTimers;
 
   private ExecutorService executor;
 
-  BlameCacheImpl(@NotNull Project project, @NotNull VirtualFileRepoCache fileRepoCache,
+  BlameCacheImpl(@NotNull BlameCacheGateway gateway, @NotNull VirtualFileRepoCache fileRepoCache,
                  @NotNull BlameLoader blameLoader, @NotNull ProjectMetrics metrics) {
-    this.project = project;
+    this.gateway = gateway;
     this.fileRepoCache = fileRepoCache;
     this.blameLoader = blameLoader;
     executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
@@ -69,8 +75,17 @@ class BlameCacheImpl implements BlameCache {
     metrics.gauge("blame-cache-queue-count", queued::size);
     discardedSubmitCounter = metrics.counter("blame-cache-discarded-count");
     getTimer = metrics.timer("blame-cache-get");
-    loadTimer = metrics.timer("blame-cache-load");
-    queueWaitTimer = metrics.timer("blame-cache-queue-wait");
+    invalidatedCounter = metrics.counter("blame-cache-invalidated-count");
+    Timer loadTimer = metrics.timer("blame-cache-load");
+    Timer queueWaitTimer = metrics.timer("blame-cache-queue-wait");
+    loaderTimers = new LoaderTimers(loadTimer, queueWaitTimer);
+    this.gateway.disposeWithProject(this);
+  }
+
+  @Override
+  public void dispose() {
+    annotations.clear();
+    queued.clear();
   }
 
   @NotNull
@@ -93,23 +108,21 @@ class BlameCacheImpl implements BlameCache {
   private void submitTask(@NotNull VirtualFile file) {
     if (queued.add(file)) {
       LOG.debug("Add annotation task for ", file);
-      executor.execute(new FileAnnotationLoader(file, blameLoader, loaderTimers(), this::updateAnnotation));
+      executor.execute(new FileAnnotationLoader(file, blameLoader, loaderTimers, this::updateAnnotation));
     } else {
       LOG.debug("Discard annotation task for ", file);
       discardedSubmitCounter.inc();
     }
   }
 
-  private LoaderTimers loaderTimers() {
-    return new LoaderTimers(loadTimer, queueWaitTimer);
-  }
-
   @NotNull
   private BlameAnnotation handleExistingAnnotation(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
     if (isChanged(file, annotation)) {
+      LOG.debug("Annotation changed for ", file);
       submitTask(file);
       return EMPTY;
     } else {
+      LOG.debug("Annotation not changed for ", file);
       return annotation;
     }
   }
@@ -128,12 +141,8 @@ class BlameCacheImpl implements BlameCache {
         blameAnnotation = EMPTY;
       }
       annotations.put(file, blameAnnotation);
-      fireUpdated(file, blameAnnotation);
+      gateway.fireBlameUpdated(file, blameAnnotation);
     }
-  }
-
-  private void fireUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-    project.getMessageBus().syncPublisher(BlameCache.TOPIC).cacheUpdated(file, annotation);
   }
 
   @NotNull
@@ -154,7 +163,19 @@ class BlameCacheImpl implements BlameCache {
 
   @Override
   public void invalidate(@NotNull VirtualFile file) {
-    annotations.remove(file);
+    if (annotations.remove(file) != null) {
+      invalidatedCounter.inc();
+      gateway.fireBlameInvalidated(file);
+    }
+  }
+
+  @Override
+  public void refreshForRoot(@NotNull VirtualFile root) {
+    LOG.debug("Refresh for root: ", root);
+    annotations.keySet().stream()
+        .filter(file -> VfsUtilCore.isAncestor(root, file, false))
+        .peek(file -> LOG.debug("Invalidate ", file, " under root ", root))
+        .forEach(this::invalidate);
   }
 
   private static class LoaderTimers {

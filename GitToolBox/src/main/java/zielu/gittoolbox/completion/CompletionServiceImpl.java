@@ -14,7 +14,6 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.GitCompatUtil;
 import zielu.gittoolbox.config.ConfigNotifier;
-import zielu.gittoolbox.config.ConfigNotifier.Adapter;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.metrics.ProjectMetrics;
@@ -37,10 +36,11 @@ class CompletionServiceImpl implements ProjectComponent, CompletionService {
 
   private void connectToMessageBus() {
     connection = project.getMessageBus().connect();
-    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new Adapter() {
+    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
-      public void configChanged(Project project, GitToolBoxConfigForProject config) {
-        onConfigChanged(config);
+      public void configChanged(Project project, GitToolBoxConfigForProject previous,
+                                GitToolBoxConfigForProject current) {
+        onConfigChanged(current);
       }
     });
   }

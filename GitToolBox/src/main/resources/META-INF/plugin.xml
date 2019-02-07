@@ -5,12 +5,12 @@
   <vendor url="https://github.com/zielu">Lukasz Zielinski</vendor>
 
   <description><![CDATA[
-      read from description.html
+      inlined during build from description.html
       ]]>
   </description>
 
   <change-notes><![CDATA[
-      read from changenotes.html
+      inlined during build from change-notes.html
       ]]>
   </change-notes>
 
@@ -54,16 +54,24 @@
     <additionalTextAttributes scheme="Default" file="zielu/gittoolbox/colorschemes/GitToolBoxDefault.xml"/>
     <additionalTextAttributes scheme="Darcula" file="zielu/gittoolbox/colorschemes/GitToolBoxDarcula.xml"/>
 
-    <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup" />
+    <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup"/>
+
+    <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"
+                    serviceImplementation="zielu.gittoolbox.blame.BlameLoaderImpl"/>
+    <projectService serviceImplementation="zielu.gittoolbox.blame.BlameCacheGateway"/>
+    <projectService serviceInterface="zielu.gittoolbox.blame.BlameCache"
+                    serviceImplementation="zielu.gittoolbox.blame.BlameCacheImpl"/>
+    <projectService serviceImplementation="zielu.gittoolbox.blame.BlameServiceGateway"/>
+    <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
+                    serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl"/>
+    <projectService serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheGateway"/>
+    <projectService serviceInterface="zielu.gittoolbox.cache.VirtualFileRepoCache"
+                    serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheImpl"/>
+    <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheGateway"/>
 
     <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
                     serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusGatewayImpl"/>
-    <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"
-                    serviceImplementation="zielu.gittoolbox.blame.BlameLoaderImpl"/>
-    <projectService serviceInterface="zielu.gittoolbox.blame.BlameCache"
-                    serviceImplementation="zielu.gittoolbox.blame.BlameCacheImpl"/>
-    <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
-                    serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl"/>
+    <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter"/>
   </extensions>
 
   <application-components>
@@ -89,17 +97,7 @@
       <implementation-class>zielu.gittoolbox.cache.PerRepoInfoCacheImpl</implementation-class>
     </component>
     <component>
-      <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheGateway</implementation-class>
-    </component>
-    <component>
-      <interface-class>zielu.gittoolbox.cache.VirtualFileRepoCache</interface-class>
-      <implementation-class>zielu.gittoolbox.cache.VirtualFileRepoCacheImpl</implementation-class>
-    </component>
-    <component>
       <implementation-class>zielu.gittoolbox.cache.CacheSourcesSubscriber</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.cache.InfoCachePublisher</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.fetch.AutoFetchSubscriber</implementation-class>
@@ -128,6 +126,12 @@
       <interface-class>zielu.gittoolbox.metrics.ProjectMetrics</interface-class>
       <implementation-class>zielu.gittoolbox.metrics.ProjectMetricsImpl</implementation-class>
     </component>
+    <component>
+        <implementation-class>zielu.gittoolbox.blame.BlameSubscriber</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.ui.blame.BlameUiSubscriber</implementation-class>
+    </component>
     <!--
     <component>
       <implementation-class>zielu.gittoolbox.repo.GtRepositoryManager</implementation-class>
@@ -136,9 +140,14 @@
   </project-components>
 
   <actions>
-    <action class="zielu.gittoolbox.actions.GitPushTagsAction" id="GitToolBox.PushTags"
+    <action class="zielu.gittoolbox.ui.actions.GitPushTagsAction" id="GitToolBox.PushTags"
             text="Push tags on branch...">
       <add-to-group group-id="GitRepositoryActions" anchor="after" relative-to-action="Vcs.Push"/>
+    </action>
+    <action class="zielu.gittoolbox.ui.actions.BlameDetailsAction" id="GitToolBox.BlameDetails"
+            text="Show Blame Details" description="Show blame for line at caret in active editor">
+      <add-to-group group-id="GitFileActions" anchor="after" relative-to-action="Annotate"/>
+      <keyboard-shortcut first-keystroke="alt shift B" keymap="$default"/>
     </action>
   </actions>
 

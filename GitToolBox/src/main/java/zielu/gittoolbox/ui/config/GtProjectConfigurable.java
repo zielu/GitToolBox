@@ -56,6 +56,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     form.setCommitCompletionEnabled(config.commitDialogCompletion);
     form.setCommitCompletionConfigs(config.completionConfigs);
     form.setAutoFetchExclusions(config.autoFetchExclusions);
+    form.setReferencePointConfig(config.referencePointForStatus);
   }
 
   @Override
@@ -65,18 +66,22 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     modified = modified || config.isCommitDialogCompletionChanged(form.getCommitCompletionEnabled());
     modified = modified || config.isCommitDialogCompletionConfigsChanged(form.getCommitCompletionConfigs());
     modified = modified || config.isAutoFetchExclusionsChanged(form.getAutoFetchExclusions());
+    modified = modified || config.isReferencePointForStatusChanged(form.getReferencePointConfig());
     log.debug("Modified: ", modified);
     return modified;
   }
 
   @Override
   protected void doApply(GtPrjForm form, GitToolBoxConfigForProject config) throws ConfigurationException {
+    final GitToolBoxConfigForProject previousConfig = config.copy();
+
     config.autoFetch = form.getAutoFetchEnabled();
     config.autoFetchIntervalMinutes = form.getAutoFetchInterval();
     config.commitDialogCompletion = form.getCommitCompletionEnabled();
     config.completionConfigs = form.getCommitCompletionConfigs();
     config.autoFetchExclusions = form.getAutoFetchExclusions();
-    config.fireChanged(project);
+    config.referencePointForStatus = form.getReferencePointConfig();
+    config.fireChanged(project, previousConfig);
     log.debug("Applied");
   }
 
