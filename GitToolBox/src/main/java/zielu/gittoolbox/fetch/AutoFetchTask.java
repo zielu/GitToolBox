@@ -39,7 +39,7 @@ class AutoFetchTask implements Runnable {
   private final AutoFetchExecutor owner;
   private final Project project;
 
-  private final AtomicReference<NotificationHandle> lastNotification = new AtomicReference<NotificationHandle>();
+  private final AtomicReference<NotificationHandle> lastNotification = new AtomicReference<>();
 
   AutoFetchTask(@NotNull Project project, AutoFetchExecutor owner) {
     this.project = project;
@@ -80,7 +80,7 @@ class AutoFetchTask implements Runnable {
   private List<GitRepository> findReposToFetch() {
     GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
     ImmutableList<GitRepository> allRepos = ImmutableList.copyOf(repositoryManager.getRepositories());
-    AutoFetchStrategy strategy = GitToolBoxConfigForProject.getInstance(project).getAutoFetchStrategy();
+    AutoFetchStrategy strategy = AutoFetchStrategy.REPO_WITH_REMOTES;
     List<GitRepository> fetchable = strategy.fetchableRepositories(allRepos, project);
     return fetchable.stream().filter(this::isFetchAllowed).collect(Collectors.toList());
   }
