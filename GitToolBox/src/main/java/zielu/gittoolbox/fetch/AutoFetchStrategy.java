@@ -1,6 +1,5 @@
 package zielu.gittoolbox.fetch;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -11,7 +10,7 @@ import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.util.GtUtil;
 
 public enum AutoFetchStrategy {
-  REPO_WITH_REMOTES("repoWithRemotes") {
+  REPO_WITH_REMOTES {
     private final transient Logger log = Logger.getInstance(getClass());
 
     @Override
@@ -29,7 +28,7 @@ public enum AutoFetchStrategy {
       return fetchable;
     }
   },
-  CURRENT_BRANCH_WITH_REMOTE("currentBranchWithRemote") {
+  CURRENT_BRANCH_WITH_REMOTE {
     private final transient Logger log = Logger.getInstance(getClass());
 
     @Override
@@ -50,31 +49,5 @@ public enum AutoFetchStrategy {
     }
   };
 
-  private static final ImmutableMap<String, AutoFetchStrategy> strategies;
-
-  static {
-    ImmutableMap.Builder<String, AutoFetchStrategy> builder = ImmutableMap.builder();
-    for (AutoFetchStrategy strategy : AutoFetchStrategy.values()) {
-      builder.put(strategy.key(), strategy);
-    }
-    strategies = builder.build();
-  }
-
-
-  private final String key;
-
-  AutoFetchStrategy(String key) {
-    this.key = key;
-  }
-
-  public static AutoFetchStrategy forKey(String key) {
-    return strategies.get(key);
-  }
-
-  public String key() {
-    return key;
-  }
-
   public abstract List<GitRepository> fetchableRepositories(List<GitRepository> repositories, Project project);
-
 }

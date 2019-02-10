@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.fetch.AutoFetchParams;
-import zielu.gittoolbox.fetch.AutoFetchStrategy;
 import zielu.gittoolbox.formatter.Formatter;
 
 @State(
@@ -24,7 +23,6 @@ import zielu.gittoolbox.formatter.Formatter;
 public class GitToolBoxConfigForProject implements PersistentStateComponent<GitToolBoxConfigForProject> {
   public boolean autoFetch = true;
   public int autoFetchIntervalMinutes = AutoFetchParams.DEFAULT_INTERVAL_MINUTES;
-  public String autoFetchStrategy = AutoFetchStrategy.REPO_WITH_REMOTES.key();
   public List<String> autoFetchExclusions = new ArrayList<>();
   public boolean commitDialogCompletion = true;
   public List<CommitCompletionConfig> completionConfigs = Lists.newArrayList(new CommitCompletionConfig());
@@ -38,25 +36,11 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     GitToolBoxConfigForProject copy = new GitToolBoxConfigForProject();
     copy.autoFetch = autoFetch;
     copy.autoFetchIntervalMinutes = autoFetchIntervalMinutes;
-    copy.autoFetchStrategy = autoFetchStrategy;
     copy.autoFetchExclusions = new ArrayList<>(autoFetchExclusions);
     copy.commitDialogCompletion = commitDialogCompletion;
     copy.completionConfigs = completionConfigs.stream().map(CommitCompletionConfig::copy).collect(Collectors.toList());
     copy.referencePointForStatus = referencePointForStatus.copy();
     return copy;
-  }
-
-  @Transient
-  public AutoFetchStrategy getAutoFetchStrategy() {
-    return AutoFetchStrategy.forKey(autoFetchStrategy);
-  }
-
-  public void setAutoFetchStrategy(AutoFetchStrategy strategy) {
-    autoFetchStrategy = strategy.key();
-  }
-
-  public boolean isAutoFetchStrategyChanged(AutoFetchStrategy strategy) {
-    return !autoFetchStrategy.equals(strategy.key());
   }
 
   public boolean isAutoFetchChanged(boolean autoFetch) {
