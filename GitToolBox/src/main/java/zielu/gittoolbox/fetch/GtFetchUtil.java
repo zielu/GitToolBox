@@ -1,14 +1,9 @@
 package zielu.gittoolbox.fetch;
 
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.Project;
-import git4idea.GitVcs;
+import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRepository;
-import git4idea.update.GitFetcher;
 import java.util.Collections;
-import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.ResBundle;
 
 public final class GtFetchUtil {
 
@@ -24,10 +19,7 @@ public final class GtFetchUtil {
    */
   public static void fetch(GitRepository repository) {
     Project project = repository.getProject();
-    GitVcs.runInBackground(new Backgroundable(project, ResBundle.getString("message.fetching"), true) {
-      public void run(@NotNull ProgressIndicator indicator) {
-        (new GitFetcher(project, indicator, true)).fetchRootsAndNotify(Collections.singleton(repository), null, true);
-      }
-    });
+    GitFetchSupport fetchSupport = GitFetchSupport.fetchSupport(project);
+    fetchSupport.fetchAllRemotes(Collections.singleton(repository)).showNotificationIfFailed();
   }
 }
