@@ -1,6 +1,5 @@
 package zielu.gittoolbox.fetch;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.ControlFlowException;
 import com.intellij.openapi.diagnostic.Logger;
@@ -9,12 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.metrics.ProjectMetrics;
-import zielu.gittoolbox.util.ConcurrentUtil;
 
 public class AutoFetchExecutor implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -36,7 +30,6 @@ public class AutoFetchExecutor implements ProjectComponent {
   private final AtomicInteger scheduledTasksCount = new AtomicInteger();
   private final Project project;
   private ScheduledExecutorService executor;
-  private ExecutorService autoFetchRepoExecutor;
 
   public AutoFetchExecutor(@NotNull Project project, @NotNull ProjectMetrics metrics) {
     this.project = project;
@@ -47,21 +40,6 @@ public class AutoFetchExecutor implements ProjectComponent {
   @Override
   public void initComponent() {
     executor = GitToolBoxApp.getInstance().autoFetchExecutor();
-    autoFetchRepoExecutor = createExecutorService();
-  }
-
-  private ExecutorService createExecutorService() {
-    return Executors.newFixedThreadPool(4, createThreadFactory());
-  }
-
-  private ThreadFactory createThreadFactory() {
-    return new ThreadFactoryBuilder().setDaemon(true).setNameFormat("AutoFetchForRepo-%s").build();
-  }
-
-  @Override
-  public void disposeComponent() {
-    ConcurrentUtil.shutdown(autoFetchRepoExecutor);
-    autoFetchRepoExecutor = null;
   }
 
   @Override
@@ -199,9 +177,5 @@ public class AutoFetchExecutor implements ProjectComponent {
 
   long getLastAutoFetchDate() {
     return lastAutoFetchTimestamp.get();
-  }
-
-  Executor repoFetchExecutor() {
-    return autoFetchRepoExecutor;
   }
 }

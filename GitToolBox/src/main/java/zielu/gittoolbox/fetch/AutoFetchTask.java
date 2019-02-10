@@ -156,16 +156,6 @@ class AutoFetchTask implements Runnable {
     return ResBundle.getString("message.autoFetch") + " " + ResBundle.getString("message.failure");
   }
 
-  private void executeBuiltInFetch(@NotNull List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
-    Collection<GitRepository> fetched = GtFetcher.builder()
-        .withClient(GtFetchClientFactory.create(project))
-        .withMetrics(ProjectMetrics.getInstance(project))
-        .withUi(new GtFetcherUi(project))
-        .withExecutor(owner.repoFetchExecutor())
-        .build(indicator).fetchRoots(repos);
-    PerRepoInfoCache.getInstance(project).refresh(fetched);
-  }
-
   private void fetchSuccessful() {
     owner.updateLastAutoFetchDate();
   }

@@ -2,17 +2,15 @@ package zielu.gittoolbox;
 
 import com.google.common.base.Preconditions;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.extensions.Extensions;
+import com.intellij.openapi.components.BaseComponent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.extension.UpdateProjectAction;
 import zielu.gittoolbox.extension.UpdateProjectActionEP;
 
-public class GitToolBoxUpdateProjectApp implements ApplicationComponent {
+public class GitToolBoxUpdateProjectApp implements BaseComponent {
   private final List<UpdateProjectAction> updateActions = new ArrayList<>();
   private UpdateProjectAction defaultAction;
 
@@ -32,10 +30,6 @@ public class GitToolBoxUpdateProjectApp implements ApplicationComponent {
     return updateActions.stream().filter(a -> Objects.equals(id, a.getId())).findFirst().orElse(defaultAction);
   }
 
-  public boolean hasId(String id) {
-    return updateActions.stream().anyMatch(a -> Objects.equals(id, a.getId()));
-  }
-
   @Override
   public void initComponent() {
     List<UpdateProjectActionEP> updateProjectEPs = getUpdateProjectExtensionPoints();
@@ -46,7 +40,7 @@ public class GitToolBoxUpdateProjectApp implements ApplicationComponent {
 
   @NotNull
   private List<UpdateProjectActionEP> getUpdateProjectExtensionPoints() {
-    return Arrays.asList(Extensions.getExtensions(UpdateProjectActionEP.POINT_NAME));
+    return UpdateProjectActionEP.POINT_NAME.getExtensionList();
   }
 
   @Override

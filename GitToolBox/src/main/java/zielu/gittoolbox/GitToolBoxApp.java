@@ -2,13 +2,13 @@ package zielu.gittoolbox;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import zielu.gittoolbox.util.ConcurrentUtil;
 
-public class GitToolBoxApp implements ApplicationComponent {
+public class GitToolBoxApp implements BaseComponent {
   private final Logger log = Logger.getInstance(getClass());
   private ScheduledExecutorService autoFetchExecutor;
   private ScheduledExecutorService tasksExecutor;
