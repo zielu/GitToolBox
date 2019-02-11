@@ -1,5 +1,6 @@
 package zielu.gittoolbox.cache;
 
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
@@ -17,6 +18,6 @@ public interface PerRepoInfoCache extends DirMappingAware, RepoChangeAware {
 
   @NotNull
   static PerRepoInfoCache getInstance(@NotNull Project project) {
-    return project.getComponent(PerRepoInfoCache.class);
+    return ServiceManager.getService(project, PerRepoInfoCache.class);
   }
 }

@@ -23,19 +23,19 @@ import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
-public class BehindTracker implements ProjectComponent {
+class BehindTracker implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final Map<GitRepository, RepoInfo> state = new HashMap<>();
   private final Map<GitRepository, PendingChange> pendingChanges = new HashMap<>();
   private final BehindTrackerUi ui;
 
-  public BehindTracker(@NotNull BehindTrackerUi ui) {
+  BehindTracker(@NotNull BehindTrackerUi ui) {
     this.ui = ui;
   }
 
   @NotNull
-  public static BehindTracker getInstance(@NotNull Project project) {
+  static BehindTracker getInstance(@NotNull Project project) {
     return project.getComponent(BehindTracker.class);
   }
 

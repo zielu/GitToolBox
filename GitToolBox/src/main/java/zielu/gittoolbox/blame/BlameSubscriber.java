@@ -11,34 +11,31 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 
 class BlameSubscriber implements BaseComponent {
-  private MessageBusConnection connection;
+  private final MessageBusConnection connection;
 
-  BlameSubscriber(@NotNull Project project, @NotNull BlameCache blameCache, @NotNull BlameService blameService) {
+  BlameSubscriber(@NotNull Project project) {
     connection = project.getMessageBus().connect();
     connection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-        blameCache.refreshForRoot(repository.getRoot());
+        BlameCache.getInstance(project).refreshForRoot(repository.getRoot());
       }
     });
     connection.subscribe(BlameCache.CACHE_UPDATES, new BlameCacheListener() {
       @Override
       public void cacheUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-        blameService.blameUpdated(file, annotation);
+        BlameService.getInstance(project).blameUpdated(file, annotation);
       }
 
       @Override
       public void invalidated(@NotNull VirtualFile file) {
-        blameService.invalidate(file);
+        BlameService.getInstance(project).invalidate(file);
       }
     });
   }
 
   @Override
   public void disposeComponent() {
-    if (connection != null) {
-      connection.disconnect();
-      connection = null;
-    }
+    connection.disconnect();
   }
 }

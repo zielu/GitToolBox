@@ -5,7 +5,7 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Timer;
 import org.jetbrains.annotations.NotNull;
 
-public class MockMetrics implements Metrics {
+public class MockMetrics implements AppMetrics, ProjectMetrics {
   private Metrics metrics = new MetricManager();
 
   @Override

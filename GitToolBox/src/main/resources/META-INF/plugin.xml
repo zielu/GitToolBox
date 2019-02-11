@@ -31,6 +31,14 @@
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2"/>
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigForProject"/>
 
+    <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxApp"/>
+    <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
+                        serviceImplementation="zielu.gittoolbox.metrics.AppMetricsImpl"/>
+    <projectService serviceInterface="zielu.gittoolbox.metrics.ProjectMetrics"
+                    serviceImplementation="zielu.gittoolbox.metrics.ProjectMetricsImpl"/>
+
+    <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxUpdateProjectApp"/>
+
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
     <applicationService serviceInterface="zielu.gittoolbox.ui.StatusMessagesUi"
                         serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService"/>
@@ -67,7 +75,10 @@
     <projectService serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheGateway"/>
     <projectService serviceInterface="zielu.gittoolbox.cache.VirtualFileRepoCache"
                     serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheImpl"/>
+    <projectService serviceImplementation="zielu.gittoolbox.cache.CacheTaskScheduler"/>
     <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheGateway"/>
+    <projectService serviceInterface="zielu.gittoolbox.cache.PerRepoInfoCache"
+                    serviceImplementation="zielu.gittoolbox.cache.PerRepoInfoCacheImpl"/>
 
     <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
                     serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusGatewayImpl"/>
@@ -75,27 +86,11 @@
   </extensions>
 
   <application-components>
-    <component>
-      <implementation-class>zielu.gittoolbox.GitToolBoxApp</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.GitToolBoxUpdateProjectApp</implementation-class>
-    </component>
-    <component>
-      <interface-class>zielu.gittoolbox.metrics.AppMetrics</interface-class>
-      <implementation-class>zielu.gittoolbox.metrics.AppMetricsImpl</implementation-class>
-    </component>
+    <!-- Add your application components here -->
   </application-components>
 
   <project-components>
     <!-- Add your project components here -->
-    <component>
-      <implementation-class>zielu.gittoolbox.GitToolBoxProject</implementation-class>
-    </component>
-    <component>
-      <interface-class>zielu.gittoolbox.cache.PerRepoInfoCache</interface-class>
-      <implementation-class>zielu.gittoolbox.cache.PerRepoInfoCacheImpl</implementation-class>
-    </component>
     <component>
       <implementation-class>zielu.gittoolbox.cache.CacheSourcesSubscriber</implementation-class>
     </component>
@@ -123,14 +118,16 @@
       <implementation-class>zielu.gittoolbox.completion.CompletionServiceImpl</implementation-class>
     </component>
     <component>
-      <interface-class>zielu.gittoolbox.metrics.ProjectMetrics</interface-class>
-      <implementation-class>zielu.gittoolbox.metrics.ProjectMetricsImpl</implementation-class>
-    </component>
-    <component>
         <implementation-class>zielu.gittoolbox.blame.BlameSubscriber</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.ui.blame.BlameUiSubscriber</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.ui.projectview.ProjectViewSubscriber</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.ui.statusbar.StatusBarManager</implementation-class>
     </component>
     <!--
     <component>

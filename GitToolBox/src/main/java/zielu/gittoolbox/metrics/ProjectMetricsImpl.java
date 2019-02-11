@@ -4,39 +4,24 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.jmx.JmxReporter;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import org.jetbrains.annotations.NotNull;
 
-class ProjectMetricsImpl implements ProjectComponent, ProjectMetrics {
+class ProjectMetricsImpl implements ProjectMetrics, Disposable {
   private final MetricManager metrics = new MetricManager();
-  private final Project project;
-  private JmxReporter reporter;
+  private final JmxReporter reporter;
 
   ProjectMetricsImpl(@NotNull Project project) {
-    this.project = project;
-  }
-
-  @Override
-  public void initComponent() {
-    reporter = Jmx.report(project, metrics.getRegistry());
-  }
-
-  @Override
-  public void projectOpened() {
+    reporter = Jmx.reporter(project, metrics.getRegistry());
     reporter.start();
+    Disposer.register(project, this);
   }
 
   @Override
-  public void projectClosed() {
-    if (reporter != null) {
-      reporter.close();
-    }
-  }
-
-  @Override
-  public void disposeComponent() {
-    reporter = null;
+  public void dispose() {
+    reporter.close();
   }
 
   @Override

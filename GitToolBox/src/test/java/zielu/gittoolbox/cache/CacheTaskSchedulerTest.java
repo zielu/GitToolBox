@@ -30,13 +30,10 @@ class CacheTaskSchedulerTest {
   void before() {
     scheduler = new CacheTaskScheduler(project, new MockMetrics());
     scheduler.setTaskDelayMillis(30);
-    scheduler.initialize();
-    scheduler.opened();
   }
 
   @AfterEach
   void after() {
-    scheduler.closed();
     scheduler.dispose();
   }
 
