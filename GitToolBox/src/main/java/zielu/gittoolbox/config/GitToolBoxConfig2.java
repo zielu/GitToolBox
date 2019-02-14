@@ -105,6 +105,11 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     return this.showEditorInlineBlame != showEditorInlineBlame;
   }
 
+  @Transient
+  public boolean isEditorInlineBlameVisible() {
+    return this.showBlame && this.showEditorInlineBlame;
+  }
+
   @Nullable
   @Override
   public GitToolBoxConfig2 getState() {
