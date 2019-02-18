@@ -15,7 +15,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="add25" layout-manager="GridLayoutManager" row-count="10" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="add25" layout-manager="GridLayoutManager" row-count="11" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title-resource-bundle="zielu/gittoolbox/ResourceBundle" title-key="configurable.app.general.tab.title"/>
@@ -141,7 +141,7 @@
               </component>
               <component id="8247c" class="javax.swing.JCheckBox" binding="behindTrackerEnabledCheckBox">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="configurable.app.behindTrackerEnabled.label"/>
@@ -150,7 +150,7 @@
               </component>
               <component id="3680e" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="8" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="update.project.action.label"/>
@@ -158,7 +158,7 @@
               </component>
               <component id="6e564" class="com.intellij.openapi.ui.ComboBox" binding="updateProjectAction">
                 <constraints>
-                  <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <toolTipText resource-bundle="zielu/gittoolbox/ResourceBundle" key="update.project.action.tooltip"/>
@@ -166,7 +166,7 @@
               </component>
               <component id="f5b69" class="com.intellij.openapi.ui.ex.MultiLineLabel">
                 <constraints>
-                  <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="update.project.action.description"/>
@@ -175,7 +175,7 @@
               </component>
               <vspacer id="d5dcc">
                 <constraints>
-                  <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="f1e3b" class="javax.swing.JCheckBox" binding="blameEnabledCheckBox">
@@ -196,6 +196,27 @@
                   <toolTipText resource-bundle="zielu/gittoolbox/ResourceBundle" key="configurable.app.showEditorInlineBlame.tooltip"/>
                 </properties>
               </component>
+              <component id="be1ed" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="commit.dialog.completion.mode.label"/>
+                </properties>
+              </component>
+              <component id="ef320" class="com.intellij.openapi.ui.ComboBox" binding="commitDialogCompletionMode">
+                <constraints>
+                  <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <toolTipText resource-bundle="zielu/gittoolbox/ResourceBundle" key="commit.dialog.completion.mode.tooltip"/>
+                </properties>
+              </component>
+              <hspacer id="9c7c7">
+                <constraints>
+                  <grid row="6" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
             </children>
           </grid>
           <grid id="40622" layout-manager="GridLayoutManager" row-count="4" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import javax.swing.Icon;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResIcons;
+import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatted;
 import zielu.gittoolbox.formatter.Formatter;
@@ -38,7 +39,7 @@ public class CurrentBranchCompletionContributor extends CompletionContributor {
   private static class Completer extends CompletionProvider<CompletionParameters> {
 
     @Override
-    protected void addCompletions(@NotNull CompletionParameters parameters, ProcessingContext context,
+    protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context,
                                   @NotNull CompletionResultSet result) {
       if (shouldComplete(parameters)) {
         setupCompletions(parameters, result);
@@ -101,8 +102,9 @@ public class CurrentBranchCompletionContributor extends CompletionContributor {
     }
 
     private boolean shouldComplete(@NotNull CompletionParameters parameters) {
-      GitToolBoxConfigForProject config = getConfig(parameters);
-      return config.commitDialogCompletion;
+      GitToolBoxConfigForProject projectConfig = getConfig(parameters);
+      return projectConfig.commitDialogCompletion && GitToolBoxConfig2.getInstance()
+          .commitDialogCompletionMode.shouldComplete(parameters);
     }
 
     @NotNull

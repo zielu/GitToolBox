@@ -36,6 +36,7 @@ import jodd.util.StringBand;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
+import zielu.gittoolbox.config.CommitCompletionMode;
 import zielu.gittoolbox.config.DecorationPartConfig;
 import zielu.gittoolbox.config.DecorationPartType;
 import zielu.gittoolbox.extension.UpdateProjectAction;
@@ -66,6 +67,7 @@ public class GtForm implements GtFormUi {
   private JBTextField layoutPreviewTextField;
   private JCheckBox blameEnabledCheckBox;
   private JCheckBox editorInlineBlameEnabledCheckBox;
+  private ComboBox<CommitCompletionMode> commitDialogCompletionMode;
 
   @Override
   public void init() {
@@ -163,6 +165,13 @@ public class GtForm implements GtFormUi {
     updateProjectAction.setModel(getUpdateModeModel());
     blameEnabledCheckBox.addActionListener(e -> editorInlineBlameEnabledCheckBox
         .setEnabled(blameEnabledCheckBox.isSelected()));
+    commitDialogCompletionMode.setRenderer(new ListCellRendererWrapper<CommitCompletionMode>() {
+      @Override
+      public void customize(JList list, CommitCompletionMode value, int index, boolean selected, boolean hasFocus) {
+        setText(value.getDisplayLabel());
+      }
+    });
+    commitDialogCompletionMode.setModel(new DefaultComboBoxModel<>(CommitCompletionMode.values()));
   }
 
   private Optional<DecorationPartConfig> getCurrentDecorationPart() {
@@ -300,5 +309,13 @@ public class GtForm implements GtFormUi {
 
   public List<DecorationPartConfig> getDecorationParts() {
     return decorationPartsModel.toList();
+  }
+
+  public CommitCompletionMode getCommitDialogCompletionMode() {
+    return (CommitCompletionMode) commitDialogCompletionMode.getSelectedItem();
+  }
+
+  public void setCommitDialogCompletionMode(CommitCompletionMode mode) {
+    commitDialogCompletionMode.setSelectedItem(mode);
   }
 }
