@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 
 public enum CommitCompletionMode {
-  AUTOMATIC("automatic"),
+  AUTOMATIC("auto"),
   ON_DEMAND("on.demand");
 
   private final String labelKey;
