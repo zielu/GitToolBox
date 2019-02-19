@@ -1,22 +1,11 @@
 package zielu.gittoolbox.config;
 
-import com.intellij.codeInsight.completion.CompletionParameters;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 
 public enum CommitCompletionMode {
-  AUTOMATIC("automatic") {
-    @Override
-    public boolean shouldComplete(@NotNull CompletionParameters parameters) {
-      return true;
-    }
-  },
-  ON_DEMAND("on.demand") {
-    @Override
-    public boolean shouldComplete(@NotNull CompletionParameters parameters) {
-      return !parameters.isAutoPopup();
-    }
-  };
+  AUTOMATIC("automatic"),
+  ON_DEMAND("on.demand");
 
   private final String labelKey;
 
@@ -28,8 +17,4 @@ public enum CommitCompletionMode {
   public String getDisplayLabel() {
     return ResBundle.getString(labelKey);
   }
-
-  public abstract boolean shouldComplete(@NotNull CompletionParameters parameters);
-
-
 }
