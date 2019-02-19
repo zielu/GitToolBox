@@ -1,6 +1,5 @@
 package zielu.gittoolbox.blame;
 
-import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBusConnection;
@@ -10,32 +9,26 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 
-class BlameSubscriber implements BaseComponent {
-  private final MessageBusConnection connection;
+class BlameSubscriber {
 
   BlameSubscriber(@NotNull Project project) {
-    connection = project.getMessageBus().connect();
+    MessageBusConnection connection = project.getMessageBus().connect(project);
     connection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-        BlameCache.getInstance(project).refreshForRoot(repository.getRoot());
+        BlameCache.getExistingInstance(project).ifPresent(cache -> cache.refreshForRoot(repository.getRoot()));
       }
     });
     connection.subscribe(BlameCache.CACHE_UPDATES, new BlameCacheListener() {
       @Override
       public void cacheUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-        BlameService.getInstance(project).blameUpdated(file, annotation);
+        BlameService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file, annotation));
       }
 
       @Override
       public void invalidated(@NotNull VirtualFile file) {
-        BlameService.getInstance(project).invalidate(file);
+        BlameService.getExistingInstance(project).ifPresent(service -> service.invalidate(file));
       }
     });
-  }
-
-  @Override
-  public void disposeComponent() {
-    connection.disconnect();
   }
 }

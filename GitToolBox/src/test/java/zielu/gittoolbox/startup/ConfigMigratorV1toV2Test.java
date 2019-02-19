@@ -14,7 +14,6 @@ import zielu.gittoolbox.config.GitToolBoxConfig2;
 
 @Tag("fast")
 class ConfigMigratorV1toV2Test {
-  private ConfigMigratorV1toV2 migrator = new ConfigMigratorV1toV2();
 
   @Test
   void shouldMigrateLocationBeforeStatus() {
@@ -53,7 +52,8 @@ class ConfigMigratorV1toV2Test {
 
   private GitToolBoxConfig2 migrate(GitToolBoxConfig v1) {
     GitToolBoxConfig2 v2 = new GitToolBoxConfig2();
-    migrator.migrate(v1, v2);
+    ConfigMigratorV1toV2 migrator = new ConfigMigratorV1toV2(v1);
+    migrator.migrate(v2);
     return v2;
   }
 

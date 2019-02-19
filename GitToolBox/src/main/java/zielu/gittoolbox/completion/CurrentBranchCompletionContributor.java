@@ -77,8 +77,8 @@ public class CurrentBranchCompletionContributor extends CompletionContributor {
       }
     }
 
-    private List<Formatter> getFormatters(Project project) {
-      return project.getComponent(CompletionService.class).getFormatters();
+    private List<Formatter> getFormatters(@NotNull Project project) {
+      return CompletionService.getInstance(project).getFormatters();
     }
 
     @NotNull

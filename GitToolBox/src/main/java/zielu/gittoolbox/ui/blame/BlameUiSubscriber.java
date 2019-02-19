@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.blame;
 
-import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -16,14 +15,13 @@ import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 
-class BlameUiSubscriber implements BaseComponent {
+class BlameUiSubscriber {
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
-  private MessageBusConnection connection;
 
   BlameUiSubscriber(@NotNull Project project) {
     this.project = project;
-    connection = project.getMessageBus().connect();
+    MessageBusConnection connection = project.getMessageBus().connect(project);
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
@@ -72,13 +70,5 @@ class BlameUiSubscriber implements BaseComponent {
 
   private void refreshEditorFile(@NotNull Project project, @NotNull VirtualFile file) {
     FileEditorManagerEx.getInstanceEx(project).updateFilePresentation(file);
-  }
-
-  @Override
-  public void disposeComponent() {
-    if (connection != null) {
-      connection.disconnect();
-      connection = null;
-    }
   }
 }

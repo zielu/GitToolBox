@@ -50,6 +50,8 @@
     <projectService serviceInterface="zielu.gittoolbox.notification.GtNotifier"
                     serviceImplementation="zielu.gittoolbox.notification.GtNotifierImpl"/>
 
+    <projectService serviceInterface="zielu.gittoolbox.completion.CompletionService"
+                    serviceImplementation="zielu.gittoolbox.completion.CompletionServiceImpl"/>
     <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.completion.CompletionCheckinHandlerFactory"/>
     <completion.contributor language="TEXT"
         order="first, before commitCompletion"
@@ -116,8 +118,7 @@
       <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTrackerController</implementation-class>
     </component>
     <component>
-      <interface-class>zielu.gittoolbox.completion.CompletionService</interface-class>
-      <implementation-class>zielu.gittoolbox.completion.CompletionServiceImpl</implementation-class>
+      <implementation-class>zielu.gittoolbox.completion.CompletionSubscriber</implementation-class>
     </component>
     <component>
         <implementation-class>zielu.gittoolbox.blame.BlameSubscriber</implementation-class>

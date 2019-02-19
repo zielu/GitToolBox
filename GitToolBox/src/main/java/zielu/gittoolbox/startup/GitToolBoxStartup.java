@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import com.intellij.util.ThrowableRunnable;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 
 public class GitToolBoxStartup implements StartupActivity, DumbAware {
@@ -29,9 +28,8 @@ public class GitToolBoxStartup implements StartupActivity, DumbAware {
   private boolean migrateAppV1toV2() {
     GitToolBoxConfig2 v2 = GitToolBoxConfig2.getInstance();
     if (!v2.previousVersionMigrated) {
-      GitToolBoxConfig v1 = GitToolBoxConfig.getInstance();
       ConfigMigratorV1toV2 migrator = new ConfigMigratorV1toV2();
-      migrator.migrate(v1, v2);
+      migrator.migrate(v2);
       v2.previousVersionMigrated = true;
       return true;
     }
