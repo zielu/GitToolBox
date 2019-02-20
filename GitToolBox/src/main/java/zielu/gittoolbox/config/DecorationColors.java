@@ -3,6 +3,7 @@ package zielu.gittoolbox.config;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +24,11 @@ public class DecorationColors {
   }
 
   public static SimpleTextAttributes simpleAttributes(@NotNull TextAttributesKey key) {
+    return SimpleTextAttributes.fromTextAttributes(textAttributes(key));
+  }
+
+  public static TextAttributes textAttributes(@NotNull TextAttributesKey key) {
     EditorColorsScheme scheme = EditorColorsManager.getInstance().getGlobalScheme();
-    return SimpleTextAttributes.fromTextAttributes(scheme.getAttributes(key));
+    return scheme.getAttributes(key);
   }
 }
