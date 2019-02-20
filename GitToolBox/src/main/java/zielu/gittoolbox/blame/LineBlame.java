@@ -48,4 +48,14 @@ public class LineBlame extends AbstractBlame {
   public String getDetailedText() {
     return detailedText;
   }
+
+  @Override
+  public boolean isEmpty() {
+    return false;
+  }
+
+  @Override
+  public boolean isNotEmpty() {
+    return true;
+  }
 }

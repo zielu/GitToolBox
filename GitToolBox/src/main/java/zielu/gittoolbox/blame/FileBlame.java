@@ -43,4 +43,14 @@ public final class FileBlame extends AbstractBlame {
   public String getDetailedText() {
     return detailedText;
   }
+
+  @Override
+  public boolean isEmpty() {
+    return false;
+  }
+
+  @Override
+  public boolean isNotEmpty() {
+    return true;
+  }
 }

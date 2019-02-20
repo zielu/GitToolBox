@@ -202,10 +202,11 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Override
   public String getTooltipText() {
     Blame blame = stateHolder.getBlame();
-    if (blame != null) {
+    if (blame.isEmpty()) {
+      return null;
+    } else {
       return blame.getDetailedText();
     }
-    return null;
   }
 
   @Nullable
@@ -215,7 +216,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
       Editor editor = stateHolder.getCurrentEditor();
       VirtualFile currentFile = stateHolder.getCurrentFile();
       Blame blame = stateHolder.getBlame();
-      if (editor != null && currentFile != null && blame != null) {
+      if (editor != null && currentFile != null && blame.isNotEmpty()) {
         BlameUi.showBlamePopup(editor, currentFile, blame);
       }
     };
@@ -298,10 +299,10 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void fileChanged(@Nullable Editor editor, @NotNull VirtualFile file) {
-    Blame blame = null;
+    Blame blame = Blame.EMPTY;
     if (editor != null) {
       int currentLine = BlameUi.getCurrentLineNumber(editor);
-      if (currentLine != BlameUi.NO_LINE) {
+      if (BlameUi.isValidLineNumber(currentLine)) {
         blame = this.blame.getDocumentLineBlame(editor.getDocument(), file, currentLine);
       }
     } else {
@@ -312,15 +313,15 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     }
   }
 
-  private boolean updateBlame(@Nullable Blame blame) {
-    if (blame != null) {
+  private boolean updateBlame(@NotNull Blame blame) {
+    if (blame.isEmpty()) {
+      return clearBlame();
+    } else {
       if (stateHolder.updateBlame(blame)) {
         blameText = blame.getShortStatus();
         return true;
       }
       return false;
-    } else {
-      return clearBlame();
     }
   }
 

@@ -11,19 +11,20 @@ import com.intellij.util.messages.MessageBus;
 import git4idea.GitVcs;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.util.GatewayBase;
 import zielu.gittoolbox.util.GtUtil;
 
-class BlameServiceGateway extends GatewayBase {
+class BlameServiceGateway {
+  private final Project project;
   private final GitVcs git;
   private final MessageBus messageBus;
 
   BlameServiceGateway(@NotNull Project project) {
-    super(project);
+    this.project = project;
     git = GitVcs.getInstance(project);
     messageBus = project.getMessageBus();
   }
 
+  @NotNull
   UpToDateLineNumberProvider createUpToDateLineProvider(@NotNull Document document) {
     return new UpToDateLineNumberProviderImpl(document, project);
   }

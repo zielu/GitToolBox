@@ -5,20 +5,24 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ex.DocumentEx;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.blame.Blame;
 
 public final class BlameUi {
-  public static final int NO_LINE = Integer.MIN_VALUE;
+  private static final int NO_LINE = Integer.MIN_VALUE;
 
   private BlameUi() {
     //do nothing
   }
 
   public static void showBlamePopup(@NotNull Editor editor, @NotNull VirtualFile file, @NotNull Blame blame) {
-    new BlamePopup(editor.getProject(), file, blame).showFor(editor.getComponent());
+    Project project = editor.getProject();
+    if (project != null) {
+      new BlamePopup(project, file, blame).showFor(editor.getComponent());
+    }
   }
 
   public static boolean isDocumentInBulkUpdate(@Nullable Document document) {
@@ -36,5 +40,9 @@ public final class BlameUi {
     }
     LogicalPosition position = caretModel.getLogicalPosition();
     return position.line;
+  }
+
+  public static boolean isValidLineNumber(int lineNumber) {
+    return lineNumber != NO_LINE;
   }
 }

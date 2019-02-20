@@ -7,16 +7,14 @@ import com.intellij.util.messages.MessageBus;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
-import zielu.gittoolbox.util.GatewayBase;
 
-class VirtualFileRepoCacheGateway extends GatewayBase {
+class VirtualFileRepoCacheGateway {
   private final Metrics metrics;
   private final MessageBus messageBus;
 
-  VirtualFileRepoCacheGateway(@NotNull Project project) {
-    super(project);
-    metrics = ProjectMetrics.getInstance(project);
-    messageBus = project.getMessageBus();
+  VirtualFileRepoCacheGateway(@NotNull Project project, @NotNull ProjectMetrics metrics) {
+    this.metrics = metrics;
+    this.messageBus = project.getMessageBus();
   }
 
   Metrics getMetrics() {
@@ -24,7 +22,6 @@ class VirtualFileRepoCacheGateway extends GatewayBase {
   }
 
   void fireCacheChanged() {
-    VirtualFileCacheListener publisher = messageBus.syncPublisher(CACHE_CHANGE);
-    publisher.updated();
+    messageBus.syncPublisher(CACHE_CHANGE).updated();
   }
 }

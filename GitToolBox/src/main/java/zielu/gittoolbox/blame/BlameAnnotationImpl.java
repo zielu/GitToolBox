@@ -21,19 +21,19 @@ class BlameAnnotationImpl implements BlameAnnotation {
     lineBlames =  new TIntObjectHashMap<>(this.annotation.getLineCount());
   }
 
-  @Nullable
+  @NotNull
   @Override
   public Blame getBlame(int lineNumber) {
-    if (lineBlames.containsKey(lineNumber)) {
-      return lineBlames.get(lineNumber);
-    } else {
-      return loadBlame(lineNumber);
+    Blame blame = lineBlames.get(lineNumber);
+    if (blame == null) {
+      blame = loadBlame(lineNumber);
     }
+    return blame;
   }
 
-  @Nullable
+  @NotNull
   private Blame loadBlame(int lineNumber) {
-    Blame blame = null;
+    Blame blame = Blame.EMPTY;
     VcsRevisionNumber lineRevision = annotation.getLineRevisionNumber(lineNumber);
     if (lineRevision != null) {
       blame = blames.computeIfAbsent(lineRevision, lineRev -> LineBlame.create(annotation, lineRevision, lineNumber));

@@ -38,7 +38,6 @@ class BlameServiceImpl implements BlameService, Disposable {
     documentLineBlameTimer = metrics.timer("blame-document-line");
     invalidatedCounter = metrics.counter("blame-annotation-invalidated-count");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
-    this.gateway.disposeWithProject(this);
   }
 
   @Override
@@ -47,15 +46,15 @@ class BlameServiceImpl implements BlameService, Disposable {
     lineNumberProviderCache.invalidateAll();
   }
 
-  @Nullable
+  @NotNull
   @Override
   public Blame getFileBlame(@NotNull VirtualFile file) {
     return fileBlameTimer.timeSupplier(() -> getFileBlameInternal(file));
   }
 
-  @Nullable
+  @NotNull
   private Blame getFileBlameInternal(@NotNull VirtualFile file) {
-    Blame blame = null;
+    Blame blame = Blame.EMPTY;
     try {
       VcsFileRevision revision = gateway.getLastRevision(file);
       blame = blameForRevision(revision);
@@ -65,24 +64,24 @@ class BlameServiceImpl implements BlameService, Disposable {
     return blame;
   }
 
-  @Nullable
+  @NotNull
   private Blame blameForRevision(@Nullable VcsFileRevision revision) {
     if (revision != null && revision != VcsFileRevision.NULL) {
       return FileBlame.create(revision);
     }
-    return null;
+    return Blame.EMPTY;
   }
 
+  @NotNull
   @Override
-  @Nullable
   public Blame getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber) {
     return documentLineBlameTimer.timeSupplier(() -> getLineBlameInternal(document, file, editorLineNumber));
   }
 
-  private @Nullable Blame getLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
-                                               int editorLineNumber) {
-    if (invalidateOnBulkUpdate(document)) {
-      return null;
+  @NotNull
+  private Blame getLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber) {
+    if (invalidateOnBulkUpdate(document, file)) {
+      return Blame.EMPTY;
     }
     CachedLineProvider lineNumberProvider = getLineNumberProvider(document);
     if (lineNumberProvider != null) {
@@ -91,23 +90,23 @@ class BlameServiceImpl implements BlameService, Disposable {
         return getLineBlameInternal(file, correctedLine);
       }
     }
-    return null;
+    return Blame.EMPTY;
   }
 
-  @Nullable
+  @NotNull
   private Blame getLineBlameInternal(@NotNull VirtualFile file, int currentLine) {
     try {
       BlameAnnotation blameAnnotation = annotationCache.get(file, () -> blameCache.getAnnotation(file));
       return blameAnnotation.getBlame(currentLine);
     } catch (ExecutionException e) {
       log.warn("Failed to blame " + file + ": " + currentLine);
-      return null;
+      return Blame.EMPTY;
     }
   }
 
-  private boolean invalidateOnBulkUpdate(Document document) {
+  private boolean invalidateOnBulkUpdate(@NotNull Document document, @NotNull VirtualFile file) {
     if (BlameUi.isDocumentInBulkUpdate(document)) {
-      annotationCache.invalidate(document);
+      annotationCache.invalidate(file);
       return true;
     }
     return false;
@@ -116,12 +115,15 @@ class BlameServiceImpl implements BlameService, Disposable {
   @Nullable
   private CachedLineProvider getLineNumberProvider(@NotNull Document document) {
     try {
-      return lineNumberProviderCache.get(document,
-          () -> new CachedLineProvider(gateway.createUpToDateLineProvider(document)));
+      return lineNumberProviderCache.get(document, () -> loadLineNumberProvider(document));
     } catch (ExecutionException e) {
       log.warn("Failed to get line number provider for " + document, e);
       return null;
     }
+  }
+
+  private CachedLineProvider loadLineNumberProvider(@NotNull Document document) {
+    return new CachedLineProvider(gateway.createUpToDateLineProvider(document));
   }
 
   @Override

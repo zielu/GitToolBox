@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.blame.Blame;
 
@@ -14,7 +15,7 @@ class BlameStateHolder {
   // store editor here to avoid expensive and EDT-only getSelectedEditor() retrievals
   private volatile Reference<Editor> editor = new WeakReference<>(null);
   private volatile Reference<VirtualFile> file = new WeakReference<>(null);
-  private volatile Reference<Blame> blame = new WeakReference<>(null);
+  private volatile Reference<Blame> blame = new WeakReference<>(Blame.EMPTY);
 
   boolean isCurrentEditorDocument(@Nullable Document document) {
     Editor selectedEditor = editor.get();
@@ -49,7 +50,7 @@ class BlameStateHolder {
     this.file = new WeakReference<>(file);
   }
 
-  boolean updateBlame(@Nullable Blame blame) {
+  boolean updateBlame(@NotNull Blame blame) {
     Blame currentBlame = this.blame.get();
     if (!Objects.equals(blame, currentBlame)) {
       this.blame = new WeakReference<>(blame);
@@ -58,9 +59,10 @@ class BlameStateHolder {
     return false;
   }
 
-  @Nullable
+  @NotNull
   Blame getBlame() {
-    return this.blame.get();
+    Blame blame = this.blame.get();
+    return blame != null ? blame : Blame.EMPTY;
   }
 
   boolean clearBlame() {

@@ -1,6 +1,8 @@
 package zielu.gittoolbox.ui.blame;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
@@ -46,6 +48,7 @@ class BlameUiSubscriber {
         onBlameUpdate(file);
       }
     });
+    connection.subscribe(EditorColorsManager.TOPIC, this::onColorSchemeChanged);
   }
 
   private void onBlameUpdate(@NotNull VirtualFile file) {
@@ -70,5 +73,11 @@ class BlameUiSubscriber {
 
   private void refreshEditorFile(@NotNull Project project, @NotNull VirtualFile file) {
     FileEditorManagerEx.getInstanceEx(project).updateFilePresentation(file);
+  }
+
+  private void onColorSchemeChanged(@Nullable EditorColorsScheme scheme) {
+    if (scheme != null) {
+      BlameEditorService.getExistingInstance(project).ifPresent(service -> service.colorsSchemeChanged(scheme));
+    }
   }
 }

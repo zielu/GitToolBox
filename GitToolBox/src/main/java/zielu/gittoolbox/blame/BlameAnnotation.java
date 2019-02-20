@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface BlameAnnotation {
-  @Nullable
+  @NotNull
   Blame getBlame(int lineNumber);
 
   boolean isChanged(@NotNull VcsRevisionNumber revision);

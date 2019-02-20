@@ -26,10 +26,10 @@ import zielu.gittoolbox.metrics.ProjectMetrics;
 
 class BlameCacheImpl implements BlameCache, Disposable {
   private static final BlameAnnotation EMPTY = new BlameAnnotation() {
-    @Nullable
+    @NotNull
     @Override
     public Blame getBlame(int lineNumber) {
-      return null;
+      return Blame.EMPTY;
     }
 
     @Override
@@ -79,7 +79,6 @@ class BlameCacheImpl implements BlameCache, Disposable {
     Timer loadTimer = metrics.timer("blame-cache-load");
     Timer queueWaitTimer = metrics.timer("blame-cache-queue-wait");
     loaderTimers = new LoaderTimers(loadTimer, queueWaitTimer);
-    this.gateway.disposeWithProject(this);
   }
 
   @Override

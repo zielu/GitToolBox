@@ -51,10 +51,10 @@ public class BlameDetailsAction extends AnAction {
       VirtualFile editorFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
       if (editorFile != null) {
         int currentLine = BlameUi.getCurrentLineNumber(editor);
-        if (currentLine != BlameUi.NO_LINE) {
+        if (BlameUi.isValidLineNumber(currentLine)) {
           BlameService blameService = BlameService.getInstance(project);
           Blame blame = blameService.getDocumentLineBlame(editor.getDocument(), editorFile, currentLine);
-          if (blame != null) {
+          if (blame.isNotEmpty()) {
             String detailsText = blame.getDetailedText();
             if (detailsText != null) {
               BlameUi.showBlamePopup(editor, editorFile, blame);
