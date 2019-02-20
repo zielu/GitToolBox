@@ -10,7 +10,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.FontUtil;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +25,8 @@ import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
 public class BlameEditorLinePainter extends EditorLinePainter {
+  private static final String BLAME_PREFIX = FontUtil.spaceAndThinSpace() + " ";
+
   @Nullable
   @Override
   public Collection<LineExtensionInfo> getLineExtensions(@NotNull Project project, @NotNull VirtualFile file,
@@ -65,7 +66,6 @@ public class BlameEditorLinePainter extends EditorLinePainter {
   }
 
   private boolean isLineWithCaret(@NotNull Project project, @NotNull Document document, int editorLineNumber) {
-
     Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
     if (editor != null && Objects.equals(editor.getDocument(), document)) {
       return BlameUi.getCurrentLineNumber(editor) == editorLineNumber;
@@ -85,16 +85,13 @@ public class BlameEditorLinePainter extends EditorLinePainter {
   }
 
   private String formatBlameText(Blame blame) {
-    return new StringBand(3)
-      .append(FontUtil.spaceAndThinSpace())
-      .append(" ")
+    return new StringBand(2)
+      .append(BLAME_PREFIX)
       .append(blame.getShortText())
       .toString();
   }
 
   private TextAttributes getBlameTextAttributes() {
-    SimpleTextAttributes attributes = DecorationColors.simpleAttributes(
-        DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES);
-    return attributes.toTextAttributes();
+    return DecorationColors.textAttributes(DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES);
   }
 }
