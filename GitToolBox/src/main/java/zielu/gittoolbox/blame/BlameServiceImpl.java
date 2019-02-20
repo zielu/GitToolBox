@@ -38,6 +38,7 @@ class BlameServiceImpl implements BlameService, Disposable {
     documentLineBlameTimer = metrics.timer("blame-document-line");
     invalidatedCounter = metrics.counter("blame-annotation-invalidated-count");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
+    this.gateway.disposeWithProject(this::dispose);
   }
 
   @Override

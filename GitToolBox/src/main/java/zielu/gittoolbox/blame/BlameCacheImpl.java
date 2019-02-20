@@ -58,8 +58,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private final Counter discardedSubmitCounter;
   private final Counter invalidatedCounter;
   private final LoaderTimers loaderTimers;
-
-  private ExecutorService executor;
+  private final ExecutorService executor;
 
   BlameCacheImpl(@NotNull BlameCacheGateway gateway, @NotNull VirtualFileRepoCache fileRepoCache,
                  @NotNull BlameLoader blameLoader, @NotNull ProjectMetrics metrics) {
@@ -79,12 +78,14 @@ class BlameCacheImpl implements BlameCache, Disposable {
     Timer loadTimer = metrics.timer("blame-cache-load");
     Timer queueWaitTimer = metrics.timer("blame-cache-queue-wait");
     loaderTimers = new LoaderTimers(loadTimer, queueWaitTimer);
+    this.gateway.disposeWithProject(this);
   }
 
   @Override
   public void dispose() {
     annotations.clear();
     queued.clear();
+    executor.shutdownNow();
   }
 
   @NotNull

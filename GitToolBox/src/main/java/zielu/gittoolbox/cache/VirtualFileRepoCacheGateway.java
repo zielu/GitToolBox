@@ -7,12 +7,14 @@ import com.intellij.util.messages.MessageBus;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.util.GatewayBase;
 
-class VirtualFileRepoCacheGateway {
+class VirtualFileRepoCacheGateway extends GatewayBase {
   private final Metrics metrics;
   private final MessageBus messageBus;
 
   VirtualFileRepoCacheGateway(@NotNull Project project, @NotNull ProjectMetrics metrics) {
+    super(project);
     this.metrics = metrics;
     this.messageBus = project.getMessageBus();
   }

@@ -36,6 +36,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
     metrics.gauge("vfile-repo-roots-cache-size", rootsCache::size);
     metrics.gauge("vfile-repo-dirs-cache-size", dirsCache::size);
     repoForDirCacheTimer = metrics.timer("repo-for-dir-cache");
+    this.gateway.disposeWithProject(this);
   }
 
   @Override

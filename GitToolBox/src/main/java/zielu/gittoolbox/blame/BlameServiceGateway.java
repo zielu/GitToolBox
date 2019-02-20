@@ -11,15 +11,15 @@ import com.intellij.util.messages.MessageBus;
 import git4idea.GitVcs;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.util.GatewayBase;
 import zielu.gittoolbox.util.GtUtil;
 
-class BlameServiceGateway {
-  private final Project project;
+class BlameServiceGateway extends GatewayBase {
   private final GitVcs git;
   private final MessageBus messageBus;
 
   BlameServiceGateway(@NotNull Project project) {
-    this.project = project;
+    super(project);
     git = GitVcs.getInstance(project);
     messageBus = project.getMessageBus();
   }
