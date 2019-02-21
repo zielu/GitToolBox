@@ -4,20 +4,19 @@ import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import gnu.trove.TIntObjectHashMap;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 class BlameAnnotationImpl implements BlameAnnotation {
-  private final Map<VcsRevisionNumber, Blame> blames = new HashMap<>();
-  private final TIntObjectHashMap<Blame> lineBlames;
   private final FileAnnotation annotation;
+  private final BlameRevisionCache revisionCache;
+  private final TIntObjectHashMap<Blame> lineBlames;
 
-  BlameAnnotationImpl(@NotNull FileAnnotation annotation) {
+  BlameAnnotationImpl(@NotNull FileAnnotation annotation, @NotNull BlameRevisionCache revisionCache) {
     this.annotation = annotation;
+    this.revisionCache = revisionCache;
     lineBlames =  new TIntObjectHashMap<>(this.annotation.getLineCount());
   }
 
@@ -33,11 +32,7 @@ class BlameAnnotationImpl implements BlameAnnotation {
 
   @NotNull
   private Blame loadBlame(int lineNumber) {
-    Blame blame = Blame.EMPTY;
-    VcsRevisionNumber lineRevision = annotation.getLineRevisionNumber(lineNumber);
-    if (lineRevision != null) {
-      blame = blames.computeIfAbsent(lineRevision, lineRev -> LineBlame.create(annotation, lineRevision, lineNumber));
-    }
+    Blame blame = revisionCache.getForLine(annotation, lineNumber);
     lineBlames.put(lineNumber, blame);
     return blame;
   }
