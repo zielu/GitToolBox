@@ -10,14 +10,20 @@ class BlameEditorData {
 
   private final int editorLine;
   private final Collection<LineExtensionInfo> lineInfo;
+  private final boolean lineModified;
 
-  BlameEditorData(int editorLine, @Nullable Collection<LineExtensionInfo> lineInfo) {
+  BlameEditorData(int editorLine, boolean lineModified, @Nullable Collection<LineExtensionInfo> lineInfo) {
     this.editorLine = editorLine;
     this.lineInfo = lineInfo;
+    this.lineModified = lineModified;
   }
 
   boolean isSameEditorLine(int editorLine) {
     return this.editorLine == editorLine;
+  }
+
+  boolean isLineModified() {
+    return lineModified;
   }
 
   @Nullable

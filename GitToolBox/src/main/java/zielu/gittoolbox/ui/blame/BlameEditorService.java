@@ -9,12 +9,15 @@ import java.util.Collection;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.config.GitToolBoxConfig2;
 
 interface BlameEditorService {
   @Nullable
   Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineNumber);
 
   void colorsSchemeChanged(@NotNull EditorColorsScheme colorsScheme);
+
+  void configChanged(@NotNull GitToolBoxConfig2 config);
 
   @NotNull
   static BlameEditorService getInstance(@NotNull Project project) {

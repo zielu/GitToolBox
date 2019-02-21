@@ -35,6 +35,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
       DecorationPartConfig.builder().withType(DecorationPartType.TAGS_ON_HEAD).withPrefix("(").withPostfix(")").build()
   );
   public CommitCompletionMode commitDialogCompletionMode = CommitCompletionMode.AUTOMATIC;
+  public boolean experimentalBlameEditorCaching = false;
 
   public boolean previousVersionMigrated;
 
@@ -113,6 +114,10 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
 
   public boolean isCommitDialogCompletionModeChanged(CommitCompletionMode commitDialogCompletionMode) {
     return this.commitDialogCompletionMode != commitDialogCompletionMode;
+  }
+
+  public boolean isExperimentalBlameEditorCachingChanged(boolean experimentalBlameEditorCaching) {
+    return this.experimentalBlameEditorCaching != experimentalBlameEditorCaching;
   }
 
   @Nullable

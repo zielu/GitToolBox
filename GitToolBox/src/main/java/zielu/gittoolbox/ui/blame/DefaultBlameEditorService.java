@@ -23,6 +23,7 @@ import zielu.gittoolbox.blame.Blame;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.config.DecorationColors;
+import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
 class DefaultBlameEditorService implements BlameEditorService {
@@ -32,17 +33,24 @@ class DefaultBlameEditorService implements BlameEditorService {
   private final Project project;
   private final Timer blameEditorTimer;
   private TextAttributes blameTextAttributes;
+  private boolean blameEditorCaching;
 
   DefaultBlameEditorService(@NotNull Project project, @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.blameEditorTimer = metrics.timer("blame-editor-painter");
     blameTextAttributes = DecorationColors.textAttributes(ATTRIBUTES_KEY);
+    blameEditorCaching = GitToolBoxConfig2.getInstance().experimentalBlameEditorCaching;
   }
 
   @Override
   public void colorsSchemeChanged(@NotNull EditorColorsScheme colorsScheme) {
     blameTextAttributes = colorsScheme.getAttributes(ATTRIBUTES_KEY);
     log.debug("Color scheme updated");
+  }
+
+  @Override
+  public void configChanged(@NotNull GitToolBoxConfig2 config) {
+    blameEditorCaching = config.experimentalBlameEditorCaching;
   }
 
   @Nullable
@@ -59,7 +67,11 @@ class DefaultBlameEditorService implements BlameEditorService {
       if (document != null) {
         Editor editor = getEditor(document);
         if (editor != null && isLineWithCaret(editor, editorLineNumber)) {
-          return getLineExtensionInfos(editor, document, file, editorLineNumber);
+          if (blameEditorCaching) {
+            return getInfosWithCaching(editor, document, file, editorLineNumber);
+          } else {
+            return getInfos(editor, document, file, editorLineNumber);
+          }
         }
       }
     }
@@ -67,9 +79,21 @@ class DefaultBlameEditorService implements BlameEditorService {
   }
 
   @Nullable
-  private Collection<LineExtensionInfo> getLineExtensionInfos(@NotNull Editor editor, @NotNull Document document,
-                                                              @NotNull VirtualFile file, int editorLineNumber) {
-    Collection<LineExtensionInfo> cachedInfo = getOrClearCachedLineInfo(editor, editorLineNumber);
+  private Collection<LineExtensionInfo> getInfos(@NotNull Editor editor, @NotNull Document document,
+                                                 @NotNull VirtualFile file, int editorLineNumber) {
+    Blame lineBlame = getLineBlame(document, file, editorLineNumber);
+    Collection<LineExtensionInfo> lineInfo = null;
+    if (lineBlame.isNotEmpty()) {
+      lineInfo = getDecoration(lineBlame);
+    }
+    return lineInfo;
+  }
+
+  @Nullable
+  private Collection<LineExtensionInfo> getInfosWithCaching(@NotNull Editor editor, @NotNull Document document,
+                                                            @NotNull VirtualFile file, int editorLineNumber) {
+    LineState lineState = new LineState(editor, document, editorLineNumber);
+    Collection<LineExtensionInfo> cachedInfo = lineState.getOrClearCachedLineInfo();
     if (cachedInfo != null) {
       return cachedInfo;
     } else {
@@ -78,7 +102,7 @@ class DefaultBlameEditorService implements BlameEditorService {
       if (lineBlame.isNotEmpty()) {
         lineInfo = getDecoration(lineBlame);
       }
-      cacheLineExtensionInfo(editor, editorLineNumber, lineInfo);
+      lineState.setEditorData(lineInfo);
       return lineInfo;
     }
   }
@@ -94,25 +118,6 @@ class DefaultBlameEditorService implements BlameEditorService {
 
   private boolean isLineWithCaret(@NotNull Editor editor, int editorLineNumber) {
     return BlameUi.getCurrentLineNumber(editor) == editorLineNumber;
-  }
-
-  @Nullable
-  private Collection<LineExtensionInfo> getOrClearCachedLineInfo(@NotNull Editor editor, int editorLineNumber) {
-    BlameEditorData editorData = BlameEditorData.KEY.get(editor);
-    if (editorData != null) {
-      if (editorData.isSameEditorLine(editorLineNumber)) {
-        return editorData.getLineInfo();
-      } else {
-        BlameEditorData.KEY.set(editor, null);
-      }
-    }
-    return null;
-  }
-
-  private void cacheLineExtensionInfo(@NotNull Editor editor, int editorLineNumber,
-                                      @Nullable Collection<LineExtensionInfo> lineInfo) {
-    BlameEditorData editorData = new BlameEditorData(editorLineNumber, lineInfo);
-    BlameEditorData.KEY.set(editor, editorData);
   }
 
   @NotNull
@@ -132,5 +137,35 @@ class DefaultBlameEditorService implements BlameEditorService {
         .append(BLAME_PREFIX)
         .append(blame.getShortText())
         .toString();
+  }
+
+  private static class LineState {
+    private final Editor editor;
+    private final int editorLine;
+    private final boolean lineModified;
+
+    private LineState(@NotNull Editor editor, @NotNull Document document, int editorLine) {
+      this.editor = editor;
+      this.editorLine = editorLine;
+      lineModified = document.isLineModified(editorLine);
+    }
+
+    void setEditorData(@Nullable Collection<LineExtensionInfo> lineInfo) {
+      BlameEditorData editorData = new BlameEditorData(editorLine, lineModified, lineInfo);
+      BlameEditorData.KEY.set(editor, editorData);
+    }
+
+    @Nullable
+    Collection<LineExtensionInfo> getOrClearCachedLineInfo() {
+      BlameEditorData editorData = BlameEditorData.KEY.get(editor);
+      if (editorData != null) {
+        if (editorData.isSameEditorLine(editorLine) && editorData.isLineModified() == lineModified) {
+          return editorData.getLineInfo();
+        } else {
+          BlameEditorData.KEY.set(editor, null);
+        }
+      }
+      return null;
+    }
   }
 }

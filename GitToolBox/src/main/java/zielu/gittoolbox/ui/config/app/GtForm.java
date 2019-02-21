@@ -68,6 +68,7 @@ public class GtForm implements GtFormUi {
   private JCheckBox blameEnabledCheckBox;
   private JCheckBox editorInlineBlameEnabledCheckBox;
   private ComboBox<CommitCompletionMode> commitDialogCompletionMode;
+  private JCheckBox experimentalBlameEditorCache;
 
   @Override
   public void init() {
@@ -317,5 +318,13 @@ public class GtForm implements GtFormUi {
 
   public void setCommitDialogCompletionMode(CommitCompletionMode mode) {
     commitDialogCompletionMode.setSelectedItem(mode);
+  }
+
+  public boolean getExperimentalBlameEditorCachingEnabled() {
+    return experimentalBlameEditorCache.isSelected();
+  }
+
+  public void setExperimentalBlameEditorCachingEnabled(boolean enabled) {
+    experimentalBlameEditorCache.setSelected(enabled);
   }
 }

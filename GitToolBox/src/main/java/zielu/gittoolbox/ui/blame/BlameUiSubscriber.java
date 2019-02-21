@@ -35,6 +35,7 @@ class BlameUiSubscriber {
             refreshEditorFile(project, file);
           }
         }
+        onConfigChanged(current);
       }
     });
     connection.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
@@ -79,5 +80,9 @@ class BlameUiSubscriber {
     if (scheme != null) {
       BlameEditorService.getExistingInstance(project).ifPresent(service -> service.colorsSchemeChanged(scheme));
     }
+  }
+
+  private void onConfigChanged(GitToolBoxConfig2 current) {
+    BlameEditorService.getExistingInstance(project).ifPresent(service -> service.configChanged(current));
   }
 }
