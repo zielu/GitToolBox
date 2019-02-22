@@ -8,6 +8,7 @@ import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 
 class BlameRevisionCacheImpl implements BlameRevisionCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
@@ -15,8 +16,9 @@ class BlameRevisionCacheImpl implements BlameRevisionCache, Disposable {
       .maximumSize(100)
       .build();
 
-  BlameRevisionCacheImpl(@NotNull BlameCacheGateway gateway) {
+  BlameRevisionCacheImpl(@NotNull BlameCacheGateway gateway, @NotNull ProjectMetrics metrics) {
     gateway.disposeWithProject(this);
+    metrics.gauge("blame-revision-cache-size", blames::size);
   }
 
   @Override
