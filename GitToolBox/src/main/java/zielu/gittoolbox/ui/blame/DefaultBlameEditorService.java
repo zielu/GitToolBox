@@ -32,12 +32,16 @@ class DefaultBlameEditorService implements BlameEditorService {
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
   private final Timer blameEditorTimer;
+  private final Timer blameEditorGetInfoTimer;
+  private final Timer blameEditorGetInfoCachingTimer;
   private TextAttributes blameTextAttributes;
   private boolean blameEditorCaching;
 
   DefaultBlameEditorService(@NotNull Project project, @NotNull ProjectMetrics metrics) {
     this.project = project;
-    this.blameEditorTimer = metrics.timer("blame-editor-painter");
+    blameEditorTimer = metrics.timer("blame-editor-painter");
+    blameEditorGetInfoTimer = metrics.timer("blame-editor-painter-get-info");
+    blameEditorGetInfoCachingTimer = metrics.timer("blame-editor-painter-get-info-caching");
     blameTextAttributes = DecorationColors.textAttributes(ATTRIBUTES_KEY);
     blameEditorCaching = GitToolBoxConfig2.getInstance().experimentalBlameEditorCaching;
   }
@@ -68,9 +72,11 @@ class DefaultBlameEditorService implements BlameEditorService {
         Editor editor = getEditor(document);
         if (editor != null && isLineWithCaret(editor, editorLineNumber)) {
           if (blameEditorCaching) {
-            return getInfosWithCaching(editor, document, file, editorLineNumber);
+            return blameEditorGetInfoCachingTimer.timeSupplier(() ->
+                getInfosWithCaching(editor, document, file, editorLineNumber));
           } else {
-            return getInfos(editor, document, file, editorLineNumber);
+            return blameEditorGetInfoTimer.timeSupplier(() ->
+                getInfos(editor, document, file, editorLineNumber));
           }
         }
       }
