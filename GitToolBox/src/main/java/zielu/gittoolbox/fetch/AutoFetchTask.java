@@ -30,7 +30,7 @@ import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
-import zielu.gittoolbox.ui.util.AppUtil;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.DisposeSafeCallable;
 import zielu.gittoolbox.util.GtUtil;
 
@@ -173,7 +173,7 @@ class AutoFetchTask implements Runnable {
     final List<GitRepository> repos = reposForFetch();
     boolean shouldFetch = !repos.isEmpty();
     if (shouldFetch && isNotCancelled()) {
-      AppUtil.INSTANCE
+      AppUiUtil
           .invokeLaterIfNeeded(() -> GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project),
           ResBundle.getString("message.autoFetching")) {
             @Override

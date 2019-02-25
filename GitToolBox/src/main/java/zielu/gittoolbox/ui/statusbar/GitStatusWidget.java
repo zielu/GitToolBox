@@ -23,7 +23,7 @@ import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.ui.StatusText;
-import zielu.gittoolbox.ui.util.AppUtil;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.DisposeSafeRunnable;
 import zielu.gittoolbox.util.GtUtil;
 
@@ -59,7 +59,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     });
     myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> {
       if (isActive()) {
-        AppUtil.INSTANCE.invokeLaterIfNeeded(this::updateStatusBar);
+        AppUiUtil.invokeLaterIfNeeded(this::updateStatusBar);
       }
     });
   }
@@ -76,7 +76,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
         updateStatusBar();
       }
     });
-    AppUtil.INSTANCE.invokeLaterIfNeeded(onCacheChange);
+    AppUiUtil.invokeLaterIfNeeded(onCacheChange);
   }
 
   private void runUpdateLater(Project project) {
@@ -85,7 +85,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
         runUpdate(project);
       }
     });
-    AppUtil.INSTANCE.invokeLaterIfNeeded(update);
+    AppUiUtil.invokeLaterIfNeeded(update);
   }
 
   @Override

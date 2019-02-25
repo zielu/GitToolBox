@@ -23,7 +23,7 @@
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="191" until-build="191.*"/>
+  <idea-version since-build="191.4212.41" until-build="191.*"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
@@ -87,7 +87,7 @@
     <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
                     serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusGatewayImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.ui.blame.BlameEditorService"
-                    serviceImplementation="zielu.gittoolbox.ui.blame.DefaultBlameEditorService"/>
+                    serviceImplementation="zielu.gittoolbox.ui.blame.BlameEditorServiceImpl"/>
     <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter"/>
   </extensions>
 

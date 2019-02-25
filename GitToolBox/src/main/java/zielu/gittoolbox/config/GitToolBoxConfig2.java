@@ -36,6 +36,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   );
   public CommitCompletionMode commitDialogCompletionMode = CommitCompletionMode.AUTOMATIC;
   public boolean experimentalBlameEditorCaching = true;
+  public AuthorNameType blameAuthorNameType = AuthorNameType.LASTNAME;
 
   public boolean previousVersionMigrated;
 
@@ -113,6 +114,10 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
 
   public boolean isExperimentalBlameEditorCachingChanged(boolean experimentalBlameEditorCaching) {
     return this.experimentalBlameEditorCaching != experimentalBlameEditorCaching;
+  }
+
+  public boolean isBlameAuthorNameTypeChanged(AuthorNameType blameAuthorNameType) {
+    return this.blameAuthorNameType != blameAuthorNameType;
   }
 
   @Nullable

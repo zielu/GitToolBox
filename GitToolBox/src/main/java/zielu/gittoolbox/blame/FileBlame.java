@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 
-public final class FileBlame extends AbstractBlame {
+final class FileBlame extends AbstractBlame {
   private final String shortText;
   private final String detailedText;
 

@@ -36,6 +36,7 @@ import jodd.util.StringBand;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
+import zielu.gittoolbox.config.AuthorNameType;
 import zielu.gittoolbox.config.CommitCompletionMode;
 import zielu.gittoolbox.config.DecorationPartConfig;
 import zielu.gittoolbox.config.DecorationPartType;
@@ -69,6 +70,7 @@ public class GtForm implements GtFormUi {
   private JCheckBox editorInlineBlameEnabledCheckBox;
   private ComboBox<CommitCompletionMode> commitDialogCompletionMode;
   private JCheckBox experimentalBlameEditorCache;
+  private ComboBox<AuthorNameType> blameAuthorNameTypeCombo;
 
   @Override
   public void init() {
@@ -171,6 +173,13 @@ public class GtForm implements GtFormUi {
       }
     });
     commitDialogCompletionMode.setModel(new DefaultComboBoxModel<>(CommitCompletionMode.values()));
+    blameAuthorNameTypeCombo.setRenderer(new ListCellRendererWrapper<AuthorNameType>() {
+      @Override
+      public void customize(JList list, AuthorNameType value, int index, boolean selected, boolean hasFocus) {
+        setText(value.getDescription());
+      }
+    });
+    blameAuthorNameTypeCombo.setModel(new DefaultComboBoxModel<>(AuthorNameType.values()));
   }
 
   private Optional<DecorationPartConfig> getCurrentDecorationPart() {
@@ -253,76 +262,84 @@ public class GtForm implements GtFormUi {
     presentationMode.setSelectedItem(presenter);
   }
 
-  public boolean getShowGitStatus() {
+  boolean getShowGitStatus() {
     return showGitStatCheckBox.isSelected();
   }
 
-  public void setShowGitStatus(boolean showGitStatus) {
+  void setShowGitStatus(boolean showGitStatus) {
     showGitStatCheckBox.setSelected(showGitStatus);
   }
 
-  public boolean getBehindTrackerEnabled() {
+  boolean getBehindTrackerEnabled() {
     return behindTrackerEnabledCheckBox.isSelected();
   }
 
-  public void setBehindTrackerEnabled(boolean behindTrackerEnabled) {
+  void setBehindTrackerEnabled(boolean behindTrackerEnabled) {
     behindTrackerEnabledCheckBox.setSelected(behindTrackerEnabled);
   }
 
-  public boolean getShowProjectViewStatus() {
+  boolean getShowProjectViewStatus() {
     return showProjectViewStatusCheckBox.isSelected();
   }
 
-  public void setShowProjectViewStatus(boolean showProjectViewStatus) {
+  void setShowProjectViewStatus(boolean showProjectViewStatus) {
     showProjectViewStatusCheckBox.setSelected(showProjectViewStatus);
   }
 
-  public void setShowBlame(boolean showBlame) {
+  void setShowBlame(boolean showBlame) {
     blameEnabledCheckBox.setSelected(showBlame);
   }
 
-  public boolean getShowBlame() {
+  boolean getShowBlame() {
     return blameEnabledCheckBox.isSelected();
   }
 
-  public void setShowEditorInlineBlame(boolean showEditorInlineBlame) {
+  void setShowEditorInlineBlame(boolean showEditorInlineBlame) {
     editorInlineBlameEnabledCheckBox.setSelected(showEditorInlineBlame);
   }
 
-  public boolean getShowEditorInlineBlame() {
+  boolean getShowEditorInlineBlame() {
     return editorInlineBlameEnabledCheckBox.isSelected();
   }
 
-  public UpdateProjectAction getUpdateProjectAction() {
+  UpdateProjectAction getUpdateProjectAction() {
     return (UpdateProjectAction) updateProjectAction.getSelectedItem();
   }
 
-  public void setUpdateProjectAction(UpdateProjectAction action) {
+  void setUpdateProjectAction(UpdateProjectAction action) {
     updateProjectAction.setSelectedItem(action);
   }
 
-  public void setDecorationParts(List<DecorationPartConfig> decorationParts) {
+  void setDecorationParts(List<DecorationPartConfig> decorationParts) {
     decorationPartsModel.removeAll();
     decorationParts.stream().map(DecorationPartConfig::copy).forEach(decorationPartsModel::add);
   }
 
-  public List<DecorationPartConfig> getDecorationParts() {
+  List<DecorationPartConfig> getDecorationParts() {
     return decorationPartsModel.toList();
   }
 
-  public CommitCompletionMode getCommitDialogCompletionMode() {
+  CommitCompletionMode getCommitDialogCompletionMode() {
     return (CommitCompletionMode) commitDialogCompletionMode.getSelectedItem();
   }
 
-  public void setCommitDialogCompletionMode(CommitCompletionMode mode) {
+  void setCommitDialogCompletionMode(CommitCompletionMode mode) {
     commitDialogCompletionMode.setSelectedItem(mode);
   }
 
-  public boolean getExperimentalBlameEditorCachingEnabled() {
+  boolean getExperimentalBlameEditorCachingEnabled() {
     return experimentalBlameEditorCache.isSelected();
   }
 
-  public void setExperimentalBlameEditorCachingEnabled(boolean enabled) {
+  void setExperimentalBlameEditorCachingEnabled(boolean enabled) {
     experimentalBlameEditorCache.setSelected(enabled);
+  }
+
+  AuthorNameType getBlameAuthorNameType() {
+    return (AuthorNameType) blameAuthorNameTypeCombo.getSelectedItem();
+  }
+
+  void setBlameAuthorNameType(AuthorNameType authorNameType) {
+    blameAuthorNameTypeCombo.setSelectedItem(authorNameType);
   }
 }

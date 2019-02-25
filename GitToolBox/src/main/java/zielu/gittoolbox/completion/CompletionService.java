@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatter;
+import zielu.gittoolbox.util.AppUtil;
 
 interface CompletionService {
 
@@ -27,6 +28,6 @@ interface CompletionService {
   }
 
   static Optional<CompletionService> getExistingInstance(@NotNull Project project) {
-    return Optional.ofNullable(ServiceManager.getServiceIfCreated(project, CompletionService.class));
+    return AppUtil.getExistingServiceInstance(project, CompletionService.class);
   }
 }

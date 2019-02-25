@@ -31,7 +31,7 @@ import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.ui.blame.BlameUi;
-import zielu.gittoolbox.ui.util.AppUtil;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 
 public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
@@ -93,7 +93,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void blameUpdate(@NotNull VirtualFile file) {
-    AppUtil.INSTANCE.invokeLaterIfNeeded(() -> {
+    AppUiUtil.invokeLaterIfNeeded(() -> {
       if (file.equals(stateHolder.getCurrentFile())) {
         fileChanged(stateHolder.getCurrentEditor(), file);
       }

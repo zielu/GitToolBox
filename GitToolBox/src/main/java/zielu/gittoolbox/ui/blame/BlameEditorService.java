@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.util.AppUtil;
 
 interface BlameEditorService {
   @Nullable
@@ -26,6 +27,6 @@ interface BlameEditorService {
 
   @NotNull
   static Optional<BlameEditorService> getExistingInstance(@NotNull Project project) {
-    return Optional.ofNullable(ServiceManager.getServiceIfCreated(project, BlameEditorService.class));
+    return AppUtil.getExistingServiceInstance(project, BlameEditorService.class);
   }
 }

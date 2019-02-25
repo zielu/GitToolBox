@@ -19,10 +19,12 @@ class BlameRevisionCacheImpl implements BlameRevisionCache, Disposable {
       .expireAfterAccess(Duration.ofMinutes(10))
       .recordStats()
       .build();
+  private final BlameCacheGateway gateway;
 
   BlameRevisionCacheImpl(@NotNull BlameCacheGateway gateway, @NotNull ProjectMetrics metrics) {
-    gateway.disposeWithProject(this);
     metrics.addAll(new GuavaCacheMetrics(blames, "blame-revision-cache"));
+    this.gateway = gateway;
+    gateway.disposeWithProject(this);
   }
 
   @Override
@@ -36,7 +38,7 @@ class BlameRevisionCacheImpl implements BlameRevisionCache, Disposable {
     VcsRevisionNumber lineRevision = annotation.getLineRevisionNumber(lineNumber);
     if (lineRevision != null) {
       try {
-        return blames.get(lineRevision, () -> LineBlame.create(annotation, lineRevision, lineNumber));
+        return blames.get(lineRevision, () -> gateway.blameFactory().forLine(annotation, lineRevision, lineNumber));
       } catch (ExecutionException e) {
         log.warn("Failed to load blame for " + lineRevision + ", line " + lineNumber);
         return Blame.EMPTY;
@@ -44,5 +46,10 @@ class BlameRevisionCacheImpl implements BlameRevisionCache, Disposable {
     } else {
       return Blame.EMPTY;
     }
+  }
+
+  @Override
+  public void invalidateAll() {
+    blames.invalidateAll();
   }
 }

@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
-import zielu.gittoolbox.ui.util.AppUtil;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 
 public class UpdateProject {
   private final Project project;
@@ -34,6 +34,6 @@ public class UpdateProject {
   }
 
   public void execute() {
-    AppUtil.INSTANCE.invokeLaterIfNeeded(this::invokeAction);
+    AppUiUtil.invokeLaterIfNeeded(this::invokeAction);
   }
 }

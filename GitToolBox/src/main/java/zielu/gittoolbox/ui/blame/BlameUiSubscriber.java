@@ -13,6 +13,7 @@ import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.blame.BlameListener;
+import zielu.gittoolbox.blame.BlameRevisionCache;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
@@ -27,15 +28,13 @@ class BlameUiSubscriber {
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
-        if (current.showBlame != previous.showBlame
-            || current.showEditorInlineBlame != previous.showEditorInlineBlame) {
+        if (onConfigChanged(previous, current)) {
           VirtualFile file = getFileForSelectedEditor(project);
           if (file != null) {
             log.debug("Refresh editor on config change for ", file);
             refreshEditorFile(project, file);
           }
         }
-        onConfigChanged(current);
       }
     });
     connection.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
@@ -82,7 +81,14 @@ class BlameUiSubscriber {
     }
   }
 
-  private void onConfigChanged(GitToolBoxConfig2 current) {
+  private boolean onConfigChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
+    boolean editorBlameUpdated = current.isBlameAuthorNameTypeChanged(previous.blameAuthorNameType);
+    if (editorBlameUpdated) {
+      BlameRevisionCache.getExistingInstance(project).ifPresent(BlameRevisionCache::invalidateAll);
+    }
     BlameEditorService.getExistingInstance(project).ifPresent(service -> service.configChanged(current));
+    return current.showBlame != previous.showBlame
+        || current.showEditorInlineBlame != previous.showEditorInlineBlame
+        || editorBlameUpdated;
   }
 }

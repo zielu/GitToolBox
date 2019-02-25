@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.util.AppUtil;
 
 public interface BlameService {
   Topic<BlameListener> BLAME_UPDATE = Topic.create("Blame updates", BlameListener.class);
@@ -30,6 +31,6 @@ public interface BlameService {
 
   @NotNull
   static Optional<BlameService> getExistingInstance(@NotNull Project project) {
-    return Optional.ofNullable(ServiceManager.getServiceIfCreated(project, BlameService.class));
+    return AppUtil.getExistingServiceInstance(project, BlameService.class);
   }
 }

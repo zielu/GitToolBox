@@ -16,6 +16,7 @@ import com.intellij.util.FontUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,10 +27,11 @@ import zielu.gittoolbox.config.DecorationColors;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
-class DefaultBlameEditorService implements BlameEditorService {
+class BlameEditorServiceImpl implements BlameEditorService {
   private static final TextAttributesKey ATTRIBUTES_KEY = DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES;
   private static final String BLAME_PREFIX = FontUtil.spaceAndThinSpace() + " ";
   private final Logger log = Logger.getInstance(getClass());
+  private final AtomicInteger configGeneration = new AtomicInteger(1);
   private final Project project;
   private final Timer blameEditorTimer;
   private final Timer blameEditorGetInfoTimer;
@@ -37,7 +39,7 @@ class DefaultBlameEditorService implements BlameEditorService {
   private TextAttributes blameTextAttributes;
   private boolean blameEditorCaching;
 
-  DefaultBlameEditorService(@NotNull Project project, @NotNull ProjectMetrics metrics) {
+  BlameEditorServiceImpl(@NotNull Project project, @NotNull ProjectMetrics metrics) {
     this.project = project;
     blameEditorTimer = metrics.timer("blame-editor-painter");
     blameEditorGetInfoTimer = metrics.timer("blame-editor-painter-get-info");
@@ -55,6 +57,7 @@ class DefaultBlameEditorService implements BlameEditorService {
   @Override
   public void configChanged(@NotNull GitToolBoxConfig2 config) {
     blameEditorCaching = config.experimentalBlameEditorCaching;
+    configGeneration.incrementAndGet();
   }
 
   @Nullable
@@ -98,7 +101,7 @@ class DefaultBlameEditorService implements BlameEditorService {
   @Nullable
   private Collection<LineExtensionInfo> getInfosWithCaching(@NotNull Editor editor, @NotNull Document document,
                                                             @NotNull VirtualFile file, int editorLineNumber) {
-    LineState lineState = new LineState(editor, document, editorLineNumber);
+    LineState lineState = new LineState(editor, document, editorLineNumber, configGeneration.get());
     Collection<LineExtensionInfo> cachedInfo = lineState.getOrClearCachedLineInfo();
     if (cachedInfo != null) {
       return cachedInfo;
@@ -149,15 +152,17 @@ class DefaultBlameEditorService implements BlameEditorService {
     private final Editor editor;
     private final int editorLine;
     private final boolean lineModified;
+    private final int generation;
 
-    private LineState(@NotNull Editor editor, @NotNull Document document, int editorLine) {
+    private LineState(@NotNull Editor editor, @NotNull Document document, int editorLine, int generation) {
       this.editor = editor;
       this.editorLine = editorLine;
+      this.generation = generation;
       lineModified = document.isLineModified(editorLine);
     }
 
     void setEditorData(@Nullable Collection<LineExtensionInfo> lineInfo) {
-      BlameEditorData editorData = new BlameEditorData(editorLine, lineModified, lineInfo);
+      BlameEditorData editorData = new BlameEditorData(editorLine, lineModified, generation, lineInfo);
       BlameEditorData.KEY.set(editor, editorData);
     }
 
@@ -165,7 +170,9 @@ class DefaultBlameEditorService implements BlameEditorService {
     Collection<LineExtensionInfo> getOrClearCachedLineInfo() {
       BlameEditorData editorData = BlameEditorData.KEY.get(editor);
       if (editorData != null) {
-        if (editorData.isSameEditorLine(editorLine) && editorData.isLineModified() == lineModified) {
+        if (editorData.isSameEditorLine(editorLine)
+            && editorData.isSameGeneration(generation)
+            && editorData.isLineModified() == lineModified) {
           return editorData.getLineInfo();
         } else {
           BlameEditorData.KEY.set(editor, null);

@@ -1,11 +1,11 @@
 package zielu.gittoolbox.blame;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.util.AppUtil;
 
 public interface BlameCache {
   Topic<BlameCacheListener> CACHE_UPDATES = Topic.create("blame cache updates", BlameCacheListener.class);
@@ -19,6 +19,6 @@ public interface BlameCache {
 
   @NotNull
   static Optional<BlameCache> getExistingInstance(@NotNull Project project) {
-    return Optional.ofNullable(ServiceManager.getServiceIfCreated(project, BlameCache.class));
+    return AppUtil.getExistingServiceInstance(project, BlameCache.class);
   }
 }
