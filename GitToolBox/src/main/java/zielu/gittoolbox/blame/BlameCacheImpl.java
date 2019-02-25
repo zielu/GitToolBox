@@ -44,6 +44,11 @@ class BlameCacheImpl implements BlameCache, Disposable {
     }
 
     @Override
+    public void invalidateBlames() {
+      //do nothing
+    }
+
+    @Override
     public String toString() {
       return "BlameAnnotation:EMPTY";
     }
@@ -179,6 +184,14 @@ class BlameCacheImpl implements BlameCache, Disposable {
         .filter(file -> VfsUtilCore.isAncestor(root, file, false))
         .peek(file -> LOG.debug("Invalidate ", file, " under root ", root))
         .forEach(this::invalidate);
+  }
+
+  @Override
+  public void resetAll() {
+    annotations.forEach((file, annotation) -> {
+      annotation.invalidateBlames();
+      gateway.fireBlameUpdated(file, annotation);
+    });
   }
 
   private static class LoaderTimers {

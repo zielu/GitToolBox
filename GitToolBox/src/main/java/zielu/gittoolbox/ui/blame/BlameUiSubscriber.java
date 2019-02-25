@@ -12,6 +12,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.blame.BlameCache;
 import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameRevisionCache;
 import zielu.gittoolbox.blame.BlameService;
@@ -85,6 +86,7 @@ class BlameUiSubscriber {
     boolean editorBlameUpdated = current.isBlameAuthorNameTypeChanged(previous.blameAuthorNameType);
     if (editorBlameUpdated) {
       BlameRevisionCache.getExistingInstance(project).ifPresent(BlameRevisionCache::invalidateAll);
+      BlameCache.getExistingInstance(project).ifPresent(BlameCache::resetAll);
     }
     BlameEditorService.getExistingInstance(project).ifPresent(service -> service.configChanged(current));
     return current.showBlame != previous.showBlame

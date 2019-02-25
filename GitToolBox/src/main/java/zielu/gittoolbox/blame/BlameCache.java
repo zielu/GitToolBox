@@ -17,6 +17,8 @@ public interface BlameCache {
 
   void invalidate(@NotNull VirtualFile file);
 
+  void resetAll();
+
   @NotNull
   static Optional<BlameCache> getExistingInstance(@NotNull Project project) {
     return AppUtil.getExistingServiceInstance(project, BlameCache.class);

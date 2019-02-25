@@ -13,7 +13,8 @@ class BlameEditorData {
   private final boolean lineModified;
   private final int generation;
 
-  BlameEditorData(int editorLine, boolean lineModified, int generation, @Nullable Collection<LineExtensionInfo> lineInfo) {
+  BlameEditorData(int editorLine, boolean lineModified, int generation,
+                  @Nullable Collection<LineExtensionInfo> lineInfo) {
     this.editorLine = editorLine;
     this.lineInfo = lineInfo;
     this.lineModified = lineModified;
