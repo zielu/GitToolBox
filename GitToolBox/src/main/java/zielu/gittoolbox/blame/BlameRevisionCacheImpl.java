@@ -6,19 +6,23 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
+import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.metrics.GuavaCacheMetrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
 class BlameRevisionCacheImpl implements BlameRevisionCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final Cache<VcsRevisionNumber, Blame> blames = CacheBuilder.newBuilder()
-      .maximumSize(100)
+      .maximumSize(200)
+      .expireAfterAccess(Duration.ofMinutes(10))
+      .recordStats()
       .build();
 
   BlameRevisionCacheImpl(@NotNull BlameCacheGateway gateway, @NotNull ProjectMetrics metrics) {
     gateway.disposeWithProject(this);
-    metrics.gauge("blame-revision-cache-size", blames::size);
+    metrics.addAll(new GuavaCacheMetrics(blames, "blame-revision-cache"));
   }
 
   @Override

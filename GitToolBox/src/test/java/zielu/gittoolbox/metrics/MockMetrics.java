@@ -2,6 +2,7 @@ package zielu.gittoolbox.metrics;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
+import com.codahale.metrics.MetricSet;
 import com.codahale.metrics.Timer;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +20,12 @@ public class MockMetrics implements AppMetrics, ProjectMetrics {
   }
 
   @Override
-  public <T> Gauge<T> gauge(@NotNull String simpleName, Gauge<T> gauge) {
+  public <T> Gauge gauge(@NotNull String simpleName, Gauge<T> gauge) {
     return metrics.gauge(simpleName, gauge);
+  }
+
+  @Override
+  public void addAll(MetricSet metricSet) {
+    metrics.addAll(metricSet);
   }
 }
