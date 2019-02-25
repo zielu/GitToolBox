@@ -164,8 +164,6 @@ public class GtForm implements GtFormUi {
       }
     });
     updateProjectAction.setModel(getUpdateModeModel());
-    blameEnabledCheckBox.addActionListener(e -> editorInlineBlameEnabledCheckBox
-        .setEnabled(blameEnabledCheckBox.isSelected()));
     commitDialogCompletionMode.setRenderer(new ListCellRendererWrapper<CommitCompletionMode>() {
       @Override
       public void customize(JList list, CommitCompletionMode value, int index, boolean selected, boolean hasFocus) {

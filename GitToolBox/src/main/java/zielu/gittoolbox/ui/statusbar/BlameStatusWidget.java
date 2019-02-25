@@ -39,7 +39,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private static final String ID = BlameStatusWidget.class.getName();
   private static final int MAX_LENGTH = 27;
   private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", MAX_LENGTH);
-  private final BlameService blame;
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
   private final Timer updateForSelectionTimer;
@@ -58,7 +57,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     updateForDocumentTimer = metrics.timer("blame-statusbar-update-for-document");
     updateForCaretTimer = metrics.timer("blame-statusbar-update-for-caret");
     updateForSelectionTimer = metrics.timer("blame-statusbar-update-for-selection");
-    blame = BlameService.getInstance(project);
     clearBlame();
     blameDumbModeExitAction = () -> {
       Editor editor = getEditor();
@@ -279,7 +277,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   @Override
   public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-    blame.fileClosed(file);
+    BlameService.getInstance(myProject).fileClosed(file);
     if (clearBlame()) {
       updateWidget();
     }
@@ -303,10 +301,10 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     if (editor != null) {
       int currentLine = BlameUi.getCurrentLineNumber(editor);
       if (BlameUi.isValidLineNumber(currentLine)) {
-        blame = this.blame.getDocumentLineBlame(editor.getDocument(), file, currentLine);
+        blame = BlameService.getInstance(myProject).getDocumentLineBlame(editor.getDocument(), file, currentLine);
       }
     } else {
-      blame = this.blame.getFileBlame(file);
+      blame = BlameService.getInstance(myProject).getFileBlame(file);
     }
     if (updateBlame(blame)) {
       updateWidget();

@@ -25,7 +25,7 @@ public class BlameEditorLinePainter extends EditorLinePainter {
     if (DumbService.isDumb(project)) {
       return false;
     } else {
-      return GitToolBoxConfig2.getInstance().isEditorInlineBlameVisible();
+      return GitToolBoxConfig2.getInstance().showEditorInlineBlame;
     }
   }
 }
