@@ -13,6 +13,4 @@ public interface BlameAnnotation {
 
   @Nullable
   VirtualFile getVirtualFile();
-
-  void invalidateBlames();
 }

@@ -10,11 +10,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.TestType;
 import zielu.gittoolbox.UtfSeq;
 import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.status.RevListCount;
 
-@Tag("fast")
+@Tag(TestType.FAST)
 class StatusPresenterTest {
   private static final Hash HASH = HashImpl.build("92c4b38ed6cc6f2091f454d177074fceb70d5a80");
 

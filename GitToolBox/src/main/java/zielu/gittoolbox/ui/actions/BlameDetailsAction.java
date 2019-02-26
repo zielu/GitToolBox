@@ -55,7 +55,7 @@ public class BlameDetailsAction extends AnAction {
           BlameService blameService = BlameService.getInstance(project);
           Blame blame = blameService.getDocumentLineBlame(editor.getDocument(), editorFile, currentLine);
           if (blame.isNotEmpty()) {
-            String detailsText = blame.getDetailedText();
+            String detailsText = blame.getDetails();
             if (detailsText != null) {
               BlameUi.showBlamePopup(editor, editorFile, blame);
             }

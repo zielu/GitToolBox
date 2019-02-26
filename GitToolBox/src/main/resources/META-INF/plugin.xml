@@ -84,6 +84,8 @@
     <projectService serviceInterface="zielu.gittoolbox.cache.PerRepoInfoCache"
                     serviceImplementation="zielu.gittoolbox.cache.PerRepoInfoCacheImpl"/>
 
+    <applicationService serviceInterface="zielu.gittoolbox.ui.blame.BlamePresenter"
+                        serviceImplementation="zielu.gittoolbox.ui.blame.BlamePresenterImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
                     serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusGatewayImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.ui.blame.BlameEditorService"

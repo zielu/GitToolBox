@@ -7,8 +7,9 @@ import java.io.File;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import zielu.gittoolbox.TestType;
 
-@Tag("fast")
+@Tag(TestType.FAST)
 class GtConfigTest {
   private static GtConfig config;
 

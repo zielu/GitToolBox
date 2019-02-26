@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.config.AuthorNameType;
 import zielu.gittoolbox.config.CommitCompletionMode;
+import zielu.gittoolbox.config.DateType;
 import zielu.gittoolbox.config.DecorationPartConfig;
 import zielu.gittoolbox.config.DecorationPartType;
 import zielu.gittoolbox.extension.UpdateProjectAction;
@@ -71,6 +72,7 @@ public class GtForm implements GtFormUi {
   private ComboBox<CommitCompletionMode> commitDialogCompletionMode;
   private JCheckBox experimentalBlameEditorCache;
   private ComboBox<AuthorNameType> blameAuthorNameTypeCombo;
+  private ComboBox<DateType> blameDateTypeCombo;
 
   @Override
   public void init() {
@@ -180,6 +182,13 @@ public class GtForm implements GtFormUi {
       }
     });
     blameAuthorNameTypeCombo.setModel(new DefaultComboBoxModel<>(AuthorNameType.values()));
+    blameDateTypeCombo.setRenderer(new ListCellRendererWrapper<DateType>() {
+      @Override
+      public void customize(JList list, DateType value, int index, boolean selected, boolean hasFocus) {
+        setText(value.getDescription());
+      }
+    });
+    blameDateTypeCombo.setModel(new DefaultComboBoxModel<>(DateType.values()));
   }
 
   private Optional<DecorationPartConfig> getCurrentDecorationPart() {
@@ -341,5 +350,13 @@ public class GtForm implements GtFormUi {
 
   void setBlameAuthorNameType(AuthorNameType authorNameType) {
     blameAuthorNameTypeCombo.setSelectedItem(authorNameType);
+  }
+
+  DateType getBlameDateType() {
+    return (DateType) blameDateTypeCombo.getSelectedItem();
+  }
+
+  void setBlameDateType(DateType dateType) {
+    blameDateTypeCombo.setSelectedItem(dateType);
   }
 }

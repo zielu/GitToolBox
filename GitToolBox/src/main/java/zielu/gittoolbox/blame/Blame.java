@@ -1,6 +1,7 @@
 package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
+import java.time.LocalDate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,19 +17,18 @@ public interface Blame {
 
     @NotNull
     @Override
-    public String getShortText() {
+    public String getAuthor() {
       return EMPTY_TEXT;
     }
 
     @NotNull
     @Override
-    public String getShortStatus() {
-      return EMPTY_TEXT;
+    public LocalDate getDate() {
+      return LocalDate.now();
     }
 
-    @Nullable
     @Override
-    public String getDetailedText() {
+    public String getDetails() {
       return EMPTY_TEXT;
     }
 
@@ -47,13 +47,13 @@ public interface Blame {
   VcsRevisionNumber getRevisionNumber();
 
   @NotNull
-  String getShortText();
+  String getAuthor();
 
   @NotNull
-  String getShortStatus();
+  LocalDate getDate();
 
   @Nullable
-  String getDetailedText();
+  String getDetails();
 
   boolean isEmpty();
 

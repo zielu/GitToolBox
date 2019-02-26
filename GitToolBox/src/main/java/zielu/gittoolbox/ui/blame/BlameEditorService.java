@@ -18,7 +18,7 @@ interface BlameEditorService {
 
   void colorsSchemeChanged(@NotNull EditorColorsScheme colorsScheme);
 
-  void configChanged(@NotNull GitToolBoxConfig2 config);
+  void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current);
 
   @NotNull
   static BlameEditorService getInstance(@NotNull Project project) {

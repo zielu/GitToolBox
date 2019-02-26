@@ -12,9 +12,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.blame.BlameCache;
 import zielu.gittoolbox.blame.BlameListener;
-import zielu.gittoolbox.blame.BlameRevisionCache;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
@@ -83,14 +81,10 @@ class BlameUiSubscriber {
   }
 
   private boolean onConfigChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
-    boolean editorBlameUpdated = current.isBlameAuthorNameTypeChanged(previous.blameAuthorNameType);
-    if (editorBlameUpdated) {
-      BlameRevisionCache.getExistingInstance(project).ifPresent(BlameRevisionCache::invalidateAll);
-      BlameCache.getExistingInstance(project).ifPresent(BlameCache::resetAll);
-    }
-    BlameEditorService.getExistingInstance(project).ifPresent(service -> service.configChanged(current));
+    boolean blamePresentationChanged = current.isBlamePresentationChanged(previous);
+    BlameEditorService.getExistingInstance(project).ifPresent(service -> service.configChanged(previous, current));
     return current.showBlame != previous.showBlame
         || current.showEditorInlineBlame != previous.showEditorInlineBlame
-        || editorBlameUpdated;
+        || blamePresentationChanged;
   }
 }

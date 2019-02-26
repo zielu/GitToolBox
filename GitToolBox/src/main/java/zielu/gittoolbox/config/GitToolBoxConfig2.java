@@ -37,6 +37,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public CommitCompletionMode commitDialogCompletionMode = CommitCompletionMode.AUTOMATIC;
   public boolean experimentalBlameEditorCaching = true;
   public AuthorNameType blameAuthorNameType = AuthorNameType.LASTNAME;
+  public DateType blameDateType = DateType.AUTO;
 
   public boolean previousVersionMigrated;
 
@@ -118,6 +119,15 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
 
   public boolean isBlameAuthorNameTypeChanged(AuthorNameType blameAuthorNameType) {
     return this.blameAuthorNameType != blameAuthorNameType;
+  }
+
+  public boolean isBlameDateTypeChanged(DateType blameDateType) {
+    return this.blameDateType != blameDateType;
+  }
+
+  public boolean isBlamePresentationChanged(GitToolBoxConfig2 other) {
+    return isBlameAuthorNameTypeChanged(other.blameAuthorNameType)
+        || isBlameDateTypeChanged(other.blameDateType);
   }
 
   @Nullable

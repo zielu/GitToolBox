@@ -30,6 +30,7 @@ import zielu.gittoolbox.blame.Blame;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.ui.blame.BlamePresenter;
 import zielu.gittoolbox.ui.blame.BlameUi;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 
@@ -203,7 +204,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     if (blame.isEmpty()) {
       return null;
     } else {
-      return blame.getDetailedText();
+      return blame.getDetails();
     }
   }
 
@@ -316,7 +317,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
       return clearBlame();
     } else {
       if (stateHolder.updateBlame(blame)) {
-        blameText = blame.getShortStatus();
+        blameText = BlamePresenter.getInstance().getStatusBar(blame);
         return true;
       }
       return false;

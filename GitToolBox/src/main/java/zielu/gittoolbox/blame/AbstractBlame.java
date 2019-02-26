@@ -1,9 +1,11 @@
 package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.config.AuthorNameType;
 
 abstract class AbstractBlame implements Blame {
   private final VcsRevisionNumber revisionNumber;
@@ -12,17 +14,13 @@ abstract class AbstractBlame implements Blame {
     this.revisionNumber = revisionNumber;
   }
 
-  @Nullable
-  protected final String prepareAuthor(@Nullable String author) {
-    return AuthorNameType.LASTNAME.shorten(author);
-  }
-
-  protected abstract String getStatusPrefix();
-
   @NotNull
-  @Override
-  public String getShortStatus() {
-    return getStatusPrefix() + " " + getShortText();
+  protected LocalDate convertDate(@Nullable Date date) {
+    if (date != null) {
+      return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    } else {
+      return LocalDate.now();
+    }
   }
 
   @NotNull

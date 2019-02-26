@@ -33,14 +33,17 @@ class BlameEditorServiceImpl implements BlameEditorService {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicInteger configGeneration = new AtomicInteger(1);
   private final Project project;
+  private final BlamePresenter blamePresenter;
   private final Timer blameEditorTimer;
   private final Timer blameEditorGetInfoTimer;
   private final Timer blameEditorGetInfoCachingTimer;
   private TextAttributes blameTextAttributes;
   private boolean blameEditorCaching;
 
-  BlameEditorServiceImpl(@NotNull Project project, @NotNull ProjectMetrics metrics) {
+  BlameEditorServiceImpl(@NotNull Project project, @NotNull BlamePresenter blamePresenter,
+                         @NotNull ProjectMetrics metrics) {
     this.project = project;
+    this.blamePresenter = blamePresenter;
     blameEditorTimer = metrics.timer("blame-editor-painter");
     blameEditorGetInfoTimer = metrics.timer("blame-editor-painter-get-info");
     blameEditorGetInfoCachingTimer = metrics.timer("blame-editor-painter-get-info-caching");
@@ -55,9 +58,11 @@ class BlameEditorServiceImpl implements BlameEditorService {
   }
 
   @Override
-  public void configChanged(@NotNull GitToolBoxConfig2 config) {
-    blameEditorCaching = config.experimentalBlameEditorCaching;
-    configGeneration.incrementAndGet();
+  public void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
+    blameEditorCaching = current.experimentalBlameEditorCaching;
+    if (current.isBlamePresentationChanged(previous)) {
+      configGeneration.incrementAndGet();
+    }
   }
 
   @Nullable
@@ -144,7 +149,7 @@ class BlameEditorServiceImpl implements BlameEditorService {
   private String formatBlameText(Blame blame) {
     return new StringBand(2)
         .append(BLAME_PREFIX)
-        .append(blame.getShortText())
+        .append(blamePresenter.getEditorInline(blame))
         .toString();
   }
 

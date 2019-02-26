@@ -78,7 +78,8 @@ class BlamePopup {
   }
 
   private String prepareText() {
-    return  "<pre>" + blame.getDetailedText() + "</pre><br/>"
+    String details = BlamePresenter.getInstance().getPopup(blame);
+    return  "<pre>" + details + "</pre><br/>"
         + "<a href='" + REVEAL_IN_LOG + "'>Git Log</a>&nbsp;&nbsp;&nbsp"
         + "<a href='" + AFFECTED_FILES + "'>Affected Files</a>&nbsp;&nbsp;&nbsp"
         + "<a href='" + COPY_REVISION + "'>Copy Revision</a>";

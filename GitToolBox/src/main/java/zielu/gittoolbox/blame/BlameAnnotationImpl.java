@@ -38,11 +38,6 @@ class BlameAnnotationImpl implements BlameAnnotation {
   }
 
   @Override
-  public void invalidateBlames() {
-    lineBlames.clear();
-  }
-
-  @Override
   public boolean isChanged(@NotNull VcsRevisionNumber revision) {
     return annotation.isBaseRevisionChanged(revision);
   }

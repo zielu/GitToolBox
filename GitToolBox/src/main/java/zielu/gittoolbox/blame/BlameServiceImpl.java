@@ -21,6 +21,7 @@ class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final BlameServiceGateway gateway;
   private final BlameCache blameCache;
+  private final BlameRevisionCache revisionCache;
   private final Cache<VirtualFile, BlameAnnotation> annotationCache = CacheBuilder.newBuilder()
       .build();
   private final Cache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
@@ -31,14 +32,15 @@ class BlameServiceImpl implements BlameService, Disposable {
   private final Counter invalidatedCounter;
 
   BlameServiceImpl(@NotNull BlameServiceGateway gateway, @NotNull BlameCache blameCache,
-                   @NotNull ProjectMetrics metrics) {
+                   @NotNull BlameRevisionCache revisionCache, @NotNull ProjectMetrics metrics) {
     this.gateway = gateway;
     this.blameCache = blameCache;
+    this.revisionCache = revisionCache;
     fileBlameTimer = metrics.timer("blame-file");
     documentLineBlameTimer = metrics.timer("blame-document-line");
     invalidatedCounter = metrics.counter("blame-annotation-invalidated-count");
     metrics.gauge("blame-annotation-cache-size", annotationCache::size);
-    this.gateway.disposeWithProject(this::dispose);
+    this.gateway.disposeWithProject(this);
   }
 
   @Override
@@ -58,7 +60,7 @@ class BlameServiceImpl implements BlameService, Disposable {
     Blame blame = Blame.EMPTY;
     try {
       VcsFileRevision revision = gateway.getLastRevision(file);
-      blame = blameForRevision(revision);
+      blame = blameForRevision(file, revision);
     } catch (VcsException e) {
       log.warn("Failed to blame " + file, e);
     }
@@ -66,9 +68,9 @@ class BlameServiceImpl implements BlameService, Disposable {
   }
 
   @NotNull
-  private Blame blameForRevision(@Nullable VcsFileRevision revision) {
-    if (revision != null && revision != VcsFileRevision.NULL) {
-      return FileBlame.create(revision);
+  private Blame blameForRevision(@NotNull VirtualFile file, @Nullable VcsFileRevision revision) {
+    if (revision != null) {
+      return revisionCache.getForFile(file, revision);
     }
     return Blame.EMPTY;
   }

@@ -30,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import zielu.gittoolbox.TestType;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.cache.RepoStatus;
 import zielu.gittoolbox.cache.RepoStatusRemote;
@@ -39,7 +40,7 @@ import zielu.gittoolbox.ui.StatusMessagesUi;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi;
 
-@Tag("fast")
+@Tag(TestType.FAST)
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
 class BehindTrackerTest {

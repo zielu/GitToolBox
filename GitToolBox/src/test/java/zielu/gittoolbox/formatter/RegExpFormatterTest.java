@@ -7,8 +7,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import zielu.gittoolbox.TestType;
 
-@Tag("fast")
+@Tag(TestType.FAST)
 class RegExpFormatterTest {
   @DisplayName("Formatting with pattern")
   @ParameterizedTest(name = "''{1}'' formatted with ''{0}'' should return ''{2}''")
