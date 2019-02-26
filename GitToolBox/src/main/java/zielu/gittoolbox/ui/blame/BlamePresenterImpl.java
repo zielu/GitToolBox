@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.blame.Blame;
+import zielu.gittoolbox.config.AuthorNameType;
+import zielu.gittoolbox.config.DateType;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 
 class BlamePresenterImpl implements BlamePresenter {
@@ -25,9 +27,9 @@ class BlamePresenterImpl implements BlamePresenter {
     return new StringBand(5)
         .append(ResBundle.getString("blame.prefix"))
         .append(" ")
-        .append(formatAuthor(blame.getAuthor()))
+        .append(AuthorNameType.LASTNAME.shorten(blame.getAuthor()))
         .append(" ")
-        .append(formatDate(blame.getDate()))
+        .append(DateType.ABSOLUTE.format(blame.getDate()))
         .toString();
   }
 
@@ -36,11 +38,13 @@ class BlamePresenterImpl implements BlamePresenter {
   public String getPopup(@NotNull Blame blame) {
     String details = blame.getDetails();
     if (details != null) {
-      return new StringBand(6)
+      return new StringBand(8)
           .append("commit: ")
           .append(blame.getRevisionNumber().asString())
           .append("\nauthor: ")
-          .append(formatAuthor(blame.getAuthor()))
+          .append(AuthorNameType.NONE.shorten(blame.getAuthor()))
+          .append("\ndate: ")
+          .append(DateType.ABSOLUTE.format(blame.getDate()))
           .append("\n\n")
           .append(details)
           .toString();
@@ -50,12 +54,12 @@ class BlamePresenterImpl implements BlamePresenter {
   }
 
   private String formatAuthor(@Nullable String author) {
-    return GitToolBoxConfig2.getInstance().blameAuthorNameType.shorten(author);
+    return GitToolBoxConfig2.getInstance().blameInlineAuthorNameType.shorten(author);
   }
 
   private String formatDate(@Nullable LocalDate date) {
     if (date != null) {
-      return GitToolBoxConfig2.getInstance().blameDateType.format(date);
+      return GitToolBoxConfig2.getInstance().blameInlineDateType.format(date);
     } else {
       return "";
     }

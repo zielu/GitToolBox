@@ -81,7 +81,7 @@ class BlameUiSubscriber {
   }
 
   private boolean onConfigChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
-    boolean blamePresentationChanged = current.isBlamePresentationChanged(previous);
+    boolean blamePresentationChanged = current.isBlameInlinePresentationChanged(previous);
     BlameEditorService.getExistingInstance(project).ifPresent(service -> service.configChanged(previous, current));
     return current.showBlame != previous.showBlame
         || current.showEditorInlineBlame != previous.showEditorInlineBlame

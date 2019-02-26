@@ -49,8 +49,8 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     form.setShowBlame(config.showBlame);
     form.setShowEditorInlineBlame(config.showEditorInlineBlame);
     form.setCommitDialogCompletionMode(config.commitDialogCompletionMode);
-    form.setBlameAuthorNameType(config.blameAuthorNameType);
-    form.setBlameDateType(config.blameDateType);
+    form.setBlameAuthorNameType(config.blameInlineAuthorNameType);
+    form.setBlameDateType(config.blameInlineDateType);
     form.setExperimentalBlameEditorCachingEnabled(config.experimentalBlameEditorCaching);
   }
 
@@ -65,8 +65,8 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     modified = modified || config.isShowBlameChanged(form.getShowBlame());
     modified = modified || config.isShowEditorInlineBlameChanged(form.getShowEditorInlineBlame());
     modified = modified || config.isCommitDialogCompletionModeChanged(form.getCommitDialogCompletionMode());
-    modified = modified || config.isBlameAuthorNameTypeChanged(form.getBlameAuthorNameType());
-    modified = modified || config.isBlameDateTypeChanged(form.getBlameDateType());
+    modified = modified || config.isBlameInlineAuthorNameTypeChanged(form.getBlameAuthorNameType());
+    modified = modified || config.isBlameInlineDateTypeChanged(form.getBlameDateType());
     modified = modified || config.isExperimentalBlameEditorCachingChanged(
         form.getExperimentalBlameEditorCachingEnabled());
     log.debug("Modified: ", modified);
@@ -87,8 +87,8 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     config.showBlame = form.getShowBlame();
     config.showEditorInlineBlame = form.getShowEditorInlineBlame();
     config.commitDialogCompletionMode = form.getCommitDialogCompletionMode();
-    config.blameAuthorNameType = form.getBlameAuthorNameType();
-    config.blameDateType = form.getBlameDateType();
+    config.blameInlineAuthorNameType = form.getBlameAuthorNameType();
+    config.blameInlineDateType = form.getBlameDateType();
     config.experimentalBlameEditorCaching = form.getExperimentalBlameEditorCachingEnabled();
 
     //Mark migrated here to handle case when config is modified without opening a project

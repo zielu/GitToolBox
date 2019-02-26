@@ -36,8 +36,8 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   );
   public CommitCompletionMode commitDialogCompletionMode = CommitCompletionMode.AUTOMATIC;
   public boolean experimentalBlameEditorCaching = true;
-  public AuthorNameType blameAuthorNameType = AuthorNameType.LASTNAME;
-  public DateType blameDateType = DateType.AUTO;
+  public AuthorNameType blameInlineAuthorNameType = AuthorNameType.LASTNAME;
+  public DateType blameInlineDateType = DateType.AUTO;
 
   public boolean previousVersionMigrated;
 
@@ -117,17 +117,17 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     return this.experimentalBlameEditorCaching != experimentalBlameEditorCaching;
   }
 
-  public boolean isBlameAuthorNameTypeChanged(AuthorNameType blameAuthorNameType) {
-    return this.blameAuthorNameType != blameAuthorNameType;
+  public boolean isBlameInlineAuthorNameTypeChanged(AuthorNameType blameAuthorNameType) {
+    return this.blameInlineAuthorNameType != blameAuthorNameType;
   }
 
-  public boolean isBlameDateTypeChanged(DateType blameDateType) {
-    return this.blameDateType != blameDateType;
+  public boolean isBlameInlineDateTypeChanged(DateType blameDateType) {
+    return this.blameInlineDateType != blameDateType;
   }
 
-  public boolean isBlamePresentationChanged(GitToolBoxConfig2 other) {
-    return isBlameAuthorNameTypeChanged(other.blameAuthorNameType)
-        || isBlameDateTypeChanged(other.blameDateType);
+  public boolean isBlameInlinePresentationChanged(GitToolBoxConfig2 other) {
+    return isBlameInlineAuthorNameTypeChanged(other.blameInlineAuthorNameType)
+        || isBlameInlineDateTypeChanged(other.blameInlineDateType);
   }
 
   @Nullable

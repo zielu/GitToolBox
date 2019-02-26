@@ -60,7 +60,7 @@ class BlameEditorServiceImpl implements BlameEditorService {
   @Override
   public void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
     blameEditorCaching = current.experimentalBlameEditorCaching;
-    if (current.isBlamePresentationChanged(previous)) {
+    if (current.isBlameInlinePresentationChanged(previous)) {
       configGeneration.incrementAndGet();
     }
   }
