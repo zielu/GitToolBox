@@ -9,7 +9,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.blame.Blame;
+import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
@@ -53,11 +53,11 @@ public class BlameDetailsAction extends AnAction {
         int currentLine = BlameUi.getCurrentLineNumber(editor);
         if (BlameUi.isValidLineNumber(currentLine)) {
           BlameService blameService = BlameService.getInstance(project);
-          Blame blame = blameService.getDocumentLineBlame(editor.getDocument(), editorFile, currentLine);
-          if (blame.isNotEmpty()) {
-            String detailsText = blame.getDetails();
+          RevisionInfo revisionInfo = blameService.getDocumentLineBlame(editor.getDocument(), editorFile, currentLine);
+          if (revisionInfo.isNotEmpty()) {
+            String detailsText = revisionInfo.getDetails();
             if (detailsText != null) {
-              BlameUi.showBlamePopup(editor, editorFile, blame);
+              BlameUi.showBlamePopup(editor, editorFile, revisionInfo);
             }
           }
         }

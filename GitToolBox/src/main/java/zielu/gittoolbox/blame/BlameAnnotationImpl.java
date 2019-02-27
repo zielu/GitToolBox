@@ -8,13 +8,15 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.revision.RevisionCache;
 
 class BlameAnnotationImpl implements BlameAnnotation {
   private final FileAnnotation annotation;
-  private final BlameRevisionCache revisionCache;
-  private final TIntObjectHashMap<Blame> lineBlames;
+  private final RevisionCache revisionCache;
+  private final TIntObjectHashMap<RevisionInfo> lineBlames;
 
-  BlameAnnotationImpl(@NotNull FileAnnotation annotation, @NotNull BlameRevisionCache revisionCache) {
+  BlameAnnotationImpl(@NotNull FileAnnotation annotation, @NotNull RevisionCache revisionCache) {
     this.annotation = annotation;
     this.revisionCache = revisionCache;
     lineBlames =  new TIntObjectHashMap<>(this.annotation.getLineCount());
@@ -22,19 +24,19 @@ class BlameAnnotationImpl implements BlameAnnotation {
 
   @NotNull
   @Override
-  public Blame getBlame(int lineNumber) {
-    Blame blame = lineBlames.get(lineNumber);
-    if (blame == null) {
-      blame = loadBlame(lineNumber);
+  public RevisionInfo getBlame(int lineNumber) {
+    RevisionInfo revisionInfo = lineBlames.get(lineNumber);
+    if (revisionInfo == null) {
+      revisionInfo = loadBlame(lineNumber);
     }
-    return blame;
+    return revisionInfo;
   }
 
   @NotNull
-  private Blame loadBlame(int lineNumber) {
-    Blame blame = revisionCache.getForLine(annotation, lineNumber);
-    lineBlames.put(lineNumber, blame);
-    return blame;
+  private RevisionInfo loadBlame(int lineNumber) {
+    RevisionInfo revisionInfo = revisionCache.getForLine(annotation, lineNumber);
+    lineBlames.put(lineNumber, revisionInfo);
+    return revisionInfo;
   }
 
   @Override

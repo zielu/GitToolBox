@@ -15,13 +15,15 @@ import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.revision.RevisionCache;
 import zielu.gittoolbox.ui.blame.BlameUi;
 
 class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final BlameServiceGateway gateway;
   private final BlameCache blameCache;
-  private final BlameRevisionCache revisionCache;
+  private final RevisionCache revisionCache;
   private final Cache<VirtualFile, BlameAnnotation> annotationCache = CacheBuilder.newBuilder()
       .build();
   private final Cache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
@@ -32,7 +34,7 @@ class BlameServiceImpl implements BlameService, Disposable {
   private final Counter invalidatedCounter;
 
   BlameServiceImpl(@NotNull BlameServiceGateway gateway, @NotNull BlameCache blameCache,
-                   @NotNull BlameRevisionCache revisionCache, @NotNull ProjectMetrics metrics) {
+                   @NotNull RevisionCache revisionCache, @NotNull ProjectMetrics metrics) {
     this.gateway = gateway;
     this.blameCache = blameCache;
     this.revisionCache = revisionCache;
@@ -51,40 +53,42 @@ class BlameServiceImpl implements BlameService, Disposable {
 
   @NotNull
   @Override
-  public Blame getFileBlame(@NotNull VirtualFile file) {
+  public RevisionInfo getFileBlame(@NotNull VirtualFile file) {
     return fileBlameTimer.timeSupplier(() -> getFileBlameInternal(file));
   }
 
   @NotNull
-  private Blame getFileBlameInternal(@NotNull VirtualFile file) {
-    Blame blame = Blame.EMPTY;
+  private RevisionInfo getFileBlameInternal(@NotNull VirtualFile file) {
+    RevisionInfo revisionInfo = RevisionInfo.EMPTY;
     try {
       VcsFileRevision revision = gateway.getLastRevision(file);
-      blame = blameForRevision(file, revision);
+      revisionInfo = blameForRevision(file, revision);
     } catch (VcsException e) {
-      log.warn("Failed to blame " + file, e);
+      log.warn("Failed to revisionInfo " + file, e);
     }
-    return blame;
+    return revisionInfo;
   }
 
   @NotNull
-  private Blame blameForRevision(@NotNull VirtualFile file, @Nullable VcsFileRevision revision) {
+  private RevisionInfo blameForRevision(@NotNull VirtualFile file, @Nullable VcsFileRevision revision) {
     if (revision != null) {
       return revisionCache.getForFile(file, revision);
     }
-    return Blame.EMPTY;
+    return RevisionInfo.EMPTY;
   }
 
   @NotNull
   @Override
-  public Blame getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber) {
+  public RevisionInfo getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file,
+                                           int editorLineNumber) {
     return documentLineBlameTimer.timeSupplier(() -> getLineBlameInternal(document, file, editorLineNumber));
   }
 
   @NotNull
-  private Blame getLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber) {
+  private RevisionInfo getLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
+                                            int editorLineNumber) {
     if (invalidateOnBulkUpdate(document, file)) {
-      return Blame.EMPTY;
+      return RevisionInfo.EMPTY;
     }
     CachedLineProvider lineNumberProvider = getLineNumberProvider(document);
     if (lineNumberProvider != null) {
@@ -93,17 +97,17 @@ class BlameServiceImpl implements BlameService, Disposable {
         return getLineBlameInternal(file, correctedLine);
       }
     }
-    return Blame.EMPTY;
+    return RevisionInfo.EMPTY;
   }
 
   @NotNull
-  private Blame getLineBlameInternal(@NotNull VirtualFile file, int currentLine) {
+  private RevisionInfo getLineBlameInternal(@NotNull VirtualFile file, int currentLine) {
     try {
       BlameAnnotation blameAnnotation = annotationCache.get(file, () -> blameCache.getAnnotation(file));
       return blameAnnotation.getBlame(currentLine);
     } catch (ExecutionException e) {
       log.warn("Failed to blame " + file + ": " + currentLine);
-      return Blame.EMPTY;
+      return RevisionInfo.EMPTY;
     }
   }
 

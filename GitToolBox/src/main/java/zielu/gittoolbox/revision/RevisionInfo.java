@@ -1,12 +1,12 @@
-package zielu.gittoolbox.blame;
+package zielu.gittoolbox.revision;
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface Blame {
-  Blame EMPTY = new Blame() {
+public interface RevisionInfo {
+  RevisionInfo EMPTY = new RevisionInfo() {
     private static final String EMPTY_TEXT = "EMPTY";
 
     @NotNull
@@ -23,13 +23,20 @@ public interface Blame {
 
     @NotNull
     @Override
-    public LocalDate getDate() {
-      return LocalDate.now();
+    public LocalDateTime getDate() {
+      return LocalDateTime.now();
     }
 
+    @Nullable
+    @Override
+    public String getSubject() {
+      return null;
+    }
+
+    @Nullable
     @Override
     public String getDetails() {
-      return EMPTY_TEXT;
+      return null;
     }
 
     @Override
@@ -50,7 +57,10 @@ public interface Blame {
   String getAuthor();
 
   @NotNull
-  LocalDate getDate();
+  LocalDateTime getDate();
+
+  @Nullable
+  String getSubject();
 
   @Nullable
   String getDetails();

@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.blame.Blame;
+import zielu.gittoolbox.revision.RevisionInfo;
 
 public final class BlameUi {
   private static final int NO_LINE = Integer.MIN_VALUE;
@@ -18,10 +18,11 @@ public final class BlameUi {
     //do nothing
   }
 
-  public static void showBlamePopup(@NotNull Editor editor, @NotNull VirtualFile file, @NotNull Blame blame) {
+  public static void showBlamePopup(@NotNull Editor editor, @NotNull VirtualFile file,
+                                    @NotNull RevisionInfo revisionInfo) {
     Project project = editor.getProject();
     if (project != null) {
-      new BlamePopup(project, file, blame).showFor(editor.getComponent());
+      new BlamePopup(project, file, revisionInfo).showFor(editor.getComponent());
     }
   }
 

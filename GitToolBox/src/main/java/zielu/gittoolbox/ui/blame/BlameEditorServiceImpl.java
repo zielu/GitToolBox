@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.blame.Blame;
+import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.config.DecorationColors;
@@ -95,10 +95,10 @@ class BlameEditorServiceImpl implements BlameEditorService {
   @Nullable
   private Collection<LineExtensionInfo> getInfos(@NotNull Editor editor, @NotNull Document document,
                                                  @NotNull VirtualFile file, int editorLineNumber) {
-    Blame lineBlame = getLineBlame(document, file, editorLineNumber);
+    RevisionInfo lineRevisionInfo = getLineBlame(document, file, editorLineNumber);
     Collection<LineExtensionInfo> lineInfo = null;
-    if (lineBlame.isNotEmpty()) {
-      lineInfo = getDecoration(lineBlame);
+    if (lineRevisionInfo.isNotEmpty()) {
+      lineInfo = getDecoration(lineRevisionInfo);
     }
     return lineInfo;
   }
@@ -111,10 +111,10 @@ class BlameEditorServiceImpl implements BlameEditorService {
     if (cachedInfo != null) {
       return cachedInfo;
     } else {
-      Blame lineBlame = getLineBlame(document, file, editorLineNumber);
+      RevisionInfo lineRevisionInfo = getLineBlame(document, file, editorLineNumber);
       Collection<LineExtensionInfo> lineInfo = null;
-      if (lineBlame.isNotEmpty()) {
-        lineInfo = getDecoration(lineBlame);
+      if (lineRevisionInfo.isNotEmpty()) {
+        lineInfo = getDecoration(lineRevisionInfo);
       }
       lineState.setEditorData(lineInfo);
       return lineInfo;
@@ -135,21 +135,21 @@ class BlameEditorServiceImpl implements BlameEditorService {
   }
 
   @NotNull
-  private Blame getLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber) {
+  private RevisionInfo getLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber) {
     BlameService blameService = BlameService.getInstance(project);
     return blameService.getDocumentLineBlame(document, file, editorLineNumber);
   }
 
   @NotNull
-  private Collection<LineExtensionInfo> getDecoration(Blame blame) {
-    String text = formatBlameText(blame);
+  private Collection<LineExtensionInfo> getDecoration(RevisionInfo revisionInfo) {
+    String text = formatBlameText(revisionInfo);
     return Collections.singletonList(new LineExtensionInfo(text, blameTextAttributes));
   }
 
-  private String formatBlameText(Blame blame) {
+  private String formatBlameText(RevisionInfo revisionInfo) {
     return new StringBand(2)
         .append(BLAME_PREFIX)
-        .append(blamePresenter.getEditorInline(blame))
+        .append(blamePresenter.getEditorInline(revisionInfo))
         .toString();
   }
 

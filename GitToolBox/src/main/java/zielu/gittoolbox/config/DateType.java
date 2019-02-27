@@ -2,7 +2,7 @@ package zielu.gittoolbox.config;
 
 import com.intellij.util.text.DateFormatUtil;
 import com.intellij.util.xmlb.annotations.Transient;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,14 +12,14 @@ public enum DateType {
   AUTO("date.type.auto") {
     @NotNull
     @Override
-    protected String formatImpl(@NotNull LocalDate date) {
-      return DateFormatUtil.formatPrettyDate(toTimestamp(date));
+    protected String formatImpl(@NotNull LocalDateTime date) {
+      return DateFormatUtil.formatPrettyDateTime(toTimestamp(date));
     }
   },
   RELATIVE("date.type.relative") {
     @NotNull
     @Override
-    protected String formatImpl(@NotNull LocalDate date) {
+    protected String formatImpl(@NotNull LocalDateTime date) {
       long timestamp = toTimestamp(date);
       return DateFormatUtil.formatBetweenDates(timestamp, System.currentTimeMillis());
     }
@@ -27,8 +27,8 @@ public enum DateType {
   ABSOLUTE("date.type.absolute") {
     @NotNull
     @Override
-    protected String formatImpl(@NotNull LocalDate date) {
-      return DateFormatUtil.formatDate(toTimestamp(date));
+    protected String formatImpl(@NotNull LocalDateTime date) {
+      return DateFormatUtil.formatDateTime(toTimestamp(date));
     }
   };
 
@@ -44,18 +44,18 @@ public enum DateType {
   }
 
   @Nullable
-  public String format(@Nullable LocalDate date) {
-    if (date != null) {
-      return formatImpl(date);
+  public String format(@Nullable LocalDateTime dateTime) {
+    if (dateTime != null) {
+      return formatImpl(dateTime);
     } else {
       return null;
     }
   }
 
   @NotNull
-  protected abstract String formatImpl(@NotNull LocalDate date);
+  protected abstract String formatImpl(@NotNull LocalDateTime dateTime);
 
-  protected final long toTimestamp(@NotNull LocalDate date) {
-    return date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+  protected final long toTimestamp(@NotNull LocalDateTime date) {
+    return date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
   }
 }

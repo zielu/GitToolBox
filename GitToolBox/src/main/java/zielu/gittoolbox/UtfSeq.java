@@ -8,6 +8,7 @@ public final class UtfSeq {
   public static final String ARROWHEAD_DOWN = "\u02C5";
   public static final String ARROWHEAD_RIGHT = "\u02C3";
   public static final String INCREMENT = "\u2206";
+  public static final String BULLET = "\u2022";
 
   private UtfSeq() {
     throw new IllegalStateException();

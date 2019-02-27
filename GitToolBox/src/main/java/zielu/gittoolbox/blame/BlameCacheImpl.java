@@ -23,13 +23,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.revision.RevisionCache;
 
 class BlameCacheImpl implements BlameCache, Disposable {
   private static final BlameAnnotation EMPTY = new BlameAnnotation() {
     @NotNull
     @Override
-    public Blame getBlame(int lineNumber) {
-      return Blame.EMPTY;
+    public RevisionInfo getBlame(int lineNumber) {
+      return RevisionInfo.EMPTY;
     }
 
     @Override
@@ -52,7 +54,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private final BlameCacheGateway gateway;
   private final VirtualFileRepoCache fileRepoCache;
   private final BlameLoader blameLoader;
-  private final BlameRevisionCache revisionCache;
+  private final RevisionCache revisionCache;
   private final Map<VirtualFile, BlameAnnotation> annotations = new ConcurrentHashMap<>();
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
   private final Timer getTimer;
@@ -62,7 +64,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private final ExecutorService executor;
 
   BlameCacheImpl(@NotNull BlameCacheGateway gateway, @NotNull VirtualFileRepoCache fileRepoCache,
-                 @NotNull BlameLoader blameLoader, @NotNull BlameRevisionCache revisionCache,
+                 @NotNull BlameLoader blameLoader, @NotNull RevisionCache revisionCache,
                  @NotNull ProjectMetrics metrics) {
     this.gateway = gateway;
     this.fileRepoCache = fileRepoCache;

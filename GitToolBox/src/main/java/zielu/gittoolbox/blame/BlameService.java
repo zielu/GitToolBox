@@ -7,16 +7,17 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.util.AppUtil;
 
 public interface BlameService {
-  Topic<BlameListener> BLAME_UPDATE = Topic.create("Blame updates", BlameListener.class);
+  Topic<BlameListener> BLAME_UPDATE = Topic.create("RevisionInfo updates", BlameListener.class);
 
   @NotNull
-  Blame getFileBlame(@NotNull VirtualFile file);
+  RevisionInfo getFileBlame(@NotNull VirtualFile file);
 
   @NotNull
-  Blame getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber);
+  RevisionInfo getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber);
 
   void fileClosed(@NotNull VirtualFile file);
 

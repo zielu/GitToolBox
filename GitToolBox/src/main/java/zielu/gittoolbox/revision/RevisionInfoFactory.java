@@ -1,4 +1,4 @@
-package zielu.gittoolbox.blame;
+package zielu.gittoolbox.revision;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
@@ -15,37 +15,38 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 
-class BlameFactory {
+class RevisionInfoFactory {
   private final Project project;
   private final VirtualFileRepoCache repoCache;
 
-  BlameFactory(Project project, VirtualFileRepoCache repoCache) {
+  RevisionInfoFactory(@NotNull Project project, @NotNull VirtualFileRepoCache repoCache) {
     this.project = project;
     this.repoCache = repoCache;
   }
 
   @NotNull
-  Blame forLine(@NotNull FileAnnotation annotation, @NotNull VcsRevisionNumber lineRevision) {
+  RevisionInfo forLine(@NotNull FileAnnotation annotation, @NotNull VcsRevisionNumber lineRevision) {
     return fromFileRevision(annotation, lineRevision);
   }
 
   @NotNull
-  Blame forFile(@NotNull VirtualFile file, @NotNull VcsFileRevision revision) {
+  RevisionInfo forFile(@NotNull VirtualFile file, @NotNull VcsFileRevision revision) {
     VcsRevisionNumber revisionNumber = revision.getRevisionNumber();
-    return blameFor(revisionNumber, getMetadata(project, file, revisionNumber));
+    return infoFor(revisionNumber, getMetadata(project, file, revisionNumber));
   }
 
-  private Blame fromFileRevision(FileAnnotation annotation, VcsRevisionNumber revision) {
+  private RevisionInfo fromFileRevision(FileAnnotation annotation, VcsRevisionNumber revision) {
     VcsCommitMetadata metadata = getMetadata(annotation, revision);
-    return blameFor(revision, metadata);
+    return infoFor(revision, metadata);
   }
 
-  private Blame blameFor(VcsRevisionNumber revision, @Nullable VcsCommitMetadata metadata) {
+  private RevisionInfo infoFor(VcsRevisionNumber revision, @Nullable VcsCommitMetadata metadata) {
     if (metadata != null) {
-      return new BlameImpl(revision, metadata.getAuthor().getName(),
-          Date.from(Instant.ofEpochMilli(metadata.getAuthorTime())), metadata.getFullMessage());
+      return new RevisionInfoImpl(revision, metadata.getAuthor().getName(),
+          Date.from(Instant.ofEpochMilli(metadata.getAuthorTime())), metadata.getSubject(),
+          metadata.getFullMessage());
     }
-    return Blame.EMPTY;
+    return RevisionInfo.EMPTY;
   }
 
   private VcsCommitMetadata getMetadata(FileAnnotation annotation, VcsRevisionNumber revision) {

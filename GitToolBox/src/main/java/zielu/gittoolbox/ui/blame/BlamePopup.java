@@ -36,7 +36,7 @@ import javax.swing.event.HyperlinkListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.blame.Blame;
+import zielu.gittoolbox.revision.RevisionInfo;
 
 class BlamePopup {
   private static final Logger LOG = Logger.getInstance(BlamePopup.class);
@@ -47,14 +47,14 @@ class BlamePopup {
 
   private final Project project;
   private final VirtualFile file;
-  private final Blame blame;
+  private final RevisionInfo revisionInfo;
 
   private Balloon balloon;
 
-  BlamePopup(@NotNull Project project, @NotNull VirtualFile file, @NotNull Blame blame) {
+  BlamePopup(@NotNull Project project, @NotNull VirtualFile file, @NotNull RevisionInfo revisionInfo) {
     this.project = project;
     this.file = file;
-    this.blame = blame;
+    this.revisionInfo = revisionInfo;
   }
 
   void showFor(@NotNull JComponent component) {
@@ -78,7 +78,7 @@ class BlamePopup {
   }
 
   private String prepareText() {
-    String details = BlamePresenter.getInstance().getPopup(blame);
+    String details = BlamePresenter.getInstance().getPopup(revisionInfo);
     return  "<pre>" + details + "</pre><br/>"
         + "<a href='" + REVEAL_IN_LOG + "'>Git Log</a>&nbsp;&nbsp;&nbsp"
         + "<a href='" + AFFECTED_FILES + "'>Affected Files</a>&nbsp;&nbsp;&nbsp"
@@ -100,13 +100,13 @@ class BlamePopup {
     } else if (AFFECTED_FILES.equalsIgnoreCase(action)) {
       showAffectedFiles();
     } else if (COPY_REVISION.equalsIgnoreCase(action)) {
-      CopyPasteManager.getInstance().setContents(new StringSelection(blame.getRevisionNumber().asString()));
+      CopyPasteManager.getInstance().setContents(new StringSelection(revisionInfo.getRevisionNumber().asString()));
     }
     close();
   }
 
   private void revealRevisionInLog(@NotNull AbstractVcsLogUi logUi) {
-    String revisionNumber = blame.getRevisionNumber().asString();
+    String revisionNumber = revisionInfo.getRevisionNumber().asString();
     Future<Boolean> future = logUi.getVcsLog().jumpToReference(revisionNumber);
     if (!future.isDone()) {
       ProgressManager.getInstance().run(new Task.Backgroundable(project,
@@ -133,7 +133,7 @@ class BlamePopup {
       if (changesProvider != null) {
         Pair<? extends CommittedChangeList, FilePath> affectedFiles = findAffectedFiles(changesProvider);
         if (affectedFiles != null) {
-          AbstractVcsHelperImpl.loadAndShowCommittedChangesDetails(project, blame.getRevisionNumber(),
+          AbstractVcsHelperImpl.loadAndShowCommittedChangesDetails(project, revisionInfo.getRevisionNumber(),
               affectedFiles.getSecond(), () -> affectedFiles);
         }
       }
@@ -144,7 +144,8 @@ class BlamePopup {
   private Pair<? extends CommittedChangeList, FilePath> findAffectedFiles(
       @NotNull CommittedChangesProvider<?, ?> changesProvider) {
     try {
-      Pair<? extends CommittedChangeList, FilePath> pair = changesProvider.getOneList(file, blame.getRevisionNumber());
+      Pair<? extends CommittedChangeList, FilePath> pair = changesProvider.getOneList(file,
+          revisionInfo.getRevisionNumber());
       if (pair != null && pair.getFirst() != null) {
         if (pair.getSecond() != null) {
           pair = Pair.create(pair.getFirst(), VcsUtil.getFilePath(file));
