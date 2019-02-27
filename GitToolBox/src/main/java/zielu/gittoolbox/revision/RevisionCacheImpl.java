@@ -43,7 +43,7 @@ class RevisionCacheImpl implements RevisionCache, Disposable {
     VcsRevisionNumber lineRevision = annotation.getLineRevisionNumber(lineNumber);
     if (lineRevision != null) {
       try {
-        return cache.get(lineRevision, () -> infoFactory.forLine(annotation, lineRevision));
+        return cache.get(lineRevision, () -> infoFactory.forLine(annotation, lineRevision, lineNumber));
       } catch (ExecutionException e) {
         log.warn("Failed to load revision " + lineRevision + " for line " + lineNumber);
         return RevisionInfo.EMPTY;

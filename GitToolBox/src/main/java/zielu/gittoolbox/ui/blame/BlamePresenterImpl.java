@@ -24,7 +24,8 @@ class BlamePresenterImpl implements BlamePresenter {
         .append(formatAuthor(revisionInfo.getAuthor()))
         .append(", ")
         .append(formatDate(revisionInfo.getDate()));
-    if (revisionInfo.getSubject() != null) {
+    boolean showSubject = GitToolBoxConfig2.getInstance().blameInlineShowSubject;
+    if (showSubject && revisionInfo.getSubject() != null) {
       info.append(SUBJECT_SEPARATOR).append(revisionInfo.getSubject());
     }
     return info.toString();

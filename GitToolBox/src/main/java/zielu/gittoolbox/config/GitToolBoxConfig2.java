@@ -38,6 +38,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public boolean experimentalBlameEditorCaching = true;
   public AuthorNameType blameInlineAuthorNameType = AuthorNameType.LASTNAME;
   public DateType blameInlineDateType = DateType.AUTO;
+  public boolean blameInlineShowSubject = true;
 
   public boolean previousVersionMigrated;
 
@@ -125,9 +126,14 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     return this.blameInlineDateType != blameDateType;
   }
 
+  public boolean isBlameInlineShowSubjectChanged(boolean blameInlineShowSubject) {
+    return this.blameInlineShowSubject != blameInlineShowSubject;
+  }
+
   public boolean isBlameInlinePresentationChanged(GitToolBoxConfig2 other) {
     return isBlameInlineAuthorNameTypeChanged(other.blameInlineAuthorNameType)
-        || isBlameInlineDateTypeChanged(other.blameInlineDateType);
+        || isBlameInlineDateTypeChanged(other.blameInlineDateType)
+        || isBlameInlineShowSubjectChanged(other.blameInlineShowSubject);
   }
 
   @Nullable

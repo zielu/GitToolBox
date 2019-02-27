@@ -73,6 +73,7 @@ public class GtForm implements GtFormUi {
   private JCheckBox experimentalBlameEditorCache;
   private ComboBox<AuthorNameType> blameAuthorNameTypeCombo;
   private ComboBox<DateType> blameDateTypeCombo;
+  private JCheckBox blameShowSubjectCheckBox;
 
   @Override
   public void init() {
@@ -358,5 +359,13 @@ public class GtForm implements GtFormUi {
 
   void setBlameDateType(DateType dateType) {
     blameDateTypeCombo.setSelectedItem(dateType);
+  }
+
+  boolean getBlameShowSubject() {
+    return blameShowSubjectCheckBox.isSelected();
+  }
+
+  void setBlameShowSubject(boolean showSubject) {
+    blameShowSubjectCheckBox.setSelected(showSubject);
   }
 }

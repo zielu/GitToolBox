@@ -66,7 +66,8 @@
 
     <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup"/>
 
-     <projectService serviceImplementation="zielu.gittoolbox.revision.RevisionInfoFactory"/>
+    <projectService serviceInterface="zielu.gittoolbox.revision.RevisionInfoFactory"
+                    serviceImplementation="zielu.gittoolbox.revision.LightRevisionInfoFactory"/>
     <projectService serviceInterface="zielu.gittoolbox.revision.RevisionCache"
                     serviceImplementation="zielu.gittoolbox.revision.RevisionCacheImpl"/>
 
