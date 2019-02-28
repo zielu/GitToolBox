@@ -6,7 +6,16 @@ import org.jetbrains.annotations.Nullable;
 
 public enum AuthorNameType {
   INITIALS(ShortNameType.INITIALS),
-  LASTNAME(ShortNameType.LASTNAME),
+  LASTNAME(ShortNameType.LASTNAME) {
+    @Nullable
+    @Override
+    public String shorten(@Nullable String author) {
+      if (author != null) {
+        author = author.replaceAll("\\(.*\\)", "");
+      }
+      return super.shorten(author);
+    }
+  },
   FIRSTNAME(ShortNameType.FIRSTNAME),
   NONE(ShortNameType.NONE);
 
@@ -23,11 +32,6 @@ public enum AuthorNameType {
 
   @Nullable
   public String shorten(@Nullable String author) {
-    if (author != null) {
-      if (type == ShortNameType.LASTNAME) {
-        author = author.replaceAll("\\(.*\\)", "");
-      }
-    }
     return ShortNameType.shorten(author, type);
   }
 }
