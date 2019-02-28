@@ -16,6 +16,8 @@ public class GuavaCacheMetrics implements MetricSet {
     CacheStats stats = cache.stats();
     manager.gauge(name(cacheName, "hit", "rate"), stats::hitRate);
     manager.gauge(name(cacheName, "miss", "rate"), stats::missRate);
+    manager.gauge(name(cacheName, "load", "count"), stats::loadCount);
+    manager.gauge(name(cacheName, "avg", "load", "time"), stats::averageLoadPenalty);
     manager.gauge(name(cacheName, "eviction", "count"), stats::evictionCount);
   }
 

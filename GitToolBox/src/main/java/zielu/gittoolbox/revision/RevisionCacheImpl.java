@@ -17,10 +17,11 @@ import zielu.gittoolbox.metrics.GuavaCacheMetrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
 class RevisionCacheImpl implements RevisionCache, Disposable {
+  private static final RevisionEntry EMPTY = new RevisionEntry(RevisionInfo.EMPTY, false);
   private final Logger log = Logger.getInstance(getClass());
-  private final Cache<VcsRevisionNumber, RevisionInfo> cache = CacheBuilder.newBuilder()
-      .maximumSize(200)
-      .expireAfterAccess(Duration.ofMinutes(10))
+  private final Cache<VcsRevisionNumber, RevisionEntry> cache = CacheBuilder.newBuilder()
+      .maximumSize(500)
+      .expireAfterAccess(Duration.ofMinutes(30))
       .recordStats()
       .build();
   private final RevisionInfoFactory infoFactory;
@@ -42,14 +43,24 @@ class RevisionCacheImpl implements RevisionCache, Disposable {
   public RevisionInfo getForLine(@NotNull FileAnnotation annotation, int lineNumber) {
     VcsRevisionNumber lineRevision = annotation.getLineRevisionNumber(lineNumber);
     if (lineRevision != null) {
-      try {
-        return cache.get(lineRevision, () -> infoFactory.forLine(annotation, lineRevision, lineNumber));
-      } catch (ExecutionException e) {
-        log.warn("Failed to load revision " + lineRevision + " for line " + lineNumber);
-        return RevisionInfo.EMPTY;
+      RevisionEntry entry = loadEntry(annotation, lineRevision, lineNumber);
+      if (entry.partial) {
+        cache.invalidate(lineRevision);
+        entry = loadEntry(annotation, lineRevision, lineNumber);
       }
-    } else {
-      return RevisionInfo.EMPTY;
+      return entry.info;
+    }
+    return RevisionInfo.EMPTY;
+  }
+
+  private RevisionEntry loadEntry(@NotNull FileAnnotation annotation, @NotNull VcsRevisionNumber lineRevision,
+                                  int lineNumber) {
+    try {
+      return cache.get(lineRevision, () -> new RevisionEntry(
+          infoFactory.forLine(annotation, lineRevision, lineNumber), false));
+    } catch (ExecutionException e) {
+      log.warn("Failed to load revision " + lineRevision + " for line " + lineNumber);
+      return EMPTY;
     }
   }
 
@@ -57,13 +68,25 @@ class RevisionCacheImpl implements RevisionCache, Disposable {
   public RevisionInfo getForFile(@NotNull VirtualFile file, @NotNull VcsFileRevision revision) {
     if (revision != VcsFileRevision.NULL) {
       try {
-        return cache.get(revision.getRevisionNumber(), () -> infoFactory.forFile(file, revision));
+        RevisionEntry entry = cache.get(revision.getRevisionNumber(),
+            () -> new RevisionEntry(infoFactory.forFile(file, revision), true));
+        return entry.info;
       } catch (ExecutionException e) {
         log.warn("Failed to load revision " + revision +  " for " + file);
         return RevisionInfo.EMPTY;
       }
     } else {
       return RevisionInfo.EMPTY;
+    }
+  }
+
+  private static class RevisionEntry {
+    private final RevisionInfo info;
+    private final boolean partial;
+
+    private RevisionEntry(RevisionInfo info, boolean partial) {
+      this.info = info;
+      this.partial = partial;
     }
   }
 }
