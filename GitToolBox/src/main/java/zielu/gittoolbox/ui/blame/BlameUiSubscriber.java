@@ -28,10 +28,10 @@ class BlameUiSubscriber {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         if (onConfigChanged(previous, current)) {
-          VirtualFile file = getFileForSelectedEditor(project);
+          VirtualFile file = getFileForSelectedEditor();
           if (file != null) {
             log.debug("Refresh editor on config change for ", file);
-            refreshEditorFile(project, file);
+            refreshEditorFile(file);
           }
         }
       }
@@ -52,17 +52,18 @@ class BlameUiSubscriber {
 
   private void onBlameUpdate(@NotNull VirtualFile file) {
     GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
-    if (config.showBlame && config.showEditorInlineBlame) {
-      VirtualFile fileInEditor = getFileForSelectedEditor(project);
+    if (config.showEditorInlineBlame) {
+      BlameEditorService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file));
+      VirtualFile fileInEditor = getFileForSelectedEditor();
       if (Objects.equals(fileInEditor, file)) {
         log.debug("Refresh editor on blame update for ", file);
-        refreshEditorFile(project, file);
+        refreshEditorFile(file);
       }
     }
   }
 
   @Nullable
-  private VirtualFile getFileForSelectedEditor(@NotNull Project project) {
+  private VirtualFile getFileForSelectedEditor() {
     FileEditor editor = FileEditorManager.getInstance(project).getSelectedEditor();
     if (editor != null) {
       return editor.getFile();
@@ -70,7 +71,7 @@ class BlameUiSubscriber {
     return null;
   }
 
-  private void refreshEditorFile(@NotNull Project project, @NotNull VirtualFile file) {
+  private void refreshEditorFile(@NotNull VirtualFile file) {
     FileEditorManagerEx.getInstanceEx(project).updateFilePresentation(file);
   }
 

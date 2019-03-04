@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -118,6 +119,16 @@ class BlameEditorServiceImpl implements BlameEditorService {
       }
       lineState.setEditorData(lineInfo);
       return lineInfo;
+    }
+  }
+
+  @Override
+  public void blameUpdated(@NotNull VirtualFile file) {
+    if (blameEditorCaching) {
+      FileEditor[] editors = FileEditorManager.getInstance(project).getAllEditors(file);
+      for (FileEditor editor : editors) {
+        BlameEditorData.KEY.set(editor, null);
+      }
     }
   }
 

@@ -4,8 +4,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsFileRevision;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
@@ -16,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.GuavaCacheMetrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
-class RevisionCacheImpl implements RevisionCache, Disposable {
+class RevisionServiceImpl implements RevisionService, Disposable {
   private static final RevisionEntry EMPTY = new RevisionEntry(RevisionInfo.EMPTY, false);
   private final Logger log = Logger.getInstance(getClass());
   private final Cache<VcsRevisionNumber, RevisionEntry> cache = CacheBuilder.newBuilder()
@@ -24,13 +22,15 @@ class RevisionCacheImpl implements RevisionCache, Disposable {
       .expireAfterAccess(Duration.ofMinutes(30))
       .recordStats()
       .build();
+  private final RevisionServiceGateway gateway;
   private final RevisionInfoFactory infoFactory;
 
-  RevisionCacheImpl(@NotNull Project project, @NotNull RevisionInfoFactory infoFactory,
-                    @NotNull ProjectMetrics metrics) {
+  RevisionServiceImpl(@NotNull RevisionServiceGateway gateway, @NotNull RevisionInfoFactory infoFactory,
+                      @NotNull ProjectMetrics metrics) {
+    this.gateway = gateway;
     this.infoFactory = infoFactory;
     metrics.addAll(new GuavaCacheMetrics(cache, "revision-cache"));
-    Disposer.register(project, this);
+    this.gateway.disposeWithProject(this);
   }
 
   @Override
@@ -47,6 +47,7 @@ class RevisionCacheImpl implements RevisionCache, Disposable {
       if (entry.partial) {
         cache.invalidate(lineRevision);
         entry = loadEntry(annotation, lineRevision, lineNumber);
+        gateway.fireRevisionUpdated(entry.info);
       }
       return entry.info;
     }

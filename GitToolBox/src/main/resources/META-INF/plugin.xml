@@ -68,8 +68,9 @@
 
     <projectService serviceInterface="zielu.gittoolbox.revision.RevisionInfoFactory"
                     serviceImplementation="zielu.gittoolbox.revision.LightRevisionInfoFactory"/>
-    <projectService serviceInterface="zielu.gittoolbox.revision.RevisionCache"
-                    serviceImplementation="zielu.gittoolbox.revision.RevisionCacheImpl"/>
+    <projectService serviceImplementation="zielu.gittoolbox.revision.RevisionServiceGateway"/>
+    <projectService serviceInterface="zielu.gittoolbox.revision.RevisionService"
+                    serviceImplementation="zielu.gittoolbox.revision.RevisionServiceImpl"/>
 
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"
                     serviceImplementation="zielu.gittoolbox.blame.BlameLoaderImpl"/>

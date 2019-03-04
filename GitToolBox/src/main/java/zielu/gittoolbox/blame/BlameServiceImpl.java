@@ -16,14 +16,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.revision.RevisionInfo;
-import zielu.gittoolbox.revision.RevisionCache;
+import zielu.gittoolbox.revision.RevisionService;
 import zielu.gittoolbox.ui.blame.BlameUi;
 
 class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final BlameServiceGateway gateway;
   private final BlameCache blameCache;
-  private final RevisionCache revisionCache;
+  private final RevisionService revisionService;
   private final Cache<VirtualFile, BlameAnnotation> annotationCache = CacheBuilder.newBuilder()
       .build();
   private final Cache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
@@ -34,10 +34,10 @@ class BlameServiceImpl implements BlameService, Disposable {
   private final Counter invalidatedCounter;
 
   BlameServiceImpl(@NotNull BlameServiceGateway gateway, @NotNull BlameCache blameCache,
-                   @NotNull RevisionCache revisionCache, @NotNull ProjectMetrics metrics) {
+                   @NotNull RevisionService revisionService, @NotNull ProjectMetrics metrics) {
     this.gateway = gateway;
     this.blameCache = blameCache;
-    this.revisionCache = revisionCache;
+    this.revisionService = revisionService;
     fileBlameTimer = metrics.timer("blame-file");
     documentLineBlameTimer = metrics.timer("blame-document-line");
     invalidatedCounter = metrics.counter("blame-annotation-invalidated-count");
@@ -72,7 +72,7 @@ class BlameServiceImpl implements BlameService, Disposable {
   @NotNull
   private RevisionInfo blameForRevision(@NotNull VirtualFile file, @Nullable VcsFileRevision revision) {
     if (revision != null) {
-      return revisionCache.getForFile(file, revision);
+      return revisionService.getForFile(file, revision);
     }
     return RevisionInfo.EMPTY;
   }

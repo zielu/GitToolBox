@@ -20,6 +20,8 @@ interface BlameEditorService {
 
   void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current);
 
+  void blameUpdated(@NotNull VirtualFile file);
+
   @NotNull
   static BlameEditorService getInstance(@NotNull Project project) {
     return ServiceManager.getService(project, BlameEditorService.class);

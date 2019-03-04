@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.revision.RevisionInfo;
-import zielu.gittoolbox.revision.RevisionCache;
+import zielu.gittoolbox.revision.RevisionService;
 
 class BlameCacheImpl implements BlameCache, Disposable {
   private static final BlameAnnotation EMPTY = new BlameAnnotation() {
@@ -37,6 +37,11 @@ class BlameCacheImpl implements BlameCache, Disposable {
     @Override
     public boolean isChanged(@NotNull VcsRevisionNumber revision) {
       return !VcsRevisionNumber.NULL.equals(revision);
+    }
+
+    @Override
+    public boolean updateRevision(@NotNull RevisionInfo revisionInfo) {
+      return false;
     }
 
     @Nullable
@@ -54,7 +59,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private final BlameCacheGateway gateway;
   private final VirtualFileRepoCache fileRepoCache;
   private final BlameLoader blameLoader;
-  private final RevisionCache revisionCache;
+  private final RevisionService revisionService;
   private final Map<VirtualFile, BlameAnnotation> annotations = new ConcurrentHashMap<>();
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
   private final Timer getTimer;
@@ -64,12 +69,12 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private final ExecutorService executor;
 
   BlameCacheImpl(@NotNull BlameCacheGateway gateway, @NotNull VirtualFileRepoCache fileRepoCache,
-                 @NotNull BlameLoader blameLoader, @NotNull RevisionCache revisionCache,
+                 @NotNull BlameLoader blameLoader, @NotNull RevisionService revisionService,
                  @NotNull ProjectMetrics metrics) {
     this.gateway = gateway;
     this.fileRepoCache = fileRepoCache;
     this.blameLoader = blameLoader;
-    this.revisionCache = revisionCache;
+    this.revisionService = revisionService;
     executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
         .setDaemon(true)
         .setNameFormat("blame-cache-%d")
@@ -141,7 +146,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
     if (queued.remove(file)) {
       BlameAnnotation blameAnnotation;
       if (fileAnnotation != null) {
-        blameAnnotation = new BlameAnnotationImpl(fileAnnotation, revisionCache);
+        blameAnnotation = new BlameAnnotationImpl(fileAnnotation, revisionService);
       } else {
         blameAnnotation = EMPTY;
       }
@@ -181,6 +186,15 @@ class BlameCacheImpl implements BlameCache, Disposable {
         .filter(file -> VfsUtilCore.isAncestor(root, file, false))
         .peek(file -> LOG.debug("Invalidate ", file, " under root ", root))
         .forEach(this::invalidate);
+  }
+
+  @Override
+  public void revisionUpdated(@NotNull RevisionInfo revisionInfo) {
+    annotations.forEach((file, blame) -> {
+      if (blame.updateRevision(revisionInfo)) {
+        gateway.fireBlameUpdated(file, blame);
+      }
+    });
   }
 
   private static class LoaderTimers {

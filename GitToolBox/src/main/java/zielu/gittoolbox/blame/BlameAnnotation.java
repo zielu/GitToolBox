@@ -12,6 +12,8 @@ public interface BlameAnnotation {
 
   boolean isChanged(@NotNull VcsRevisionNumber revision);
 
+  boolean updateRevision(@NotNull RevisionInfo revisionInfo);
+
   @Nullable
   VirtualFile getVirtualFile();
 }

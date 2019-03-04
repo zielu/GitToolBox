@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.revision.RevisionService;
 
 class BlameSubscriber {
 
@@ -30,5 +31,7 @@ class BlameSubscriber {
         BlameService.getExistingInstance(project).ifPresent(service -> service.invalidate(file));
       }
     });
+    connection.subscribe(RevisionService.UPDATES, revisionInfo ->
+        BlameCache.getExistingInstance(project).ifPresent(cache -> cache.revisionUpdated(revisionInfo)));
   }
 }

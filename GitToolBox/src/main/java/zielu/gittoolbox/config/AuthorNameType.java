@@ -17,7 +17,7 @@ public enum AuthorNameType {
     }
   },
   FIRSTNAME(ShortNameType.FIRSTNAME),
-  NONE(ShortNameType.NONE);
+  FULL(ShortNameType.NONE);
 
   private final ShortNameType type;
 

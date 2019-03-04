@@ -53,7 +53,7 @@ class BlamePresenterImpl implements BlamePresenter {
           .append(revisionInfo.getRevisionNumber().asString())
           .append("\n")
           .append(AUTHOR_PREFIX)
-          .append(AuthorNameType.NONE.shorten(revisionInfo.getAuthor()))
+          .append(AuthorNameType.FULL.shorten(revisionInfo.getAuthor()))
           .append("\n")
           .append(DATE_PREFIX)
           .append(DateType.ABSOLUTE.format(revisionInfo.getDate()))

@@ -5,6 +5,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.util.AppUtil;
 
 public interface BlameCache {
@@ -16,6 +17,8 @@ public interface BlameCache {
   void refreshForRoot(@NotNull VirtualFile root);
 
   void invalidate(@NotNull VirtualFile file);
+
+  void revisionUpdated(@NotNull RevisionInfo revisionInfo);
 
   @NotNull
   static Optional<BlameCache> getExistingInstance(@NotNull Project project) {
