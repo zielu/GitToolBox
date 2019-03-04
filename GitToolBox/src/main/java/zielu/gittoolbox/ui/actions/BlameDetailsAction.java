@@ -9,21 +9,22 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.ui.blame.BlameUi;
 
 public class BlameDetailsAction extends AnAction {
   @Override
   public void update(@NotNull AnActionEvent e) {
     super.update(e);
-    e.getPresentation().setVisible(isVisible(e));
+    e.getPresentation().setEnabled(isEnabled(e));
   }
 
-  private boolean isVisible(@NotNull AnActionEvent e) {
-    if (!GitToolBoxConfig2.getInstance().showBlame) {
+  private boolean isEnabled(@NotNull AnActionEvent e) {
+    GitToolBoxConfig2 toolBoxConfig2 = GitToolBoxConfig2.getInstance();
+    if (!toolBoxConfig2.showBlame && !toolBoxConfig2.showEditorInlineBlame) {
       return false;
     }
     Project project = e.getData(CommonDataKeys.PROJECT);
