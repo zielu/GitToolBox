@@ -21,12 +21,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.config.DecorationColors;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.revision.RevisionInfo;
 
 class BlameEditorServiceImpl implements BlameEditorService {
   private static final TextAttributesKey ATTRIBUTES_KEY = DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES;
@@ -36,20 +36,16 @@ class BlameEditorServiceImpl implements BlameEditorService {
   private final Project project;
   private final BlamePresenter blamePresenter;
   private final Timer blameEditorTimer;
-  private final Timer blameEditorGetInfoTimer;
   private final Timer blameEditorGetInfoCachingTimer;
   private TextAttributes blameTextAttributes;
-  private boolean blameEditorCaching;
 
   BlameEditorServiceImpl(@NotNull Project project, @NotNull BlamePresenter blamePresenter,
                          @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.blamePresenter = blamePresenter;
     blameEditorTimer = metrics.timer("blame-editor-painter");
-    blameEditorGetInfoTimer = metrics.timer("blame-editor-painter-get-info");
-    blameEditorGetInfoCachingTimer = metrics.timer("blame-editor-painter-get-info-caching");
+    blameEditorGetInfoCachingTimer = metrics.timer("blame-editor-painter-get-info");
     blameTextAttributes = DecorationColors.textAttributes(ATTRIBUTES_KEY);
-    blameEditorCaching = GitToolBoxConfig2.getInstance().experimentalBlameEditorCaching;
   }
 
   @Override
@@ -60,7 +56,6 @@ class BlameEditorServiceImpl implements BlameEditorService {
 
   @Override
   public void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
-    blameEditorCaching = current.experimentalBlameEditorCaching;
     if (current.isBlameInlinePresentationChanged(previous)) {
       configGeneration.incrementAndGet();
     }
@@ -80,13 +75,8 @@ class BlameEditorServiceImpl implements BlameEditorService {
       if (document != null) {
         Editor editor = getEditor(document);
         if (editor != null && isLineWithCaret(editor, editorLineNumber)) {
-          if (blameEditorCaching) {
-            return blameEditorGetInfoCachingTimer.timeSupplier(() ->
-                getInfosWithCaching(editor, document, file, editorLineNumber));
-          } else {
-            return blameEditorGetInfoTimer.timeSupplier(() ->
-                getInfos(editor, document, file, editorLineNumber));
-          }
+          return blameEditorGetInfoCachingTimer.timeSupplier(() ->
+              getInfosWithCaching(editor, document, file, editorLineNumber));
         }
       }
     }
@@ -124,11 +114,9 @@ class BlameEditorServiceImpl implements BlameEditorService {
 
   @Override
   public void blameUpdated(@NotNull VirtualFile file) {
-    if (blameEditorCaching) {
-      FileEditor[] editors = FileEditorManager.getInstance(project).getAllEditors(file);
-      for (FileEditor editor : editors) {
-        BlameEditorData.KEY.set(editor, null);
-      }
+    FileEditor[] editors = FileEditorManager.getInstance(project).getAllEditors(file);
+    for (FileEditor editor : editors) {
+      BlameEditorData.KEY.set(editor, null);
     }
   }
 

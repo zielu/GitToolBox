@@ -35,7 +35,6 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
       DecorationPartConfig.builder().withType(DecorationPartType.TAGS_ON_HEAD).withPrefix("(").withPostfix(")").build()
   );
   public CommitCompletionMode commitDialogCompletionMode = CommitCompletionMode.AUTOMATIC;
-  public boolean experimentalBlameEditorCaching = true;
   public AuthorNameType blameInlineAuthorNameType = AuthorNameType.LASTNAME;
   public DateType blameInlineDateType = DateType.AUTO;
   public boolean blameInlineShowSubject = true;
@@ -112,10 +111,6 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
 
   public boolean isCommitDialogCompletionModeChanged(CommitCompletionMode commitDialogCompletionMode) {
     return this.commitDialogCompletionMode != commitDialogCompletionMode;
-  }
-
-  public boolean isExperimentalBlameEditorCachingChanged(boolean experimentalBlameEditorCaching) {
-    return this.experimentalBlameEditorCaching != experimentalBlameEditorCaching;
   }
 
   public boolean isBlameInlineAuthorNameTypeChanged(AuthorNameType blameAuthorNameType) {

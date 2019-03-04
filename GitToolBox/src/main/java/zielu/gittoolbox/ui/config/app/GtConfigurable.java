@@ -51,7 +51,6 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     form.setBlameAuthorNameType(config.blameInlineAuthorNameType);
     form.setBlameDateType(config.blameInlineDateType);
     form.setBlameShowSubject(config.blameInlineShowSubject);
-    form.setExperimentalBlameEditorCachingEnabled(config.experimentalBlameEditorCaching);
   }
 
   @Override
@@ -68,8 +67,6 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     modified = modified || config.isBlameInlineAuthorNameTypeChanged(form.getBlameAuthorNameType());
     modified = modified || config.isBlameInlineDateTypeChanged(form.getBlameDateType());
     modified = modified || config.isBlameInlineShowSubjectChanged(form.getBlameShowSubject());
-    modified = modified || config.isExperimentalBlameEditorCachingChanged(
-        form.getExperimentalBlameEditorCachingEnabled());
     log.debug("Modified: ", modified);
     return modified;
   }
@@ -91,7 +88,6 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     config.blameInlineAuthorNameType = form.getBlameAuthorNameType();
     config.blameInlineDateType = form.getBlameDateType();
     config.blameInlineShowSubject = form.getBlameShowSubject();
-    config.experimentalBlameEditorCaching = form.getExperimentalBlameEditorCachingEnabled();
 
     //Mark migrated here to handle case when config is modified without opening a project
     //Example: from launch dialog

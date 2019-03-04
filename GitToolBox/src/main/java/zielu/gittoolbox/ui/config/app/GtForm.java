@@ -70,7 +70,6 @@ public class GtForm implements GtFormUi {
   private JCheckBox blameEnabledCheckBox;
   private JCheckBox editorInlineBlameEnabledCheckBox;
   private ComboBox<CommitCompletionMode> commitDialogCompletionMode;
-  private JCheckBox experimentalBlameEditorCache;
   private ComboBox<AuthorNameType> blameAuthorNameTypeCombo;
   private ComboBox<DateType> blameDateTypeCombo;
   private JCheckBox blameShowSubjectCheckBox;
@@ -335,14 +334,6 @@ public class GtForm implements GtFormUi {
 
   void setCommitDialogCompletionMode(CommitCompletionMode mode) {
     commitDialogCompletionMode.setSelectedItem(mode);
-  }
-
-  boolean getExperimentalBlameEditorCachingEnabled() {
-    return experimentalBlameEditorCache.isSelected();
-  }
-
-  void setExperimentalBlameEditorCachingEnabled(boolean enabled) {
-    experimentalBlameEditorCache.setSelected(enabled);
   }
 
   AuthorNameType getBlameAuthorNameType() {
