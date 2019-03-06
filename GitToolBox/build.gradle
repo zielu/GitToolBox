@@ -4,15 +4,14 @@ import java.text.SimpleDateFormat
 buildscript {
     repositories {
         mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
     }
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.2"
+    id "org.jetbrains.intellij" version "0.4.4"
     id 'com.palantir.git-version' version '0.11.0'
     id 'ch.netzwerg.release' version '1.2.5'
-    id "com.github.spotbugs" version "1.6.9"
+    id "com.github.spotbugs" version "1.6.10"
 }
 
 repositories {
@@ -132,7 +131,6 @@ checkstyle {
 }
 
 dependencies {
-
     checkstyle ("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
     testAgent ("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
     spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.8.0'
