@@ -35,6 +35,8 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
       DecorationPartConfig.builder().withType(DecorationPartType.TAGS_ON_HEAD).withPrefix("(").withPostfix(")").build()
   );
   public CommitCompletionMode commitDialogCompletionMode = CommitCompletionMode.AUTOMATIC;
+  public AuthorNameType blameInlineAuthorNameType = AuthorNameType.LASTNAME;
+  public DateType blameInlineDateType = DateType.AUTO;
 
   public boolean previousVersionMigrated;
 
@@ -53,6 +55,9 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     copy.showEditorInlineBlame = showEditorInlineBlame;
     copy.updateProjectActionId = updateProjectActionId;
     copy.decorationParts = decorationParts.stream().map(DecorationPartConfig::copy).collect(Collectors.toList());
+    copy.commitDialogCompletionMode = commitDialogCompletionMode;
+    copy.blameInlineAuthorNameType = blameInlineAuthorNameType;
+    copy.blameInlineDateType = blameInlineDateType;
     copy.previousVersionMigrated = previousVersionMigrated;
     return copy;
   }
@@ -108,6 +113,19 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
 
   public boolean isCommitDialogCompletionModeChanged(CommitCompletionMode commitDialogCompletionMode) {
     return this.commitDialogCompletionMode != commitDialogCompletionMode;
+  }
+
+  public boolean isBlameInlineAuthorNameTypeChanged(AuthorNameType blameAuthorNameType) {
+    return this.blameInlineAuthorNameType != blameAuthorNameType;
+  }
+
+  public boolean isBlameInlineDateTypeChanged(DateType blameDateType) {
+    return this.blameInlineDateType != blameDateType;
+  }
+
+  public boolean isBlameInlinePresentationChanged(GitToolBoxConfig2 other) {
+    return isBlameInlineAuthorNameTypeChanged(other.blameInlineAuthorNameType)
+        || isBlameInlineDateTypeChanged(other.blameInlineDateType);
   }
 
   @Nullable

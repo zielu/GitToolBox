@@ -1,32 +1,31 @@
 package zielu.gittoolbox.blame;
 
-import com.intellij.openapi.vcs.actions.ShortNameType;
-import com.intellij.openapi.vcs.actions.ShowShortenNames;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
+import java.util.Date;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 abstract class AbstractBlame implements Blame {
   private final VcsRevisionNumber revisionNumber;
+  private final String author;
+  private final Date date;
 
-  AbstractBlame(@NotNull VcsRevisionNumber revisionNumber) {
+  AbstractBlame(@NotNull VcsRevisionNumber revisionNumber, @Nullable String author, @NotNull Date date) {
     this.revisionNumber = revisionNumber;
+    this.author = author;
+    this.date = date;
   }
 
   @Nullable
-  protected final String prepareAuthor(@Nullable String author) {
-    if (author != null) {
-      author = author.replaceAll("\\(.*\\)", "");
-    }
-    return ShortNameType.shorten(author, ShowShortenNames.getType());
+  @Override
+  public String getAuthor() {
+    return author;
   }
-
-  protected abstract String getStatusPrefix();
 
   @NotNull
   @Override
-  public String getShortStatus() {
-    return getStatusPrefix() + " " + getShortText();
+  public Date getDate() {
+    return date;
   }
 
   @NotNull

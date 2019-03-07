@@ -43,6 +43,10 @@ public final class ResBundle {
     return getString("common.na");
   }
 
+  public static String naLabel() {
+    return getString("common.na.label");
+  }
+
   public static String on() {
     return getString("common.on");
   }

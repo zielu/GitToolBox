@@ -86,9 +86,9 @@ public class BlameEditorLinePainter extends EditorLinePainter {
 
   private String formatBlameText(Blame blame) {
     return new StringBand(2)
-      .append(BLAME_PREFIX)
-      .append(blame.getShortText())
-      .toString();
+        .append(BLAME_PREFIX)
+        .append(BlamePresenter.getInstance().getEditorInline(blame))
+        .toString();
   }
 
   private TextAttributes getBlameTextAttributes() {

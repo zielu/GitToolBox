@@ -18,7 +18,7 @@ class BlameAnnotationImpl implements BlameAnnotation {
 
   BlameAnnotationImpl(@NotNull FileAnnotation annotation) {
     this.annotation = annotation;
-    lineBlames =  new TIntObjectHashMap<>(this.annotation.getLineCount());
+    lineBlames =  new TIntObjectHashMap<>(this.annotation.getLineCount() + 1);
   }
 
   @Nullable

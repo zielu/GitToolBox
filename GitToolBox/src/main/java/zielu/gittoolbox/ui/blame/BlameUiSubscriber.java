@@ -28,7 +28,8 @@ class BlameUiSubscriber implements BaseComponent {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         if (current.showBlame != previous.showBlame
-            || current.showEditorInlineBlame != previous.showEditorInlineBlame) {
+            || current.showEditorInlineBlame != previous.showEditorInlineBlame
+            || current.isBlameInlinePresentationChanged(previous)) {
           VirtualFile file = getFileForSelectedEditor(project);
           if (file != null) {
             log.debug("Refresh editor on config change for ", file);
