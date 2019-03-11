@@ -1,8 +1,6 @@
 package zielu.gittoolbox.revision;
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,26 +8,21 @@ import org.jetbrains.annotations.Nullable;
 final class RevisionInfoImpl implements RevisionInfo {
   private final VcsRevisionNumber revisionNumber;
   private final String author;
-  private final LocalDateTime date;
+  private final Date date;
   private final String subject;
   private final String details;
 
-  RevisionInfoImpl(@NotNull VcsRevisionNumber revisionNumber, String author, Date revisionDate, String subject,
-                   String details) {
+  RevisionInfoImpl(@NotNull VcsRevisionNumber revisionNumber, String author, @Nullable Date revisionDate,
+                   String subject, String details) {
     this.revisionNumber = revisionNumber;
     this.author = author != null ? author.trim() : "EMPTY";
-    this.date = convertDate(revisionDate);
+    if (revisionDate != null) {
+      date = revisionDate;
+    } else {
+      date = new Date();
+    }
     this.subject = subject;
     this.details = details;
-  }
-
-  @NotNull
-  private LocalDateTime convertDate(@Nullable Date date) {
-    if (date != null) {
-      return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-    } else {
-      return LocalDateTime.now();
-    }
   }
 
   @NotNull
@@ -46,7 +39,7 @@ final class RevisionInfoImpl implements RevisionInfo {
 
   @NotNull
   @Override
-  public LocalDateTime getDate() {
+  public Date getDate() {
     return date;
   }
 

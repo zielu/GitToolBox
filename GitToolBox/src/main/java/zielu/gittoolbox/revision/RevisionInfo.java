@@ -1,7 +1,7 @@
 package zielu.gittoolbox.revision;
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import java.time.LocalDateTime;
+import java.util.Date;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,8 +23,8 @@ public interface RevisionInfo {
 
     @NotNull
     @Override
-    public LocalDateTime getDate() {
-      return LocalDateTime.now();
+    public Date getDate() {
+      return new Date();
     }
 
     @Nullable
@@ -57,7 +57,7 @@ public interface RevisionInfo {
   String getAuthor();
 
   @NotNull
-  LocalDateTime getDate();
+  Date getDate();
 
   @Nullable
   String getSubject();

@@ -1,6 +1,6 @@
 package zielu.gittoolbox.ui.blame;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,7 +69,7 @@ class BlamePresenterImpl implements BlamePresenter {
     return GitToolBoxConfig2.getInstance().blameInlineAuthorNameType.shorten(author);
   }
 
-  private String formatDate(@Nullable LocalDateTime date) {
+  private String formatDate(@Nullable Date date) {
     if (date != null) {
       return GitToolBoxConfig2.getInstance().blameInlineDateType.format(date);
     } else {

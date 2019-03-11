@@ -2,8 +2,7 @@ package zielu.gittoolbox.config;
 
 import com.intellij.util.text.DateFormatUtil;
 import com.intellij.util.xmlb.annotations.Transient;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Date;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
@@ -12,23 +11,22 @@ public enum DateType {
   AUTO("date.type.auto") {
     @NotNull
     @Override
-    protected String formatImpl(@NotNull LocalDateTime date) {
-      return DateFormatUtil.formatPrettyDateTime(toTimestamp(date));
+    protected String formatImpl(@NotNull Date date) {
+      return DateFormatUtil.formatPrettyDateTime(date);
     }
   },
   RELATIVE("date.type.relative") {
     @NotNull
     @Override
-    protected String formatImpl(@NotNull LocalDateTime date) {
-      long timestamp = toTimestamp(date);
-      return DateFormatUtil.formatBetweenDates(timestamp, System.currentTimeMillis());
+    protected String formatImpl(@NotNull Date date) {
+      return DateFormatUtil.formatBetweenDates(date.getTime(), System.currentTimeMillis());
     }
   },
   ABSOLUTE("date.type.absolute") {
     @NotNull
     @Override
-    protected String formatImpl(@NotNull LocalDateTime date) {
-      return DateFormatUtil.formatDateTime(toTimestamp(date));
+    protected String formatImpl(@NotNull Date date) {
+      return DateFormatUtil.formatDateTime(date);
     }
   };
 
@@ -44,7 +42,7 @@ public enum DateType {
   }
 
   @Nullable
-  public String format(@Nullable LocalDateTime dateTime) {
+  public String format(@Nullable Date dateTime) {
     if (dateTime != null) {
       return formatImpl(dateTime);
     } else {
@@ -53,9 +51,5 @@ public enum DateType {
   }
 
   @NotNull
-  protected abstract String formatImpl(@NotNull LocalDateTime dateTime);
-
-  protected final long toTimestamp(@NotNull LocalDateTime date) {
-    return date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-  }
+  protected abstract String formatImpl(@NotNull Date dateTime);
 }
