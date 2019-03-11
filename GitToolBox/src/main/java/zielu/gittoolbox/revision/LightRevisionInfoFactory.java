@@ -1,6 +1,5 @@
 package zielu.gittoolbox.revision;
 
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.annotate.LineAnnotationAspect;
 import com.intellij.openapi.vcs.history.VcsFileRevision;
@@ -10,6 +9,7 @@ import git4idea.annotate.GitFileAnnotation;
 import java.util.Date;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.util.GtStringUtil;
 
 class LightRevisionInfoFactory implements RevisionInfoFactory {
   @NotNull
@@ -31,13 +31,7 @@ class LightRevisionInfoFactory implements RevisionInfoFactory {
 
   @Nullable
   private String extractSubject(@Nullable String commitMessage) {
-    if (commitMessage != null) {
-      String[] lines = StringUtil.splitByLines(commitMessage);
-      if (lines.length > 0) {
-        return lines[0];
-      }
-    }
-    return null;
+    return GtStringUtil.firstLine(commitMessage);
   }
 
   @NotNull
