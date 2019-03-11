@@ -16,6 +16,7 @@ import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 
 class BlameUiSubscriber {
   private final Logger log = Logger.getInstance(getClass());
@@ -28,11 +29,7 @@ class BlameUiSubscriber {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         if (onConfigChanged(previous, current)) {
-          VirtualFile file = getFileForSelectedEditor();
-          if (file != null) {
-            log.debug("Refresh editor on config change for ", file);
-            refreshEditorFile(file);
-          }
+          AppUiUtil.invokeLaterIfNeeded(() -> handleConfigChanged());
         }
       }
     });
@@ -50,15 +47,27 @@ class BlameUiSubscriber {
     connection.subscribe(EditorColorsManager.TOPIC, this::onColorSchemeChanged);
   }
 
+  private void handleConfigChanged() {
+    VirtualFile file = getFileForSelectedEditor();
+    if (file != null) {
+      log.debug("Refresh editor on config change for ", file);
+      refreshEditorFile(file);
+    }
+  }
+
   private void onBlameUpdate(@NotNull VirtualFile file) {
     GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
     if (config.showEditorInlineBlame) {
       BlameEditorService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file));
-      VirtualFile fileInEditor = getFileForSelectedEditor();
-      if (Objects.equals(fileInEditor, file)) {
-        log.debug("Refresh editor on blame update for ", file);
-        refreshEditorFile(file);
-      }
+      AppUiUtil.invokeLaterIfNeeded(() -> handleBlameUpdate(file));
+    }
+  }
+
+  private void handleBlameUpdate(@NotNull VirtualFile file) {
+    VirtualFile fileInEditor = getFileForSelectedEditor();
+    if (Objects.equals(fileInEditor, file)) {
+      log.debug("Refresh editor on blame update for ", file);
+      refreshEditorFile(file);
     }
   }
 

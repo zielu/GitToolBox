@@ -27,6 +27,7 @@ import zielu.gittoolbox.config.DecorationColors;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 
 class BlameEditorServiceImpl implements BlameEditorService {
   private static final TextAttributesKey ATTRIBUTES_KEY = DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES;
@@ -114,6 +115,10 @@ class BlameEditorServiceImpl implements BlameEditorService {
 
   @Override
   public void blameUpdated(@NotNull VirtualFile file) {
+    AppUiUtil.invokeLaterIfNeeded(() -> handleBlameUpdated(file));
+  }
+
+  private void handleBlameUpdated(@NotNull VirtualFile file) {
     FileEditor[] editors = FileEditorManager.getInstance(project).getAllEditors(file);
     for (FileEditor editor : editors) {
       BlameEditorData.KEY.set(editor, null);

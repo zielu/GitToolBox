@@ -22,10 +22,9 @@ public class BlameEditorLinePainter extends EditorLinePainter {
   }
 
   private boolean shouldShow(Project project) {
-    if (DumbService.isDumb(project)) {
-      return false;
-    } else {
-      return GitToolBoxConfig2.getInstance().showEditorInlineBlame;
+    if (GitToolBoxConfig2.getInstance().showEditorInlineBlame) {
+      return !DumbService.isDumb(project);
     }
+    return false;
   }
 }
