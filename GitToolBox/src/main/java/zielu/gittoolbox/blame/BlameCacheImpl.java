@@ -80,13 +80,13 @@ class BlameCacheImpl implements BlameCache, Disposable {
         .setNameFormat("blame-cache-%d")
         .build()
     );
-    metrics.gauge("blame-cache-size", annotations::size);
-    metrics.gauge("blame-cache-queue-count", queued::size);
-    discardedSubmitCounter = metrics.counter("blame-cache-discarded-count");
-    getTimer = metrics.timer("blame-cache-get");
-    invalidatedCounter = metrics.counter("blame-cache-invalidated-count");
-    Timer loadTimer = metrics.timer("blame-cache-load");
-    Timer queueWaitTimer = metrics.timer("blame-cache-queue-wait");
+    metrics.gauge("blame-cache.size", annotations::size);
+    metrics.gauge("blame-cache.queue-count", queued::size);
+    discardedSubmitCounter = metrics.counter("blame-cache.discarded-count");
+    getTimer = metrics.timer("blame-cache.get");
+    invalidatedCounter = metrics.counter("blame-cache.invalidated-count");
+    Timer loadTimer = metrics.timer("blame-cache.load");
+    Timer queueWaitTimer = metrics.timer("blame-cache.queue-wait");
     loaderTimers = new LoaderTimers(loadTimer, queueWaitTimer);
     this.gateway.disposeWithProject(this);
   }
