@@ -11,16 +11,23 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 class BlameLoaderImpl implements BlameLoader {
+  private final Project project;
   private final GitVcs git;
 
   BlameLoaderImpl(@NotNull Project project) {
+    this.project = project;
     git = GitVcs.getInstance(project);
   }
 
   @NotNull
   @Override
   public FileAnnotation annotate(@NotNull VirtualFile file) throws VcsException {
-    return git.getAnnotationProvider().annotate(file);
+    try {
+      BlameUtil.annotationLock(project, file);
+      return git.getAnnotationProvider().annotate(file);
+    } finally {
+      BlameUtil.annotationUnlock(project, file);
+    }
   }
 
   @Nullable

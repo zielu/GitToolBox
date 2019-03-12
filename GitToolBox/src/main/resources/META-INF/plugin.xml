@@ -75,6 +75,7 @@
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"
                     serviceImplementation="zielu.gittoolbox.blame.BlameLoaderImpl"/>
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameCacheGateway"/>
+    <projectService serviceImplementation="zielu.gittoolbox.blame.BlameCacheExecutor"/>
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameCache"
                     serviceImplementation="zielu.gittoolbox.blame.BlameCacheImpl"/>
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameServiceGateway"/>

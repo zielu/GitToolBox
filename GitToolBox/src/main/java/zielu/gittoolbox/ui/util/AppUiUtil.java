@@ -44,4 +44,13 @@ public final class AppUiUtil {
       return value.get();
     }
   }
+
+  public static void invokeAndWait(Runnable task) {
+    Application application = getApplication();
+    if (application.isUnitTestMode()) {
+      task.run();
+    } else {
+      application.invokeAndWait(task);
+    }
+  }
 }
