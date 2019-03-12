@@ -15,7 +15,7 @@ final class RevisionInfoImpl implements RevisionInfo {
   RevisionInfoImpl(@NotNull VcsRevisionNumber revisionNumber, String author, @Nullable Date revisionDate,
                    String subject, String details) {
     this.revisionNumber = revisionNumber;
-    this.author = author != null ? author.trim() : "EMPTY";
+    this.author = author != null ? prepareAuthor(author) : "EMPTY";
     if (revisionDate != null) {
       date = revisionDate;
     } else {
@@ -23,6 +23,11 @@ final class RevisionInfoImpl implements RevisionInfo {
     }
     this.subject = subject;
     this.details = details;
+  }
+
+  @NotNull
+  private String prepareAuthor(@NotNull String author) {
+    return author.trim().replaceAll("\\(.*\\)", "");
   }
 
   @NotNull
