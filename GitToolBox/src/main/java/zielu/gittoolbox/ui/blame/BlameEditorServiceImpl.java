@@ -36,14 +36,19 @@ class BlameEditorServiceImpl implements BlameEditorService {
   private final AtomicInteger configGeneration = new AtomicInteger(1);
   private final Project project;
   private final BlamePresenter blamePresenter;
+  private final VirtualFileRepoCache fileRepoCache;
+  private final BlameService blameService;
   private final Timer blameEditorTimer;
   private final Timer blameEditorGetInfoCachingTimer;
   private TextAttributes blameTextAttributes;
 
   BlameEditorServiceImpl(@NotNull Project project, @NotNull BlamePresenter blamePresenter,
+                         @NotNull VirtualFileRepoCache fileRepoCache, @NotNull BlameService blameService,
                          @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.blamePresenter = blamePresenter;
+    this.fileRepoCache = fileRepoCache;
+    this.blameService = blameService;
     blameEditorTimer = metrics.timer("blame-editor-painter");
     blameEditorGetInfoCachingTimer = metrics.timer("blame-editor-painter-get-info");
     blameTextAttributes = DecorationColors.textAttributes(ATTRIBUTES_KEY);
@@ -70,7 +75,6 @@ class BlameEditorServiceImpl implements BlameEditorService {
 
   @Nullable
   private Collection<LineExtensionInfo> getLineAnnotation(@NotNull VirtualFile file, int editorLineNumber) {
-    VirtualFileRepoCache fileRepoCache = VirtualFileRepoCache.getInstance(project);
     if (fileRepoCache.isUnderGitRoot(file)) {
       Document document = FileDocumentManager.getInstance().getDocument(file);
       if (document != null) {
@@ -140,7 +144,6 @@ class BlameEditorServiceImpl implements BlameEditorService {
 
   @NotNull
   private RevisionInfo getLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber) {
-    BlameService blameService = BlameService.getInstance(project);
     return blameService.getDocumentLineBlame(document, file, editorLineNumber);
   }
 
