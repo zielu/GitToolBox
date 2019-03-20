@@ -37,13 +37,15 @@ import zielu.gittoolbox.util.GtUtil;
 class AutoFetchTask implements Runnable {
   private final Logger log = Logger.getInstance(getClass());
   private final AutoFetchExecutor owner;
+  private final AutoFetchSchedule schedule;
   private final Project project;
 
   private final AtomicReference<NotificationHandle> lastNotification = new AtomicReference<>();
 
-  AutoFetchTask(@NotNull Project project, AutoFetchExecutor owner) {
+  AutoFetchTask(@NotNull Project project, @NotNull AutoFetchExecutor owner, @NotNull AutoFetchSchedule schedule) {
     this.project = project;
     this.owner = owner;
+    this.schedule = schedule;
   }
 
   private void finishedNotification() {
@@ -157,7 +159,7 @@ class AutoFetchTask implements Runnable {
   }
 
   private void fetchSuccessful() {
-    owner.updateLastAutoFetchDate();
+    schedule.updateLastAutoFetchDate();
   }
 
   private boolean isNotCancelled() {

@@ -96,6 +96,8 @@
     <projectService serviceInterface="zielu.gittoolbox.ui.blame.BlameEditorService"
                     serviceImplementation="zielu.gittoolbox.ui.blame.BlameEditorServiceImpl"/>
     <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter"/>
+
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSchedule"/>
   </extensions>
 
   <application-components>

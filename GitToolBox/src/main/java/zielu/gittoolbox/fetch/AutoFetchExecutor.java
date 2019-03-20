@@ -4,6 +4,7 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.ControlFlowException;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -13,10 +14,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxApp;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
 public class AutoFetchExecutor implements ProjectComponent {
@@ -24,17 +23,18 @@ public class AutoFetchExecutor implements ProjectComponent {
 
   private final AtomicBoolean active = new AtomicBoolean();
   private final AtomicBoolean autoFetchEnabled = new AtomicBoolean();
-  private final AtomicLong lastAutoFetchTimestamp = new AtomicLong();
 
   private final List<ScheduledFuture<?>> scheduledTasks = new LinkedList<>();
   private final AtomicInteger scheduledTasksCount = new AtomicInteger();
   private final Project project;
+  private final AutoFetchSchedule schedule;
   private ScheduledExecutorService executor;
 
-  public AutoFetchExecutor(@NotNull Project project, @NotNull ProjectMetrics metrics) {
+  public AutoFetchExecutor(@NotNull Project project, @NotNull AutoFetchSchedule schedule,
+                           @NotNull ProjectMetrics metrics) {
     this.project = project;
+    this.schedule = schedule;
     metrics.gauge("auto-fetch-tasks-size", scheduledTasksCount::get);
-    metrics.gauge("auto-fetch-last-timestamp", lastAutoFetchTimestamp::get);
   }
 
   @Override
@@ -61,59 +61,27 @@ public class AutoFetchExecutor implements ProjectComponent {
     }
   }
 
-  private int getIntervalMinutes() {
-    return GitToolBoxConfigForProject.getInstance(project).autoFetchIntervalMinutes;
-  }
-
   synchronized void scheduleNextTask() {
     trySchedulingNextTask();
   }
 
   private void trySchedulingNextTask() {
     if (active.get() && autoFetchEnabled.get()) {
-      scheduleTask(getIntervalMinutes());
+      scheduleTask(schedule.getInterval());
     }
   }
 
-  void scheduleTask(int delayMinutes) {
+  void scheduleTask(Duration delay) {
     if (active.get() && autoFetchEnabled.get()) {
-      trySchedulingTask(delayMinutes);
+      trySchedulingTask(delay);
     }
   }
 
-  void rescheduleTask(int delayMinutes) {
+  void rescheduleTask(Duration delay) {
     cancelCurrentTasks();
     if (active.get() && autoFetchEnabled.get()) {
-      trySchedulingTask(delayMinutes);
+      trySchedulingTask(delay);
     }
-  }
-
-  void scheduleInitTask() {
-    scheduleFastTask(30);
-  }
-
-  void rescheduleFastTask() {
-    cancelCurrentTasks();
-    scheduleFastTask(45);
-  }
-
-  private void scheduleFastTask(int seconds) {
-    if (active.get()) {
-      trySchedulingFastTask(seconds);
-    }
-  }
-
-  private synchronized void trySchedulingFastTask(int seconds) {
-    if (cleanAndCheckTasks()) {
-      submitFastTask(seconds);
-    } else {
-      log.debug("Tasks already scheduled (in fast auto-fetch)");
-    }
-  }
-
-  private void submitFastTask(int seconds) {
-    log.debug("Scheduling fast auto-fetch in ", seconds, " seconds");
-    submitTaskToExecutor(seconds, TimeUnit.SECONDS);
   }
 
   private synchronized void cancelCurrentTasks() {
@@ -128,30 +96,29 @@ public class AutoFetchExecutor implements ProjectComponent {
     return scheduledTasks.isEmpty();
   }
 
-  private synchronized void trySchedulingTask(int delayMinutes) {
+  private synchronized void trySchedulingTask(Duration delay) {
     if (cleanAndCheckTasks()) {
-      submitTask(delayMinutes);
+      submitTask(delay);
     } else {
       log.debug("Tasks already scheduled (in regular auto-fetch)");
     }
   }
 
-  private void submitTask(int delayMinutes) {
-    log.debug("Scheduling regular auto-fetch in ", delayMinutes, "  minutes");
-    submitTaskToExecutor(delayMinutes, TimeUnit.MINUTES);
+  private void submitTask(Duration delay) {
+    log.debug("Scheduling regular auto-fetch in ", delay);
+    submitTaskToExecutor(delay);
   }
 
-  private void submitTaskToExecutor(int delay, TimeUnit timeUnit) {
-    scheduledTasks.add(executor.schedule(new AutoFetchTask(project, this), delay, timeUnit));
+  private void submitTaskToExecutor(Duration delay) {
+    scheduledTasks.add(executor.schedule(new AutoFetchTask(project, this, schedule), delay.toMillis(),
+        TimeUnit.MILLISECONDS));
     scheduledTasksCount.set(scheduledTasks.size());
   }
 
-  boolean runIfActive(Runnable task) {
+  void runIfActive(Runnable task) {
     if (active.get()) {
       task.run();
-      return true;
     }
-    return false;
   }
 
   <T> Optional<T> callIfActive(Callable<T> task) {
@@ -169,13 +136,5 @@ public class AutoFetchExecutor implements ProjectComponent {
     } else {
       return Optional.empty();
     }
-  }
-
-  void updateLastAutoFetchDate() {
-    lastAutoFetchTimestamp.set(System.currentTimeMillis());
-  }
-
-  long getLastAutoFetchDate() {
-    return lastAutoFetchTimestamp.get();
   }
 }
