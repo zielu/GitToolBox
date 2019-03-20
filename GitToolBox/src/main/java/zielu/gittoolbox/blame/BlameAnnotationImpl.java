@@ -4,7 +4,6 @@ import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import gnu.trove.THashMap;
-import gnu.trove.TIntObjectHashMap;
 import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -17,12 +16,12 @@ class BlameAnnotationImpl implements BlameAnnotation {
   private final FileAnnotation annotation;
   private final RevisionService revisionService;
   private final Map<VcsRevisionNumber, RevisionInfo> revisions;
-  private final TIntObjectHashMap<VcsRevisionNumber> lineRevisions;
+  private final VcsRevisionNumber[] lineRevisions;
 
   BlameAnnotationImpl(@NotNull FileAnnotation annotation, @NotNull RevisionService revisionService) {
     this.annotation = annotation;
     this.revisionService = revisionService;
-    lineRevisions =  new TIntObjectHashMap<>(this.annotation.getLineCount() + 1);
+    lineRevisions = new VcsRevisionNumber[this.annotation.getLineCount() + 1];
     revisions = new THashMap<>(this.annotation.getLineCount() + 1);
   }
 
@@ -42,13 +41,13 @@ class BlameAnnotationImpl implements BlameAnnotation {
 
   @NotNull
   private VcsRevisionNumber getLineRevisionNumber(int lineNumber) {
-    VcsRevisionNumber revisionNumber = lineRevisions.get(lineNumber);
+    VcsRevisionNumber revisionNumber = lineRevisions[lineNumber];
     if (revisionNumber == null) {
       VcsRevisionNumber lineRevisionNumber = annotation.getLineRevisionNumber(lineNumber);
       if (lineRevisionNumber == null) {
         lineRevisionNumber = VcsRevisionNumber.NULL;
       }
-      lineRevisions.put(lineNumber, lineRevisionNumber);
+      lineRevisions[lineNumber] = lineRevisionNumber;
       revisionNumber = lineRevisionNumber;
     }
     return revisionNumber;
