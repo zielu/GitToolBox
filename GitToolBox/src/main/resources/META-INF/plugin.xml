@@ -98,6 +98,7 @@
     <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter"/>
 
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSchedule"/>
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchOnBranchSwitch"/>
   </extensions>
 
   <application-components>

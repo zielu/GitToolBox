@@ -62,7 +62,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
         statusCalculator.update(repo, calculator, currentStatus));
 
     if (freshInfo != null && !Objects.equals(info, freshInfo)) {
-      gateway.notifyRepoChanged(repository, freshInfo);
+      gateway.notifyRepoChanged(repository, info, freshInfo);
     } else {
       log.debug("Status did not change [", GtUtil.name(repository), "]: ", freshInfo);
     }

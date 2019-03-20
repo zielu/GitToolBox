@@ -48,13 +48,13 @@ class AutoFetchSchedule {
   Duration calculateTaskDelayOnStateChange() {
     long lastAutoFetch = lastAutoFetchTimestamp.get();
     if (lastAutoFetch != 0) {
-      return calculateDelayMinutesIfTaskWasExecuted(lastAutoFetch);
+      return calculateDelayIfTaskWasExecuted(lastAutoFetch);
     } else {
       return DEFAULT_DELAY;
     }
   }
 
-  private Duration calculateDelayMinutesIfTaskWasExecuted(long lastAutoFetch) {
+  private Duration calculateDelayIfTaskWasExecuted(long lastAutoFetch) {
     long nextAutoFetch = lastAutoFetch + TimeUnit.MINUTES.toMillis(currentIntervalMinutes);
     long difference = nextAutoFetch - System.currentTimeMillis();
     if (difference > 0) {
@@ -67,5 +67,24 @@ class AutoFetchSchedule {
 
   Duration getInterval() {
     return Duration.ofMinutes(currentIntervalMinutes);
+  }
+
+  Duration calculateTaskDelayOnBranchSwitch() {
+    long lastAutoFetch = lastAutoFetchTimestamp.get();
+    if (lastAutoFetch != 0) {
+      return calculateDelayOnBranchSwitch(lastAutoFetch);
+    } else {
+      return Duration.ZERO;
+    }
+  }
+
+  private Duration calculateDelayOnBranchSwitch(long lastAutoFetch) {
+    long nextAutoFetch = lastAutoFetch + TimeUnit.MINUTES.toMillis(currentIntervalMinutes);
+    long difference = nextAutoFetch - System.currentTimeMillis();
+    if (difference > Duration.ofSeconds(30).toMillis()) {
+      return Duration.ofSeconds(3);
+    } else {
+      return Duration.ZERO;
+    }
   }
 }

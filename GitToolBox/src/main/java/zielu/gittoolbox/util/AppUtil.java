@@ -14,4 +14,9 @@ public final class AppUtil {
   public static <T> Optional<T> getExistingServiceInstance(@NotNull Project project, Class<T> serviceType) {
     return Optional.ofNullable(ServiceManager.getServiceIfCreated(project, serviceType));
   }
+
+  @NotNull
+  public static <T> T getServiceInstance(@NotNull Project project, Class<T> serviceType) {
+    return ServiceManager.getService(project, serviceType);
+  }
 }

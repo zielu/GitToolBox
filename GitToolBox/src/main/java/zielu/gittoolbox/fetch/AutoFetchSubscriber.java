@@ -4,7 +4,11 @@ import com.google.common.base.Preconditions;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
+import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.cache.PerRepoInfoCache;
+import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
+import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
@@ -33,6 +37,16 @@ class AutoFetchSubscriber implements ProjectComponent {
       }
     });
     connection.subscribe(AutoFetchNotifier.TOPIC, state -> autoFetchComponent.stateChanged(state));
+    connection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+      @Override
+      public void stateChanged(@NotNull RepoInfo previous, @NotNull RepoInfo current,
+                               @NotNull GitRepository repository) {
+        //TODO: if auto fetch on branch switch enabled
+        if (!previous.isEmpty() && !current.isEmpty() && !previous.status().sameLocalBranch(current.status())) {
+          AutoFetchOnBranchSwitch.getInstance(project).onBranchSwitch(current, repository);
+        }
+      }
+    });
   }
 
   @Override

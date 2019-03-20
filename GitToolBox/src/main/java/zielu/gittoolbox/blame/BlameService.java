@@ -1,6 +1,5 @@
 package zielu.gittoolbox.blame;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -27,7 +26,7 @@ public interface BlameService {
 
   @NotNull
   static BlameService getInstance(@NotNull Project project) {
-    return ServiceManager.getService(project, BlameService.class);
+    return AppUtil.getServiceInstance(project, BlameService.class);
   }
 
   @NotNull

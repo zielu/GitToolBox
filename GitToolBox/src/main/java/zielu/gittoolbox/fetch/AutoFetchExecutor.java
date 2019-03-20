@@ -4,6 +4,7 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.ControlFlowException;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import git4idea.repo.GitRepository;
 import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,6 +78,12 @@ public class AutoFetchExecutor implements ProjectComponent {
     }
   }
 
+  void scheduleTask(Duration delay, @NotNull GitRepository repository) {
+    if (active.get() && autoFetchEnabled.get()) {
+      trySchedulingTask(delay, new AutoFetchTask(project, this, schedule, repository));
+    }
+  }
+
   void rescheduleTask(Duration delay) {
     cancelCurrentTasks();
     if (active.get() && autoFetchEnabled.get()) {
@@ -97,21 +104,24 @@ public class AutoFetchExecutor implements ProjectComponent {
   }
 
   private synchronized void trySchedulingTask(Duration delay) {
+    trySchedulingTask(delay, new AutoFetchTask(project, this, schedule));
+  }
+
+  private synchronized void trySchedulingTask(Duration delay, Runnable task) {
     if (cleanAndCheckTasks()) {
-      submitTask(delay);
+      submitTask(delay, task);
     } else {
       log.debug("Tasks already scheduled (in regular auto-fetch)");
     }
   }
 
-  private void submitTask(Duration delay) {
-    log.debug("Scheduling regular auto-fetch in ", delay);
-    submitTaskToExecutor(delay);
+  private void submitTask(Duration delay, Runnable task) {
+    log.debug("Scheduling auto-fetch in ", delay);
+    submitTaskToExecutor(delay, task);
   }
 
-  private void submitTaskToExecutor(Duration delay) {
-    scheduledTasks.add(executor.schedule(new AutoFetchTask(project, this, schedule), delay.toMillis(),
-        TimeUnit.MILLISECONDS));
+  private void submitTaskToExecutor(Duration delay, Runnable task) {
+    scheduledTasks.add(executor.schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS));
     scheduledTasksCount.set(scheduledTasks.size());
   }
 

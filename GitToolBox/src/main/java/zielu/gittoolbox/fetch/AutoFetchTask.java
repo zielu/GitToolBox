@@ -13,12 +13,14 @@ import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -39,6 +41,8 @@ class AutoFetchTask implements Runnable {
   private final AutoFetchExecutor owner;
   private final AutoFetchSchedule schedule;
   private final Project project;
+  private final Supplier<List<GitRepository>> reposToFetchProvider;
+  private final boolean scheduleNextTask;
 
   private final AtomicReference<NotificationHandle> lastNotification = new AtomicReference<>();
 
@@ -46,6 +50,22 @@ class AutoFetchTask implements Runnable {
     this.project = project;
     this.owner = owner;
     this.schedule = schedule;
+    reposToFetchProvider = this::findAllRepos;
+    scheduleNextTask = true;
+  }
+
+  AutoFetchTask(@NotNull Project project, @NotNull AutoFetchExecutor owner, @NotNull AutoFetchSchedule schedule,
+                @NotNull GitRepository repository) {
+    this.project = project;
+    this.owner = owner;
+    this.schedule = schedule;
+    reposToFetchProvider = () -> Collections.singletonList(repository);
+    scheduleNextTask = false;
+  }
+
+  private List<GitRepository> findAllRepos() {
+    GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
+    return ImmutableList.copyOf(repositoryManager.getRepositories());
   }
 
   private void finishedNotification() {
@@ -80,10 +100,9 @@ class AutoFetchTask implements Runnable {
   }
 
   private List<GitRepository> findReposToFetch() {
-    GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
-    ImmutableList<GitRepository> allRepos = ImmutableList.copyOf(repositoryManager.getRepositories());
+    List<GitRepository> repos = reposToFetchProvider.get();
     AutoFetchStrategy strategy = AutoFetchStrategy.REPO_WITH_REMOTES;
-    List<GitRepository> fetchable = strategy.fetchableRepositories(allRepos, project);
+    List<GitRepository> fetchable = strategy.fetchableRepositories(repos, project);
     return fetchable.stream().filter(this::isFetchAllowed).collect(Collectors.toList());
   }
 
@@ -193,7 +212,9 @@ class AutoFetchTask implements Runnable {
       if (isNotCancelled()) {
         String title = autoFetchTitle(repos);
         if (tryToFetch(repos, indicator, title) && isNotCancelled()) {
-          owner.scheduleNextTask();
+          if (scheduleNextTask) {
+            owner.scheduleNextTask();
+          }
         }
       }
     });
