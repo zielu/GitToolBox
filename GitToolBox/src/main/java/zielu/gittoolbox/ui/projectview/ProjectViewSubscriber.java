@@ -46,7 +46,7 @@ class ProjectViewSubscriber implements ProjectComponent {
 
   private void refreshProjectView() {
     if (active.get()) {
-      AppUiUtil.invokeLater(() -> {
+      AppUiUtil.invokeLater(project, () -> {
         if (active.get()) {
           ProjectView.getInstance(project).refresh();
         }

@@ -13,9 +13,9 @@ import zielu.gittoolbox.revision.RevisionInfo;
 
 class BlamePresenterImpl implements BlamePresenter {
   private static final String SUBJECT_SEPARATOR = " " + UtfSeq.BULLET + " ";
-  private static final String COMMIT_PREFIX = ResBundle.getString("blame.commit") + " ";
-  private static final String AUTHOR_PREFIX = ResBundle.getString("blame.author") + " ";
-  private static final String DATE_PREFIX = ResBundle.getString("blame.date") + " ";
+  private static final String COMMIT_PREFIX = ResBundle.message("blame.commit") + " ";
+  private static final String AUTHOR_PREFIX = ResBundle.message("blame.author") + " ";
+  private static final String DATE_PREFIX = ResBundle.message("blame.date") + " ";
 
   @NotNull
   @Override
@@ -35,7 +35,7 @@ class BlamePresenterImpl implements BlamePresenter {
   @Override
   public String getStatusBar(@NotNull RevisionInfo revisionInfo) {
     return new StringBand(5)
-        .append(ResBundle.getString("blame.prefix"))
+        .append(ResBundle.message("blame.prefix"))
         .append(" ")
         .append(AuthorNameType.LASTNAME.shorten(revisionInfo.getAuthor()))
         .append(" ")

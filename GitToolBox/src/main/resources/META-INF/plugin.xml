@@ -37,6 +37,8 @@
     <projectService serviceInterface="zielu.gittoolbox.metrics.ProjectMetrics"
                     serviceImplementation="zielu.gittoolbox.metrics.ProjectMetricsImpl"/>
 
+    <projectService serviceImplementation="zielu.gittoolbox.ProjectGateway"/>
+
     <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxUpdateProjectApp"/>
 
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>

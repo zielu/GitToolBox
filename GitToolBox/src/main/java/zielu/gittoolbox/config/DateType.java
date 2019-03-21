@@ -38,7 +38,7 @@ public enum DateType {
 
   @Transient
   public String getDescription() {
-    return ResBundle.getString(descriptionKey);
+    return ResBundle.message(descriptionKey);
   }
 
   @Nullable

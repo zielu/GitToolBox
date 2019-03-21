@@ -2,9 +2,11 @@ package zielu.gittoolbox.fetch;
 
 import com.google.common.base.Preconditions;
 import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
+import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
@@ -13,12 +15,15 @@ import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
 class AutoFetchSubscriber implements ProjectComponent {
+  private final Logger log = Logger.getInstance(getClass());
   private final Project project;
+  private final AutoFetchExclusions exclusions;
   private AutoFetchComponent autoFetchComponent;
   private MessageBusConnection connection;
 
   AutoFetchSubscriber(@NotNull Project project) {
     this.project = project;
+    exclusions = new AutoFetchExclusions(project);
   }
 
   @Override
@@ -41,12 +46,29 @@ class AutoFetchSubscriber implements ProjectComponent {
       @Override
       public void stateChanged(@NotNull RepoInfo previous, @NotNull RepoInfo current,
                                @NotNull GitRepository repository) {
-        //TODO: if auto fetch on branch switch enabled
-        if (!previous.isEmpty() && !current.isEmpty() && !previous.status().sameLocalBranch(current.status())) {
-          AutoFetchOnBranchSwitch.getInstance(project).onBranchSwitch(current, repository);
-        }
+        handleAutoFetchOnBranchSwitch(previous, current, repository);
+      }
+
+      @Override
+      public void evicted(@NotNull Collection<GitRepository> repositories) {
+        AutoFetchOnBranchSwitch.getExistingInstance(project)
+            .ifPresent(service -> service.onRepositoriesRemoved(repositories));
       }
     });
+  }
+
+  private void handleAutoFetchOnBranchSwitch(@NotNull RepoInfo previous, @NotNull RepoInfo current,
+                                             @NotNull GitRepository repository) {
+    if (GitToolBoxConfigForProject.getInstance(project).autoFetchOnBranchSwitch) {
+      if (!previous.isEmpty() && !current.isEmpty() && !previous.status().sameLocalBranch(current.status())) {
+        if (exclusions.isAllowed(repository)) {
+          //TODO: if branch makes through exclusions & inclusions
+          AutoFetchOnBranchSwitch.getInstance(project).onBranchSwitch(current, repository);
+        }
+      } else {
+        log.info("Branch switch not eligible for auto-fetch: previous=" + previous + ", current=" + current);
+      }
+    }
   }
 
   @Override

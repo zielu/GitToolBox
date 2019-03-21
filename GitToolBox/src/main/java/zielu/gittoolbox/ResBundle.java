@@ -1,6 +1,6 @@
 package zielu.gittoolbox;
 
-import com.intellij.CommonBundle;
+import com.intellij.BundleBase;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
@@ -19,39 +19,34 @@ public final class ResBundle {
 
   @NotNull
   public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {
-    return CommonBundle.message(getBundle(), key, params);
-  }
-
-  @NotNull
-  public static String getString(@NotNull @PropertyKey(resourceBundle = BUNDLE_NAME) String key) {
-    return getBundle().getString(key);
+    return BundleBase.message(getBundle(), key, params);
   }
 
   private static ResourceBundle getBundle() {
-    ResourceBundle bundle = null;
-    if (ResBundle.bundle != null) {
-      bundle = ResBundle.bundle.get();
+    ResourceBundle resBundle = null;
+    if (bundle != null) {
+      resBundle = bundle.get();
     }
-    if (bundle == null) {
-      bundle = ResourceBundle.getBundle(BUNDLE_NAME);
-      ResBundle.bundle = new SoftReference<>(bundle);
+    if (resBundle == null) {
+      resBundle = ResourceBundle.getBundle(BUNDLE_NAME);
+      bundle = new SoftReference<>(resBundle);
     }
-    return bundle;
+    return resBundle;
   }
 
   public static String na() {
-    return getString("common.na");
+    return message("common.na");
   }
 
   public static String naLabel() {
-    return getString("common.na.label");
+    return message("common.na.label");
   }
 
   public static String on() {
-    return getString("common.on");
+    return message("common.on");
   }
 
   public static String disabled() {
-    return getString("common.disabled");
+    return message("common.disabled");
   }
 }

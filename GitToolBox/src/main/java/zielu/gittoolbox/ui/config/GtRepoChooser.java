@@ -46,7 +46,7 @@ class GtRepoChooser extends DialogWrapper {
     JBScrollPane scrollPane = new JBScrollPane(repoList);
     centerPanel = JBUI.Panels.simplePanel().addToCenter(scrollPane);
     centerPanel.setPreferredSize(JBUI.size(400, 300));
-    setTitle(ResBundle.getString("configurable.prj.autoFetch.exclusions.add.title"));
+    setTitle(ResBundle.message("configurable.prj.autoFetch.exclusions.add.title"));
     init();
   }
 

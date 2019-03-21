@@ -10,7 +10,7 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 public class RefreshStatusAction extends DumbAwareAction {
 
   public RefreshStatusAction() {
-    super(ResBundle.getString("refresh.status.action"));
+    super(ResBundle.message("refresh.status.action"));
   }
 
   @Override

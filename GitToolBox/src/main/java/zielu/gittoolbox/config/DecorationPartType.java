@@ -10,10 +10,10 @@ public enum DecorationPartType {
   ;
 
   public String getLabel() {
-    return ResBundle.getString("decoration.type." + name() + ".label");
+    return ResBundle.message("decoration.type." + name() + ".label");
   }
 
   public String getPlaceholder() {
-    return ResBundle.getString("decoration.type." + name() + ".placeholder");
+    return ResBundle.message("decoration.type." + name() + ".placeholder");
   }
 }

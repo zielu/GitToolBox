@@ -9,7 +9,7 @@ public interface UpdateProjectAction {
   boolean isDefault();
 
   default String getName() {
-    return ResBundle.getString(getId());
+    return ResBundle.message(getId());
   }
 
   AnAction getAction();

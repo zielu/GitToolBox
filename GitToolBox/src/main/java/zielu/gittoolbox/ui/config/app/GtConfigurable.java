@@ -17,7 +17,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
   @Nls
   @Override
   public String getDisplayName() {
-    return ResBundle.getString("configurable.app.displayName");
+    return ResBundle.message("configurable.app.displayName");
   }
 
   @Nullable

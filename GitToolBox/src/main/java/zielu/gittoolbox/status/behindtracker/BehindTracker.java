@@ -102,7 +102,7 @@ class BehindTracker implements ProjectComponent {
   @NotNull
   private StringBand formatMessage(@NotNull BehindMessage message, @NotNull ChangeType changeType) {
     return new StringBand(GitUIUtil.bold(changeType.title()))
-        .append(" (").append(Html.link("update", ResBundle.getString("update.project")))
+        .append(" (").append(Html.link("update", ResBundle.message("update.project")))
         .append(")").append(Html.BR).append(message.text);
   }
 
@@ -227,8 +227,8 @@ class BehindTracker implements ProjectComponent {
     NONE(false, "NONE"),
     @Deprecated
     HIDDEN(false, "HIDDEN"),
-    FETCHED(true, ResBundle.getString("message.fetch.done")),
-    SWITCHED(true, ResBundle.getString("message.switched"));
+    FETCHED(true, ResBundle.message("message.fetch.done")),
+    SWITCHED(true, ResBundle.message("message.switched"));
 
     private final boolean visible;
     private final String title;

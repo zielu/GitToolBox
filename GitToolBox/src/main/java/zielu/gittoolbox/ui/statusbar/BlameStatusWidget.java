@@ -26,10 +26,10 @@ import java.awt.event.MouseEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.ui.blame.BlamePresenter;
 import zielu.gittoolbox.ui.blame.BlameUi;
 import zielu.gittoolbox.ui.util.AppUiUtil;
@@ -94,7 +94,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void blameUpdate(@NotNull VirtualFile file) {
-    AppUiUtil.invokeLaterIfNeeded(() -> {
+    AppUiUtil.invokeLaterIfNeeded(myProject, () -> {
       if (file.equals(stateHolder.getCurrentFile())) {
         fileChanged(stateHolder.getCurrentEditor(), file);
       }
@@ -327,14 +327,14 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   private boolean clearBlame() {
     if (stateHolder.clearBlame()) {
-      blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.na();
+      blameText = ResBundle.message("blame.prefix") + " " + ResBundle.na();
       return true;
     }
     return false;
   }
 
   private void disabled() {
-    blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.disabled();
+    blameText = ResBundle.message("blame.prefix") + " " + ResBundle.disabled();
   }
 
   @Override

@@ -61,8 +61,8 @@ public class GitPushTagsDialog extends DialogWrapper {
   }
 
   private void initGui() {
-    setTitle(ResBundle.getString("push.tags.title"));
-    setOKButtonText(ResBundle.getString("push.tags.ok.button"));
+    setTitle(ResBundle.message("push.tags.title"));
+    setOKButtonText(ResBundle.message("push.tags.ok.button"));
     panel = new JPanel(new MigLayout("fill, top, insets 0", "[]10[grow, fill]"));
     gitRootComboBox = new ComboBox();
     gitRootComboBox.addActionListener(new ActionListener() {
@@ -71,13 +71,13 @@ public class GitPushTagsDialog extends DialogWrapper {
         updateRepositoryState();
       }
     });
-    panel.add(new JBLabel(ResBundle.getString("git.root")));
+    panel.add(new JBLabel(ResBundle.message("git.root")));
     panel.add(gitRootComboBox, "spanx, wrap");
     currentBranch = new JBLabel();
-    panel.add(new JBLabel(ResBundle.getString("current.branch")));
+    panel.add(new JBLabel(ResBundle.message("current.branch")));
     panel.add(currentBranch, "spanx, wrap");
-    panel.add(new JBLabel(ResBundle.getString("force.tags.push.label")));
-    forceCheckbox = new JBCheckBox(ResBundle.getString("force.tags.push.text"));
+    panel.add(new JBLabel(ResBundle.message("force.tags.push.label")));
+    forceCheckbox = new JBCheckBox(ResBundle.message("force.tags.push.text"));
     panel.add(forceCheckbox, "spanx, wrap");
     tagsList = new CheckBoxList<String>(new CheckBoxListListener() {
       @Override
@@ -93,13 +93,13 @@ public class GitPushTagsDialog extends DialogWrapper {
     panel.add(ScrollPaneFactory.createScrollPane(tagsList), "gaptop 10, span, grow, push, wrap");
     JPanel selectPanel = new JPanel(new MigLayout("fill, insets 0", "[]5[]10[grow]"));
     panel.add(selectPanel, "spanx, growx, pushx, wrap");
-    selectPanel.add(new LinkLabel(ResBundle.getString("select.all"), null, new LinkListener() {
+    selectPanel.add(new LinkLabel(ResBundle.message("select.all"), null, new LinkListener() {
       @Override
       public void linkSelected(LinkLabel source, Object linkData) {
         changeItemsSelection(true);
       }
     }));
-    selectPanel.add(new LinkLabel(ResBundle.getString("select.none"), null, new LinkListener() {
+    selectPanel.add(new LinkLabel(ResBundle.message("select.none"), null, new LinkListener() {
       @Override
       public void linkSelected(LinkLabel source, Object linkData) {
         changeItemsSelection(false);
@@ -206,7 +206,7 @@ public class GitPushTagsDialog extends DialogWrapper {
     if (tracking.isPresent()) {
       setErrorText(null);
     } else {
-      setErrorText(ResBundle.getString("message.cannot.push.without.tracking"));
+      setErrorText(ResBundle.message("message.cannot.push.without.tracking"));
     }
   }
 

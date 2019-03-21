@@ -62,6 +62,7 @@ public class GtPrjForm implements GtFormUi {
   private JPanel autoFetchExclusionsPanel;
   private ComboBox<ReferencePointForStatusType> referencePointTypeComboBox;
   private JTextField referencePointNameText;
+  private JCheckBox autoFetchOnBranchSwitchEnabled;
 
   private GtPatternFormatterForm completionItemPatternForm;
   private Action addSimpleCompletionAction;
@@ -72,7 +73,7 @@ public class GtPrjForm implements GtFormUi {
   public void init() {
     addSimpleCompletionAction = new AbstractActionExt() {
       {
-        setName(ResBundle.getString("commit.dialog.completion.formatters.simple.add.label"));
+        setName(ResBundle.message("commit.dialog.completion.formatters.simple.add.label"));
         setSmallIcon(IconHandle.SIMPLE_FORMATTER.getIcon());
       }
 
@@ -85,7 +86,7 @@ public class GtPrjForm implements GtFormUi {
     addCommitCompletionPopup.add(addSimpleCompletionAction);
     Action addPatternCompletionAction = new AbstractActionExt() {
       {
-        setName(ResBundle.getString("commit.dialog.completion.formatters.pattern.add.label"));
+        setName(ResBundle.message("commit.dialog.completion.formatters.pattern.add.label"));
         setSmallIcon(IconHandle.REG_EXP_FORMATTER.getIcon());
       }
 
@@ -98,7 +99,7 @@ public class GtPrjForm implements GtFormUi {
     addCommitCompletionPopup.add(addPatternCompletionAction);
     Action addIssuePatternCompletionAction = new AbstractActionExt() {
       {
-        setName(ResBundle.getString("commit.dialog.completion.formatters.pattern.issue.add.label"));
+        setName(ResBundle.message("commit.dialog.completion.formatters.pattern.issue.add.label"));
         setSmallIcon(IconHandle.REG_EXP_FORMATTER.getIcon());
       }
 
@@ -144,7 +145,7 @@ public class GtPrjForm implements GtFormUi {
       Point point = popupPoint.getPoint();
       addCommitCompletionPopup.show(popupPoint.getComponent(), point.x, point.y);
     });
-    commitCompletionDecorator.setAddActionName(ResBundle.getString("commit.dialog.completion.formatters.add.tooltip"));
+    commitCompletionDecorator.setAddActionName(ResBundle.message("commit.dialog.completion.formatters.add.tooltip"));
     commitCompletionDecorator.setRemoveAction(button -> onCommitCompletionItemRemove());
     commitCompletionDecorator.setRemoveActionName("commit.dialog.completion.formatters.remove.tooltip");
     commitCompletionPanel.add(commitCompletionDecorator.createPanel(), BorderLayout.CENTER);
@@ -152,10 +153,10 @@ public class GtPrjForm implements GtFormUi {
     autoFetchExclusionsDecorator = ToolbarDecorator.createDecorator(autoFetchExclusionsList);
     autoFetchExclusionsDecorator.setAddAction(button -> onAddAutoFetchExclusion());
     autoFetchExclusionsDecorator.setAddActionName(
-        ResBundle.getString("configurable.prj.autoFetch.exclusions.add.label"));
+        ResBundle.message("configurable.prj.autoFetch.exclusions.add.label"));
     autoFetchExclusionsDecorator.setRemoveAction(button -> onRemoveAutoFetchExclusion());
     autoFetchExclusionsDecorator.setRemoveActionName(
-        ResBundle.getString("configurable.prj.autoFetch.exclusions.remove.label"));
+        ResBundle.message("configurable.prj.autoFetch.exclusions.remove.label"));
     CollectionComboBoxModel<ReferencePointForStatusType> referencePointTypeModel = new CollectionComboBoxModel<>(
         Lists.newArrayList(ReferencePointForStatusType.values()));
     referencePointTypeComboBox.setModel(referencePointTypeModel);
@@ -236,7 +237,7 @@ public class GtPrjForm implements GtFormUi {
     if (defaultProject) {
       autoFetchExclusionsDecorator.disableAddAction();
       autoFetchExclusionsDecorator.disableRemoveAction();
-      autoFetchExclusionsList.setEmptyText(ResBundle.getString("configurable.prj.default.na"));
+      autoFetchExclusionsList.setEmptyText(ResBundle.message("configurable.prj.default.na"));
     }
     autoFetchExclusionsPanel.add(autoFetchExclusionsDecorator.createPanel(), BorderLayout.CENTER);
   }
@@ -290,6 +291,14 @@ public class GtPrjForm implements GtFormUi {
 
   public List<String> getAutoFetchExclusions() {
     return autoFetchExclusionsModel.toList();
+  }
+
+  void setAutoFetchOnBranchSwitchEnabled(boolean enabled) {
+    autoFetchOnBranchSwitchEnabled.setSelected(enabled);
+  }
+
+  boolean getAutoFetchOnBranchSwitchEnabled() {
+    return autoFetchOnBranchSwitchEnabled.isSelected();
   }
 
   public void setReferencePointConfig(ReferencePointForStatusConfig config) {

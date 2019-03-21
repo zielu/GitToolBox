@@ -34,6 +34,6 @@ public class UpdateProject {
   }
 
   public void execute() {
-    AppUiUtil.invokeLaterIfNeeded(this::invokeAction);
+    AppUiUtil.invokeLaterIfNeeded(project, this::invokeAction);
   }
 }

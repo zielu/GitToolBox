@@ -60,7 +60,7 @@ class BlamePopup {
   void showFor(@NotNull JComponent component) {
     balloon = JBPopupFactory.getInstance()
         .createHtmlTextBalloonBuilder(prepareText(), null, JBColor.LIGHT_GRAY, createLinkListener())
-        .setTitle(ResBundle.getString("statusBar.blame.popup.title"))
+        .setTitle(ResBundle.message("statusBar.blame.popup.title"))
         .setAnimationCycle(200)
         .setShowCallout(false)
         .setCloseButtonEnabled(true)

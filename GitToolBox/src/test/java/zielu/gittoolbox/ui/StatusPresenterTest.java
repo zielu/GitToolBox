@@ -30,7 +30,7 @@ class StatusPresenterTest {
     return Stream.of(
       Arguments.of(StatusPresenters.arrows, "0" + UtfSeq.ARROW_DOWN),
       Arguments.of(StatusPresenters.arrowHeads, "0" + UtfSeq.ARROWHEAD_DOWN),
-      Arguments.of(StatusPresenters.text, "0 " + ResBundle.getString("git.behind"))
+      Arguments.of(StatusPresenters.text, "0 " + ResBundle.message("git.behind"))
     );
   }
 
@@ -48,7 +48,7 @@ class StatusPresenterTest {
       Arguments.of(StatusPresenters.arrows, 1, 0, "1" + UtfSeq.ARROW_DOWN + " "),//TODO: remove trailing space
       Arguments.of(StatusPresenters.arrows, 1, -1, "1" + UtfSeq.ARROW_DOWN + " " + UtfSeq.INCREMENT + "-1"),
       Arguments.of(StatusPresenters.arrowHeads, 1, 1, "1" + UtfSeq.ARROWHEAD_DOWN + " +1"),
-      Arguments.of(StatusPresenters.text, 1, 1, "1 " + ResBundle.getString("git.behind") + " +1")
+      Arguments.of(StatusPresenters.text, 1, 1, "1 " + ResBundle.message("git.behind") + " +1")
     );
   }
 }

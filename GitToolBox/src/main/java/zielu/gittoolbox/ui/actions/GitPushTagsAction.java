@@ -39,7 +39,7 @@ public class GitPushTagsAction extends GitRepositoryAction {
   @NotNull
   @Override
   protected String getActionName() {
-    return ResBundle.getString("action.push.tags");
+    return ResBundle.message("action.push.tags");
   }
 
   @Override
@@ -50,7 +50,7 @@ public class GitPushTagsAction extends GitRepositoryAction {
     if (dialog.isOK()) {
       final Optional<TagsPushSpec> pushSpec = dialog.getPushSpec();
       if (pushSpec.isPresent()) {
-        Task.Backgroundable task = new Task.Backgroundable(project, ResBundle.getString("message.pushing"), false) {
+        Task.Backgroundable task = new Task.Backgroundable(project, ResBundle.message("message.pushing"), false) {
           @Override
           public void run(@NotNull ProgressIndicator indicator) {
             GtPushResult result = GitTagsPusher.create(getProject(), indicator).push(pushSpec.get());
@@ -65,7 +65,7 @@ public class GitPushTagsAction extends GitRepositoryAction {
   private void handleResult(Project project, GtPushResult pushResult) {
     VcsNotifier vcsNotifier = VcsNotifier.getInstance(project);
     if (pushResult.getType() == Type.SUCCESS) {
-      vcsNotifier.notifySuccess(ResBundle.getString("message.tags.pushed"));
+      vcsNotifier.notifySuccess(ResBundle.message("message.tags.pushed"));
     } else {
       errorResultHandlers.getOrDefault(pushResult.getType(), (notifier, result) -> { /*do nothing*/ })
         .accept(vcsNotifier, pushResult);

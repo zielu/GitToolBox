@@ -59,7 +59,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     });
     myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> {
       if (isActive()) {
-        AppUiUtil.invokeLaterIfNeeded(this::updateStatusBar);
+        AppUiUtil.invokeLaterIfNeeded(project, this::updateStatusBar);
       }
     });
   }
@@ -76,16 +76,16 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
         updateStatusBar();
       }
     });
-    AppUiUtil.invokeLaterIfNeeded(onCacheChange);
+    AppUiUtil.invokeLaterIfNeeded(project, onCacheChange);
   }
 
-  private void runUpdateLater(Project project) {
-    Runnable update = new DisposeSafeRunnable(project, () -> {
+  private void runUpdateLater(@NotNull Project project) {
+    Runnable update = () -> {
       if (isActive()) {
         runUpdate(project);
       }
-    });
-    AppUiUtil.invokeLaterIfNeeded(update);
+    };
+    AppUiUtil.invokeLaterIfNeeded(project, update);
   }
 
   @Override
@@ -115,7 +115,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Override
   public ListPopup getPopupStep() {
     if (rootActions.update()) {
-      String title = ResBundle.getString("statusBar.status.menu.title");
+      String title = ResBundle.message("statusBar.status.menu.title");
       return new StatusActionGroupPopup(title, rootActions, myProject, Condition.TRUE);
     } else {
       return null;
@@ -168,12 +168,12 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   private void disabled() {
     toolTip.clear();
-    text = ResBundle.getString("status.prefix") + " " + ResBundle.disabled();
+    text = ResBundle.message("status.prefix") + " " + ResBundle.disabled();
   }
 
   private void updateData(@NotNull GitRepository repository, RepoInfo repoInfo) {
     toolTip.update(repository, repoInfo.count().orElse(null));
-    text = ResBundle.getString("status.prefix") + " " + repoInfo.count().map(StatusText::format)
+    text = ResBundle.message("status.prefix") + " " + repoInfo.count().map(StatusText::format)
         .orElse(ResBundle.na());
   }
 

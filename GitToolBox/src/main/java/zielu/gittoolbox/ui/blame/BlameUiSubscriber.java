@@ -29,7 +29,7 @@ class BlameUiSubscriber {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         if (onConfigChanged(previous, current)) {
-          AppUiUtil.invokeLater(() -> handleConfigChanged());
+          AppUiUtil.invokeLater(project, () -> handleConfigChanged());
         }
       }
     });
@@ -59,7 +59,7 @@ class BlameUiSubscriber {
     GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
     if (config.showEditorInlineBlame) {
       BlameEditorService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file));
-      AppUiUtil.invokeLater(() -> handleBlameUpdate(file));
+      AppUiUtil.invokeLater(project, () -> handleBlameUpdate(file));
     }
   }
 

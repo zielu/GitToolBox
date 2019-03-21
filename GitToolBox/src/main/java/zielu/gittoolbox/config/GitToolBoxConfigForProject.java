@@ -2,7 +2,6 @@ package zielu.gittoolbox.config;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -15,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.fetch.AutoFetchParams;
 import zielu.gittoolbox.formatter.Formatter;
+import zielu.gittoolbox.util.AppUtil;
 
 @State(
     name = "GitToolBoxProjectSettings",
@@ -24,12 +24,13 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
   public boolean autoFetch = true;
   public int autoFetchIntervalMinutes = AutoFetchParams.DEFAULT_INTERVAL_MINUTES;
   public List<String> autoFetchExclusions = new ArrayList<>();
+  public boolean autoFetchOnBranchSwitch = true;
   public boolean commitDialogCompletion = true;
   public List<CommitCompletionConfig> completionConfigs = Lists.newArrayList(new CommitCompletionConfig());
   public ReferencePointForStatusConfig referencePointForStatus = new ReferencePointForStatusConfig();
 
   public static GitToolBoxConfigForProject getInstance(Project project) {
-    return ServiceManager.getService(project, GitToolBoxConfigForProject.class);
+    return AppUtil.getServiceInstance(project, GitToolBoxConfigForProject.class);
   }
 
   public GitToolBoxConfigForProject copy() {
@@ -37,6 +38,7 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     copy.autoFetch = autoFetch;
     copy.autoFetchIntervalMinutes = autoFetchIntervalMinutes;
     copy.autoFetchExclusions = new ArrayList<>(autoFetchExclusions);
+    copy.autoFetchOnBranchSwitch = autoFetchOnBranchSwitch;
     copy.commitDialogCompletion = commitDialogCompletion;
     copy.completionConfigs = completionConfigs.stream().map(CommitCompletionConfig::copy).collect(Collectors.toList());
     copy.referencePointForStatus = referencePointForStatus.copy();
@@ -61,6 +63,10 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
 
   public boolean isAutoFetchExclusionsChanged(List<String> autoFetchExclusions) {
     return !this.autoFetchExclusions.equals(autoFetchExclusions);
+  }
+
+  public boolean isAutoFetchOnBranchSwitchChanged(boolean autoFetchOnBranchSwitch) {
+    return this.autoFetchOnBranchSwitch != autoFetchOnBranchSwitch;
   }
 
   public boolean isReferencePointForStatusChanged(ReferencePointForStatusConfig config) {

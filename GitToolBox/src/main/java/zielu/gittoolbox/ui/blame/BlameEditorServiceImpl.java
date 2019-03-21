@@ -119,7 +119,7 @@ class BlameEditorServiceImpl implements BlameEditorService {
 
   @Override
   public void blameUpdated(@NotNull VirtualFile file) {
-    AppUiUtil.invokeLaterIfNeeded(() -> handleBlameUpdated(file));
+    AppUiUtil.invokeLaterIfNeeded(project, () -> handleBlameUpdated(file));
   }
 
   private void handleBlameUpdated(@NotNull VirtualFile file) {

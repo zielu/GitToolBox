@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,17 +26,21 @@ public class AutoFetchExecutor implements ProjectComponent {
   private final AtomicBoolean active = new AtomicBoolean();
   private final AtomicBoolean autoFetchEnabled = new AtomicBoolean();
 
-  private final List<ScheduledFuture<?>> scheduledTasks = new LinkedList<>();
-  private final AtomicInteger scheduledTasksCount = new AtomicInteger();
+  private final List<ScheduledFuture<?>> scheduledCyclicTasks = new LinkedList<>();
+  private final List<ScheduledFuture<?>> scheduledRepoTasks = new LinkedList<>();
+  private final AtomicInteger scheduledCyclicTasksCount = new AtomicInteger();
+  private final AtomicInteger scheduledRepoTasksCount = new AtomicInteger();
   private final Project project;
   private final AutoFetchSchedule schedule;
+  private final Semaphore autoFetchLock = new Semaphore(1);
   private ScheduledExecutorService executor;
 
   public AutoFetchExecutor(@NotNull Project project, @NotNull AutoFetchSchedule schedule,
                            @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.schedule = schedule;
-    metrics.gauge("auto-fetch-tasks-size", scheduledTasksCount::get);
+    metrics.gauge("auto-fetch.cyclic-tasks-size", scheduledCyclicTasksCount::get);
+    metrics.gauge("auto-fetch.repo-tasks-size", scheduledRepoTasksCount::get);
   }
 
   @Override
@@ -72,15 +77,15 @@ public class AutoFetchExecutor implements ProjectComponent {
     }
   }
 
-  void scheduleTask(Duration delay) {
+  void scheduleTask(@NotNull Duration delay) {
     if (active.get() && autoFetchEnabled.get()) {
       trySchedulingTask(delay);
     }
   }
 
-  void scheduleTask(Duration delay, @NotNull GitRepository repository) {
+  void scheduleTask(@NotNull Duration delay, @NotNull GitRepository repository) {
     if (active.get() && autoFetchEnabled.get()) {
-      trySchedulingTask(delay, new AutoFetchTask(project, this, schedule, repository));
+      trySchedulingTask(delay, repository);
     }
   }
 
@@ -92,46 +97,50 @@ public class AutoFetchExecutor implements ProjectComponent {
   }
 
   private synchronized void cancelCurrentTasks() {
-    scheduledTasks.forEach(t -> t.cancel(true));
-    scheduledTasks.clear();
-    scheduledTasksCount.set(scheduledTasks.size());
+    scheduledCyclicTasks.forEach(t -> t.cancel(true));
+    scheduledCyclicTasks.clear();
+    scheduledCyclicTasksCount.set(scheduledCyclicTasks.size());
   }
 
-  private synchronized boolean cleanAndCheckTasks() {
-    scheduledTasks.removeIf(task -> task.isCancelled() || task.isDone());
-    scheduledTasksCount.set(scheduledTasks.size());
-    return scheduledTasks.isEmpty();
+  private synchronized boolean cleanAndCheckTasks(List<ScheduledFuture<?>> tasks, AtomicInteger tasksCount) {
+    tasks.removeIf(task -> task.isCancelled() || task.isDone());
+    tasksCount.set(tasks.size());
+    return tasks.isEmpty();
   }
 
   private synchronized void trySchedulingTask(Duration delay) {
-    trySchedulingTask(delay, new AutoFetchTask(project, this, schedule));
-  }
-
-  private synchronized void trySchedulingTask(Duration delay, Runnable task) {
-    if (cleanAndCheckTasks()) {
-      submitTask(delay, task);
+    if (cleanAndCheckTasks(scheduledCyclicTasks, scheduledCyclicTasksCount)) {
+      ScheduledFuture<?> scheduled = submitTaskToExecutor(delay, new AutoFetchTask(project, this, schedule));
+      scheduledCyclicTasks.add(scheduled);
+      scheduledCyclicTasksCount.set(scheduledCyclicTasks.size());
     } else {
       log.debug("Tasks already scheduled (in regular auto-fetch)");
     }
   }
 
-  private void submitTask(Duration delay, Runnable task) {
+  private synchronized void trySchedulingTask(Duration delay, GitRepository repository) {
+    if (cleanAndCheckTasks(scheduledRepoTasks, scheduledRepoTasksCount)) {
+      ScheduledFuture<?> scheduled = submitTaskToExecutor(delay,
+          new AutoFetchTask(project, this, schedule, repository));
+      scheduledRepoTasks.add(scheduled);
+      scheduledRepoTasksCount.set(scheduledRepoTasks.size());
+    } else {
+      log.debug("Tasks already scheduled (in repo auto-fetch)");
+    }
+  }
+
+  private ScheduledFuture<?> submitTaskToExecutor(Duration delay, Runnable task) {
     log.debug("Scheduling auto-fetch in ", delay);
-    submitTaskToExecutor(delay, task);
+    return executor.schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS);
   }
 
-  private void submitTaskToExecutor(Duration delay, Runnable task) {
-    scheduledTasks.add(executor.schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS));
-    scheduledTasksCount.set(scheduledTasks.size());
-  }
-
-  void runIfActive(Runnable task) {
+  void runIfActive(@NotNull Runnable task) {
     if (active.get()) {
       task.run();
     }
   }
 
-  <T> Optional<T> callIfActive(Callable<T> task) {
+  <T> Optional<T> callIfActive(@NotNull Callable<T> task) {
     if (active.get()) {
       try {
         return Optional.of(task.call());
@@ -146,5 +155,13 @@ public class AutoFetchExecutor implements ProjectComponent {
     } else {
       return Optional.empty();
     }
+  }
+
+  void acquireAutoFetchLock() {
+    autoFetchLock.acquireUninterruptibly();
+  }
+
+  void releaseAutoFetchLock() {
+    autoFetchLock.release();
   }
 }
