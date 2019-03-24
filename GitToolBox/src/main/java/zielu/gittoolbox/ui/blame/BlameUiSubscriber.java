@@ -1,7 +1,8 @@
 package zielu.gittoolbox.ui.blame;
 
-import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
@@ -15,26 +16,20 @@ import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 
-class BlameUiSubscriber implements BaseComponent {
+class BlameUiSubscriber {
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
-  private MessageBusConnection connection;
 
   BlameUiSubscriber(@NotNull Project project) {
     this.project = project;
-    connection = project.getMessageBus().connect();
+    MessageBusConnection connection = project.getMessageBus().connect(project);
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
-        if (current.showBlame != previous.showBlame
-            || current.showEditorInlineBlame != previous.showEditorInlineBlame
-            || current.isBlameInlinePresentationChanged(previous)) {
-          VirtualFile file = getFileForSelectedEditor(project);
-          if (file != null) {
-            log.debug("Refresh editor on config change for ", file);
-            refreshEditorFile(project, file);
-          }
+        if (onConfigChanged(previous, current)) {
+          AppUiUtil.invokeLater(project, () -> handleConfigChanged());
         }
       }
     });
@@ -49,21 +44,35 @@ class BlameUiSubscriber implements BaseComponent {
         onBlameUpdate(file);
       }
     });
+    connection.subscribe(EditorColorsManager.TOPIC, this::onColorSchemeChanged);
+  }
+
+  private void handleConfigChanged() {
+    VirtualFile file = getFileForSelectedEditor();
+    if (file != null) {
+      log.debug("Refresh editor on config change for ", file);
+      refreshEditorFile(file);
+    }
   }
 
   private void onBlameUpdate(@NotNull VirtualFile file) {
     GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
-    if (config.showBlame && config.showEditorInlineBlame) {
-      VirtualFile fileInEditor = getFileForSelectedEditor(project);
-      if (Objects.equals(fileInEditor, file)) {
-        log.debug("Refresh editor on blame update for ", file);
-        refreshEditorFile(project, file);
-      }
+    if (config.showEditorInlineBlame) {
+      BlameEditorService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file));
+      AppUiUtil.invokeLater(project, () -> handleBlameUpdate(file));
+    }
+  }
+
+  private void handleBlameUpdate(@NotNull VirtualFile file) {
+    VirtualFile fileInEditor = getFileForSelectedEditor();
+    if (Objects.equals(fileInEditor, file)) {
+      log.debug("Refresh editor on blame update for ", file);
+      refreshEditorFile(file);
     }
   }
 
   @Nullable
-  private VirtualFile getFileForSelectedEditor(@NotNull Project project) {
+  private VirtualFile getFileForSelectedEditor() {
     FileEditor editor = FileEditorManager.getInstance(project).getSelectedEditor();
     if (editor != null) {
       return editor.getFile();
@@ -71,15 +80,21 @@ class BlameUiSubscriber implements BaseComponent {
     return null;
   }
 
-  private void refreshEditorFile(@NotNull Project project, @NotNull VirtualFile file) {
+  private void refreshEditorFile(@NotNull VirtualFile file) {
     FileEditorManagerEx.getInstanceEx(project).updateFilePresentation(file);
   }
 
-  @Override
-  public void disposeComponent() {
-    if (connection != null) {
-      connection.disconnect();
-      connection = null;
+  private void onColorSchemeChanged(@Nullable EditorColorsScheme scheme) {
+    if (scheme != null) {
+      BlameEditorService.getExistingInstance(project).ifPresent(service -> service.colorsSchemeChanged(scheme));
     }
+  }
+
+  private boolean onConfigChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
+    boolean blamePresentationChanged = current.isBlameInlinePresentationChanged(previous);
+    BlameEditorService.getExistingInstance(project).ifPresent(service -> service.configChanged(previous, current));
+    return current.showBlame != previous.showBlame
+        || current.showEditorInlineBlame != previous.showEditorInlineBlame
+        || blamePresentationChanged;
   }
 }

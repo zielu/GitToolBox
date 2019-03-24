@@ -3,43 +3,61 @@ package zielu.gittoolbox.blame;
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
-import gnu.trove.TIntObjectHashMap;
-import java.util.HashMap;
+import gnu.trove.THashMap;
 import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.revision.RevisionService;
 
 class BlameAnnotationImpl implements BlameAnnotation {
-  private final Map<VcsRevisionNumber, Blame> blames = new HashMap<>();
-  private final TIntObjectHashMap<Blame> lineBlames;
   private final FileAnnotation annotation;
+  private final RevisionService revisionService;
+  private final Map<VcsRevisionNumber, RevisionInfo> revisions;
+  private final VcsRevisionNumber[] lineRevisions;
 
-  BlameAnnotationImpl(@NotNull FileAnnotation annotation) {
+  BlameAnnotationImpl(@NotNull FileAnnotation annotation, @NotNull RevisionService revisionService) {
     this.annotation = annotation;
-    lineBlames =  new TIntObjectHashMap<>(this.annotation.getLineCount() + 1);
+    this.revisionService = revisionService;
+    lineRevisions = new VcsRevisionNumber[this.annotation.getLineCount() + 1];
+    revisions = new THashMap<>(this.annotation.getLineCount() + 1);
   }
 
-  @Nullable
+  @NotNull
   @Override
-  public Blame getBlame(int lineNumber) {
-    if (lineBlames.containsKey(lineNumber)) {
-      return lineBlames.get(lineNumber);
-    } else {
-      return loadBlame(lineNumber);
+  public RevisionInfo getBlame(int lineNumber) {
+    VcsRevisionNumber revisionNumber = getLineRevisionNumber(lineNumber);
+    if (revisionNumber != VcsRevisionNumber.NULL) {
+      RevisionInfo revisionInfo = revisions.get(revisionNumber);
+      if (revisionInfo == null) {
+        revisionInfo = loadRevision(lineNumber);
+      }
+      return revisionInfo;
     }
+    return RevisionInfo.EMPTY;
   }
 
-  @Nullable
-  private Blame loadBlame(int lineNumber) {
-    Blame blame = null;
-    VcsRevisionNumber lineRevision = annotation.getLineRevisionNumber(lineNumber);
-    if (lineRevision != null) {
-      blame = blames.computeIfAbsent(lineRevision, lineRev -> LineBlame.create(annotation, lineRevision, lineNumber));
+  @NotNull
+  private VcsRevisionNumber getLineRevisionNumber(int lineNumber) {
+    VcsRevisionNumber revisionNumber = lineRevisions[lineNumber];
+    if (revisionNumber == null) {
+      VcsRevisionNumber lineRevisionNumber = annotation.getLineRevisionNumber(lineNumber);
+      if (lineRevisionNumber == null) {
+        lineRevisionNumber = VcsRevisionNumber.NULL;
+      }
+      lineRevisions[lineNumber] = lineRevisionNumber;
+      revisionNumber = lineRevisionNumber;
     }
-    lineBlames.put(lineNumber, blame);
-    return blame;
+    return revisionNumber;
+  }
+
+  @NotNull
+  private RevisionInfo loadRevision(int lineNumber) {
+    RevisionInfo revisionInfo = revisionService.getForLine(annotation, lineNumber);
+    revisions.put(revisionInfo.getRevisionNumber(), revisionInfo);
+    return revisionInfo;
   }
 
   @Override
@@ -51,6 +69,15 @@ class BlameAnnotationImpl implements BlameAnnotation {
   @Override
   public VirtualFile getVirtualFile() {
     return annotation.getFile();
+  }
+
+  @Override
+  public boolean updateRevision(@NotNull RevisionInfo revisionInfo) {
+    if (revisions.containsKey(revisionInfo.getRevisionNumber())) {
+      revisions.put(revisionInfo.getRevisionNumber(), revisionInfo);
+      return true;
+    }
+    return false;
   }
 
   @Override

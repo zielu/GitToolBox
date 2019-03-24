@@ -13,6 +13,6 @@ public enum ReferencePointForStatusType {
   }
 
   public String getLabel() {
-    return ResBundle.getString(labelKey);
+    return ResBundle.message(labelKey);
   }
 }

@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>183.0.0-dev</version>
+  <version>191.0.0-dev</version>
   <vendor url="https://github.com/zielu">Lukasz Zielinski</vendor>
 
   <description><![CDATA[
@@ -15,21 +15,31 @@
   </change-notes>
 
 
-  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+  <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
-  <!-- uncomment to enable plugin in all products -->
-  <depends>com.intellij.modules.lang</depends>
+  <!-- enable plugins in all products -->
+  <depends>com.intellij.modules.platform</depends>
   <depends>Git4Idea</depends>
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
-  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="183.5153.8" until-build="183.*"/>
+  <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="191.5701.16" until-build="191.*"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig"/>
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2"/>
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigForProject"/>
+
+    <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxApp"/>
+    <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
+                        serviceImplementation="zielu.gittoolbox.metrics.AppMetricsImpl"/>
+    <projectService serviceInterface="zielu.gittoolbox.metrics.ProjectMetrics"
+                    serviceImplementation="zielu.gittoolbox.metrics.ProjectMetricsImpl"/>
+
+    <projectService serviceImplementation="zielu.gittoolbox.ProjectGateway"/>
+
+    <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxUpdateProjectApp"/>
 
     <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages"/>
     <applicationService serviceInterface="zielu.gittoolbox.ui.StatusMessagesUi"
@@ -42,6 +52,8 @@
     <projectService serviceInterface="zielu.gittoolbox.notification.GtNotifier"
                     serviceImplementation="zielu.gittoolbox.notification.GtNotifierImpl"/>
 
+    <projectService serviceInterface="zielu.gittoolbox.completion.CompletionService"
+                    serviceImplementation="zielu.gittoolbox.completion.CompletionServiceImpl"/>
     <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.completion.CompletionCheckinHandlerFactory"/>
     <completion.contributor language="TEXT"
         order="first, before commitCompletion"
@@ -56,9 +68,16 @@
 
     <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup"/>
 
+    <projectService serviceInterface="zielu.gittoolbox.revision.RevisionInfoFactory"
+                    serviceImplementation="zielu.gittoolbox.revision.LightRevisionInfoFactory"/>
+    <projectService serviceImplementation="zielu.gittoolbox.revision.RevisionServiceGateway"/>
+    <projectService serviceInterface="zielu.gittoolbox.revision.RevisionService"
+                    serviceImplementation="zielu.gittoolbox.revision.RevisionServiceImpl"/>
+
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"
                     serviceImplementation="zielu.gittoolbox.blame.BlameLoaderImpl"/>
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameCacheGateway"/>
+    <projectService serviceImplementation="zielu.gittoolbox.blame.BlameCacheExecutor"/>
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameCache"
                     serviceImplementation="zielu.gittoolbox.blame.BlameCacheImpl"/>
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameServiceGateway"/>
@@ -67,37 +86,30 @@
     <projectService serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheGateway"/>
     <projectService serviceInterface="zielu.gittoolbox.cache.VirtualFileRepoCache"
                     serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheImpl"/>
+    <projectService serviceImplementation="zielu.gittoolbox.cache.CacheTaskScheduler"/>
     <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheGateway"/>
+    <projectService serviceInterface="zielu.gittoolbox.cache.PerRepoInfoCache"
+                    serviceImplementation="zielu.gittoolbox.cache.PerRepoInfoCacheImpl"/>
 
     <applicationService serviceInterface="zielu.gittoolbox.ui.blame.BlamePresenter"
                         serviceImplementation="zielu.gittoolbox.ui.blame.BlamePresenterImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.ui.statusbar.BlameStatusGateway"
                     serviceImplementation="zielu.gittoolbox.ui.statusbar.BlameStatusGatewayImpl"/>
+    <projectService serviceInterface="zielu.gittoolbox.ui.blame.BlameEditorService"
+                    serviceImplementation="zielu.gittoolbox.ui.blame.BlameEditorServiceImpl"/>
     <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter"/>
+
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchGateway"/>
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSchedule"/>
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchOnBranchSwitch"/>
   </extensions>
 
   <application-components>
-    <component>
-      <implementation-class>zielu.gittoolbox.GitToolBoxApp</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.GitToolBoxUpdateProjectApp</implementation-class>
-    </component>
-    <component>
-      <interface-class>zielu.gittoolbox.metrics.AppMetrics</interface-class>
-      <implementation-class>zielu.gittoolbox.metrics.AppMetricsImpl</implementation-class>
-    </component>
+    <!-- Add your application components here -->
   </application-components>
 
   <project-components>
     <!-- Add your project components here -->
-    <component>
-      <implementation-class>zielu.gittoolbox.GitToolBoxProject</implementation-class>
-    </component>
-    <component>
-      <interface-class>zielu.gittoolbox.cache.PerRepoInfoCache</interface-class>
-      <implementation-class>zielu.gittoolbox.cache.PerRepoInfoCacheImpl</implementation-class>
-    </component>
     <component>
       <implementation-class>zielu.gittoolbox.cache.CacheSourcesSubscriber</implementation-class>
     </component>
@@ -121,18 +133,19 @@
       <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTrackerController</implementation-class>
     </component>
     <component>
-      <interface-class>zielu.gittoolbox.completion.CompletionService</interface-class>
-      <implementation-class>zielu.gittoolbox.completion.CompletionServiceImpl</implementation-class>
-    </component>
-    <component>
-      <interface-class>zielu.gittoolbox.metrics.ProjectMetrics</interface-class>
-      <implementation-class>zielu.gittoolbox.metrics.ProjectMetricsImpl</implementation-class>
+      <implementation-class>zielu.gittoolbox.completion.CompletionSubscriber</implementation-class>
     </component>
     <component>
         <implementation-class>zielu.gittoolbox.blame.BlameSubscriber</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.ui.blame.BlameUiSubscriber</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.ui.projectview.ProjectViewSubscriber</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.ui.statusbar.StatusBarManager</implementation-class>
     </component>
     <!--
     <component>

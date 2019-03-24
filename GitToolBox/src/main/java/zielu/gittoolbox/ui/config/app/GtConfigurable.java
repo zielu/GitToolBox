@@ -1,7 +1,6 @@
 package zielu.gittoolbox.ui.config.app;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +17,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
   @Nls
   @Override
   public String getDisplayName() {
-    return ResBundle.getString("configurable.app.displayName");
+    return ResBundle.message("configurable.app.displayName");
   }
 
   @Nullable
@@ -51,6 +50,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     form.setCommitDialogCompletionMode(config.commitDialogCompletionMode);
     form.setBlameAuthorNameType(config.blameInlineAuthorNameType);
     form.setBlameDateType(config.blameInlineDateType);
+    form.setBlameShowSubject(config.blameInlineShowSubject);
   }
 
   @Override
@@ -66,12 +66,13 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     modified = modified || config.isCommitDialogCompletionModeChanged(form.getCommitDialogCompletionMode());
     modified = modified || config.isBlameInlineAuthorNameTypeChanged(form.getBlameAuthorNameType());
     modified = modified || config.isBlameInlineDateTypeChanged(form.getBlameDateType());
+    modified = modified || config.isBlameInlineShowSubjectChanged(form.getBlameShowSubject());
     log.debug("Modified: ", modified);
     return modified;
   }
 
   @Override
-  protected void doApply(GtForm form, GitToolBoxConfig2 config) throws ConfigurationException {
+  protected void doApply(GtForm form, GitToolBoxConfig2 config) {
     final GitToolBoxConfig2 previousConfig = config.copy();
 
     config.setPresenter(form.getPresenter());
@@ -86,6 +87,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     config.commitDialogCompletionMode = form.getCommitDialogCompletionMode();
     config.blameInlineAuthorNameType = form.getBlameAuthorNameType();
     config.blameInlineDateType = form.getBlameDateType();
+    config.blameInlineShowSubject = form.getBlameShowSubject();
 
     //Mark migrated here to handle case when config is modified without opening a project
     //Example: from launch dialog

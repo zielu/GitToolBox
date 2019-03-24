@@ -6,7 +6,8 @@ import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
 public interface AutoFetchComponent {
 
-  void configChanged(GitToolBoxConfigForProject config);
+  void configChanged(@NotNull GitToolBoxConfigForProject previous,
+                     @NotNull GitToolBoxConfigForProject current);
 
   void stateChanged(AutoFetchState state);
 

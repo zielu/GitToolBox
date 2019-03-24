@@ -14,7 +14,7 @@ public final class StatusText {
     Status status = aheadBehind.status();
     if (status.isValid()) {
       if (status == Status.NO_REMOTE) {
-        return ResBundle.getString("git.no.remote");
+        return ResBundle.message("git.no.remote");
       } else {
         return StatusMessages.getInstance().aheadBehindStatus(aheadBehind);
       }

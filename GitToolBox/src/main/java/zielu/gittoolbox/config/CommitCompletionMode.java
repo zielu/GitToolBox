@@ -15,6 +15,6 @@ public enum CommitCompletionMode {
 
   @NotNull
   public String getDisplayLabel() {
-    return ResBundle.getString(labelKey);
+    return ResBundle.message(labelKey);
   }
 }

@@ -49,7 +49,7 @@ public class GitTagsPusher {
         return GtPushResult.error(ResBundle.message("message.no.remote.url", remote.getName()));
       }
     } else {
-      return GtPushResult.error(ResBundle.getString("message.cannot.push.without.tracking"));
+      return GtPushResult.error(ResBundle.message("message.cannot.push.without.tracking"));
     }
   }
 

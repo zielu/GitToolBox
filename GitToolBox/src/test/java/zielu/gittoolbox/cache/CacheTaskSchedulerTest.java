@@ -14,9 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zielu.gittoolbox.TestType;
 import zielu.gittoolbox.metrics.MockMetrics;
 
-@Tag("fast")
+@Tag(TestType.FAST)
 @ExtendWith({MockitoExtension.class})
 class CacheTaskSchedulerTest {
   @Mock(stubOnly = true)
@@ -30,13 +31,10 @@ class CacheTaskSchedulerTest {
   void before() {
     scheduler = new CacheTaskScheduler(project, new MockMetrics());
     scheduler.setTaskDelayMillis(30);
-    scheduler.initialize();
-    scheduler.opened();
   }
 
   @AfterEach
   void after() {
-    scheduler.closed();
     scheduler.dispose();
   }
 

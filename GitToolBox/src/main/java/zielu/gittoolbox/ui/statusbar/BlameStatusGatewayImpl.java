@@ -24,7 +24,7 @@ class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
   private final Set<Consumer<Document>> bulkUpdateFinishedActions = new LinkedHashSet<>();
   private final Set<Consumer<VirtualFile>> blameUpdatedActions = new LinkedHashSet<>();
   private final VirtualFileRepoCache repoCache;
-  private MessageBusConnection connection;
+  private final MessageBusConnection connection;
 
   BlameStatusGatewayImpl(@NotNull Project project, @NotNull VirtualFileRepoCache repoCache) {
     this.repoCache = repoCache;
@@ -108,8 +108,6 @@ class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
 
   @Override
   public void dispose() {
-    connection.disconnect();
-    connection = null;
     inBulkUpdate.clear();
     exitDumbModeActions.clear();
     bulkUpdateFinishedActions.clear();

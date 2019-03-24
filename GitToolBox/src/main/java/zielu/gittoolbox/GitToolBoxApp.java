@@ -1,32 +1,17 @@
 package zielu.gittoolbox;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import zielu.gittoolbox.util.ConcurrentUtil;
 
-public class GitToolBoxApp implements ApplicationComponent {
+public class GitToolBoxApp {
   private final Logger log = Logger.getInstance(getClass());
-  private ScheduledExecutorService autoFetchExecutor;
-  private ScheduledExecutorService tasksExecutor;
+  private final ScheduledExecutorService autoFetchExecutor;
+  private final ScheduledExecutorService tasksExecutor;
 
-  public static GitToolBoxApp getInstance() {
-    return ApplicationManager.getApplication().getComponent(GitToolBoxApp.class);
-  }
-
-  public ScheduledExecutorService autoFetchExecutor() {
-    return autoFetchExecutor;
-  }
-
-  public ScheduledExecutorService tasksExecutor() {
-    return tasksExecutor;
-  }
-
-  @Override
-  public void initComponent() {
+  GitToolBoxApp() {
     autoFetchExecutor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(),
         new ThreadFactoryBuilder().setDaemon(true).setNameFormat("AutoFetch-%s").build()
     );
@@ -37,11 +22,15 @@ public class GitToolBoxApp implements ApplicationComponent {
     log.debug("Created tasks executor: ", tasksExecutor);
   }
 
-  @Override
-  public void disposeComponent() {
-    ConcurrentUtil.shutdown(autoFetchExecutor);
-    ConcurrentUtil.shutdown(tasksExecutor);
-    autoFetchExecutor = null;
-    tasksExecutor = null;
+  public static GitToolBoxApp getInstance() {
+    return ServiceManager.getService(GitToolBoxApp.class);
+  }
+
+  public ScheduledExecutorService autoFetchExecutor() {
+    return autoFetchExecutor;
+  }
+
+  public ScheduledExecutorService tasksExecutor() {
+    return tasksExecutor;
   }
 }

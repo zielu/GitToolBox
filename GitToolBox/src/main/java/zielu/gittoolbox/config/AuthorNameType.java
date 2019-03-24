@@ -5,16 +5,8 @@ import com.intellij.util.xmlb.annotations.Transient;
 import org.jetbrains.annotations.Nullable;
 
 public enum AuthorNameType {
-  LASTNAME(ShortNameType.LASTNAME) {
-    @Nullable
-    @Override
-    public String shorten(@Nullable String author) {
-      if (author != null) {
-        author = author.replaceAll("\\(.*\\)", "");
-      }
-      return super.shorten(author);
-    }
-  },
+  INITIALS(ShortNameType.INITIALS),
+  LASTNAME(ShortNameType.LASTNAME),
   FIRSTNAME(ShortNameType.FIRSTNAME),
   FULL(ShortNameType.NONE);
 

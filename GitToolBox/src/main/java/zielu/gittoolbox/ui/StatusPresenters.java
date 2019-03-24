@@ -45,7 +45,7 @@ public enum StatusPresenters implements StatusPresenter {
 
     @Override
     public String getLabel() {
-      return ResBundle.getString("presentation.label.arrows");
+      return ResBundle.message("presentation.label.arrows");
     }
   },
   arrowHeads {
@@ -86,12 +86,12 @@ public enum StatusPresenters implements StatusPresenter {
 
     @Override
     public String getLabel() {
-      return ResBundle.getString("presentation.label.arrowHeads");
+      return ResBundle.message("presentation.label.arrowHeads");
     }
   },
   text {
-    private final String behindSymbol = " " + ResBundle.getString("git.behind");
-    private final String aheadSymbol = " " + ResBundle.getString("git.ahead");
+    private final String behindSymbol = " " + ResBundle.message("git.behind");
+    private final String aheadSymbol = " " + ResBundle.message("git.ahead");
 
     @Override
     public String behindStatus(BehindStatus behind) {
@@ -130,7 +130,7 @@ public enum StatusPresenters implements StatusPresenter {
 
     @Override
     public String getLabel() {
-      return ResBundle.getString("presentation.label.text");
+      return ResBundle.message("presentation.label.text");
     }
   };
 

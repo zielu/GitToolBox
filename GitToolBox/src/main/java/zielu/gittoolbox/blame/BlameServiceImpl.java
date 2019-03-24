@@ -15,12 +15,15 @@ import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.revision.RevisionService;
 import zielu.gittoolbox.ui.blame.BlameUi;
 
 class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final BlameServiceGateway gateway;
   private final BlameCache blameCache;
+  private final RevisionService revisionService;
   private final Cache<VirtualFile, BlameAnnotation> annotationCache = CacheBuilder.newBuilder()
       .build();
   private final Cache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
@@ -31,9 +34,10 @@ class BlameServiceImpl implements BlameService, Disposable {
   private final Counter invalidatedCounter;
 
   BlameServiceImpl(@NotNull BlameServiceGateway gateway, @NotNull BlameCache blameCache,
-                   @NotNull ProjectMetrics metrics) {
+                   @NotNull RevisionService revisionService, @NotNull ProjectMetrics metrics) {
     this.gateway = gateway;
     this.blameCache = blameCache;
+    this.revisionService = revisionService;
     fileBlameTimer = metrics.timer("blame-file");
     documentLineBlameTimer = metrics.timer("blame-document-line");
     invalidatedCounter = metrics.counter("blame-annotation-invalidated-count");
@@ -47,42 +51,44 @@ class BlameServiceImpl implements BlameService, Disposable {
     lineNumberProviderCache.invalidateAll();
   }
 
-  @Nullable
+  @NotNull
   @Override
-  public Blame getFileBlame(@NotNull VirtualFile file) {
+  public RevisionInfo getFileBlame(@NotNull VirtualFile file) {
     return fileBlameTimer.timeSupplier(() -> getFileBlameInternal(file));
   }
 
-  @Nullable
-  private Blame getFileBlameInternal(@NotNull VirtualFile file) {
-    Blame blame = null;
+  @NotNull
+  private RevisionInfo getFileBlameInternal(@NotNull VirtualFile file) {
+    RevisionInfo revisionInfo = RevisionInfo.EMPTY;
     try {
       VcsFileRevision revision = gateway.getLastRevision(file);
-      blame = blameForRevision(revision);
+      revisionInfo = blameForRevision(file, revision);
     } catch (VcsException e) {
-      log.warn("Failed to blame " + file, e);
+      log.warn("Failed to revisionInfo " + file, e);
     }
-    return blame;
+    return revisionInfo;
   }
 
-  @Nullable
-  private Blame blameForRevision(@Nullable VcsFileRevision revision) {
-    if (revision != null && revision != VcsFileRevision.NULL) {
-      return FileBlame.create(revision);
+  @NotNull
+  private RevisionInfo blameForRevision(@NotNull VirtualFile file, @Nullable VcsFileRevision revision) {
+    if (revision != null) {
+      return revisionService.getForFile(file, revision);
     }
-    return null;
+    return RevisionInfo.EMPTY;
   }
 
+  @NotNull
   @Override
-  @Nullable
-  public Blame getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber) {
+  public RevisionInfo getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file,
+                                           int editorLineNumber) {
     return documentLineBlameTimer.timeSupplier(() -> getLineBlameInternal(document, file, editorLineNumber));
   }
 
-  private @Nullable Blame getLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
-                                               int editorLineNumber) {
-    if (invalidateOnBulkUpdate(document)) {
-      return null;
+  @NotNull
+  private RevisionInfo getLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
+                                            int editorLineNumber) {
+    if (invalidateOnBulkUpdate(document, file)) {
+      return RevisionInfo.EMPTY;
     }
     CachedLineProvider lineNumberProvider = getLineNumberProvider(document);
     if (lineNumberProvider != null) {
@@ -91,23 +97,23 @@ class BlameServiceImpl implements BlameService, Disposable {
         return getLineBlameInternal(file, correctedLine);
       }
     }
-    return null;
+    return RevisionInfo.EMPTY;
   }
 
-  @Nullable
-  private Blame getLineBlameInternal(@NotNull VirtualFile file, int currentLine) {
+  @NotNull
+  private RevisionInfo getLineBlameInternal(@NotNull VirtualFile file, int currentLine) {
     try {
       BlameAnnotation blameAnnotation = annotationCache.get(file, () -> blameCache.getAnnotation(file));
       return blameAnnotation.getBlame(currentLine);
     } catch (ExecutionException e) {
       log.warn("Failed to blame " + file + ": " + currentLine);
-      return null;
+      return RevisionInfo.EMPTY;
     }
   }
 
-  private boolean invalidateOnBulkUpdate(Document document) {
+  private boolean invalidateOnBulkUpdate(@NotNull Document document, @NotNull VirtualFile file) {
     if (BlameUi.isDocumentInBulkUpdate(document)) {
-      annotationCache.invalidate(document);
+      annotationCache.invalidate(file);
       return true;
     }
     return false;
@@ -116,12 +122,15 @@ class BlameServiceImpl implements BlameService, Disposable {
   @Nullable
   private CachedLineProvider getLineNumberProvider(@NotNull Document document) {
     try {
-      return lineNumberProviderCache.get(document,
-          () -> new CachedLineProvider(gateway.createUpToDateLineProvider(document)));
+      return lineNumberProviderCache.get(document, () -> loadLineNumberProvider(document));
     } catch (ExecutionException e) {
       log.warn("Failed to get line number provider for " + document, e);
       return null;
     }
+  }
+
+  private CachedLineProvider loadLineNumberProvider(@NotNull Document document) {
+    return new CachedLineProvider(gateway.createUpToDateLineProvider(document));
   }
 
   @Override

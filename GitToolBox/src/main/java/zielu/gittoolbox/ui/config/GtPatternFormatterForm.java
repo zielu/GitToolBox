@@ -82,11 +82,11 @@ public class GtPatternFormatterForm implements GtFormUi {
   }
 
   private String getMatchedToolTip() {
-    return ResBundle.getString("commit.dialog.completion.pattern.output.matched.label");
+    return ResBundle.message("commit.dialog.completion.pattern.output.matched.label");
   }
 
   private String getNotMatchedToolTip() {
-    return ResBundle.getString("commit.dialog.completion.pattern.output.not.matched.label");
+    return ResBundle.message("commit.dialog.completion.pattern.output.not.matched.label");
   }
 
   public void setCommitCompletionConfig(CommitCompletionConfig config) {

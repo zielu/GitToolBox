@@ -26,13 +26,13 @@ import java.awt.event.MouseEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.blame.Blame;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.ui.blame.BlamePresenter;
 import zielu.gittoolbox.ui.blame.BlameUi;
-import zielu.gittoolbox.ui.util.AppUtil;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 
 public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     StatusBarWidget.Multiframe, StatusBarWidget.TextPresentation {
@@ -40,7 +40,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private static final String ID = BlameStatusWidget.class.getName();
   private static final int MAX_LENGTH = 27;
   private static final String MAX_POSSIBLE_TEXT = Strings.repeat("0", MAX_LENGTH);
-  private final BlameService blame;
   private final Timer updateForDocumentTimer;
   private final Timer updateForCaretTimer;
   private final Timer updateForSelectionTimer;
@@ -59,7 +58,6 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     updateForDocumentTimer = metrics.timer("blame-statusbar-update-for-document");
     updateForCaretTimer = metrics.timer("blame-statusbar-update-for-caret");
     updateForSelectionTimer = metrics.timer("blame-statusbar-update-for-selection");
-    blame = BlameService.getInstance(project);
     clearBlame();
     blameDumbModeExitAction = () -> {
       Editor editor = getEditor();
@@ -96,7 +94,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void blameUpdate(@NotNull VirtualFile file) {
-    AppUtil.INSTANCE.invokeLaterIfNeeded(() -> {
+    AppUiUtil.invokeLaterIfNeeded(myProject, () -> {
       if (file.equals(stateHolder.getCurrentFile())) {
         fileChanged(stateHolder.getCurrentEditor(), file);
       }
@@ -202,11 +200,12 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Nullable
   @Override
   public String getTooltipText() {
-    Blame blame = stateHolder.getBlame();
-    if (blame != null) {
-      return blame.getDetailedText();
+    RevisionInfo revisionInfo = stateHolder.getBlame();
+    if (revisionInfo.isEmpty()) {
+      return null;
+    } else {
+      return revisionInfo.getDetails();
     }
-    return null;
   }
 
   @Nullable
@@ -215,9 +214,9 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     return event -> {
       Editor editor = stateHolder.getCurrentEditor();
       VirtualFile currentFile = stateHolder.getCurrentFile();
-      Blame blame = stateHolder.getBlame();
-      if (editor != null && currentFile != null && blame != null) {
-        BlameUi.showBlamePopup(editor, currentFile, blame);
+      RevisionInfo revisionInfo = stateHolder.getBlame();
+      if (editor != null && currentFile != null && revisionInfo.isNotEmpty()) {
+        BlameUi.showBlamePopup(editor, currentFile, revisionInfo);
       }
     };
   }
@@ -279,7 +278,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   @Override
   public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-    blame.fileClosed(file);
+    BlameService.getInstance(myProject).fileClosed(file);
     if (clearBlame()) {
       updateWidget();
     }
@@ -299,42 +298,43 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void fileChanged(@Nullable Editor editor, @NotNull VirtualFile file) {
-    Blame blame = null;
+    RevisionInfo revisionInfo = RevisionInfo.EMPTY;
     if (editor != null) {
       int currentLine = BlameUi.getCurrentLineNumber(editor);
-      if (currentLine != BlameUi.NO_LINE) {
-        blame = this.blame.getDocumentLineBlame(editor.getDocument(), file, currentLine);
+      if (BlameUi.isValidLineNumber(currentLine)) {
+        revisionInfo = BlameService.getInstance(myProject).getDocumentLineBlame(editor.getDocument(), file,
+            currentLine);
       }
     } else {
-      blame = this.blame.getFileBlame(file);
+      revisionInfo = BlameService.getInstance(myProject).getFileBlame(file);
     }
-    if (updateBlame(blame)) {
+    if (updateBlame(revisionInfo)) {
       updateWidget();
     }
   }
 
-  private boolean updateBlame(@Nullable Blame blame) {
-    if (blame != null) {
-      if (stateHolder.updateBlame(blame)) {
-        blameText = BlamePresenter.getInstance().getStatusBar(blame);
+  private boolean updateBlame(@NotNull RevisionInfo revisionInfo) {
+    if (revisionInfo.isEmpty()) {
+      return clearBlame();
+    } else {
+      if (stateHolder.updateBlame(revisionInfo)) {
+        blameText = BlamePresenter.getInstance().getStatusBar(revisionInfo);
         return true;
       }
       return false;
-    } else {
-      return clearBlame();
     }
   }
 
   private boolean clearBlame() {
     if (stateHolder.clearBlame()) {
-      blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.na();
+      blameText = ResBundle.message("blame.prefix") + " " + ResBundle.na();
       return true;
     }
     return false;
   }
 
   private void disabled() {
-    blameText = ResBundle.getString("blame.prefix") + " " + ResBundle.disabled();
+    blameText = ResBundle.message("blame.prefix") + " " + ResBundle.disabled();
   }
 
   @Override

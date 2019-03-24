@@ -23,19 +23,19 @@ import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
-public class BehindTracker implements ProjectComponent {
+class BehindTracker implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean();
   private final Map<GitRepository, RepoInfo> state = new HashMap<>();
   private final Map<GitRepository, PendingChange> pendingChanges = new HashMap<>();
   private final BehindTrackerUi ui;
 
-  public BehindTracker(@NotNull BehindTrackerUi ui) {
+  BehindTracker(@NotNull BehindTrackerUi ui) {
     this.ui = ui;
   }
 
   @NotNull
-  public static BehindTracker getInstance(@NotNull Project project) {
+  static BehindTracker getInstance(@NotNull Project project) {
     return project.getComponent(BehindTracker.class);
   }
 
@@ -102,7 +102,7 @@ public class BehindTracker implements ProjectComponent {
   @NotNull
   private StringBand formatMessage(@NotNull BehindMessage message, @NotNull ChangeType changeType) {
     return new StringBand(GitUIUtil.bold(changeType.title()))
-        .append(" (").append(Html.link("update", ResBundle.getString("update.project")))
+        .append(" (").append(Html.link("update", ResBundle.message("update.project")))
         .append(")").append(Html.BR).append(message.text);
   }
 
@@ -227,8 +227,8 @@ public class BehindTracker implements ProjectComponent {
     NONE(false, "NONE"),
     @Deprecated
     HIDDEN(false, "HIDDEN"),
-    FETCHED(true, ResBundle.getString("message.fetch.done")),
-    SWITCHED(true, ResBundle.getString("message.switched"));
+    FETCHED(true, ResBundle.message("message.fetch.done")),
+    SWITCHED(true, ResBundle.message("message.switched"));
 
     private final boolean visible;
     private final String title;

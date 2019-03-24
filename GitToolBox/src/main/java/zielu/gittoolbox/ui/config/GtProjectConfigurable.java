@@ -23,7 +23,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
   @Nls
   @Override
   public String getDisplayName() {
-    return ResBundle.getString("configurable.prj.displayName");
+    return ResBundle.message("configurable.prj.displayName");
   }
 
   @Nullable
@@ -56,6 +56,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     form.setCommitCompletionEnabled(config.commitDialogCompletion);
     form.setCommitCompletionConfigs(config.completionConfigs);
     form.setAutoFetchExclusions(config.autoFetchExclusions);
+    form.setAutoFetchOnBranchSwitchEnabled(config.autoFetchOnBranchSwitch);
     form.setReferencePointConfig(config.referencePointForStatus);
   }
 
@@ -66,6 +67,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     modified = modified || config.isCommitDialogCompletionChanged(form.getCommitCompletionEnabled());
     modified = modified || config.isCommitDialogCompletionConfigsChanged(form.getCommitCompletionConfigs());
     modified = modified || config.isAutoFetchExclusionsChanged(form.getAutoFetchExclusions());
+    modified = modified || config.isAutoFetchOnBranchSwitchChanged(form.getAutoFetchOnBranchSwitchEnabled());
     modified = modified || config.isReferencePointForStatusChanged(form.getReferencePointConfig());
     log.debug("Modified: ", modified);
     return modified;
@@ -80,7 +82,9 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     config.commitDialogCompletion = form.getCommitCompletionEnabled();
     config.completionConfigs = form.getCommitCompletionConfigs();
     config.autoFetchExclusions = form.getAutoFetchExclusions();
+    config.autoFetchOnBranchSwitch = form.getAutoFetchOnBranchSwitchEnabled();
     config.referencePointForStatus = form.getReferencePointConfig();
+
     config.fireChanged(project, previousConfig);
     log.debug("Applied");
   }

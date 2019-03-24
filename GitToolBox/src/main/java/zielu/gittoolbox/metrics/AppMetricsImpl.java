@@ -3,35 +3,22 @@ package zielu.gittoolbox.metrics;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.MetricSet;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.jmx.JmxReporter;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.BaseComponent;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
-class AppMetricsImpl implements BaseComponent, AppMetrics {
+class AppMetricsImpl implements AppMetrics {
   private final MetricManager metrics = new MetricManager();
-  private JmxReporter reporter;
+  private final JmxReporter reporter;
 
-  static Metrics getInstance() {
-    return ApplicationManager.getApplication().getComponent(AppMetricsImpl.class);
+  AppMetricsImpl() {
+    reporter = Jmx.reporter(metrics.getRegistry());
+    reporter.start();
   }
 
   private String name(@NotNull String simpleName) {
     return MetricRegistry.name(simpleName);
-  }
-
-  @Override
-  public void initComponent() {
-    reporter = Jmx.report(metrics.getRegistry());
-    reporter.start();
-  }
-
-  @Override
-  public void disposeComponent() {
-    Optional.ofNullable(reporter).ifPresent(JmxReporter::close);
-    reporter = null;
   }
 
   @Override
@@ -45,7 +32,12 @@ class AppMetricsImpl implements BaseComponent, AppMetrics {
   }
 
   @Override
-  public <T> Gauge<T> gauge(@NotNull String simpleName, Gauge<T> gauge) {
+  public <T> Gauge gauge(@NotNull String simpleName, Gauge<T> gauge) {
     return metrics.gauge(simpleName, gauge);
+  }
+
+  @Override
+  public void addAll(MetricSet metricSet) {
+    metrics.addAll(metricSet);
   }
 }
