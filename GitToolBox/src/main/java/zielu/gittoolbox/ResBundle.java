@@ -42,10 +42,6 @@ public final class ResBundle {
     return message("common.na.label");
   }
 
-  public static String naLabel() {
-    return getString("common.na.label");
-  }
-
   public static String on() {
     return message("common.on");
   }
