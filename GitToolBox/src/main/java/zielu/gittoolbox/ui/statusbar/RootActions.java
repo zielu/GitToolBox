@@ -32,7 +32,7 @@ public class RootActions extends DefaultActionGroup {
     List<GitRepository> repos = repositories.stream().filter(GtUtil::hasRemotes).collect(Collectors.toList());
     add(new RefreshStatusAction());
     if (hasRepositories(repos)) {
-      addSeparator(ResBundle.getString("statusBar.status.menu.repositories.title"));
+      addSeparator(ResBundle.message("statusBar.status.menu.repositories.title"));
       if (repos.size() == 1) {
         GitRepository repo = repos.get(0);
         addAll(StatusBarActions.actionsFor(repo));

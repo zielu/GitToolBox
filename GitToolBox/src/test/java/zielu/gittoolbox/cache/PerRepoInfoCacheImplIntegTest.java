@@ -32,10 +32,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import zielu.gittoolbox.TestType;
 import zielu.gittoolbox.status.Status;
 import zielu.junit5.intellij.PlatformTestCaseExtension;
 
-@Tag("integration")
+@Tag(TestType.INTEGRATION)
 @ExtendWith(PlatformTestCaseExtension.class)
 class PerRepoInfoCacheImplIntegTest {
   private static final String TAG = "1.0.0";

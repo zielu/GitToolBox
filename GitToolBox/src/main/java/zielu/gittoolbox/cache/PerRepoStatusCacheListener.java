@@ -5,6 +5,10 @@ import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
 public interface PerRepoStatusCacheListener {
+  default void stateChanged(@NotNull RepoInfo previous, @NotNull RepoInfo current, @NotNull GitRepository repository) {
+    stateChanged(current, repository);
+  }
+
   default void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
   }
 

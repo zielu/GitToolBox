@@ -2,10 +2,11 @@ package zielu.gittoolbox.cache;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
@@ -21,9 +22,9 @@ import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.util.GtUtil;
 
-class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
+class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
-  private final AtomicBoolean active = new AtomicBoolean();
+  private final AtomicBoolean active = new AtomicBoolean(true);
   private final ConcurrentMap<GitRepository, RepoInfo> behindStatuses = Maps.newConcurrentMap();
   private final CachedStatusCalculator statusCalculator;
   private final Project project;
@@ -32,18 +33,14 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   private final InfoCacheGateway gateway;
 
   PerRepoInfoCacheImpl(@NotNull Project project, @NotNull InfoCacheGateway gateway,
-                       @NotNull ProjectMetrics metrics) {
+                       @NotNull CacheTaskScheduler taskScheduler, @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.gateway = gateway;
+    this.taskScheduler = taskScheduler;
     statusCalculator = new CachedStatusCalculator(metrics);
     calculator = GitStatusCalculator.create(project);
-    taskScheduler = new CacheTaskScheduler(project, metrics);
     metrics.gauge("info-cache-size", behindStatuses::size);
-  }
-
-  @Override
-  public void initComponent() {
-    taskScheduler.initialize();
+    Disposer.register(project, this);
   }
 
   private void update(@NotNull GitRepository repository) {
@@ -65,7 +62,7 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
         statusCalculator.update(repo, calculator, currentStatus));
 
     if (freshInfo != null && !Objects.equals(info, freshInfo)) {
-      gateway.notifyRepoChanged(repository, freshInfo);
+      gateway.notifyRepoChanged(repository, info, freshInfo);
     } else {
       log.debug("Status did not change [", GtUtil.name(repository), "]: ", freshInfo);
     }
@@ -87,9 +84,11 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   }
 
   @Override
-  public void disposeComponent() {
-    taskScheduler.dispose();
-    behindStatuses.clear();
+  public void dispose() {
+    if (active.compareAndSet(true, false)) {
+      taskScheduler.dispose();
+      behindStatuses.clear();
+    }
   }
 
   private void scheduleRefresh(@NotNull GitRepository repository) {
@@ -145,20 +144,6 @@ class PerRepoInfoCacheImpl implements ProjectComponent, PerRepoInfoCache {
   public void refresh(Iterable<GitRepository> repositories) {
     log.debug("Refreshing repositories statuses: ", repositories);
     repositories.forEach(this::scheduleRefresh);
-  }
-
-  @Override
-  public void projectOpened() {
-    if (active.compareAndSet(false, true)) {
-      taskScheduler.opened();
-    }
-  }
-
-  @Override
-  public void projectClosed() {
-    if (active.compareAndSet(true, false)) {
-      taskScheduler.closed();
-    }
   }
 
   private class RefreshTask implements CacheTaskScheduler.Task {

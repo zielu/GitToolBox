@@ -1,10 +1,10 @@
 package zielu.gittoolbox.completion;
 
 import com.google.common.collect.ImmutableList;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.messages.MessageBusConnection;
+import com.intellij.openapi.util.Disposer;
 import git4idea.repo.GitRepository;
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -13,49 +13,28 @@ import java.util.Collections;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.GitCompatUtil;
-import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
-class CompletionServiceImpl implements ProjectComponent, CompletionService {
+class CompletionServiceImpl implements CompletionService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
   private WeakReference<CompletionScopeProvider> scopeProviderRef;
-  private MessageBusConnection connection;
   private List<Formatter> formatters = Collections.emptyList();
 
   CompletionServiceImpl(@NotNull Project project) {
     this.project = project;
+    fillFormatters(GitToolBoxConfigForProject.getInstance(project));
+    Disposer.register(project, this);
   }
 
-  @Override
-  public void initComponent() {
-    connectToMessageBus();
-  }
-
-  private void connectToMessageBus() {
-    connection = project.getMessageBus().connect();
-    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
-      @Override
-      public void configChanged(Project project, GitToolBoxConfigForProject previous,
-                                GitToolBoxConfigForProject current) {
-        onConfigChanged(current);
-      }
-    });
-  }
-
-  private void onConfigChanged(GitToolBoxConfigForProject config) {
+  public void onConfigChanged(@NotNull GitToolBoxConfigForProject config) {
     fillFormatters(config);
   }
 
   private void fillFormatters(GitToolBoxConfigForProject config) {
     formatters = ImmutableList.copyOf(config.getCompletionFormatters());
-  }
-
-  @Override
-  public void projectOpened() {
-    fillFormatters(GitToolBoxConfigForProject.getInstance(project));
   }
 
   @Override
@@ -102,27 +81,7 @@ class CompletionServiceImpl implements ProjectComponent, CompletionService {
   }
 
   @Override
-  public void projectClosed() {
-    if (scopeProviderRef != null) {
-      scopeProviderRef.clear();
-      scopeProviderRef = null;
-    }
-  }
-
-  @Override
-  public void disposeComponent() {
-    disconnectFromMessageBus();
-    clearFormatters();
-  }
-
-  private void disconnectFromMessageBus() {
-    if (connection != null) {
-      connection.disconnect();
-      connection = null;
-    }
-  }
-
-  private void clearFormatters() {
+  public void dispose() {
     formatters = null;
   }
 }

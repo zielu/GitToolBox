@@ -31,8 +31,8 @@ class InfoCacheGateway {
     messageBus.syncPublisher(CACHE_CHANGE).evicted(repositories);
   }
 
-  void notifyRepoChanged(@NotNull GitRepository repo, @NotNull RepoInfo info) {
-    messageBus.syncPublisher(CACHE_CHANGE).stateChanged(info, repo);
+  void notifyRepoChanged(@NotNull GitRepository repo, @NotNull RepoInfo previous, @NotNull RepoInfo current) {
+    messageBus.syncPublisher(CACHE_CHANGE).stateChanged(previous, current, repo);
     log.debug("Published cache changed event: ", repo);
   }
 

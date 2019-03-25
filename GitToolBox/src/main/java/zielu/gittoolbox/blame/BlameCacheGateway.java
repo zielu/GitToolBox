@@ -4,12 +4,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.util.GatewayBase;
 
 class BlameCacheGateway extends GatewayBase {
   private final MessageBus messageBus;
 
-  BlameCacheGateway(@NotNull Project project) {
+  BlameCacheGateway(@NotNull Project project, @NotNull VirtualFileRepoCache repoCache) {
     super(project);
     messageBus = project.getMessageBus();
   }

@@ -12,7 +12,17 @@ import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 
 class ConfigMigratorV1toV2 {
-  void migrate(GitToolBoxConfig v1, GitToolBoxConfig2 v2) {
+  private final GitToolBoxConfig v1;
+
+  ConfigMigratorV1toV2() {
+    this(GitToolBoxConfig.getInstance());
+  }
+
+  ConfigMigratorV1toV2(GitToolBoxConfig v1) {
+    this.v1 = v1;
+  }
+
+  void migrate(GitToolBoxConfig2 v2) {
     v2.presentationMode = v1.presentationMode;
     v2.updateProjectActionId = v1.updateProjectActionId;
     v2.showStatusWidget = v1.showStatusWidget;

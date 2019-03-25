@@ -53,15 +53,15 @@ public class DecorationColorsPage implements ColorSettingsPage {
   @Override
   public AttributesDescriptor[] getAttributeDescriptors() {
     return new AttributesDescriptor[] {
-      new AttributesDescriptor(ResBundle.getString("colors.projectView.remote.branch.decoration.label"),
+      new AttributesDescriptor(ResBundle.message("colors.projectView.remote.branch.decoration.label"),
           DecorationColors.REMOTE_BRANCH_ATTRIBUTES),
-      new AttributesDescriptor(ResBundle.getString("colors.projectView.status.decoration.label"),
+      new AttributesDescriptor(ResBundle.message("colors.projectView.status.decoration.label"),
             DecorationColors.STATUS_ATTRIBUTES),
-      new AttributesDescriptor(ResBundle.getString("colors.projectView.head.tags.decoration.label"),
+      new AttributesDescriptor(ResBundle.message("colors.projectView.head.tags.decoration.label"),
             DecorationColors.HEAD_TAGS_ATTRIBUTES),
-      new AttributesDescriptor(ResBundle.getString("colors.projectView.local.branch.decoration.label"),
+      new AttributesDescriptor(ResBundle.message("colors.projectView.local.branch.decoration.label"),
           DecorationColors.LOCAL_BRANCH_ATTRIBUTES),
-      new AttributesDescriptor(ResBundle.getString("colors.editor.inline.blame.label"),
+      new AttributesDescriptor(ResBundle.message("colors.editor.inline.blame.label"),
           DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES)
     };
   }
@@ -75,7 +75,7 @@ public class DecorationColorsPage implements ColorSettingsPage {
   @NotNull
   @Override
   public String getDisplayName() {
-    return ResBundle.getString("app.displayName");
+    return ResBundle.message("app.displayName");
   }
 
   @Nullable

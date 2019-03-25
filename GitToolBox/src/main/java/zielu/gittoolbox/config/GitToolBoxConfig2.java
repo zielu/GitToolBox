@@ -25,8 +25,8 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public boolean behindTracker = true;
   public boolean showStatusWidget = true;
   public boolean showProjectViewStatus = true;
-  public boolean showBlame = true;
-  public boolean showEditorInlineBlame = false;
+  public boolean showBlame = false;
+  public boolean showEditorInlineBlame = true;
   public String updateProjectActionId = DefaultUpdateProjectAction.ID;
   public List<DecorationPartConfig> decorationParts = Lists.newArrayList(
       DecorationPartConfig.builder().withType(DecorationPartType.LOCATION).withPrefix("- ").build(),
@@ -37,6 +37,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public CommitCompletionMode commitDialogCompletionMode = CommitCompletionMode.AUTOMATIC;
   public AuthorNameType blameInlineAuthorNameType = AuthorNameType.LASTNAME;
   public DateType blameInlineDateType = DateType.AUTO;
+  public boolean blameInlineShowSubject = true;
 
   public boolean previousVersionMigrated;
 
@@ -55,9 +56,6 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     copy.showEditorInlineBlame = showEditorInlineBlame;
     copy.updateProjectActionId = updateProjectActionId;
     copy.decorationParts = decorationParts.stream().map(DecorationPartConfig::copy).collect(Collectors.toList());
-    copy.commitDialogCompletionMode = commitDialogCompletionMode;
-    copy.blameInlineAuthorNameType = blameInlineAuthorNameType;
-    copy.blameInlineDateType = blameInlineDateType;
     copy.previousVersionMigrated = previousVersionMigrated;
     return copy;
   }
@@ -123,9 +121,14 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     return this.blameInlineDateType != blameDateType;
   }
 
+  public boolean isBlameInlineShowSubjectChanged(boolean blameInlineShowSubject) {
+    return this.blameInlineShowSubject != blameInlineShowSubject;
+  }
+
   public boolean isBlameInlinePresentationChanged(GitToolBoxConfig2 other) {
     return isBlameInlineAuthorNameTypeChanged(other.blameInlineAuthorNameType)
-        || isBlameInlineDateTypeChanged(other.blameInlineDateType);
+        || isBlameInlineDateTypeChanged(other.blameInlineDateType)
+        || isBlameInlineShowSubjectChanged(other.blameInlineShowSubject);
   }
 
   @Nullable

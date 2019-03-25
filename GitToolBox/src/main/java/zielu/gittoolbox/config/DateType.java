@@ -12,22 +12,21 @@ public enum DateType {
     @NotNull
     @Override
     protected String formatImpl(@NotNull Date date) {
-      return DateFormatUtil.formatPrettyDateTime(toTimestamp(date));
+      return DateFormatUtil.formatPrettyDateTime(date);
     }
   },
   RELATIVE("date.type.relative") {
     @NotNull
     @Override
     protected String formatImpl(@NotNull Date date) {
-      long timestamp = toTimestamp(date);
-      return DateFormatUtil.formatBetweenDates(timestamp, System.currentTimeMillis());
+      return DateFormatUtil.formatBetweenDates(date.getTime(), System.currentTimeMillis());
     }
   },
   ABSOLUTE("date.type.absolute") {
     @NotNull
     @Override
     protected String formatImpl(@NotNull Date date) {
-      return DateFormatUtil.formatDateTime(toTimestamp(date));
+      return DateFormatUtil.formatDateTime(date);
     }
   };
 
@@ -39,7 +38,7 @@ public enum DateType {
 
   @Transient
   public String getDescription() {
-    return ResBundle.getString(descriptionKey);
+    return ResBundle.message(descriptionKey);
   }
 
   @Nullable
@@ -53,8 +52,4 @@ public enum DateType {
 
   @NotNull
   protected abstract String formatImpl(@NotNull Date dateTime);
-
-  protected final long toTimestamp(@NotNull Date date) {
-    return date.getTime();
-  }
 }

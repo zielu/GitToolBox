@@ -2,8 +2,10 @@ package zielu.gittoolbox.cache;
 
 import com.codahale.metrics.Counter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,14 +21,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.ProjectAware;
-import zielu.gittoolbox.metrics.Metrics;
+import zielu.gittoolbox.metrics.ProjectMetrics;
 
-class CacheTaskScheduler implements ProjectAware {
+class CacheTaskScheduler implements Disposable {
   private static final long TASK_DELAY_MILLIS = 170;
 
   private final Logger log = Logger.getInstance(getClass());
-  private final AtomicBoolean active = new AtomicBoolean();
+  private final AtomicBoolean active = new AtomicBoolean(true);
   private final Project project;
   private final Map<GitRepository, Collection<CacheTask>> scheduledRepositories = new ConcurrentHashMap<>();
   private final Counter statusQueueSize;
@@ -34,18 +35,12 @@ class CacheTaskScheduler implements ProjectAware {
   private ScheduledExecutorService updateExecutor;
   private long taskDelayMillis = TASK_DELAY_MILLIS;
 
-  CacheTaskScheduler(@NotNull Project project, @NotNull Metrics metrics) {
+  CacheTaskScheduler(@NotNull Project project, @NotNull ProjectMetrics metrics) {
     this.project = project;
+    updateExecutor = createExecutor();
     statusQueueSize = metrics.counter("info-cache-queue-size");
     discardedTasksCount = metrics.counter("info-cache-discarded-updates");
-  }
-
-  void setTaskDelayMillis(long delayMillis) {
-    taskDelayMillis = delayMillis;
-  }
-
-  void initialize() {
-    updateExecutor = createExecutor();
+    Disposer.register(project, this);
   }
 
   private ScheduledExecutorService createExecutor() {
@@ -55,7 +50,13 @@ class CacheTaskScheduler implements ProjectAware {
     return Executors.newSingleThreadScheduledExecutor(threadBuilder.build());
   }
 
-  void dispose() {
+  void setTaskDelayMillis(long delayMillis) {
+    taskDelayMillis = delayMillis;
+  }
+
+  @Override
+  public void dispose() {
+    active.compareAndSet(true, false);
     destroyExecutor();
   }
 
@@ -63,16 +64,6 @@ class CacheTaskScheduler implements ProjectAware {
     List<Runnable> notStartedTasks = updateExecutor.shutdownNow();
     statusQueueSize.dec(notStartedTasks.size());
     notStartedTasks.forEach(notStarted -> log.info("Task " + notStarted + " was never started"));
-  }
-
-  @Override
-  public void opened() {
-    active.compareAndSet(false, true);
-  }
-
-  @Override
-  public void closed() {
-    active.compareAndSet(true, false);
   }
 
   void scheduleOptional(@NotNull GitRepository repository, @NotNull Task task) {

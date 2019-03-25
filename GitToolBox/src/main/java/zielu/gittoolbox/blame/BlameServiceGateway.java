@@ -24,6 +24,7 @@ class BlameServiceGateway extends GatewayBase {
     messageBus = project.getMessageBus();
   }
 
+  @NotNull
   UpToDateLineNumberProvider createUpToDateLineProvider(@NotNull Document document) {
     return new UpToDateLineNumberProviderImpl(document, project);
   }

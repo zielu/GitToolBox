@@ -12,11 +12,11 @@ class Jmx {
     throw new IllegalStateException();
   }
 
-  public static JmxReporter report(MetricRegistry registry) {
+  static JmxReporter reporter(MetricRegistry registry) {
     return JmxReporter.forRegistry(registry).inDomain(DOMAIN).build();
   }
 
-  public static JmxReporter report(@NotNull Project project, MetricRegistry registry) {
+  static JmxReporter reporter(@NotNull Project project, MetricRegistry registry) {
     String projectName = project.getName().replaceAll("\\W", "");
     return JmxReporter.forRegistry(registry).inDomain(DOMAIN + "." + projectName).build();
   }

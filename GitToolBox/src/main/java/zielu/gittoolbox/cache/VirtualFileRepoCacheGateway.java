@@ -13,10 +13,10 @@ class VirtualFileRepoCacheGateway extends GatewayBase {
   private final Metrics metrics;
   private final MessageBus messageBus;
 
-  VirtualFileRepoCacheGateway(@NotNull Project project) {
+  VirtualFileRepoCacheGateway(@NotNull Project project, @NotNull ProjectMetrics metrics) {
     super(project);
-    metrics = ProjectMetrics.getInstance(project);
-    messageBus = project.getMessageBus();
+    this.metrics = metrics;
+    this.messageBus = project.getMessageBus();
   }
 
   Metrics getMetrics() {
@@ -24,7 +24,6 @@ class VirtualFileRepoCacheGateway extends GatewayBase {
   }
 
   void fireCacheChanged() {
-    VirtualFileCacheListener publisher = messageBus.syncPublisher(CACHE_CHANGE);
-    publisher.updated();
+    messageBus.syncPublisher(CACHE_CHANGE).updated();
   }
 }

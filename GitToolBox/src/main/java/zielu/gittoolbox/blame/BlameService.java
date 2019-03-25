@@ -1,21 +1,22 @@
 package zielu.gittoolbox.blame;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.util.AppUtil;
 
 public interface BlameService {
-  Topic<BlameListener> BLAME_UPDATE = Topic.create("Blame updates", BlameListener.class);
+  Topic<BlameListener> BLAME_UPDATE = Topic.create("RevisionInfo updates", BlameListener.class);
 
-  @Nullable
-  Blame getFileBlame(@NotNull VirtualFile file);
+  @NotNull
+  RevisionInfo getFileBlame(@NotNull VirtualFile file);
 
-  @Nullable
-  Blame getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber);
+  @NotNull
+  RevisionInfo getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber);
 
   void fileClosed(@NotNull VirtualFile file);
 
@@ -23,7 +24,13 @@ public interface BlameService {
 
   void blameUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation);
 
+  @NotNull
   static BlameService getInstance(@NotNull Project project) {
-    return ServiceManager.getService(project, BlameService.class);
+    return AppUtil.getServiceInstance(project, BlameService.class);
+  }
+
+  @NotNull
+  static Optional<BlameService> getExistingInstance(@NotNull Project project) {
+    return AppUtil.getExistingServiceInstance(project, BlameService.class);
   }
 }

@@ -17,16 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.swing.Icon;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.ResIcons;
 import zielu.gittoolbox.config.CommitCompletionMode;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatted;
 import zielu.gittoolbox.formatter.Formatter;
-import zielu.gittoolbox.formatter.RegExpFormatter;
-import zielu.gittoolbox.formatter.SimpleFormatter;
 import zielu.gittoolbox.util.GtUtil;
 
 class CurrentBranchCompletionProvider extends CompletionProvider<CompletionParameters> {
@@ -41,14 +37,14 @@ class CurrentBranchCompletionProvider extends CompletionProvider<CompletionParam
   protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context,
                                 @NotNull CompletionResultSet result) {
     if (shouldComplete(parameters)) {
-      setupCompletions(parameters, result);
+      setupCompletions(getProject(parameters), result);
     }
   }
 
-  private void setupCompletions(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
-    Project project = getProject(parameters);
-    List<Formatter> formatters = getFormatters(project);
-    Collection<Pair<String, String>> branchInfos = getBranchInfo(project);
+  private void setupCompletions(@NotNull Project project, @NotNull CompletionResultSet result) {
+    CompletionService completionService = CompletionService.getInstance(project);
+    List<Formatter> formatters = completionService.getFormatters();
+    Collection<Pair<String, String>> branchInfos = getBranchInfo(completionService);
     log.debug("Setup completions for: ", branchInfos);
     branchInfos.forEach(branchInfo -> {
       String branchName = branchInfo.getFirst();
@@ -61,24 +57,10 @@ class CurrentBranchCompletionProvider extends CompletionProvider<CompletionParam
     if (formatted.isDisplayable()) {
       result.addElement(LookupElementBuilder.create(formatted.getText())
           .withTypeText(repoName, true)
-          .withIcon(getIcon(formatter)));
+          .withIcon(formatter.getIconHandle().getIcon()));
     } else {
       log.debug("Skipped completion: ", formatted);
     }
-  }
-
-  private Icon getIcon(Formatter formatter) {
-    if (formatter instanceof RegExpFormatter) {
-      return ResIcons.BranchViolet;
-    } else if (formatter instanceof SimpleFormatter) {
-      return ResIcons.BranchOrange;
-    } else {
-      return null;
-    }
-  }
-
-  private List<Formatter> getFormatters(Project project) {
-    return project.getComponent(CompletionService.class).getFormatters();
   }
 
   @NotNull
@@ -86,9 +68,8 @@ class CurrentBranchCompletionProvider extends CompletionProvider<CompletionParam
     return parameters.getPosition().getProject();
   }
 
-  private Collection<Pair<String, String>> getBranchInfo(@NotNull Project project) {
-    CompletionService completion = CompletionService.getInstance(project);
-    return completion.getAffected().stream().map(getGitRepositoryNames()).collect(Collectors.toList());
+  private Collection<Pair<String, String>> getBranchInfo(@NotNull CompletionService completionService) {
+    return completionService.getAffected().stream().map(getGitRepositoryNames()).collect(Collectors.toList());
   }
 
   private GitToolBoxConfigForProject getConfig(@NotNull CompletionParameters parameters) {

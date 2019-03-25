@@ -1,6 +1,5 @@
 package zielu.gittoolbox.blame;
 
-import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBusConnection;
@@ -9,36 +8,30 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.revision.RevisionService;
 
-class BlameSubscriber implements BaseComponent {
-  private MessageBusConnection connection;
+class BlameSubscriber {
 
-  BlameSubscriber(@NotNull Project project, @NotNull BlameCache blameCache, @NotNull BlameService blameService) {
-    connection = project.getMessageBus().connect();
+  BlameSubscriber(@NotNull Project project) {
+    MessageBusConnection connection = project.getMessageBus().connect(project);
     connection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-        blameCache.refreshForRoot(repository.getRoot());
+        BlameCache.getExistingInstance(project).ifPresent(cache -> cache.refreshForRoot(repository.getRoot()));
       }
     });
     connection.subscribe(BlameCache.CACHE_UPDATES, new BlameCacheListener() {
       @Override
       public void cacheUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-        blameService.blameUpdated(file, annotation);
+        BlameService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file, annotation));
       }
 
       @Override
       public void invalidated(@NotNull VirtualFile file) {
-        blameService.invalidate(file);
+        BlameService.getExistingInstance(project).ifPresent(service -> service.invalidate(file));
       }
     });
-  }
-
-  @Override
-  public void disposeComponent() {
-    if (connection != null) {
-      connection.disconnect();
-      connection = null;
-    }
+    connection.subscribe(RevisionService.UPDATES, revisionInfo ->
+        BlameCache.getExistingInstance(project).ifPresent(cache -> cache.revisionUpdated(revisionInfo)));
   }
 }

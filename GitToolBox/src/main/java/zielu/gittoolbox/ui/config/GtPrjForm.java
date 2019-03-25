@@ -33,14 +33,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.IconHandle;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.ResIcons;
 import zielu.gittoolbox.config.CommitCompletionConfig;
 import zielu.gittoolbox.config.CommitCompletionType;
 import zielu.gittoolbox.config.ReferencePointForStatusConfig;
 import zielu.gittoolbox.config.ReferencePointForStatusType;
 import zielu.gittoolbox.fetch.AutoFetchParams;
-import zielu.gittoolbox.ui.util.AppUtil;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.intellij.ui.GtFormUi;
 
@@ -62,6 +62,7 @@ public class GtPrjForm implements GtFormUi {
   private JPanel autoFetchExclusionsPanel;
   private ComboBox<ReferencePointForStatusType> referencePointTypeComboBox;
   private JTextField referencePointNameText;
+  private JCheckBox autoFetchOnBranchSwitchEnabled;
 
   private GtPatternFormatterForm completionItemPatternForm;
   private Action addSimpleCompletionAction;
@@ -72,8 +73,8 @@ public class GtPrjForm implements GtFormUi {
   public void init() {
     addSimpleCompletionAction = new AbstractActionExt() {
       {
-        setName(ResBundle.getString("commit.dialog.completion.formatters.simple.add.label"));
-        setSmallIcon(ResIcons.BranchOrange);
+        setName(ResBundle.message("commit.dialog.completion.formatters.simple.add.label"));
+        setSmallIcon(IconHandle.SIMPLE_FORMATTER.getIcon());
       }
 
       @Override
@@ -85,8 +86,8 @@ public class GtPrjForm implements GtFormUi {
     addCommitCompletionPopup.add(addSimpleCompletionAction);
     Action addPatternCompletionAction = new AbstractActionExt() {
       {
-        setName(ResBundle.getString("commit.dialog.completion.formatters.pattern.add.label"));
-        setSmallIcon(ResIcons.BranchViolet);
+        setName(ResBundle.message("commit.dialog.completion.formatters.pattern.add.label"));
+        setSmallIcon(IconHandle.REG_EXP_FORMATTER.getIcon());
       }
 
       @Override
@@ -98,8 +99,8 @@ public class GtPrjForm implements GtFormUi {
     addCommitCompletionPopup.add(addPatternCompletionAction);
     Action addIssuePatternCompletionAction = new AbstractActionExt() {
       {
-        setName(ResBundle.getString("commit.dialog.completion.formatters.pattern.issue.add.label"));
-        setSmallIcon(ResIcons.BranchViolet);
+        setName(ResBundle.message("commit.dialog.completion.formatters.pattern.issue.add.label"));
+        setSmallIcon(IconHandle.REG_EXP_FORMATTER.getIcon());
       }
 
       @Override
@@ -137,15 +138,14 @@ public class GtPrjForm implements GtFormUi {
       }
     });
     completionItemList.setCellRenderer(new CommitCompletionConfigCellRenderer());
-    completionItemPatternForm.addPatternUpdate(text -> AppUtil.INSTANCE
-        .invokeLaterIfNeeded(completionItemList::repaint));
+    completionItemPatternForm.addPatternUpdate(text -> AppUiUtil.invokeLaterIfNeeded(completionItemList::repaint));
     ToolbarDecorator commitCompletionDecorator = ToolbarDecorator.createDecorator(completionItemList);
     commitCompletionDecorator.setAddAction(button -> {
       RelativePoint popupPoint = button.getPreferredPopupPoint();
       Point point = popupPoint.getPoint();
       addCommitCompletionPopup.show(popupPoint.getComponent(), point.x, point.y);
     });
-    commitCompletionDecorator.setAddActionName(ResBundle.getString("commit.dialog.completion.formatters.add.tooltip"));
+    commitCompletionDecorator.setAddActionName(ResBundle.message("commit.dialog.completion.formatters.add.tooltip"));
     commitCompletionDecorator.setRemoveAction(button -> onCommitCompletionItemRemove());
     commitCompletionDecorator.setRemoveActionName("commit.dialog.completion.formatters.remove.tooltip");
     commitCompletionPanel.add(commitCompletionDecorator.createPanel(), BorderLayout.CENTER);
@@ -153,10 +153,10 @@ public class GtPrjForm implements GtFormUi {
     autoFetchExclusionsDecorator = ToolbarDecorator.createDecorator(autoFetchExclusionsList);
     autoFetchExclusionsDecorator.setAddAction(button -> onAddAutoFetchExclusion());
     autoFetchExclusionsDecorator.setAddActionName(
-        ResBundle.getString("configurable.prj.autoFetch.exclusions.add.label"));
+        ResBundle.message("configurable.prj.autoFetch.exclusions.add.label"));
     autoFetchExclusionsDecorator.setRemoveAction(button -> onRemoveAutoFetchExclusion());
     autoFetchExclusionsDecorator.setRemoveActionName(
-        ResBundle.getString("configurable.prj.autoFetch.exclusions.remove.label"));
+        ResBundle.message("configurable.prj.autoFetch.exclusions.remove.label"));
     CollectionComboBoxModel<ReferencePointForStatusType> referencePointTypeModel = new CollectionComboBoxModel<>(
         Lists.newArrayList(ReferencePointForStatusType.values()));
     referencePointTypeComboBox.setModel(referencePointTypeModel);
@@ -237,7 +237,7 @@ public class GtPrjForm implements GtFormUi {
     if (defaultProject) {
       autoFetchExclusionsDecorator.disableAddAction();
       autoFetchExclusionsDecorator.disableRemoveAction();
-      autoFetchExclusionsList.setEmptyText(ResBundle.getString("configurable.prj.default.na"));
+      autoFetchExclusionsList.setEmptyText(ResBundle.message("configurable.prj.default.na"));
     }
     autoFetchExclusionsPanel.add(autoFetchExclusionsDecorator.createPanel(), BorderLayout.CENTER);
   }
@@ -293,6 +293,14 @@ public class GtPrjForm implements GtFormUi {
     return autoFetchExclusionsModel.toList();
   }
 
+  void setAutoFetchOnBranchSwitchEnabled(boolean enabled) {
+    autoFetchOnBranchSwitchEnabled.setSelected(enabled);
+  }
+
+  boolean getAutoFetchOnBranchSwitchEnabled() {
+    return autoFetchOnBranchSwitchEnabled.isSelected();
+  }
+
   public void setReferencePointConfig(ReferencePointForStatusConfig config) {
     referencePointTypeComboBox.setSelectedItem(config.type);
     referencePointNameText.setText(config.name);
@@ -322,8 +330,8 @@ public class GtPrjForm implements GtFormUi {
     private final EnumMap<CommitCompletionType, Icon> completionIcons = new EnumMap<>(CommitCompletionType.class);
 
     private CommitCompletionConfigCellRenderer() {
-      completionIcons.put(CommitCompletionType.SIMPLE, ResIcons.BranchOrange);
-      completionIcons.put(CommitCompletionType.PATTERN, ResIcons.BranchViolet);
+      completionIcons.put(CommitCompletionType.SIMPLE, IconHandle.SIMPLE_FORMATTER.getIcon());
+      completionIcons.put(CommitCompletionType.PATTERN, IconHandle.REG_EXP_FORMATTER.getIcon());
     }
 
     @Override

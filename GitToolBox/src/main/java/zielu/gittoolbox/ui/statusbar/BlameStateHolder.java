@@ -7,14 +7,15 @@ import com.intellij.openapi.vfs.VirtualFile;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.blame.Blame;
+import zielu.gittoolbox.revision.RevisionInfo;
 
 class BlameStateHolder {
   // store editor here to avoid expensive and EDT-only getSelectedEditor() retrievals
   private volatile Reference<Editor> editor = new WeakReference<>(null);
   private volatile Reference<VirtualFile> file = new WeakReference<>(null);
-  private volatile Reference<Blame> blame = new WeakReference<>(null);
+  private volatile Reference<RevisionInfo> blame = new WeakReference<>(RevisionInfo.EMPTY);
 
   boolean isCurrentEditorDocument(@Nullable Document document) {
     Editor selectedEditor = editor.get();
@@ -49,18 +50,19 @@ class BlameStateHolder {
     this.file = new WeakReference<>(file);
   }
 
-  boolean updateBlame(@Nullable Blame blame) {
-    Blame currentBlame = this.blame.get();
-    if (!Objects.equals(blame, currentBlame)) {
-      this.blame = new WeakReference<>(blame);
+  boolean updateBlame(@NotNull RevisionInfo revisionInfo) {
+    RevisionInfo currentRevisionInfo = this.blame.get();
+    if (!Objects.equals(revisionInfo, currentRevisionInfo)) {
+      this.blame = new WeakReference<>(revisionInfo);
       return true;
     }
     return false;
   }
 
-  @Nullable
-  Blame getBlame() {
-    return this.blame.get();
+  @NotNull
+  RevisionInfo getBlame() {
+    RevisionInfo revisionInfo = this.blame.get();
+    return revisionInfo != null ? revisionInfo : RevisionInfo.EMPTY;
   }
 
   boolean clearBlame() {

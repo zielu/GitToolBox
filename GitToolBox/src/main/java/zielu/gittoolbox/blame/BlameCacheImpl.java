@@ -2,7 +2,6 @@ package zielu.gittoolbox.blame;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vcs.VcsException;
@@ -15,26 +14,32 @@ import git4idea.repo.GitRepository;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.revision.RevisionService;
+import zielu.gittoolbox.util.ExecutableTask;
 
 class BlameCacheImpl implements BlameCache, Disposable {
   private static final BlameAnnotation EMPTY = new BlameAnnotation() {
-    @Nullable
+    @NotNull
     @Override
-    public Blame getBlame(int lineNumber) {
-      return null;
+    public RevisionInfo getBlame(int lineNumber) {
+      return RevisionInfo.EMPTY;
     }
 
     @Override
     public boolean isChanged(@NotNull VcsRevisionNumber revision) {
       return !VcsRevisionNumber.NULL.equals(revision);
+    }
+
+    @Override
+    public boolean updateRevision(@NotNull RevisionInfo revisionInfo) {
+      return false;
     }
 
     @Nullable
@@ -52,32 +57,30 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private final BlameCacheGateway gateway;
   private final VirtualFileRepoCache fileRepoCache;
   private final BlameLoader blameLoader;
+  private final RevisionService revisionService;
   private final Map<VirtualFile, BlameAnnotation> annotations = new ConcurrentHashMap<>();
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
   private final Timer getTimer;
   private final Counter discardedSubmitCounter;
   private final Counter invalidatedCounter;
   private final LoaderTimers loaderTimers;
-
-  private ExecutorService executor;
+  private final BlameCacheExecutor executor;
 
   BlameCacheImpl(@NotNull BlameCacheGateway gateway, @NotNull VirtualFileRepoCache fileRepoCache,
-                 @NotNull BlameLoader blameLoader, @NotNull ProjectMetrics metrics) {
+                 @NotNull BlameLoader blameLoader, @NotNull BlameCacheExecutor executor,
+                 @NotNull RevisionService revisionService, @NotNull ProjectMetrics metrics) {
     this.gateway = gateway;
     this.fileRepoCache = fileRepoCache;
     this.blameLoader = blameLoader;
-    executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
-        .setDaemon(true)
-        .setNameFormat("blame-cache-%d")
-        .build()
-    );
-    metrics.gauge("blame-cache-size", annotations::size);
-    metrics.gauge("blame-cache-queue-count", queued::size);
-    discardedSubmitCounter = metrics.counter("blame-cache-discarded-count");
-    getTimer = metrics.timer("blame-cache-get");
-    invalidatedCounter = metrics.counter("blame-cache-invalidated-count");
-    Timer loadTimer = metrics.timer("blame-cache-load");
-    Timer queueWaitTimer = metrics.timer("blame-cache-queue-wait");
+    this.executor = executor;
+    this.revisionService = revisionService;
+    metrics.gauge("blame-cache.size", annotations::size);
+    metrics.gauge("blame-cache.queue-count", queued::size);
+    discardedSubmitCounter = metrics.counter("blame-cache.discarded-count");
+    getTimer = metrics.timer("blame-cache.get");
+    invalidatedCounter = metrics.counter("blame-cache.invalidated-count");
+    Timer loadTimer = metrics.timer("blame-cache.load");
+    Timer queueWaitTimer = metrics.timer("blame-cache.queue-wait");
     loaderTimers = new LoaderTimers(loadTimer, queueWaitTimer);
     this.gateway.disposeWithProject(this);
   }
@@ -108,7 +111,9 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private void submitTask(@NotNull VirtualFile file) {
     if (queued.add(file)) {
       LOG.debug("Add annotation task for ", file);
-      executor.execute(new FileAnnotationLoader(file, blameLoader, loaderTimers, this::updateAnnotation));
+      FileAnnotationLoader loaderTask = new FileAnnotationLoader(
+          file, blameLoader, loaderTimers, this::updateAnnotation);
+      executor.execute(loaderTask);
     } else {
       LOG.debug("Discard annotation task for ", file);
       discardedSubmitCounter.inc();
@@ -136,7 +141,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
     if (queued.remove(file)) {
       BlameAnnotation blameAnnotation;
       if (fileAnnotation != null) {
-        blameAnnotation = new BlameAnnotationImpl(fileAnnotation);
+        blameAnnotation = new BlameAnnotationImpl(fileAnnotation, revisionService);
       } else {
         blameAnnotation = EMPTY;
       }
@@ -178,6 +183,15 @@ class BlameCacheImpl implements BlameCache, Disposable {
         .forEach(this::invalidate);
   }
 
+  @Override
+  public void revisionUpdated(@NotNull RevisionInfo revisionInfo) {
+    annotations.forEach((file, blame) -> {
+      if (blame.updateRevision(revisionInfo)) {
+        gateway.fireBlameUpdated(file, blame);
+      }
+    });
+  }
+
   private static class LoaderTimers {
     final Timer load;
     final Timer queueWait;
@@ -188,7 +202,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
     }
   }
 
-  private static class FileAnnotationLoader implements Runnable {
+  private static class FileAnnotationLoader implements ExecutableTask {
     private final VirtualFile file;
     private final BlameLoader loader;
     private final BiConsumer<VirtualFile, FileAnnotation> loaded;
@@ -209,6 +223,11 @@ class BlameCacheImpl implements BlameCache, Disposable {
       FileAnnotation annotation = timers.load.timeSupplier(this::load);
       LOG.info("Annotated " + file + ": " + annotation);
       loaded.accept(file, annotation);
+    }
+
+    @Override
+    public String getTitle() {
+      return "Loading annotation";
     }
 
     @Nullable

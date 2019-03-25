@@ -2,7 +2,6 @@ package zielu.gittoolbox.fetch;
 
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public class AutoFetchState implements ProjectComponent {
   }
 
   private Stream<AutoFetchAllowedEP> getExtensionPoints() {
-    return Stream.of(Extensions.getExtensions(AutoFetchAllowedEP.POINT_NAME));
+    return AutoFetchAllowedEP.POINT_NAME.getExtensionList().stream();
   }
 
   private AutoFetchAllowed instantiate(AutoFetchAllowedEP extensionPoint) {
@@ -94,15 +93,15 @@ public class AutoFetchState implements ProjectComponent {
     return active.get() && extensions.stream().allMatch(AutoFetchAllowed::isAllowed);
   }
 
-  public boolean canAutoFetch() {
+  boolean canAutoFetch() {
     return isFetchAllowed() && !fetchRunning.get();
   }
 
-  public boolean fetchStart() {
+  boolean fetchStart() {
     return fetchRunning.compareAndSet(false, true);
   }
 
-  public void fetchFinish() {
+  void fetchFinish() {
     fetchRunning.compareAndSet(true, false);
   }
 }

@@ -28,9 +28,9 @@ public class StatusMessages {
   public StatusMessages(@NotNull StatusMessagesUi ui) {
     this.ui = ui;
 
-    commonStatuses.put(CANCEL, ResBundle.getString("message.cancelled"));
-    commonStatuses.put(FAILURE, ResBundle.getString("message.failure"));
-    commonStatuses.put(NO_REMOTE, ResBundle.getString("message.no.remote"));
+    commonStatuses.put(CANCEL, ResBundle.message("message.cancelled"));
+    commonStatuses.put(FAILURE, ResBundle.message("message.failure"));
+    commonStatuses.put(NO_REMOTE, ResBundle.message("message.no.remote"));
   }
 
   public static StatusMessages getInstance() {
@@ -42,7 +42,7 @@ public class StatusMessages {
       if (behind.behind() > 0) {
         return ui.presenter().behindStatus(behind);
       } else {
-        return ResBundle.getString("message.up.to.date");
+        return ResBundle.message("message.up.to.date");
       }
     } else {
       return commonStatus(behind.status());
@@ -54,7 +54,7 @@ public class StatusMessages {
       if (count.isNotZero()) {
         return ui.presenter().aheadBehindStatus(count.ahead.value(), count.behind.value());
       } else {
-        return ResBundle.getString("message.up.to.date");
+        return ResBundle.message("message.up.to.date");
       }
     } else {
       return commonStatus(count.status());
@@ -62,7 +62,7 @@ public class StatusMessages {
   }
 
   private String commonStatus(Status status) {
-    return commonStatuses.getOrDefault(status, ResBundle.getString("message.unknown"));
+    return commonStatuses.getOrDefault(status, ResBundle.message("message.unknown"));
   }
 
   private String repoNamePrefix(GitRepository repository) {

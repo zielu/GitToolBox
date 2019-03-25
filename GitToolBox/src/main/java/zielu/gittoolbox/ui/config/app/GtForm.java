@@ -72,6 +72,7 @@ public class GtForm implements GtFormUi {
   private ComboBox<CommitCompletionMode> commitDialogCompletionMode;
   private ComboBox<AuthorNameType> blameAuthorNameTypeCombo;
   private ComboBox<DateType> blameDateTypeCombo;
+  private JCheckBox blameShowSubjectCheckBox;
 
   @Override
   public void init() {
@@ -167,8 +168,6 @@ public class GtForm implements GtFormUi {
       }
     });
     updateProjectAction.setModel(getUpdateModeModel());
-    blameEnabledCheckBox.addActionListener(e -> editorInlineBlameEnabledCheckBox
-        .setEnabled(blameEnabledCheckBox.isSelected()));
     commitDialogCompletionMode.setRenderer(new ListCellRendererWrapper<CommitCompletionMode>() {
       @Override
       public void customize(JList list, CommitCompletionMode value, int index, boolean selected, boolean hasFocus) {
@@ -272,68 +271,68 @@ public class GtForm implements GtFormUi {
     presentationMode.setSelectedItem(presenter);
   }
 
-  public boolean getShowGitStatus() {
+  boolean getShowGitStatus() {
     return showGitStatCheckBox.isSelected();
   }
 
-  public void setShowGitStatus(boolean showGitStatus) {
+  void setShowGitStatus(boolean showGitStatus) {
     showGitStatCheckBox.setSelected(showGitStatus);
   }
 
-  public boolean getBehindTrackerEnabled() {
+  boolean getBehindTrackerEnabled() {
     return behindTrackerEnabledCheckBox.isSelected();
   }
 
-  public void setBehindTrackerEnabled(boolean behindTrackerEnabled) {
+  void setBehindTrackerEnabled(boolean behindTrackerEnabled) {
     behindTrackerEnabledCheckBox.setSelected(behindTrackerEnabled);
   }
 
-  public boolean getShowProjectViewStatus() {
+  boolean getShowProjectViewStatus() {
     return showProjectViewStatusCheckBox.isSelected();
   }
 
-  public void setShowProjectViewStatus(boolean showProjectViewStatus) {
+  void setShowProjectViewStatus(boolean showProjectViewStatus) {
     showProjectViewStatusCheckBox.setSelected(showProjectViewStatus);
   }
 
-  public void setShowBlame(boolean showBlame) {
+  void setShowBlame(boolean showBlame) {
     blameEnabledCheckBox.setSelected(showBlame);
   }
 
-  public boolean getShowBlame() {
+  boolean getShowBlame() {
     return blameEnabledCheckBox.isSelected();
   }
 
-  public void setShowEditorInlineBlame(boolean showEditorInlineBlame) {
+  void setShowEditorInlineBlame(boolean showEditorInlineBlame) {
     editorInlineBlameEnabledCheckBox.setSelected(showEditorInlineBlame);
   }
 
-  public boolean getShowEditorInlineBlame() {
+  boolean getShowEditorInlineBlame() {
     return editorInlineBlameEnabledCheckBox.isSelected();
   }
 
-  public UpdateProjectAction getUpdateProjectAction() {
+  UpdateProjectAction getUpdateProjectAction() {
     return (UpdateProjectAction) updateProjectAction.getSelectedItem();
   }
 
-  public void setUpdateProjectAction(UpdateProjectAction action) {
+  void setUpdateProjectAction(UpdateProjectAction action) {
     updateProjectAction.setSelectedItem(action);
   }
 
-  public void setDecorationParts(List<DecorationPartConfig> decorationParts) {
+  void setDecorationParts(List<DecorationPartConfig> decorationParts) {
     decorationPartsModel.removeAll();
     decorationParts.stream().map(DecorationPartConfig::copy).forEach(decorationPartsModel::add);
   }
 
-  public List<DecorationPartConfig> getDecorationParts() {
+  List<DecorationPartConfig> getDecorationParts() {
     return decorationPartsModel.toList();
   }
 
-  public CommitCompletionMode getCommitDialogCompletionMode() {
+  CommitCompletionMode getCommitDialogCompletionMode() {
     return (CommitCompletionMode) commitDialogCompletionMode.getSelectedItem();
   }
 
-  public void setCommitDialogCompletionMode(CommitCompletionMode mode) {
+  void setCommitDialogCompletionMode(CommitCompletionMode mode) {
     commitDialogCompletionMode.setSelectedItem(mode);
   }
 
@@ -351,5 +350,13 @@ public class GtForm implements GtFormUi {
 
   void setBlameDateType(DateType dateType) {
     blameDateTypeCombo.setSelectedItem(dateType);
+  }
+
+  boolean getBlameShowSubject() {
+    return blameShowSubjectCheckBox.isSelected();
+  }
+
+  void setBlameShowSubject(boolean showSubject) {
+    blameShowSubjectCheckBox.setSelected(showSubject);
   }
 }

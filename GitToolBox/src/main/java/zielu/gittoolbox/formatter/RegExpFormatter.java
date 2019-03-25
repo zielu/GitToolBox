@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import jodd.util.StringBand;
 import org.apache.commons.lang.StringUtils;
+import zielu.gittoolbox.IconHandle;
 
 public class RegExpFormatter implements Formatter {
   private final Pattern pattern;
@@ -46,5 +47,10 @@ public class RegExpFormatter implements Formatter {
       result.append(matcher.group(i));
     }
     return result.toString();
+  }
+
+  @Override
+  public IconHandle getIconHandle() {
+    return IconHandle.REG_EXP_FORMATTER;
   }
 }

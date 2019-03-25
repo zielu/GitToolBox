@@ -1,7 +1,7 @@
 package zielu.gittoolbox.ui.statusbar;
 
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
@@ -10,25 +10,19 @@ import com.intellij.util.messages.MessageBusConnection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.ProjectAware;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 
-public class StatusBarManager implements Disposable, ProjectAware {
+class StatusBarManager implements ProjectComponent {
   private final AtomicBoolean opened = new AtomicBoolean();
   private final Project project;
   private final MessageBusConnection connection;
   private GitStatusWidget statusWidget;
   private BlameStatusWidget blameWidget;
 
-  private StatusBarManager(Project project) {
+  StatusBarManager(@NotNull Project project) {
     this.project = project;
-    connection = this.project.getMessageBus().connect();
-  }
-
-  @NotNull
-  public static StatusBarManager create(@NotNull Project project) {
-    return new StatusBarManager(project);
+    connection = this.project.getMessageBus().connect(project);
   }
 
   private void install() {
@@ -49,7 +43,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
   }
 
   @Override
-  public void opened() {
+  public void projectOpened() {
     if (opened.compareAndSet(false, true)) {
       if (hasUi()) {
         statusWidget = GitStatusWidget.create(project);
@@ -108,7 +102,7 @@ public class StatusBarManager implements Disposable, ProjectAware {
   }
 
   @Override
-  public void closed() {
+  public void projectClosed() {
     if (opened.compareAndSet(true, false)) {
       cleanUp();
     }
@@ -119,13 +113,8 @@ public class StatusBarManager implements Disposable, ProjectAware {
   }
 
   private void cleanUp() {
-    connection.disconnect();
     if (hasUi()) {
       uninstall();
     }
-  }
-
-  @Override
-  public void dispose() {
   }
 }
