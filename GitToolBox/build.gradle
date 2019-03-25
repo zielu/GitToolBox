@@ -40,7 +40,7 @@ intellij {
     type = ideaType
     updateSinceUntilBuild = false
     downloadSources = true
-    plugins = ['Git4Idea', 'gr.jchrist.gitextender:0.4.1']
+    plugins = ['git4idea', 'gr.jchrist.gitextender:0.4.1']
     ideaDependencyCachePath = ideaCacheDir
 }
 
