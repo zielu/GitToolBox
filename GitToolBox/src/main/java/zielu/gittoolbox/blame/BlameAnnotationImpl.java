@@ -29,18 +29,22 @@ class BlameAnnotationImpl implements BlameAnnotation {
   @Override
   public RevisionInfo getBlame(int lineNumber) {
     VcsRevisionNumber revisionNumber = getLineRevisionNumber(lineNumber);
-    if (revisionNumber != VcsRevisionNumber.NULL) {
+    if (VcsRevisionNumber.NULL.equals(revisionNumber)) {
+      return RevisionInfo.EMPTY;
+    } else {
       RevisionInfo revisionInfo = revisions.get(revisionNumber);
       if (revisionInfo == null) {
         revisionInfo = loadRevision(lineNumber);
       }
       return revisionInfo;
     }
-    return RevisionInfo.EMPTY;
   }
 
   @NotNull
   private VcsRevisionNumber getLineRevisionNumber(int lineNumber) {
+    if (lineNumber < 0 || lineNumber >= lineRevisions.length) {
+      return VcsRevisionNumber.NULL;
+    }
     VcsRevisionNumber revisionNumber = lineRevisions[lineNumber];
     if (revisionNumber == null) {
       VcsRevisionNumber lineRevisionNumber = annotation.getLineRevisionNumber(lineNumber);
