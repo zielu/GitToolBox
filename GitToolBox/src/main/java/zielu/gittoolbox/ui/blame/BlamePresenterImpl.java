@@ -45,8 +45,7 @@ class BlamePresenterImpl implements BlamePresenter {
 
   @NotNull
   @Override
-  public String getPopup(@NotNull RevisionInfo revisionInfo) {
-    String details = revisionInfo.getDetails();
+  public String getPopup(@NotNull RevisionInfo revisionInfo, @Nullable String details) {
     if (details != null) {
       return new StringBand(10)
           .append(COMMIT_PREFIX)

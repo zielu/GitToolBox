@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.ex.DocumentBulkUpdateListener;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Consumer;
 import com.intellij.util.containers.ContainerUtil;
@@ -17,8 +18,10 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
+import zielu.gittoolbox.revision.RevisionService;
 
 class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
+  private final Project project;
   private final Set<Document> inBulkUpdate = ContainerUtil.newConcurrentSet();
   private final Set<Runnable> exitDumbModeActions = new LinkedHashSet<>();
   private final Set<Consumer<Document>> bulkUpdateFinishedActions = new LinkedHashSet<>();
@@ -27,6 +30,7 @@ class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
   private final MessageBusConnection connection;
 
   BlameStatusGatewayImpl(@NotNull Project project, @NotNull VirtualFileRepoCache repoCache) {
+    this.project = project;
     this.repoCache = repoCache;
     connection = project.getMessageBus().connect(this);
     connection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
@@ -104,6 +108,11 @@ class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
   @Override
   public boolean isUnderVcs(@NotNull VirtualFile file) {
     return repoCache.isUnderGitRoot(file);
+  }
+
+  @Override
+  public String getDetails(@NotNull VcsRevisionNumber revisionNumber) {
+    return RevisionService.getInstance(project).getDetails(revisionNumber);
   }
 
   @Override

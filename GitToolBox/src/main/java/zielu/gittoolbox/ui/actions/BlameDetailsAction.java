@@ -13,6 +13,7 @@ import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.revision.RevisionService;
 import zielu.gittoolbox.ui.blame.BlameUi;
 
 public class BlameDetailsAction extends AnAction {
@@ -56,7 +57,8 @@ public class BlameDetailsAction extends AnAction {
           BlameService blameService = BlameService.getInstance(project);
           RevisionInfo revisionInfo = blameService.getDocumentLineBlame(editor.getDocument(), editorFile, currentLine);
           if (revisionInfo.isNotEmpty()) {
-            String detailsText = revisionInfo.getDetails();
+            RevisionService revisionService = RevisionService.getInstance(project);
+            String detailsText = revisionService.getDetails(revisionInfo.getRevisionNumber());
             if (detailsText != null) {
               BlameUi.showBlamePopup(editor, editorFile, revisionInfo);
             }

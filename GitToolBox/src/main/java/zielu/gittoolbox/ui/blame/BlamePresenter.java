@@ -2,6 +2,7 @@ package zielu.gittoolbox.ui.blame;
 
 import com.intellij.openapi.components.ServiceManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.revision.RevisionInfo;
 
 public interface BlamePresenter {
@@ -16,5 +17,5 @@ public interface BlamePresenter {
   String getStatusBar(@NotNull RevisionInfo revisionInfo);
 
   @NotNull
-  String getPopup(@NotNull RevisionInfo revisionInfo);
+  String getPopup(@NotNull RevisionInfo revisionInfo, @Nullable String details);
 }

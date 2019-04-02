@@ -1,6 +1,8 @@
 package zielu.gittoolbox.blame;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
@@ -29,7 +31,7 @@ class BlameAnnotationImplTest {
   @BeforeEach
   void beforeEach() {
     when(fileAnnotation.getLineCount()).thenReturn(10);
-    blameAnnotation = new BlameAnnotationImpl(fileAnnotation, revisionService);
+    blameAnnotation = new BlameAnnotationImpl(new FileAnnotationRevisionDataProvider(fileAnnotation), revisionService);
   }
 
   @ParameterizedTest(name = "Out of bounds line number {0} is handled")
@@ -52,7 +54,7 @@ class BlameAnnotationImplTest {
     final int lineNumber = 2;
     when(revisionInfo.getRevisionNumber()).thenReturn(revisionNumber);
     when(fileAnnotation.getLineRevisionNumber(lineNumber)).thenReturn(revisionNumber);
-    when(revisionService.getForLine(fileAnnotation, lineNumber)).thenReturn(revisionInfo);
+    when(revisionService.getForLine(any(), eq(lineNumber))).thenReturn(revisionInfo);
 
     RevisionInfo blame = blameAnnotation.getBlame(lineNumber);
     assertThat(blame).isEqualTo(revisionInfo);

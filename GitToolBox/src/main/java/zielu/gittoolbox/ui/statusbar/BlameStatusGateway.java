@@ -3,6 +3,7 @@ package zielu.gittoolbox.ui.statusbar;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Consumer;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,8 @@ public interface BlameStatusGateway {
   boolean isInBulkUpdate(@Nullable Document document);
 
   boolean isUnderVcs(@NotNull VirtualFile file);
+
+  String getDetails(@NotNull VcsRevisionNumber revisionNumber);
 
   static BlameStatusGateway getInstance(@NotNull Project project) {
     return ServiceManager.getService(project, BlameStatusGateway.class);

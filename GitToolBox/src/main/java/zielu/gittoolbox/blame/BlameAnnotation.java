@@ -7,6 +7,35 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.revision.RevisionInfo;
 
 public interface BlameAnnotation {
+  BlameAnnotation EMPTY = new BlameAnnotation() {
+    @NotNull
+    @Override
+    public RevisionInfo getBlame(int lineNumber) {
+      return RevisionInfo.EMPTY;
+    }
+
+    @Override
+    public boolean isChanged(@NotNull VcsRevisionNumber revision) {
+      return !VcsRevisionNumber.NULL.equals(revision);
+    }
+
+    @Override
+    public boolean updateRevision(@NotNull RevisionInfo revisionInfo) {
+      return false;
+    }
+
+    @Nullable
+    @Override
+    public VirtualFile getVirtualFile() {
+      return null;
+    }
+
+    @Override
+    public String toString() {
+      return "BlameAnnotation:EMPTY";
+    }
+  };
+
   @NotNull
   RevisionInfo getBlame(int lineNumber);
 

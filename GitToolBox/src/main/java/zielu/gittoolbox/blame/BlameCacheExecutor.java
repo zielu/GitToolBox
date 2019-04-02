@@ -12,19 +12,28 @@ import zielu.gittoolbox.ProjectGateway;
 import zielu.gittoolbox.util.ExecutableTask;
 
 class BlameCacheExecutor implements Disposable {
+  private static final boolean WITH_PROGRESS = true;
   private final Project project;
   private final ExecutorService executor;
 
   BlameCacheExecutor(@NotNull Project project, @NotNull ProjectGateway gateway) {
     this.project = project;
-    executor = Executors.newCachedThreadPool(
-        new ThreadFactoryBuilder().setNameFormat("Blame-" + project.getName() + "-%d").setDaemon(true).build()
-    );
+    if (WITH_PROGRESS) {
+      executor = null;
+    } else {
+      executor = Executors.newCachedThreadPool(
+          new ThreadFactoryBuilder().setNameFormat("Blame-" + project.getName() + "-%d").setDaemon(true).build()
+      );
+    }
     gateway.disposeWithProject(this);
   }
 
   void execute(ExecutableTask executable) {
-    executeInThreadPool(executable);
+    if (WITH_PROGRESS) {
+      executeWithProgress(executable);
+    } else {
+      executeInThreadPool(executable);
+    }
   }
 
   private void executeWithProgress(ExecutableTask executable) {
@@ -44,6 +53,8 @@ class BlameCacheExecutor implements Disposable {
 
   @Override
   public void dispose() {
-    executor.shutdownNow();
+    if (executor != null) {
+      executor.shutdownNow();
+    }
   }
 }

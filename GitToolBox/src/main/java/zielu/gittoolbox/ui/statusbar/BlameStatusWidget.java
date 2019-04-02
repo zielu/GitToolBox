@@ -204,7 +204,7 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     if (revisionInfo.isEmpty()) {
       return null;
     } else {
-      return revisionInfo.getDetails();
+      return blameStatusGateway.getDetails(revisionInfo.getRevisionNumber());
     }
   }
 

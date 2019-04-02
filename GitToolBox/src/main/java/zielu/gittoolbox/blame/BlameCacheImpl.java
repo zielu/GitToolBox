@@ -5,7 +5,6 @@ import com.codahale.metrics.Timer;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -17,47 +16,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.revision.RevisionInfo;
-import zielu.gittoolbox.revision.RevisionService;
 import zielu.gittoolbox.util.ExecutableTask;
 
 class BlameCacheImpl implements BlameCache, Disposable {
-  private static final BlameAnnotation EMPTY = new BlameAnnotation() {
-    @NotNull
-    @Override
-    public RevisionInfo getBlame(int lineNumber) {
-      return RevisionInfo.EMPTY;
-    }
-
-    @Override
-    public boolean isChanged(@NotNull VcsRevisionNumber revision) {
-      return !VcsRevisionNumber.NULL.equals(revision);
-    }
-
-    @Override
-    public boolean updateRevision(@NotNull RevisionInfo revisionInfo) {
-      return false;
-    }
-
-    @Nullable
-    @Override
-    public VirtualFile getVirtualFile() {
-      return null;
-    }
-
-    @Override
-    public String toString() {
-      return "BlameAnnotation:EMPTY";
-    }
-  };
   private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
   private final BlameCacheGateway gateway;
   private final VirtualFileRepoCache fileRepoCache;
   private final BlameLoader blameLoader;
-  private final RevisionService revisionService;
   private final Map<VirtualFile, BlameAnnotation> annotations = new ConcurrentHashMap<>();
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
   private final Timer getTimer;
@@ -68,12 +36,11 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   BlameCacheImpl(@NotNull BlameCacheGateway gateway, @NotNull VirtualFileRepoCache fileRepoCache,
                  @NotNull BlameLoader blameLoader, @NotNull BlameCacheExecutor executor,
-                 @NotNull RevisionService revisionService, @NotNull ProjectMetrics metrics) {
+                 @NotNull ProjectMetrics metrics) {
     this.gateway = gateway;
     this.fileRepoCache = fileRepoCache;
     this.blameLoader = blameLoader;
     this.executor = executor;
-    this.revisionService = revisionService;
     metrics.gauge("blame-cache.size", annotations::size);
     metrics.gauge("blame-cache.queue-count", queued::size);
     discardedSubmitCounter = metrics.counter("blame-cache.discarded-count");
@@ -101,7 +68,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
     return annotations.compute(file, (fileKey, existingAnnotation) -> {
       if (existingAnnotation == null) {
         submitTask(fileKey);
-        return EMPTY;
+        return BlameAnnotation.EMPTY;
       } else {
         return handleExistingAnnotation(fileKey, existingAnnotation);
       }
@@ -111,7 +78,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private void submitTask(@NotNull VirtualFile file) {
     if (queued.add(file)) {
       LOG.debug("Add annotation task for ", file);
-      FileAnnotationLoader loaderTask = new FileAnnotationLoader(
+      AnnotationLoader loaderTask = new AnnotationLoader(
           file, blameLoader, loaderTimers, this::updateAnnotation);
       executor.execute(loaderTask);
     } else {
@@ -125,7 +92,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
     if (isChanged(file, annotation)) {
       LOG.debug("Annotation changed for ", file);
       submitTask(file);
-      return EMPTY;
+      return BlameAnnotation.EMPTY;
     } else {
       LOG.debug("Annotation not changed for ", file);
       return annotation;
@@ -137,16 +104,10 @@ class BlameCacheImpl implements BlameCache, Disposable {
     return annotation.isChanged(currentRevision);
   }
 
-  private void updateAnnotation(@NotNull VirtualFile file, @Nullable FileAnnotation fileAnnotation) {
+  private void updateAnnotation(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
     if (queued.remove(file)) {
-      BlameAnnotation blameAnnotation;
-      if (fileAnnotation != null) {
-        blameAnnotation = new BlameAnnotationImpl(fileAnnotation, revisionService);
-      } else {
-        blameAnnotation = EMPTY;
-      }
-      annotations.put(file, blameAnnotation);
-      gateway.fireBlameUpdated(file, blameAnnotation);
+      annotations.put(file, annotation);
+      gateway.fireBlameUpdated(file, annotation);
     }
   }
 
@@ -202,15 +163,16 @@ class BlameCacheImpl implements BlameCache, Disposable {
     }
   }
 
-  private static class FileAnnotationLoader implements ExecutableTask {
+  private static class AnnotationLoader implements ExecutableTask {
     private final VirtualFile file;
     private final BlameLoader loader;
-    private final BiConsumer<VirtualFile, FileAnnotation> loaded;
+    private final BiConsumer<VirtualFile, BlameAnnotation> loaded;
     private final LoaderTimers timers;
     private final long createdAt = System.currentTimeMillis();
 
-    private FileAnnotationLoader(@NotNull VirtualFile file, @NotNull BlameLoader loader, @NotNull LoaderTimers timers,
-                                 @NotNull BiConsumer<VirtualFile, FileAnnotation> loaded) {
+    private AnnotationLoader(@NotNull VirtualFile file, @NotNull BlameLoader loader,
+                             @NotNull LoaderTimers timers,
+                             @NotNull BiConsumer<VirtualFile, BlameAnnotation> loaded) {
       this.file = file;
       this.loader = loader;
       this.timers = timers;
@@ -220,7 +182,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
     @Override
     public void run() {
       timers.queueWait.update(System.currentTimeMillis() - createdAt, TimeUnit.MILLISECONDS);
-      FileAnnotation annotation = timers.load.timeSupplier(this::load);
+      BlameAnnotation annotation = timers.load.timeSupplier(this::load);
       LOG.info("Annotated " + file + ": " + annotation);
       loaded.accept(file, annotation);
     }
@@ -230,14 +192,14 @@ class BlameCacheImpl implements BlameCache, Disposable {
       return "Loading annotation";
     }
 
-    @Nullable
-    private FileAnnotation load() {
+    @NotNull
+    private BlameAnnotation load() {
       LOG.debug("Annotate ", file);
       try {
         return loader.annotate(file);
       } catch (VcsException e) {
         LOG.warn("Failed to annotate " + file, e);
-        return null;
+        return BlameAnnotation.EMPTY;
       }
     }
   }

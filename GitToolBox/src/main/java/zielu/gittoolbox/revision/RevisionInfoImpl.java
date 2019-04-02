@@ -10,10 +10,9 @@ final class RevisionInfoImpl implements RevisionInfo {
   private final String author;
   private final Date date;
   private final String subject;
-  private final String details;
 
   RevisionInfoImpl(@NotNull VcsRevisionNumber revisionNumber, String author, @Nullable Date revisionDate,
-                   String subject, String details) {
+                   String subject) {
     this.revisionNumber = revisionNumber;
     this.author = author != null ? prepareAuthor(author) : "EMPTY";
     if (revisionDate != null) {
@@ -22,7 +21,6 @@ final class RevisionInfoImpl implements RevisionInfo {
       date = new Date();
     }
     this.subject = subject;
-    this.details = details;
   }
 
   @NotNull
@@ -52,12 +50,6 @@ final class RevisionInfoImpl implements RevisionInfo {
   @Override
   public String getSubject() {
     return subject;
-  }
-
-  @Nullable
-  @Override
-  public String getDetails() {
-    return details;
   }
 
   @Override

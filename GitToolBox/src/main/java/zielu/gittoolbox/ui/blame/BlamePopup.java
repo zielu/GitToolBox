@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.revision.RevisionService;
 
 class BlamePopup {
   private static final Logger LOG = Logger.getInstance(BlamePopup.class);
@@ -78,7 +79,8 @@ class BlamePopup {
   }
 
   private String prepareText() {
-    String details = BlamePresenter.getInstance().getPopup(revisionInfo);
+    String message = RevisionService.getInstance(project).getDetails(revisionInfo.getRevisionNumber());
+    String details = BlamePresenter.getInstance().getPopup(revisionInfo, message);
     return  "<pre>" + details + "</pre><br/>"
         + "<a href='" + REVEAL_IN_LOG + "'>Git Log</a>&nbsp;&nbsp;&nbsp"
         + "<a href='" + AFFECTED_FILES + "'>Affected Files</a>&nbsp;&nbsp;&nbsp"

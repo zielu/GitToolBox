@@ -9,25 +9,53 @@ import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.blame.calculator.BlameCalculator;
+import zielu.gittoolbox.cache.VirtualFileRepoCache;
+import zielu.gittoolbox.revision.RevisionDataProvider;
+import zielu.gittoolbox.revision.RevisionService;
 
 class BlameLoaderImpl implements BlameLoader {
+  private static final boolean USE_INCREMENTAL = true;
   private final Project project;
+  private final RevisionService revisionService;
   private final GitVcs git;
 
-  BlameLoaderImpl(@NotNull Project project) {
+  BlameLoaderImpl(@NotNull Project project, @NotNull RevisionService revisionService) {
     this.project = project;
+    this.revisionService = revisionService;
     git = GitVcs.getInstance(project);
   }
 
   @NotNull
   @Override
-  public FileAnnotation annotate(@NotNull VirtualFile file) throws VcsException {
+  public BlameAnnotation annotate(@NotNull VirtualFile file) throws VcsException {
     try {
       BlameUtil.annotationLock(project, file);
-      return git.getAnnotationProvider().annotate(file);
+      if (USE_INCREMENTAL) {
+        return incrementalAnnotation(file);
+      } else {
+        return fileAnnotation(file);
+      }
     } finally {
       BlameUtil.annotationUnlock(project, file);
     }
+  }
+
+  private BlameAnnotation fileAnnotation(@NotNull VirtualFile file) throws VcsException {
+    FileAnnotation annotation = git.getAnnotationProvider().annotate(file);
+    return new BlameAnnotationImpl(new FileAnnotationRevisionDataProvider(annotation), revisionService);
+  }
+
+  private BlameAnnotation incrementalAnnotation(@NotNull VirtualFile file) {
+    BlameCalculator calculator = new BlameCalculator();
+    GitRepository repo = VirtualFileRepoCache.getInstance(project).getRepoForFile(file);
+    if (repo != null) {
+      RevisionDataProvider provider = calculator.annotate(repo, file);
+      if (provider != null) {
+        return new BlameAnnotationImpl(provider, revisionService);
+      }
+    }
+    return BlameAnnotation.EMPTY;
   }
 
   @Nullable

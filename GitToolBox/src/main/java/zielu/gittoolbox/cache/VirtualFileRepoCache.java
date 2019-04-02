@@ -1,13 +1,13 @@
 package zielu.gittoolbox.cache;
 
 import com.google.common.base.Preconditions;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.util.AppUtil;
 
 public interface VirtualFileRepoCache extends DirMappingAware {
   Topic<VirtualFileCacheListener> CACHE_CHANGE = Topic.create("File cache change",
@@ -15,7 +15,7 @@ public interface VirtualFileRepoCache extends DirMappingAware {
 
   @NotNull
   static VirtualFileRepoCache getInstance(@NotNull Project project) {
-    return ServiceManager.getService(project, VirtualFileRepoCache.class);
+    return AppUtil.getServiceInstance(project, VirtualFileRepoCache.class);
   }
 
   @Nullable

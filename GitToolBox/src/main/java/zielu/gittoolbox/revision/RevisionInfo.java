@@ -33,12 +33,6 @@ public interface RevisionInfo {
       return null;
     }
 
-    @Nullable
-    @Override
-    public String getDetails() {
-      return null;
-    }
-
     @Override
     public boolean isEmpty() {
       return true;
@@ -61,9 +55,6 @@ public interface RevisionInfo {
 
   @Nullable
   String getSubject();
-
-  @Nullable
-  String getDetails();
 
   boolean isEmpty();
 
