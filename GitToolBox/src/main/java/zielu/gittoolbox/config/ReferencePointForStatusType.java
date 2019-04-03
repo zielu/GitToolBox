@@ -4,7 +4,9 @@ import zielu.gittoolbox.ResBundle;
 
 public enum ReferencePointForStatusType {
   TRACKED_REMOTE_BRANCH("trackedRemoteBranch"),
-  SELECTED_PARENT_BRANCH("selectedParentBranch");
+  SELECTED_PARENT_BRANCH("selectedParentBranch"),
+  AUTOMATIC("automatic")
+  ;
 
   private final String labelKey;
 

@@ -4,6 +4,8 @@ import static zielu.gittoolbox.cache.PerRepoInfoCache.CACHE_CHANGE;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.tasks.LocalTask;
+import com.intellij.tasks.TaskManager;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
@@ -12,6 +14,8 @@ import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepoInfo;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.config.ReferencePointForStatusType;
@@ -64,9 +68,22 @@ class InfoCacheGateway {
       if (trackInfo != null) {
         parentBranch = trackInfo.getRemoteBranch();
       }
+    } else if (type == ReferencePointForStatusType.AUTOMATIC) {
+      parentBranch = getRemoteBranchFromActiveTask(repository).orElse(trackedBranch);
     }
 
     Hash parentHash = repoInfo.getRemoteBranchesWithHashes().get(parentBranch);
     return new RepoStatusRemote(trackedBranch, parentBranch, parentHash);
+  }
+
+  private Optional<GitRemoteBranch> getRemoteBranchFromActiveTask(@NotNull GitRepository repository) {
+    TaskManager manager = TaskManager.getManager(project);
+    LocalTask activeTask = manager.getActiveTask();
+    return activeTask.getBranches(true).stream()
+        .filter(branchInfo -> Objects.equals(repository.getPresentableUrl(), branchInfo.repository))
+        .findFirst()
+        .map(branchInfo -> branchInfo.name)
+        .map(repository::getBranchTrackInfo)
+        .map(GitBranchTrackInfo::getRemoteBranch);
   }
 }
