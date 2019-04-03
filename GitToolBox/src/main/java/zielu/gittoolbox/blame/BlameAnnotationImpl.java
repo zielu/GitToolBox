@@ -43,7 +43,7 @@ class BlameAnnotationImpl implements BlameAnnotation {
 
   @NotNull
   private VcsRevisionNumber getLineRevisionNumber(int lineIndex) {
-    if (lineIndex < 0 || lineIndex > lineRevisions.length) {
+    if (lineIndex < 0 || lineIndex >= lineRevisions.length) {
       return VcsRevisionNumber.NULL;
     }
     VcsRevisionNumber revisionNumber = lineRevisions[lineIndex];
