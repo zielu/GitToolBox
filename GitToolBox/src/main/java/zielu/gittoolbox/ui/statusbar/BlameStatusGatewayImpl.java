@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.ex.DocumentBulkUpdateListener;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Consumer;
 import com.intellij.util.containers.ContainerUtil;
@@ -18,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
+import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.revision.RevisionService;
 
 class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
@@ -111,8 +111,8 @@ class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
   }
 
   @Override
-  public String getDetails(@NotNull VcsRevisionNumber revisionNumber) {
-    return RevisionService.getInstance(project).getDetails(revisionNumber);
+  public String getCommitMessage(@NotNull RevisionInfo revisionInfo) {
+    return RevisionService.getInstance(project).getCommitMessage(revisionInfo);
   }
 
   @Override

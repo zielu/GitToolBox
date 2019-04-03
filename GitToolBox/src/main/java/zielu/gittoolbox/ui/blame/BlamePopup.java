@@ -79,7 +79,7 @@ class BlamePopup {
   }
 
   private String prepareText() {
-    String message = RevisionService.getInstance(project).getDetails(revisionInfo.getRevisionNumber());
+    String message = RevisionService.getInstance(project).getCommitMessage(revisionInfo);
     String details = BlamePresenter.getInstance().getPopup(revisionInfo, message);
     return  "<pre>" + details + "</pre><br/>"
         + "<a href='" + REVEAL_IN_LOG + "'>Git Log</a>&nbsp;&nbsp;&nbsp"

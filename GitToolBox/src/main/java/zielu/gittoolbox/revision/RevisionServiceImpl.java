@@ -20,30 +20,39 @@ import zielu.gittoolbox.metrics.ProjectMetrics;
 class RevisionServiceImpl implements RevisionService, Disposable {
   private static final RevisionEntry EMPTY = new RevisionEntry(RevisionInfo.EMPTY, null, false);
   private final Logger log = Logger.getInstance(getClass());
-  private final Cache<VcsRevisionNumber, RevisionEntry> cache = CacheBuilder.newBuilder()
-      .maximumSize(500)
+  private final Cache<VcsRevisionNumber, RevisionEntry> revisionCache;
+  private final Cache<VcsRevisionNumber, Supplier<String>> commitMessageCache = CacheBuilder.newBuilder()
+      .maximumSize(50)
       .expireAfterAccess(Duration.ofMinutes(30))
       .build();
   private final RevisionServiceGateway gateway;
   private final RevisionInfoFactory infoFactory;
-  private final Counter invalidatedCounter;
   private final Timer loadFileTimer;
   private final Timer loadLineTimer;
+  private final Timer loadCommitMessageTimer;
 
   RevisionServiceImpl(@NotNull RevisionServiceGateway gateway, @NotNull RevisionInfoFactory infoFactory,
                       @NotNull ProjectMetrics metrics) {
     this.gateway = gateway;
     this.infoFactory = infoFactory;
-    metrics.gauge("revision-cache.size", cache::size);
-    invalidatedCounter = metrics.counter("revision-cache.invalidated-count");
-    loadFileTimer = metrics.timer("revision-cache.load-file");
-    loadLineTimer = metrics.timer("revision-cache.load-line");
+    Counter revisionCacheInvalidatedCounter = metrics.counter("revisionCache.invalidated-count");
+    revisionCache = CacheBuilder.newBuilder()
+        .maximumSize(500)
+        .expireAfterAccess(Duration.ofMinutes(30))
+        .removalListener(notification -> revisionCacheInvalidatedCounter.inc())
+        .build();
+    metrics.gauge("revisionCache.size", revisionCache::size);
+    loadFileTimer = metrics.timer("revisionCache.load-file");
+    loadLineTimer = metrics.timer("revisionCache.load-line");
+    metrics.gauge("commitMessageCache.size", commitMessageCache::size);
+    loadCommitMessageTimer = metrics.timer("commitMessageCache.load");
     this.gateway.disposeWithProject(this);
   }
 
   @Override
   public void dispose() {
-    cache.invalidateAll();
+    revisionCache.invalidateAll();
+    commitMessageCache.invalidateAll();
   }
 
   @NotNull
@@ -65,7 +74,7 @@ class RevisionServiceImpl implements RevisionService, Disposable {
   private RevisionEntry loadEntry(@NotNull RevisionDataProvider provider, @NotNull VcsRevisionNumber lineRevision,
                                   int lineNumber) {
     try {
-      return cache.get(lineRevision, () -> loadEntry(loadLineTimer,
+      return revisionCache.get(lineRevision, () -> loadEntry(loadLineTimer,
           () -> new RevisionEntry(infoFactory.forLine(provider, lineRevision, lineNumber),
               findRoot(provider), false))
       );
@@ -90,21 +99,21 @@ class RevisionServiceImpl implements RevisionService, Disposable {
   }
 
   private void invalidate(@NotNull VcsRevisionNumber revisionNumber) {
-    cache.invalidate(revisionNumber);
-    invalidatedCounter.inc();
+    revisionCache.invalidate(revisionNumber);
+    commitMessageCache.invalidate(revisionNumber);
   }
 
   @Override
   public RevisionInfo getForFile(@NotNull VirtualFile file, @NotNull VcsFileRevision revision) {
     if (revision != VcsFileRevision.NULL) {
       try {
-        RevisionEntry entry = cache.get(revision.getRevisionNumber(), () ->
+        RevisionEntry entry = revisionCache.get(revision.getRevisionNumber(), () ->
             loadEntry(loadFileTimer,
                 () -> new RevisionEntry(infoFactory.forFile(file, revision),
                     gateway.rootForFile(file), true)));
         return entry.info;
       } catch (ExecutionException e) {
-        log.warn("Failed to load revision " + revision + " for " + file);
+        log.warn("Failed to load revision " + revision + " for " + file, e);
         return RevisionInfo.EMPTY;
       }
     } else {
@@ -114,23 +123,29 @@ class RevisionServiceImpl implements RevisionService, Disposable {
 
   @Nullable
   @Override
-  public String getDetails(@NotNull VcsRevisionNumber revisionNumber) {
-    RevisionEntry entry = cache.getIfPresent(revisionNumber);
-    if (entry != null) {
-      Supplier<String> detailsSupplier = entry.details;
-      if (detailsSupplier == null) {
-        entry.details = loadDetails(revisionNumber, entry.root);
-      }
-      return entry.details.get();
+  public String getCommitMessage(@NotNull RevisionInfo revisionInfo) {
+    if (revisionInfo.isEmpty()) {
+      return null;
     }
-    return null;
+    VcsRevisionNumber revisionNumber = revisionInfo.getRevisionNumber();
+    try {
+      return commitMessageCache.get(revisionNumber, () -> loadCommitMessage(revisionNumber)).get();
+    } catch (ExecutionException e) {
+      log.warn("Failed to load commit message " + revisionNumber, e);
+      return null;
+    }
   }
 
-  private Supplier<String> loadDetails(@NotNull VcsRevisionNumber revisionNumber, @Nullable VirtualFile root) {
-    if (root == null) {
+  private Supplier<String> loadCommitMessage(@NotNull VcsRevisionNumber revisionNumber) {
+    return loadCommitMessageTimer.timeSupplier(() -> loadCommitMessageImpl(revisionNumber));
+  }
+
+  private Supplier<String> loadCommitMessageImpl(@NotNull VcsRevisionNumber revisionNumber) {
+    RevisionEntry entry = revisionCache.getIfPresent(revisionNumber);
+    if (entry == null || entry.root == null) {
       return Suppliers.ofInstance(null);
     } else {
-      return Suppliers.ofInstance(gateway.loadDetails(revisionNumber, root));
+      return Suppliers.ofInstance(gateway.loadCommitMessage(revisionNumber, entry.root));
     }
   }
 
@@ -138,7 +153,6 @@ class RevisionServiceImpl implements RevisionService, Disposable {
     private final RevisionInfo info;
     private final VirtualFile root;
     private final boolean partial;
-    private Supplier<String> details;
 
     private RevisionEntry(RevisionInfo info, VirtualFile root, boolean partial) {
       this.info = info;

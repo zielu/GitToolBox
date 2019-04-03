@@ -46,22 +46,20 @@ class BlamePresenterImpl implements BlamePresenter {
   @NotNull
   @Override
   public String getPopup(@NotNull RevisionInfo revisionInfo, @Nullable String details) {
+    StringBand text = new StringBand(11)
+        .append(COMMIT_PREFIX)
+        .append(revisionInfo.getRevisionNumber().asString())
+        .append("\n")
+        .append(AUTHOR_PREFIX)
+        .append(AuthorNameType.FULL.shorten(revisionInfo.getAuthor()))
+        .append("\n")
+        .append(DATE_PREFIX)
+        .append(DateType.ABSOLUTE.format(revisionInfo.getDate()))
+        .append("\n");
     if (details != null) {
-      return new StringBand(10)
-          .append(COMMIT_PREFIX)
-          .append(revisionInfo.getRevisionNumber().asString())
-          .append("\n")
-          .append(AUTHOR_PREFIX)
-          .append(AuthorNameType.FULL.shorten(revisionInfo.getAuthor()))
-          .append("\n")
-          .append(DATE_PREFIX)
-          .append(DateType.ABSOLUTE.format(revisionInfo.getDate()))
-          .append("\n\n")
-          .append(details)
-          .toString();
-    } else {
-      return ResBundle.naLabel();
+      text.append("\n").append(details);
     }
+    return text.toString();
   }
 
   private String formatAuthor(@Nullable String author) {

@@ -31,7 +31,7 @@ class RevisionServiceGateway extends GatewayBase {
   }
 
   @Nullable
-  String loadDetails(@NotNull VcsRevisionNumber revisionNumber, @NotNull VirtualFile root) {
+  String loadCommitMessage(@NotNull VcsRevisionNumber revisionNumber, @NotNull VirtualFile root) {
     VcsLogManager logManager = VcsProjectLog.getInstance(project).getLogManager();
     if (logManager != null) {
       VcsLogData dataManager = logManager.getDataManager();

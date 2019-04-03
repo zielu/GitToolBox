@@ -2,7 +2,6 @@ package zielu.gittoolbox.revision;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.history.VcsFileRevision;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
 import org.jetbrains.annotations.NotNull;
@@ -23,5 +22,5 @@ public interface RevisionService {
   RevisionInfo getForFile(@NotNull VirtualFile file, @NotNull VcsFileRevision revision);
 
   @Nullable
-  String getDetails(@NotNull VcsRevisionNumber revisionNumber);
+  String getCommitMessage(@NotNull RevisionInfo revisionInfo);
 }
