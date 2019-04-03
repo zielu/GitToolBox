@@ -14,9 +14,10 @@ public class BlameEditorLinePainter extends EditorLinePainter {
   @Nullable
   @Override
   public Collection<LineExtensionInfo> getLineExtensions(@NotNull Project project, @NotNull VirtualFile file,
-                                                         int editorLineNumber) {
+                                                         int editorLineIndex) {
     if (shouldShow(project)) {
-      return BlameEditorService.getInstance(project).getLineExtensions(file, editorLineNumber);
+      //lines are 0-indexed
+      return BlameEditorService.getInstance(project).getLineExtensions(file, editorLineIndex);
     }
     return null;
   }

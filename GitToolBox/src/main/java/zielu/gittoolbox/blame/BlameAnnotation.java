@@ -10,7 +10,7 @@ public interface BlameAnnotation {
   BlameAnnotation EMPTY = new BlameAnnotation() {
     @NotNull
     @Override
-    public RevisionInfo getBlame(int lineNumber) {
+    public RevisionInfo getBlame(int lineIndex) {
       return RevisionInfo.EMPTY;
     }
 
@@ -37,7 +37,7 @@ public interface BlameAnnotation {
   };
 
   @NotNull
-  RevisionInfo getBlame(int lineNumber);
+  RevisionInfo getBlame(int lineIndex);
 
   boolean isChanged(@NotNull VcsRevisionNumber revision);
 

@@ -34,7 +34,7 @@ public final class BlameUi {
     return false;
   }
 
-  public static int getCurrentLineNumber(@NotNull Editor editor) {
+  public static int getCurrentLineIndex(@NotNull Editor editor) {
     CaretModel caretModel = editor.getCaretModel();
     if (!caretModel.isUpToDate()) {
       return NO_LINE;
@@ -43,7 +43,7 @@ public final class BlameUi {
     return position.line;
   }
 
-  public static boolean isValidLineNumber(int lineNumber) {
+  public static boolean isValidLineIndex(int lineNumber) {
     return lineNumber != NO_LINE;
   }
 }

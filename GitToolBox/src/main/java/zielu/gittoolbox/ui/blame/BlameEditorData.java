@@ -8,21 +8,21 @@ import org.jetbrains.annotations.Nullable;
 class BlameEditorData {
   static final Key<BlameEditorData> KEY = new Key<>("GitToolBox-blame-editor");
 
-  private final int editorLine;
+  private final int editorLineIndex;
   private final Collection<LineExtensionInfo> lineInfo;
   private final boolean lineModified;
   private final int generation;
 
-  BlameEditorData(int editorLine, boolean lineModified, int generation,
+  BlameEditorData(int editorLineIndex, boolean lineModified, int generation,
                   @Nullable Collection<LineExtensionInfo> lineInfo) {
-    this.editorLine = editorLine;
+    this.editorLineIndex = editorLineIndex;
     this.lineInfo = lineInfo;
     this.lineModified = lineModified;
     this.generation = generation;
   }
 
-  boolean isSameEditorLine(int editorLine) {
-    return this.editorLine == editorLine;
+  boolean isSameEditorLineIndex(int editorLine) {
+    return this.editorLineIndex == editorLine;
   }
 
   boolean isSameGeneration(int generation) {

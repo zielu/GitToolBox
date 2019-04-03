@@ -14,7 +14,7 @@ import zielu.gittoolbox.util.AppUtil;
 
 interface BlameEditorService {
   @Nullable
-  Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineNumber);
+  Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineIndex);
 
   void colorsSchemeChanged(@NotNull EditorColorsScheme colorsScheme);
 

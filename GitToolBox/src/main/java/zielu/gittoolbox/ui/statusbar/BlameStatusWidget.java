@@ -300,9 +300,9 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private void fileChanged(@Nullable Editor editor, @NotNull VirtualFile file) {
     RevisionInfo revisionInfo = RevisionInfo.EMPTY;
     if (editor != null) {
-      int currentLine = BlameUi.getCurrentLineNumber(editor);
-      if (BlameUi.isValidLineNumber(currentLine)) {
-        revisionInfo = BlameService.getInstance(myProject).getDocumentLineBlame(editor.getDocument(), file,
+      int currentLine = BlameUi.getCurrentLineIndex(editor);
+      if (BlameUi.isValidLineIndex(currentLine)) {
+        revisionInfo = BlameService.getInstance(myProject).getDocumentLineIndexBlame(editor.getDocument(), file,
             currentLine);
       }
     } else {

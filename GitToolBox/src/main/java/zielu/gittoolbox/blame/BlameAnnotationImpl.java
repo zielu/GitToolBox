@@ -22,37 +22,37 @@ class BlameAnnotationImpl implements BlameAnnotation {
   BlameAnnotationImpl(@NotNull RevisionDataProvider provider, @NotNull RevisionService revisionService) {
     this.provider = provider;
     this.revisionService = revisionService;
-    lineRevisions = new VcsRevisionNumber[provider.getLineCount() + 1];
-    revisions = new THashMap<>(provider.getLineCount() + 1);
+    lineRevisions = new VcsRevisionNumber[provider.getLineCount()];
+    revisions = new THashMap<>(provider.getLineCount());
   }
 
   @NotNull
   @Override
-  public RevisionInfo getBlame(int lineNumber) {
-    VcsRevisionNumber revisionNumber = getLineRevisionNumber(lineNumber);
+  public RevisionInfo getBlame(int lineIndex) {
+    VcsRevisionNumber revisionNumber = getLineRevisionNumber(lineIndex);
     if (VcsRevisionNumber.NULL.equals(revisionNumber)) {
       return RevisionInfo.EMPTY;
     } else {
       RevisionInfo revisionInfo = revisions.get(revisionNumber);
       if (revisionInfo == null) {
-        revisionInfo = loadRevision(lineNumber);
+        revisionInfo = loadRevision(lineIndex);
       }
       return revisionInfo;
     }
   }
 
   @NotNull
-  private VcsRevisionNumber getLineRevisionNumber(int lineNumber) {
-    if (lineNumber < 0 || lineNumber >= lineRevisions.length) {
+  private VcsRevisionNumber getLineRevisionNumber(int lineIndex) {
+    if (lineIndex < 0 || lineIndex > lineRevisions.length) {
       return VcsRevisionNumber.NULL;
     }
-    VcsRevisionNumber revisionNumber = lineRevisions[lineNumber];
+    VcsRevisionNumber revisionNumber = lineRevisions[lineIndex];
     if (revisionNumber == null) {
-      VcsRevisionNumber lineRevisionNumber = provider.getRevisionNumber(lineNumber);
+      VcsRevisionNumber lineRevisionNumber = provider.getRevisionNumber(lineIndex);
       if (lineRevisionNumber == null) {
         lineRevisionNumber = VcsRevisionNumber.NULL;
       }
-      lineRevisions[lineNumber] = lineRevisionNumber;
+      lineRevisions[lineIndex] = lineRevisionNumber;
       revisionNumber = lineRevisionNumber;
     }
     return revisionNumber;

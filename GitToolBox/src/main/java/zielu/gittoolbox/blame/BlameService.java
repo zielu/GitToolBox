@@ -16,7 +16,7 @@ public interface BlameService {
   RevisionInfo getFileBlame(@NotNull VirtualFile file);
 
   @NotNull
-  RevisionInfo getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber);
+  RevisionInfo getDocumentLineIndexBlame(@NotNull Document document, @NotNull VirtualFile file, int lineIndex);
 
   void fileClosed(@NotNull VirtualFile file);
 

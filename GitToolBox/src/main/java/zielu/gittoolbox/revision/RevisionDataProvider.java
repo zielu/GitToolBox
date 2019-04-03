@@ -9,19 +9,16 @@ import org.jetbrains.annotations.Nullable;
 
 public interface RevisionDataProvider {
   @Nullable
-  Date getDate(int lineNumber);
+  Date getDate(int lineIndex);
 
   @Nullable
-  String getAuthor(int lineNumber);
+  String getAuthor(int lineIndex);
 
   @Nullable
-  String getSubject(int lineNumber);
+  String getSubject(int lineIndex);
 
   @Nullable
-  String getMessage(int lineNumber);
-
-  @Nullable
-  VcsRevisionNumber getRevisionNumber(int lineNumber);
+  VcsRevisionNumber getRevisionNumber(int lineIndex);
 
   @Nullable
   VcsRevisionNumber getCurrentRevisionNumber();

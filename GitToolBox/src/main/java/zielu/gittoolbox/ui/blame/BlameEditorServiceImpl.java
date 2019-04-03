@@ -69,19 +69,19 @@ class BlameEditorServiceImpl implements BlameEditorService {
 
   @Nullable
   @Override
-  public Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineNumber) {
-    return blameEditorTimer.timeSupplier(() -> getLineAnnotation(file, editorLineNumber));
+  public Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineIndex) {
+    return blameEditorTimer.timeSupplier(() -> getLineAnnotation(file, editorLineIndex));
   }
 
   @Nullable
-  private Collection<LineExtensionInfo> getLineAnnotation(@NotNull VirtualFile file, int editorLineNumber) {
+  private Collection<LineExtensionInfo> getLineAnnotation(@NotNull VirtualFile file, int editorLineIndex) {
     if (fileRepoCache.isUnderGitRoot(file)) {
       Document document = FileDocumentManager.getInstance().getDocument(file);
       if (document != null) {
         Editor editor = getEditor(document);
-        if (editor != null && isLineWithCaret(editor, editorLineNumber)) {
+        if (editor != null && isLineWithCaret(editor, editorLineIndex)) {
           return blameEditorGetInfoCachingTimer.timeSupplier(() ->
-              getInfosWithCaching(editor, document, file, editorLineNumber));
+              getInfosWithCaching(editor, document, file, editorLineIndex));
         }
       }
     }
@@ -90,8 +90,8 @@ class BlameEditorServiceImpl implements BlameEditorService {
 
   @Nullable
   private Collection<LineExtensionInfo> getInfos(@NotNull Editor editor, @NotNull Document document,
-                                                 @NotNull VirtualFile file, int editorLineNumber) {
-    RevisionInfo lineRevisionInfo = getLineBlame(document, file, editorLineNumber);
+                                                 @NotNull VirtualFile file, int editorLineIndex) {
+    RevisionInfo lineRevisionInfo = getLineBlame(document, file, editorLineIndex);
     Collection<LineExtensionInfo> lineInfo = null;
     if (lineRevisionInfo.isNotEmpty()) {
       lineInfo = getDecoration(lineRevisionInfo);
@@ -101,13 +101,13 @@ class BlameEditorServiceImpl implements BlameEditorService {
 
   @Nullable
   private Collection<LineExtensionInfo> getInfosWithCaching(@NotNull Editor editor, @NotNull Document document,
-                                                            @NotNull VirtualFile file, int editorLineNumber) {
-    LineState lineState = new LineState(editor, document, editorLineNumber, configGeneration.get());
+                                                            @NotNull VirtualFile file, int editorLineIndex) {
+    LineState lineState = new LineState(editor, document, editorLineIndex, configGeneration.get());
     Collection<LineExtensionInfo> cachedInfo = lineState.getOrClearCachedLineInfo();
     if (cachedInfo != null) {
       return cachedInfo;
     } else {
-      RevisionInfo lineRevisionInfo = getLineBlame(document, file, editorLineNumber);
+      RevisionInfo lineRevisionInfo = getLineBlame(document, file, editorLineIndex);
       Collection<LineExtensionInfo> lineInfo = null;
       if (lineRevisionInfo.isNotEmpty()) {
         lineInfo = getDecoration(lineRevisionInfo);
@@ -138,13 +138,13 @@ class BlameEditorServiceImpl implements BlameEditorService {
     return null;
   }
 
-  private boolean isLineWithCaret(@NotNull Editor editor, int editorLineNumber) {
-    return BlameUi.getCurrentLineNumber(editor) == editorLineNumber;
+  private boolean isLineWithCaret(@NotNull Editor editor, int editorLineIndex) {
+    return BlameUi.getCurrentLineIndex(editor) == editorLineIndex;
   }
 
   @NotNull
-  private RevisionInfo getLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineNumber) {
-    return blameService.getDocumentLineBlame(document, file, editorLineNumber);
+  private RevisionInfo getLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineIndex) {
+    return blameService.getDocumentLineIndexBlame(document, file, editorLineIndex);
   }
 
   @NotNull
@@ -162,19 +162,19 @@ class BlameEditorServiceImpl implements BlameEditorService {
 
   private static class LineState {
     private final Editor editor;
-    private final int editorLine;
+    private final int editorLineIndex;
     private final boolean lineModified;
     private final int generation;
 
-    private LineState(@NotNull Editor editor, @NotNull Document document, int editorLine, int generation) {
+    private LineState(@NotNull Editor editor, @NotNull Document document, int editorLineIndex, int generation) {
       this.editor = editor;
-      this.editorLine = editorLine;
+      this.editorLineIndex = editorLineIndex;
       this.generation = generation;
-      lineModified = document.isLineModified(editorLine);
+      lineModified = document.isLineModified(editorLineIndex);
     }
 
     void setEditorData(@Nullable Collection<LineExtensionInfo> lineInfo) {
-      BlameEditorData editorData = new BlameEditorData(editorLine, lineModified, generation, lineInfo);
+      BlameEditorData editorData = new BlameEditorData(editorLineIndex, lineModified, generation, lineInfo);
       BlameEditorData.KEY.set(editor, editorData);
     }
 
@@ -182,7 +182,7 @@ class BlameEditorServiceImpl implements BlameEditorService {
     Collection<LineExtensionInfo> getOrClearCachedLineInfo() {
       BlameEditorData editorData = BlameEditorData.KEY.get(editor);
       if (editorData != null) {
-        if (editorData.isSameEditorLine(editorLine)
+        if (editorData.isSameEditorLineIndex(editorLineIndex)
             && editorData.isSameGeneration(generation)
             && editorData.isLineModified() == lineModified) {
           return editorData.getLineInfo();

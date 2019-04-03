@@ -51,10 +51,11 @@ public class BlameDetailsAction extends AnAction {
     if (project != null && editor != null) {
       VirtualFile editorFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
       if (editorFile != null) {
-        int currentLine = BlameUi.getCurrentLineNumber(editor);
-        if (BlameUi.isValidLineNumber(currentLine)) {
+        int currentLineIndex = BlameUi.getCurrentLineIndex(editor);
+        if (BlameUi.isValidLineIndex(currentLineIndex)) {
           BlameService blameService = BlameService.getInstance(project);
-          RevisionInfo revisionInfo = blameService.getDocumentLineBlame(editor.getDocument(), editorFile, currentLine);
+          RevisionInfo revisionInfo = blameService.getDocumentLineIndexBlame(editor.getDocument(), editorFile,
+              currentLineIndex);
           if (revisionInfo.isNotEmpty()) {
             BlameUi.showBlamePopup(editor, editorFile, revisionInfo);
           }

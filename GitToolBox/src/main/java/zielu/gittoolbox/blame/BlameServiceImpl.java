@@ -79,34 +79,34 @@ class BlameServiceImpl implements BlameService, Disposable {
 
   @NotNull
   @Override
-  public RevisionInfo getDocumentLineBlame(@NotNull Document document, @NotNull VirtualFile file,
-                                           int editorLineNumber) {
-    return documentLineBlameTimer.timeSupplier(() -> getLineBlameInternal(document, file, editorLineNumber));
+  public RevisionInfo getDocumentLineIndexBlame(@NotNull Document document, @NotNull VirtualFile file,
+                                                int lineIndex) {
+    return documentLineBlameTimer.timeSupplier(() -> getLineBlameInternal(document, file, lineIndex));
   }
 
   @NotNull
   private RevisionInfo getLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
-                                            int editorLineNumber) {
+                                            int lineIndex) {
     if (invalidateOnBulkUpdate(document, file)) {
       return RevisionInfo.EMPTY;
     }
-    CachedLineProvider lineNumberProvider = getLineNumberProvider(document);
-    if (lineNumberProvider != null) {
-      if (!lineNumberProvider.isLineChanged(editorLineNumber)) {
-        int correctedLine = lineNumberProvider.getLineNumber(editorLineNumber);
-        return getLineBlameInternal(file, correctedLine);
+    CachedLineProvider lineProvider = getLineProvider(document);
+    if (lineProvider != null) {
+      if (!lineProvider.isLineChanged(lineIndex)) {
+        int correctedLineIndex = lineProvider.getLineIndex(lineIndex);
+        return getLineBlameInternal(file, correctedLineIndex);
       }
     }
     return RevisionInfo.EMPTY;
   }
 
   @NotNull
-  private RevisionInfo getLineBlameInternal(@NotNull VirtualFile file, int currentLine) {
+  private RevisionInfo getLineBlameInternal(@NotNull VirtualFile file, int lineIndex) {
     try {
       BlameAnnotation blameAnnotation = annotationCache.get(file, () -> blameCache.getAnnotation(file));
-      return blameAnnotation.getBlame(currentLine);
+      return blameAnnotation.getBlame(lineIndex);
     } catch (ExecutionException e) {
-      log.warn("Failed to blame " + file + ": " + currentLine);
+      log.warn("Failed to blame " + file + ": " + (lineIndex + 1));
       return RevisionInfo.EMPTY;
     }
   }
@@ -120,16 +120,16 @@ class BlameServiceImpl implements BlameService, Disposable {
   }
 
   @Nullable
-  private CachedLineProvider getLineNumberProvider(@NotNull Document document) {
+  private CachedLineProvider getLineProvider(@NotNull Document document) {
     try {
-      return lineNumberProviderCache.get(document, () -> loadLineNumberProvider(document));
+      return lineNumberProviderCache.get(document, () -> loadLineProvider(document));
     } catch (ExecutionException e) {
       log.warn("Failed to get line number provider for " + document, e);
       return null;
     }
   }
 
-  private CachedLineProvider loadLineNumberProvider(@NotNull Document document) {
+  private CachedLineProvider loadLineProvider(@NotNull Document document) {
     return new CachedLineProvider(gateway.createUpToDateLineProvider(document));
   }
 
@@ -158,11 +158,11 @@ class BlameServiceImpl implements BlameService, Disposable {
       this.lineProvider = lineProvider;
     }
 
-    private boolean isLineChanged(int currentNumber) {
-      return lineProvider.isLineChanged(currentNumber);
+    private boolean isLineChanged(int currentIndex) {
+      return lineProvider.isLineChanged(currentIndex);
     }
 
-    private int getLineNumber(int currentNumber) {
+    private int getLineIndex(int currentNumber) {
       return lineProvider.getLineNumber(currentNumber);
     }
   }

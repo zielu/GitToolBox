@@ -25,40 +25,30 @@ class BlameRevisionDataProvider implements RevisionDataProvider {
 
   @Nullable
   @Override
-  public Date getDate(int lineNumber) {
-    return getLineCommit(lineNumber).getAuthorDate();
+  public Date getDate(int lineIndex) {
+    return getLineCommit(lineIndex).getAuthorDate();
   }
 
-  private CommitInfo getLineCommit(int lineNumber) {
-    return lineInfos.get(lineToIndex(lineNumber));
-  }
-
-  private int lineToIndex(int lineNumber) {
-    return lineNumber - 1;
+  private CommitInfo getLineCommit(int lineIndex) {
+    return lineInfos.get(lineIndex);
   }
 
   @Nullable
   @Override
-  public String getAuthor(int lineNumber) {
-    return getLineCommit(lineNumber).getAuthorName();
+  public String getAuthor(int lineIndex) {
+    return getLineCommit(lineIndex).getAuthorName();
   }
 
   @Nullable
   @Override
-  public String getSubject(int lineNumber) {
-    return getLineCommit(lineNumber).getSummary();
+  public String getSubject(int lineIndex) {
+    return getLineCommit(lineIndex).getSummary();
   }
 
   @Nullable
   @Override
-  public String getMessage(int lineNumber) {
-    return null;
-  }
-
-  @Nullable
-  @Override
-  public VcsRevisionNumber getRevisionNumber(int lineNumber) {
-    return getLineCommit(lineNumber).getRevisionNumber();
+  public VcsRevisionNumber getRevisionNumber(int lineIndex) {
+    return getLineCommit(lineIndex).getRevisionNumber();
   }
 
   @Nullable
@@ -81,6 +71,6 @@ class BlameRevisionDataProvider implements RevisionDataProvider {
 
   @Override
   public int getLineCount() {
-    return lineInfos.size() + 1;
+    return lineInfos.size();
   }
 }

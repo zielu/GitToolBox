@@ -21,16 +21,16 @@ class FileAnnotationRevisionDataProvider implements RevisionDataProvider {
 
   @Nullable
   @Override
-  public Date getDate(int lineNumber) {
-    return annotation.getLineDate(lineNumber);
+  public Date getDate(int lineIndex) {
+    return annotation.getLineDate(lineIndex);
   }
 
   @Nullable
   @Override
-  public String getAuthor(int lineNumber) {
+  public String getAuthor(int lineIndex) {
     for (LineAnnotationAspect aspect : annotation.getAspects()) {
       if (LineAnnotationAspect.AUTHOR.equals(aspect.getId())) {
-        return aspect.getValue(lineNumber);
+        return aspect.getValue(lineIndex);
       }
     }
     return null;
@@ -38,16 +38,15 @@ class FileAnnotationRevisionDataProvider implements RevisionDataProvider {
 
   @Nullable
   @Override
-  public String getSubject(int lineNumber) {
-    String message = getMessage(lineNumber);
+  public String getSubject(int lineIndex) {
+    String message = getMessage(lineIndex);
     return GtStringUtil.firstLine(message);
   }
 
   @Nullable
-  @Override
-  public String getMessage(int lineNumber) {
+  private String getMessage(int lineIndex) {
     GitFileAnnotation gitAnnotation = (GitFileAnnotation) annotation;
-    VcsRevisionNumber revisionNumber = annotation.getLineRevisionNumber(lineNumber);
+    VcsRevisionNumber revisionNumber = annotation.getLineRevisionNumber(lineIndex);
     if (revisionNumber != null) {
       return gitAnnotation.getCommitMessage(revisionNumber);
     }
@@ -56,8 +55,8 @@ class FileAnnotationRevisionDataProvider implements RevisionDataProvider {
 
   @Nullable
   @Override
-  public VcsRevisionNumber getRevisionNumber(int lineNumber) {
-    return annotation.getLineRevisionNumber(lineNumber);
+  public VcsRevisionNumber getRevisionNumber(int lineIndex) {
+    return annotation.getLineRevisionNumber(lineIndex);
   }
 
   @Nullable
