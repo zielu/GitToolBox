@@ -1,13 +1,13 @@
 package zielu.gittoolbox;
 
 import com.google.common.base.Preconditions;
-import com.intellij.openapi.components.ServiceManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.extension.UpdateProjectAction;
 import zielu.gittoolbox.extension.UpdateProjectActionEP;
+import zielu.gittoolbox.util.AppUtil;
 
 public class GitToolBoxUpdateProjectApp {
   private final List<UpdateProjectAction> updateActions = new ArrayList<>();
@@ -27,7 +27,7 @@ public class GitToolBoxUpdateProjectApp {
 
   @NotNull
   public static GitToolBoxUpdateProjectApp getInstance() {
-    return ServiceManager.getService(GitToolBoxUpdateProjectApp.class);
+    return AppUtil.getServiceInstance(GitToolBoxUpdateProjectApp.class);
   }
 
   public List<UpdateProjectAction> getAll() {

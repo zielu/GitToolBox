@@ -19,4 +19,9 @@ public final class AppUtil {
   public static <T> T getServiceInstance(@NotNull Project project, Class<T> serviceType) {
     return ServiceManager.getService(project, serviceType);
   }
+
+  @NotNull
+  public static <T> T getServiceInstance(Class<T> serviceType) {
+    return ServiceManager.getService(serviceType);
+  }
 }

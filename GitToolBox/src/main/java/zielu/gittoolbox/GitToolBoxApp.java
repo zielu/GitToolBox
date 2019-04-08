@@ -1,10 +1,10 @@
 package zielu.gittoolbox;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import zielu.gittoolbox.util.AppUtil;
 
 public class GitToolBoxApp {
   private final Logger log = Logger.getInstance(getClass());
@@ -23,7 +23,7 @@ public class GitToolBoxApp {
   }
 
   public static GitToolBoxApp getInstance() {
-    return ServiceManager.getService(GitToolBoxApp.class);
+    return AppUtil.getServiceInstance(GitToolBoxApp.class);
   }
 
   public ScheduledExecutorService autoFetchExecutor() {
