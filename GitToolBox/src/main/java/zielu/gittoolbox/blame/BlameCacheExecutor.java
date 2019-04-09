@@ -5,35 +5,36 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.FeatureToggles;
 import zielu.gittoolbox.ProjectGateway;
 import zielu.gittoolbox.util.ExecutableTask;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+
 class BlameCacheExecutor implements Disposable {
-  private static final boolean WITH_PROGRESS = true;
   private final Project project;
   private final ExecutorService executor;
+  private final Consumer<ExecutableTask> execution;
 
   BlameCacheExecutor(@NotNull Project project, @NotNull ProjectGateway gateway) {
     this.project = project;
-    if (WITH_PROGRESS) {
+    if (FeatureToggles.showBlameProgress()) {
       executor = null;
+      execution = this::executeWithProgress;
     } else {
       executor = Executors.newCachedThreadPool(
           new ThreadFactoryBuilder().setNameFormat("Blame-" + project.getName() + "-%d").setDaemon(true).build()
       );
+      execution = this::executeInThreadPool;
     }
     gateway.disposeWithProject(this);
   }
 
   void execute(ExecutableTask executable) {
-    if (WITH_PROGRESS) {
-      executeWithProgress(executable);
-    } else {
-      executeInThreadPool(executable);
-    }
+    execution.accept(executable);
   }
 
   private void executeWithProgress(ExecutableTask executable) {

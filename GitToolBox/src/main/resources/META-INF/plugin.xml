@@ -102,6 +102,8 @@
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchGateway"/>
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSchedule"/>
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchOnBranchSwitch"/>
+
+    <webHelpProvider implementation="zielu.gittoolbox.help.GithubWikiHelpProvider"/>
   </extensions>
 
   <application-components>

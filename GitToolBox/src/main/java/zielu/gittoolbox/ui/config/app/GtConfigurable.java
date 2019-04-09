@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.help.HelpKeys;
 import zielu.intellij.ui.GtConfigurableBase;
 
 public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2>
@@ -23,7 +24,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
   @Nullable
   @Override
   public String getHelpTopic() {
-    return null;
+    return HelpKeys.APP_CONFIG;
   }
 
   @Override

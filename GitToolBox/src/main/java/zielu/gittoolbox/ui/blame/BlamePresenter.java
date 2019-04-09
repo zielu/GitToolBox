@@ -1,13 +1,13 @@
 package zielu.gittoolbox.ui.blame;
 
-import com.intellij.openapi.components.ServiceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.util.AppUtil;
 
 public interface BlamePresenter {
   static BlamePresenter getInstance() {
-    return ServiceManager.getService(BlamePresenter.class);
+    return AppUtil.getServiceInstance(BlamePresenter.class);
   }
 
   @NotNull

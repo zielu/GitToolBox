@@ -9,13 +9,13 @@ import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.FeatureToggles;
 import zielu.gittoolbox.blame.calculator.BlameCalculator;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.revision.RevisionDataProvider;
 import zielu.gittoolbox.revision.RevisionService;
 
 class BlameLoaderImpl implements BlameLoader {
-  private static final boolean USE_INCREMENTAL = true;
   private final Project project;
   private final RevisionService revisionService;
   private final GitVcs git;
@@ -31,7 +31,7 @@ class BlameLoaderImpl implements BlameLoader {
   public BlameAnnotation annotate(@NotNull VirtualFile file) throws VcsException {
     try {
       BlameUtil.annotationLock(project, file);
-      if (USE_INCREMENTAL) {
+      if (FeatureToggles.useIncrementalBlame()) {
         return incrementalAnnotation(file);
       } else {
         return fileAnnotation(file);

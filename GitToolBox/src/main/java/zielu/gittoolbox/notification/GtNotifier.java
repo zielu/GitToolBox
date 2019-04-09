@@ -3,11 +3,11 @@ package zielu.gittoolbox.notification;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.util.AppUtil;
 
 public interface GtNotifier {
   NotificationGroup BEHIND_TRACKER_GROUP_ID = NotificationGroup.toolWindowGroup(
@@ -17,7 +17,7 @@ public interface GtNotifier {
 
   @NotNull
   static GtNotifier getInstance(@NotNull Project project) {
-    return ServiceManager.getService(project, GtNotifier.class);
+    return AppUtil.getServiceInstance(project, GtNotifier.class);
   }
 
   @NotNull

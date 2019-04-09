@@ -3,6 +3,7 @@ package zielu.gittoolbox.fetch;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.util.AppUtil;
 
 public interface AutoFetchComponent {
 
@@ -15,6 +16,6 @@ public interface AutoFetchComponent {
 
   @NotNull
   static AutoFetchComponent getInstance(@NotNull Project project) {
-    return project.getComponent(AutoFetchComponent.class);
+    return AppUtil.getComponent(project, AutoFetchComponent.class);
   }
 }

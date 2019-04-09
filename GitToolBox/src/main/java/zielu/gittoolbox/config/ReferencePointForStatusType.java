@@ -3,9 +3,9 @@ package zielu.gittoolbox.config;
 import zielu.gittoolbox.ResBundle;
 
 public enum ReferencePointForStatusType {
+  AUTOMATIC("auto"),
   TRACKED_REMOTE_BRANCH("trackedRemoteBranch"),
-  SELECTED_PARENT_BRANCH("selectedParentBranch"),
-  AUTOMATIC("automatic")
+  SELECTED_PARENT_BRANCH("selectedParentBranch")
   ;
 
   private final String labelKey;

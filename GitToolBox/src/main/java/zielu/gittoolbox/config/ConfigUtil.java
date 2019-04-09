@@ -6,7 +6,7 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.Consumer;
 
-public class ConfigUtil {
+public final class ConfigUtil {
   private static final Logger LOG = Logger.getInstance(ConfigUtil.class);
 
   private ConfigUtil() {

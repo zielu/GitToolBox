@@ -1,16 +1,16 @@
 package zielu.gittoolbox.ui.blame;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.LineExtensionInfo;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import java.util.Collection;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.util.AppUtil;
+
+import java.util.Collection;
+import java.util.Optional;
 
 interface BlameEditorService {
   @Nullable
@@ -24,7 +24,7 @@ interface BlameEditorService {
 
   @NotNull
   static BlameEditorService getInstance(@NotNull Project project) {
-    return ServiceManager.getService(project, BlameEditorService.class);
+    return AppUtil.getServiceInstance(project, BlameEditorService.class);
   }
 
   @NotNull
