@@ -44,7 +44,9 @@ class PerRepoInfoCacheImplIntegTest {
 
   @BeforeAll
   static void beforeAll() throws Exception {
-    myTestDataPath = Paths.get(".", "testDataDynamic", "it", PerRepoInfoCacheImplIntegTest.class.getSimpleName());
+    myTestDataPath = Paths.get(".", "testDataDynamic", "it", PerRepoInfoCacheImplIntegTest.class.getSimpleName())
+        .normalize()
+        .toAbsolutePath();
     FileUtil.delete(myTestDataPath.toFile());
     initGit(myTestDataPath);
   }

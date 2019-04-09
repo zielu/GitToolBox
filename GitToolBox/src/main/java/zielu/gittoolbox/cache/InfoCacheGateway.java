@@ -63,7 +63,7 @@ class InfoCacheGateway {
     ReferencePointForStatusType type = config.referencePointForStatus.type;
     if (type == ReferencePointForStatusType.TRACKED_REMOTE_BRANCH) {
       parentBranch = trackedBranch;
-    } else if (type == ReferencePointForStatusType.SELECTED_PARENT_BRANCH)  {
+    } else if (type == ReferencePointForStatusType.SELECTED_PARENT_BRANCH) {
       GitBranchTrackInfo trackInfo = repository.getBranchTrackInfo(config.referencePointForStatus.name);
       if (trackInfo != null) {
         parentBranch = trackInfo.getRemoteBranch();
@@ -78,6 +78,9 @@ class InfoCacheGateway {
 
   private Optional<GitRemoteBranch> getRemoteBranchFromActiveTask(@NotNull GitRepository repository) {
     TaskManager manager = TaskManager.getManager(project);
+    if (manager == null) {
+      return Optional.empty();
+    }
     LocalTask activeTask = manager.getActiveTask();
     return activeTask.getBranches(true).stream()
         .filter(branchInfo -> Objects.equals(repository.getPresentableUrl(), branchInfo.repository))
