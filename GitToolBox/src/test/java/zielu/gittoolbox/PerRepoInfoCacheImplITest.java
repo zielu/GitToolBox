@@ -1,4 +1,4 @@
-package zielu.gittoolbox.cache;
+package zielu.gittoolbox;
 
 import static com.intellij.testFramework.UsefulTestCase.refreshRecursively;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,8 +32,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import zielu.gittoolbox.TestType;
 import zielu.gittoolbox.blame.BlameService;
+import zielu.gittoolbox.cache.PerRepoInfoCache;
+import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
+import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.status.Status;
 import zielu.junit5.intellij.GitTestExtension;
