@@ -152,11 +152,13 @@ dependencies {
     testImplementation ("org.mockito:mockito-core:${mockitoVersion}")
     testImplementation ("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
     testImplementation ("org.assertj:assertj-core:${assertjCoreVersion}")
+    testImplementation ("org.slf4j:slf4j-api:${slf4jVersion}")
 
     testImplementation ("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
     testImplementation ("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
 
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    //testRuntimeOnly ("org.slf4j:slf4j-simple:${slf4jVersion}")
     testCompileOnly ('org.apiguardian:apiguardian-api:1.0.0')
 }
 

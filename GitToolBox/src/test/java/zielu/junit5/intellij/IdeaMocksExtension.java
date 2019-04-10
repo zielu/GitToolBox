@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Suppliers;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.Topic;
@@ -17,8 +18,7 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 
 public class IdeaMocksExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
   private static final ExtensionContext.Namespace NS = ExtensionContext.Namespace.create(IdeaMocksExtension.class);
-  private static final ParameterResolver RESOLVER = new ExtensionContextParamResolver(NS,
-      Project.class, MessageBus.class, IdeaMocks.class);
+  private static final ParameterResolver RESOLVER = new ExtensionContextParamResolver(NS);
 
   @Override
   public void beforeEach(ExtensionContext context) {
@@ -35,19 +35,16 @@ public class IdeaMocksExtension implements BeforeEachCallback, AfterEachCallback
         return ideaMocks.mockListener(listenerClass);
       }
     });
-
     Store store = context.getStore(NS);
-    store.put(Project.class, project);
-    store.put(MessageBus.class, messageBus);
-    store.put(IdeaMocks.class, ideaMocks);
+    ParameterHolder holder = ParameterHolder.getHolder(store);
+    holder.register(Project.class, Suppliers.ofInstance(project));
+    holder.register(MessageBus.class, Suppliers.ofInstance(messageBus));
+    holder.register(IdeaMocks.class, Suppliers.ofInstance(ideaMocks));
   }
 
   @Override
   public void afterEach(ExtensionContext context) {
-    Store store = context.getStore(NS);
-    store.remove(Project.class);
-    store.remove(MessageBus.class);
-    store.remove(IdeaMocks.class);
+    ParameterHolder.removeHolder(context.getStore(NS));
   }
 
   @Override

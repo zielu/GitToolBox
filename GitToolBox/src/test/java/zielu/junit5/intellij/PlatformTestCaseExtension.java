@@ -1,11 +1,15 @@
 package zielu.junit5.intellij;
 
+import com.intellij.idea.IdeaLogger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.EmptyRunnable;
 import com.intellij.testFramework.EdtTestUtil;
 import com.intellij.testFramework.PlatformTestCase;
 import com.intellij.testFramework.TestRunnerUtil;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import javax.swing.SwingUtilities;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -20,8 +24,7 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 public class PlatformTestCaseExtension implements BeforeAllCallback, AfterAllCallback,
     BeforeEachCallback, AfterEachCallback, ParameterResolver {
   private static final Namespace NS = Namespace.create(PlatformTestCaseExtension.class);
-  private static final ParameterResolver RESOLVER = new ExtensionContextParamResolver(NS,
-      Project.class, Module.class);
+  private static final ParameterResolver RESOLVER = new ExtensionContextParamResolver(NS);
 
   @Override
   public void beforeAll(ExtensionContext context) throws Exception {
@@ -65,10 +68,14 @@ public class PlatformTestCaseExtension implements BeforeAllCallback, AfterAllCal
 
   private static class PlatformTestCaseJUnit5 extends PlatformTestCase {
     private void setName(ExtensionContext context) {
-      String name = context.getTestMethod().map(Method::getName).orElse("testNameNA");
-      setName(name);
+      setName(getTestName(context));
     }
 
+    private String getTestName(ExtensionContext context) {
+      return context.getTestMethod().map(Method::getName).orElse("testNameNA");
+    }
+
+    //based on com.intellij.testFramework.PlatformTestCase.runBare
     private void runSetup(ExtensionContext context) throws Exception {
       if (runInDispatchThread()) {
         TestRunnerUtil.replaceIdeEventQueueSafely();
@@ -76,24 +83,60 @@ public class PlatformTestCaseExtension implements BeforeAllCallback, AfterAllCal
       } else {
         setUp();
       }
-      Store store = getStore(context);
-      store.put(Project.class, getProject());
-      store.put(Module.class, getModule());
+      ParameterHolder holder = ParameterHolder.getHolder(getStore(context));
+      holder.register(Project.class, this::getProject);
+      holder.register(Module.class, this::getModule);
+      holder.register(PlatformTest.class, () -> getPlatformTest(context));
     }
 
     private Store getStore(ExtensionContext context) {
       return context.getStore(NS);
     }
 
+    //based on com.intellij.testFramework.PlatformTestCase.runBare
     private void runTearDown(ExtensionContext context) throws Exception {
       if (runInDispatchThread()) {
         EdtTestUtil.runInEdtAndWait(this::tearDown);
       } else {
         tearDown();
       }
-      Store store = getStore(context);
-      store.remove(Project.class);
-      store.remove(Module.class);
+
+      ParameterHolder.removeHolder(getStore(context));
+
+      if (IdeaLogger.ourErrorsOccurred != null) {
+        throw IdeaLogger.ourErrorsOccurred;
+      }
+
+      // just to make sure all deferred Runnable's to finish
+      waitForAllLaters();
+      if (IdeaLogger.ourErrorsOccurred != null) {
+        throw IdeaLogger.ourErrorsOccurred;
+      }
+
+      try {
+        EdtTestUtil.runInEdtAndWait(() -> {
+          cleanupApplicationCaches(getProject());
+          resetAllFields();
+        });
+      } catch (Throwable ignored) {
+        //ignored
+      }
+    }
+
+    private static void waitForAllLaters() throws InterruptedException, InvocationTargetException {
+      for (int i = 0; i < 3; i++) {
+        SwingUtilities.invokeAndWait(EmptyRunnable.getInstance());
+      }
+    }
+
+    private PlatformTest getPlatformTest(ExtensionContext extensionContext) {
+      return test -> {
+        try {
+          invokeTestRunnable(test);
+        } catch (Exception e) {
+          throw new RuntimeException("Failed to run test " + getTestName(extensionContext), e);
+        }
+      };
     }
   }
 }

@@ -26,47 +26,57 @@ import java.util.Collections;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import zielu.gittoolbox.TestType;
+import zielu.gittoolbox.blame.BlameService;
+import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.status.Status;
+import zielu.junit5.intellij.GitTestExtension;
+import zielu.junit5.intellij.GitTestExtension.GitTest;
+import zielu.junit5.intellij.GitTestExtension.GitTestSetup;
 import zielu.junit5.intellij.PlatformTestCaseExtension;
 
 @Tag(TestType.INTEGRATION)
 @ExtendWith(PlatformTestCaseExtension.class)
-class PerRepoInfoCacheImplIntegTest {
+@ExtendWith(GitTestExtension.class)
+class PerRepoInfoCacheImplITest {
+  private static final String FILE_NAME = "file.txt";
   private static final String TAG = "1.0.0";
   private static Path myTestDataPath;
 
   @BeforeAll
-  static void beforeAll() throws Exception {
-    myTestDataPath = Paths.get(".", "testDataDynamic", "it", PerRepoInfoCacheImplIntegTest.class.getSimpleName())
+  static void beforeAll(GitTest gitTest) throws Exception {
+    myTestDataPath = Paths.get(".", "testDataDynamic", "it", PerRepoInfoCacheImplITest.class.getSimpleName())
         .normalize()
         .toAbsolutePath();
-    FileUtil.delete(myTestDataPath.toFile());
-    initGit(myTestDataPath);
+    initGit(gitTest, myTestDataPath);
   }
 
-  private static void initGit(Path testDataDir) throws Exception {
-    Git git = Git.init().setDirectory(testDataDir.toFile()).setBare(false).call();
-    StoredConfig config = git.getRepository().getConfig();
-    config.load();
-    config.setString("user", null, "name", "Jon Snow");
-    config.setString("user", null, "email", "JonSnow@email.com");
-    config.save();
-    Files.write(testDataDir.resolve("file.txt"), Collections.singleton("abc"), Charsets.UTF_8);
-    git.add().addFilepattern("file.txt").call();
-    git.commit().setMessage("Initial commit").call();
-    git.tag().setName(TAG).call();
-    git.close();
+  private static void initGit(GitTest gitTest, Path rootPath) throws Exception {
+    gitTest.prepare(new GitTestSetup() {
+      @Override
+      public Path getRootPath() {
+        return rootPath;
+      }
+
+      @Override
+      public void setup(Git git) throws Exception {
+        Files.write(rootPath.resolve(FILE_NAME), Collections.singleton("abc"), Charsets.UTF_8);
+        git.add().addFilepattern(FILE_NAME).call();
+        git.commit().setMessage("Initial commit").call();
+        git.tag().setName(TAG).call();
+      }
+    });
   }
 
-  private VirtualFile populateTestData(Project project, Module module) throws Exception {
-    VirtualFile root = module.getModuleFile().getParent();
+  @BeforeEach
+  void populateTestData(Project project, Module module) throws Exception {
+    VirtualFile root = getRoot(module);
     FileUtil.copyDir(myTestDataPath.toFile(), VfsUtil.virtualToIoFile(root));
     refreshRecursively(root);
     WriteCommandAction.runWriteCommandAction(project, () -> {
@@ -77,12 +87,15 @@ class PerRepoInfoCacheImplIntegTest {
       assertThat(repository).isNotNull();
       PsiTestUtil.addContentRoot(module, root);
     });
-    return root;
+  }
+
+  private VirtualFile getRoot(Module module) {
+    return module.getModuleFile().getParent();
   }
 
   @Test
-  void repositoryMappingAdded(Project project, Module module) throws Exception {
-    VirtualFile root = populateTestData(project, module);
+  void perRepoInfoCacheLoadsDataIfCalled(Project project, Module module) throws Exception {
+    VirtualFile root = getRoot(module);
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
     MessageBusConnection connect = project.getMessageBus().connect();
     Exchanger<RepoInfo> exchange = new Exchanger<>();
@@ -103,6 +116,16 @@ class PerRepoInfoCacheImplIntegTest {
       softly.assertThat(info.count()).isNotEmpty();
       softly.assertThat(info.count().get().status()).isEqualTo(Status.NO_REMOTE);
       softly.assertThat(info.tags()).containsOnly(TAG);
+    });
+  }
+
+  @Test
+  void fileBlameReturnsDataIfCalled(Project project, Module module) {
+    VirtualFile file = getRoot(module).findChild(FILE_NAME);
+    RevisionInfo fileBlame = BlameService.getInstance(project).getFileBlame(file);
+
+    assertSoftly(softly -> {
+      softly.assertThat(fileBlame.isNotEmpty()).isTrue();
     });
   }
 }
