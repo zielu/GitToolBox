@@ -1,5 +1,6 @@
 package zielu.gittoolbox;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.util.GatewayBase;
@@ -10,5 +11,9 @@ import zielu.gittoolbox.util.GatewayBase;
 public class ProjectGateway extends GatewayBase {
   ProjectGateway(@NotNull Project project) {
     super(project);
+  }
+
+  public boolean isUnitTestMode() {
+    return ApplicationManager.getApplication().isUnitTestMode();
   }
 }

@@ -1,15 +1,21 @@
 package zielu.junit5.intellij;
 
 import com.intellij.idea.IdeaLogger;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.EmptyRunnable;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.EdtTestUtil;
+import com.intellij.testFramework.EdtTestUtilKt;
 import com.intellij.testFramework.PlatformTestCase;
 import com.intellij.testFramework.TestRunnerUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.swing.SwingUtilities;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -130,11 +136,24 @@ public class PlatformTestCaseExtension implements BeforeAllCallback, AfterAllCal
     }
 
     private PlatformTest getPlatformTest(ExtensionContext extensionContext) {
-      return test -> {
-        try {
-          invokeTestRunnable(test);
-        } catch (Exception e) {
-          throw new RuntimeException("Failed to run test " + getTestName(extensionContext), e);
+      return new PlatformTest() {
+        @Override
+        public void execute(Runnable test) {
+          try {
+            invokeTestRunnable(test);
+          } catch (Exception e) {
+            throw new RuntimeException("Failed to run test " + getTestName(extensionContext), e);
+          }
+        }
+
+        @Override
+        public <T> T executeInEdt(Computable<T> test) {
+          return EdtTestUtilKt.runInEdtAndGet(test::compute);
+        }
+
+        @Override
+        public Document getDocument(@NotNull VirtualFile file) {
+          return FileDocumentManager.getInstance().getDocument(file);
         }
       };
     }

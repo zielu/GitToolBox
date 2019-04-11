@@ -7,6 +7,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import com.google.common.base.Charsets;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
@@ -29,6 +30,7 @@ import org.eclipse.jgit.api.Git;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,19 +43,20 @@ import zielu.gittoolbox.status.Status;
 import zielu.junit5.intellij.GitTestExtension;
 import zielu.junit5.intellij.GitTestExtension.GitTest;
 import zielu.junit5.intellij.GitTestExtension.GitTestSetup;
+import zielu.junit5.intellij.PlatformTest;
 import zielu.junit5.intellij.PlatformTestCaseExtension;
 
 @Tag(TestType.INTEGRATION)
 @ExtendWith(PlatformTestCaseExtension.class)
 @ExtendWith(GitTestExtension.class)
-class PerRepoInfoCacheImplITest {
+class IntegrationTest {
   private static final String FILE_NAME = "file.txt";
   private static final String TAG = "1.0.0";
   private static Path myTestDataPath;
 
   @BeforeAll
   static void beforeAll(GitTest gitTest) throws Exception {
-    myTestDataPath = Paths.get(".", "testDataDynamic", "it", PerRepoInfoCacheImplITest.class.getSimpleName())
+    myTestDataPath = Paths.get(".", "testDataDynamic", "it", IntegrationTest.class.getSimpleName())
         .normalize()
         .toAbsolutePath();
     initGit(gitTest, myTestDataPath);
@@ -128,6 +131,19 @@ class PerRepoInfoCacheImplITest {
 
     assertSoftly(softly -> {
       softly.assertThat(fileBlame.isNotEmpty()).isTrue();
+    });
+  }
+
+  @Test
+  @Disabled("Locks up because BlameCacheImpl has compute and update that touch the same key")
+  void lineBlameReturnsDataIfCalled(Project project, Module module, PlatformTest test) {
+    VirtualFile file = getRoot(module).findChild(FILE_NAME);
+    Document document = test.executeInEdt(() -> test.getDocument(file));
+
+    RevisionInfo lineBlame =  BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
+
+    assertSoftly(softly -> {
+      softly.assertThat(lineBlame.isNotEmpty()).isTrue();
     });
   }
 }
