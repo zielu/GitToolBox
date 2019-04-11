@@ -1,1 +1,21 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 122.88 122.88" height="122.88" width="122.88" id="svg3853" version="1.1" style="zoom: 1;"><metadata id="metadata3859"><rdf:RDF><cc:Work rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs id="defs3857"></defs><image x="0" style="image-rendering:optimizeQuality" height="128px" id="image3861" y="0" width="128px" xlink:href="file:///Users/lukasz/Documents/Icons/others/Git-Icon.png" xlink:role="file:///Users/lukasz/Documents/Icons/others/Git-Icon.png" preserveAspectRatio="none" visibility="visible"></image><g id="layer1"><g transform="matrix(1.5320864,0,0,1.5943639,74.313896,74.042258)" id="Layer_1"><path d="M 19,7 H 11 L 11.621,4.515 C 11.844,3.625 12.644,3 13.562,3 h 2.877 c 0.918,0 1.718,0.625 1.94,1.515 z" id="path3933"></path><path d="M 27,5 H 3 C 1.895,5 1,5.895 1,7 v 5 H 6.277 C 6.624,11.405 7.262,11 8,11 c 0.738,0 1.376,0.405 1.723,1 h 10.555 c 0.346,-0.595 0.984,-1 1.723,-1 0.739,0 1.376,0.405 1.723,1 H 29 V 7 C 29,5.895 28.105,5 27,5 Z" id="path3935"></path><path d="M 23.723,14 C 23.377,14.595 22.739,15 22,15 21.261,15 20.624,14.595 20.277,14 H 9.723 C 9.376,14.595 8.738,15 8,15 7.262,15 6.624,14.595 6.277,14 H 2 v 9 c 0,1.105 0.895,2 2,2 h 22 c 1.105,0 2,-0.895 2,-2 v -9 z" id="path3937"></path></g></g></svg>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="97px" height="97px" viewBox="0 0 97 97" enable-background="new 0 0 97 97" xml:space="preserve">
+<g id="Layer_1">
+	<path fill="#F05133" d="M92.71,44.408L52.591,4.291c-2.31-2.311-6.057-2.311-8.369,0l-8.33,8.332L46.459,23.19
+		c2.456-0.83,5.272-0.273,7.229,1.685c1.969,1.97,2.521,4.81,1.67,7.275l10.186,10.185c2.465-0.85,5.307-0.3,7.275,1.671
+		c2.75,2.75,2.75,7.206,0,9.958c-2.752,2.751-7.208,2.751-9.961,0c-2.068-2.07-2.58-5.11-1.531-7.658l-9.5-9.499v24.997
+		c0.67,0.332,1.303,0.774,1.861,1.332c2.75,2.75,2.75,7.206,0,9.959c-2.75,2.749-7.209,2.749-9.957,0c-2.75-2.754-2.75-7.21,0-9.959
+		c0.68-0.679,1.467-1.193,2.307-1.537V36.369c-0.84-0.344-1.625-0.853-2.307-1.537c-2.083-2.082-2.584-5.14-1.516-7.698
+		L31.798,16.715L4.288,44.222c-2.311,2.313-2.311,6.06,0,8.371l40.121,40.118c2.31,2.311,6.056,2.311,8.369,0L92.71,52.779
+		C95.021,50.468,95.021,46.719,92.71,44.408z"/>
+</g>
+<g id="Layer_2" transform="matrix(1.0,0,0,1.0,60,60)">
+	<path d="M19,7h-8l0.621-2.485C11.844,3.625,12.644,3,13.562,3h2.877c0.918,0,1.718,0.625,1.94,1.515L19,7z"/>
+		<path d="M27,5H3C1.895,5,1,5.895,1,7v5h5.277C6.624,11.405,7.262,11,8,11s1.376,0.405,1.723,1h10.555c0.346-0.595,0.984-1,1.723-1   s1.376,0.405,1.723,1H29V7C29,5.895,28.105,5,27,5z"/>
+		<path d="M23.723,14c-0.346,0.595-0.984,1-1.723,1s-1.376-0.405-1.723-1H9.723C9.376,14.595,8.738,15,8,15s-1.376-0.405-1.723-1H2v9   c0,1.105,0.895,2,2,2h22c1.105,0,2-0.895,2-2v-9H23.723z"/>
+</g>
+</svg>
+
