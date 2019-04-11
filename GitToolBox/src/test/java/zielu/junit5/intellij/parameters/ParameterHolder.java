@@ -1,4 +1,4 @@
-package zielu.junit5.intellij;
+package zielu.junit5.intellij.parameters;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -12,18 +12,18 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 
-class ParameterHolder {
+public class ParameterHolder {
   private final Map<TypeInfo<?>, Supplier<?>> storage = new HashMap<>();
 
-  static ParameterHolder getHolder(ExtensionContext.Store store) {
+  public static ParameterHolder getHolder(ExtensionContext.Store store) {
     return store.getOrComputeIfAbsent(ParameterHolder.class, type -> new ParameterHolder(), ParameterHolder.class);
   }
 
-  static void removeHolder(ExtensionContext.Store store) {
+  public static void removeHolder(ExtensionContext.Store store) {
     store.remove(ParameterHolder.class);
   }
 
-  <T> void register(Class<T> type, Supplier<T> supplier) {
+  public <T> void register(Class<T> type, Supplier<T> supplier) {
     boolean newValue = storage.put(new TypeInfo<>(type), Suppliers.memoize(supplier::get)) == null;
     checkState(newValue, "Value for " + type.getName() + " is already registered");
   }

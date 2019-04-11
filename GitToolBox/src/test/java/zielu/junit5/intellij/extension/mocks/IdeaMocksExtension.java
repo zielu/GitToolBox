@@ -1,4 +1,4 @@
-package zielu.junit5.intellij;
+package zielu.junit5.intellij.extension.mocks;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
+import zielu.junit5.intellij.parameters.ExtensionContextParamResolver;
+import zielu.junit5.intellij.parameters.ParameterHolder;
 
 public class IdeaMocksExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
   private static final ExtensionContext.Namespace NS = ExtensionContext.Namespace.create(IdeaMocksExtension.class);

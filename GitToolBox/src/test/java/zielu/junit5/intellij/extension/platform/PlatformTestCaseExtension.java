@@ -1,4 +1,4 @@
-package zielu.junit5.intellij;
+package zielu.junit5.intellij.extension.platform;
 
 import com.intellij.idea.IdeaLogger;
 import com.intellij.openapi.editor.Document;
@@ -16,9 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
@@ -26,38 +24,29 @@ import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
+import zielu.junit5.intellij.parameters.ExtensionContextParamResolver;
+import zielu.junit5.intellij.parameters.ParameterHolder;
 
-public class PlatformTestCaseExtension implements BeforeAllCallback, AfterAllCallback,
-    BeforeEachCallback, AfterEachCallback, ParameterResolver {
+public class PlatformTestCaseExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
   private static final Namespace NS = Namespace.create(PlatformTestCaseExtension.class);
   private static final ParameterResolver RESOLVER = new ExtensionContextParamResolver(NS);
 
   @Override
-  public void beforeAll(ExtensionContext context) throws Exception {
+  public void beforeEach(ExtensionContext context) throws Exception {
     PlatformTestCaseJUnit5 testCase = new PlatformTestCaseJUnit5();
     context.getStore(NS).put(PlatformTestCaseJUnit5.class, testCase);
-  }
-
-  @Override
-  public void afterAll(ExtensionContext context) {
-    context.getStore(NS).remove(PlatformTestCaseJUnit5.class);
-  }
-
-  private PlatformTestCaseJUnit5 getTestCase(ExtensionContext context) {
-    return context.getStore(NS).get(PlatformTestCaseJUnit5.class, PlatformTestCaseJUnit5.class);
-  }
-
-  @Override
-  public void beforeEach(ExtensionContext context) throws Exception {
-    PlatformTestCaseJUnit5 testCase = getTestCase(context);
-    testCase.setName(context);
-    testCase.runSetup(context);
+    testCase.initialize(context);
   }
 
   @Override
   public void afterEach(ExtensionContext context) throws Exception {
     PlatformTestCaseJUnit5 testCase = getTestCase(context);
-    testCase.runTearDown(context);
+    testCase.destroy(context);
+    context.getStore(NS).remove(PlatformTestCaseJUnit5.class);
+  }
+
+  private PlatformTestCaseJUnit5 getTestCase(ExtensionContext context) {
+    return context.getStore(NS).get(PlatformTestCaseJUnit5.class, PlatformTestCaseJUnit5.class);
   }
 
   @Override
@@ -73,16 +62,10 @@ public class PlatformTestCaseExtension implements BeforeAllCallback, AfterAllCal
   }
 
   private static class PlatformTestCaseJUnit5 extends PlatformTestCase {
-    private void setName(ExtensionContext context) {
-      setName(getTestName(context));
-    }
-
-    private String getTestName(ExtensionContext context) {
-      return context.getTestMethod().map(Method::getName).orElse("testNameNA");
-    }
 
     //based on com.intellij.testFramework.PlatformTestCase.runBare
-    private void runSetup(ExtensionContext context) throws Exception {
+    private void initialize(ExtensionContext context) throws Exception {
+      setName(getTestName(context));
       if (runInDispatchThread()) {
         TestRunnerUtil.replaceIdeEventQueueSafely();
         EdtTestUtil.runInEdtAndWait(this::setUp);
@@ -95,12 +78,16 @@ public class PlatformTestCaseExtension implements BeforeAllCallback, AfterAllCal
       holder.register(PlatformTest.class, () -> getPlatformTest(context));
     }
 
+    private String getTestName(ExtensionContext context) {
+      return context.getTestMethod().map(Method::getName).orElse("testNameNA");
+    }
+
     private Store getStore(ExtensionContext context) {
       return context.getStore(NS);
     }
 
     //based on com.intellij.testFramework.PlatformTestCase.runBare
-    private void runTearDown(ExtensionContext context) throws Exception {
+    private void destroy(ExtensionContext context) throws Exception {
       if (runInDispatchThread()) {
         EdtTestUtil.runInEdtAndWait(this::tearDown);
       } else {

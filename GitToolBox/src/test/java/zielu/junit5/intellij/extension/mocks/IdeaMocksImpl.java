@@ -1,4 +1,4 @@
-package zielu.junit5.intellij;
+package zielu.junit5.intellij.extension.mocks;
 
 import static org.mockito.Mockito.mock;
 

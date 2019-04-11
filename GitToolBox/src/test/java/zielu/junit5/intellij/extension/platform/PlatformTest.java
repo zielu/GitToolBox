@@ -1,4 +1,4 @@
-package zielu.junit5.intellij;
+package zielu.junit5.intellij.extension.platform;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.Computable;

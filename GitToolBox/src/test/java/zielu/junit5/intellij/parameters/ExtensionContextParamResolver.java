@@ -1,4 +1,4 @@
-package zielu.junit5.intellij;
+package zielu.junit5.intellij.parameters;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
@@ -6,11 +6,11 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
-class ExtensionContextParamResolver implements ParameterResolver {
+public class ExtensionContextParamResolver implements ParameterResolver {
   private final Namespace namespace;
   private final ParameterResolver parent;
 
-  ExtensionContextParamResolver(Namespace namespace) {
+  public ExtensionContextParamResolver(Namespace namespace) {
     this(namespace, new EmptyResolver());
   }
 

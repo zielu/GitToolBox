@@ -1,8 +1,8 @@
-package zielu.junit5.intellij;
+package zielu.junit5.intellij.extension.git;
 
-import com.intellij.openapi.util.io.FileUtil;
 import java.io.File;
 import java.nio.file.Path;
+import jodd.io.FileUtil;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -12,22 +12,10 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import zielu.junit5.intellij.parameters.ExtensionContextParamResolver;
+import zielu.junit5.intellij.parameters.ParameterHolder;
 
 public class GitTestExtension implements BeforeAllCallback, ParameterResolver {
-  private final Logger log = LoggerFactory.getLogger(getClass());
-
-  public interface GitTestSetup {
-
-    Path getRootPath();
-
-    void setup(Git git) throws Exception;
-  }
-
-  public interface GitTest {
-
-    void prepare(GitTestSetup setup);
-  }
-
   private static final ExtensionContext.Namespace NS = ExtensionContext.Namespace.create(GitTestExtension.class);
   private static final ParameterResolver RESOLVER = new ExtensionContextParamResolver(NS);
 
@@ -64,7 +52,9 @@ public class GitTestExtension implements BeforeAllCallback, ParameterResolver {
     private void prepareImpl(GitTestSetup setup) throws Exception {
       Path rootPath = setup.getRootPath();
       File rootDir = rootPath.toFile();
-      FileUtil.delete(rootDir);
+      if (FileUtil.isExistingFolder(rootDir)) {
+        FileUtil.deleteDir(rootDir);
+      }
       log.info("Initializing git repository in {}", rootPath);
       Git git = Git.init().setDirectory(rootDir).setBare(false).call();
       StoredConfig config = git.getRepository().getConfig();

@@ -12,6 +12,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
+import com.intellij.openapi.vcs.VcsDirectoryMapping;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -40,11 +41,11 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.status.Status;
-import zielu.junit5.intellij.GitTestExtension;
-import zielu.junit5.intellij.GitTestExtension.GitTest;
-import zielu.junit5.intellij.GitTestExtension.GitTestSetup;
-import zielu.junit5.intellij.PlatformTest;
-import zielu.junit5.intellij.PlatformTestCaseExtension;
+import zielu.junit5.intellij.extension.git.GitTestExtension;
+import zielu.junit5.intellij.extension.git.GitTest;
+import zielu.junit5.intellij.extension.git.GitTestSetup;
+import zielu.junit5.intellij.extension.platform.PlatformTest;
+import zielu.junit5.intellij.extension.platform.PlatformTestCaseExtension;
 
 @Tag(TestType.INTEGRATION)
 @ExtendWith(PlatformTestCaseExtension.class)
@@ -83,11 +84,12 @@ class IntegrationTest {
   void populateTestData(Project project, Module module) throws Exception {
     VirtualFile root = getRoot(module);
     FileUtil.copyDir(myTestDataPath.toFile(), VfsUtil.virtualToIoFile(root));
-    refreshRecursively(root);
     WriteCommandAction.runWriteCommandAction(project, () -> {
+      refreshRecursively(root);
       ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
-      vcsManager.setDirectoryMapping(root.getPath(), GitVcs.NAME);
-      assertThat(LocalFileSystem.getInstance().findFileByPath(root.getPath())).isNotNull();
+      String rootpath = root.getPath();
+      vcsManager.setDirectoryMappings(Collections.singletonList(new VcsDirectoryMapping(rootpath, GitVcs.NAME)));
+      assertThat(LocalFileSystem.getInstance().findFileByPath(rootpath)).isNotNull();
       GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
       assertThat(repository).isNotNull();
       PsiTestUtil.addContentRoot(module, root);
