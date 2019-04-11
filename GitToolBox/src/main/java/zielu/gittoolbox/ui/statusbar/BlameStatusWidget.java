@@ -17,7 +17,6 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
@@ -48,6 +47,8 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private final Runnable blameDumbModeExitAction;
   private final Consumer<Document> bulkUpdateFinishedAction;
   private final Consumer<VirtualFile> blameUpdatedAction;
+  private final DocumentListener documentListener;
+  private final CaretListener caretListener;
   private String blameText = ResBundle.na();
   private boolean visible;
 
@@ -58,51 +59,51 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
     updateForDocumentTimer = metrics.timer("blame-statusbar-update-for-document");
     updateForCaretTimer = metrics.timer("blame-statusbar-update-for-caret");
     updateForSelectionTimer = metrics.timer("blame-statusbar-update-for-selection");
+    blameStatusGateway = BlameStatusGateway.getInstance(project);
     clearBlame();
     blameDumbModeExitAction = () -> {
-      Editor editor = getEditor();
-      if (editor != null) {
-        updateForEditor(editor);
+      if (shouldShow()) {
+        Editor editor = getEditor();
+        if (editor != null) {
+          updateForEditor(editor);
+        }
       }
     };
     bulkUpdateFinishedAction = this::updateForDocument;
     blameUpdatedAction = this::blameUpdate;
-    blameStatusGateway = BlameStatusGateway.getInstance(project);
     blameStatusGateway.addDumbModeExitAction(blameDumbModeExitAction);
     blameStatusGateway.addBulkUpdateFinishedAction(bulkUpdateFinishedAction);
     blameStatusGateway.addBlameUpdatedAction(blameUpdatedAction);
-  }
-
-  @Override
-  public void install(@NotNull StatusBar statusBar) {
-    super.install(statusBar);
-    EditorEventMulticaster eventMulticaster = EditorFactory.getInstance().getEventMulticaster();
-    eventMulticaster.addDocumentListener(new DocumentListener() {
+    documentListener = new DocumentListener() {
       @Override
       public void documentChanged(@NotNull DocumentEvent e) {
         Document document = e.getDocument();
         updateForDocument(document);
       }
-    }, this);
-    eventMulticaster.addCaretListener(new CaretListener() {
+    };
+    caretListener = new CaretListener() {
       @Override
       public void caretPositionChanged(@NotNull CaretEvent e) {
         Editor editor = e.getEditor();
         updateForCaretTimer.time(() -> updateForEditor(editor));
       }
-    }, this);
+    };
   }
 
   private void blameUpdate(@NotNull VirtualFile file) {
-    AppUiUtil.invokeLaterIfNeeded(myProject, () -> {
-      if (file.equals(stateHolder.getCurrentFile())) {
-        fileChanged(stateHolder.getCurrentEditor(), file);
-      }
-    });
+    if (shouldShow()) {
+      AppUiUtil.invokeLaterIfNeeded(myProject, () -> {
+        if (file.equals(stateHolder.getCurrentFile())) {
+          fileChanged(stateHolder.getCurrentEditor(), file);
+        }
+      });
+    }
   }
 
   private void updateForDocument(@Nullable Document document) {
-    updateForDocumentTimer.time(() -> runUpdateForDocument(document));
+    if (shouldShow()) {
+      updateForDocumentTimer.time(() -> runUpdateForDocument(document));
+    }
   }
 
   private void runUpdateForDocument(@Nullable Document document) {
@@ -110,15 +111,13 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
       return;
     }
     stateHolder.updateCurrentFile(document);
-    if (shouldShow()) {
-      VirtualFile currentFile = getCurrentFileUnderVcs();
-      if (currentFile != null) {
-        Editor selectedEditor = stateHolder.getCurrentEditor();
-        fileChanged(selectedEditor, currentFile);
-      } else {
-        if (clearBlame()) {
-          updateWidget();
-        }
+    VirtualFile currentFile = getCurrentFileUnderVcs();
+    if (currentFile != null) {
+      Editor selectedEditor = stateHolder.getCurrentEditor();
+      fileChanged(selectedEditor, currentFile);
+    } else {
+      if (clearBlame()) {
+        updateWidget();
       }
     }
   }
@@ -149,14 +148,12 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void updateForEditorWithCurrentFile(@NotNull Editor updatedEditor) {
-    if (shouldShow()) {
-      VirtualFile currentFile = getCurrentFileUnderVcs();
-      if (currentFile != null) {
-        fileChanged(updatedEditor, currentFile);
-      } else {
-        if (clearBlame()) {
-          updateWidget();
-        }
+    VirtualFile currentFile = getCurrentFileUnderVcs();
+    if (currentFile != null) {
+      fileChanged(updatedEditor, currentFile);
+    } else {
+      if (clearBlame()) {
+        updateWidget();
       }
     }
   }
@@ -200,12 +197,15 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Nullable
   @Override
   public String getTooltipText() {
-    RevisionInfo revisionInfo = stateHolder.getBlame();
-    if (revisionInfo.isEmpty()) {
-      return null;
-    } else {
-      return blameStatusGateway.getCommitMessage(revisionInfo);
+    if (shouldShow()) {
+      RevisionInfo revisionInfo = stateHolder.getBlame();
+      if (revisionInfo.isEmpty()) {
+        return null;
+      } else {
+        return blameStatusGateway.getCommitMessage(revisionInfo);
+      }
     }
+    return null;
   }
 
   @Nullable
@@ -249,8 +249,20 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
         disabled();
       }
     }
+    handleEditorListeners(visible);
     if (updated) {
       updateWidget();
+    }
+  }
+
+  private void handleEditorListeners(boolean visible) {
+    EditorEventMulticaster eventMultiCaster = EditorFactory.getInstance().getEventMulticaster();
+    if (visible) {
+      eventMultiCaster.addCaretListener(caretListener, this);
+      eventMultiCaster.addDocumentListener(documentListener, this);
+    } else {
+      eventMultiCaster.removeDocumentListener(documentListener);
+      eventMultiCaster.removeCaretListener(caretListener);
     }
   }
 
@@ -278,15 +290,17 @@ public class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   @Override
   public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-    BlameService.getInstance(myProject).fileClosed(file);
-    if (clearBlame()) {
-      updateWidget();
+    if (shouldShow()) {
+      BlameService.getInstance(myProject).fileClosed(file);
+      if (clearBlame()) {
+        updateWidget();
+      }
     }
   }
 
   @Override
   public void selectionChanged(@NotNull FileEditorManagerEvent event) {
-    if (!ApplicationManager.getApplication().isUnitTestMode()) {
+    if (!ApplicationManager.getApplication().isUnitTestMode() && shouldShow()) {
       updateForSelectionTimer.time(() -> {
         Editor editor = stateHolder.updateCurrentEditor(getEditor());
         stateHolder.updateCurrentFile(event.getNewFile());

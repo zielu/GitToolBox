@@ -21,11 +21,11 @@ import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.revision.RevisionService;
 
 class BlameStatusGatewayImpl implements BlameStatusGateway, Disposable {
-  private final Project project;
   private final Set<Document> inBulkUpdate = ContainerUtil.newConcurrentSet();
   private final Set<Runnable> exitDumbModeActions = new LinkedHashSet<>();
   private final Set<Consumer<Document>> bulkUpdateFinishedActions = new LinkedHashSet<>();
   private final Set<Consumer<VirtualFile>> blameUpdatedActions = new LinkedHashSet<>();
+  private final Project project;
   private final VirtualFileRepoCache repoCache;
   private final MessageBusConnection connection;
 
