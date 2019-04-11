@@ -27,22 +27,23 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.eclipse.jgit.api.Git;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.status.Status;
-import zielu.junit5.intellij.extension.git.GitTestExtension;
 import zielu.junit5.intellij.extension.git.GitTest;
+import zielu.junit5.intellij.extension.git.GitTestExtension;
 import zielu.junit5.intellij.extension.git.GitTestSetup;
 import zielu.junit5.intellij.extension.platform.PlatformTest;
 import zielu.junit5.intellij.extension.platform.PlatformTestCaseExtension;
@@ -137,15 +138,27 @@ class IntegrationTest {
   }
 
   @Test
-  @Disabled("Locks up because BlameCacheImpl has compute and update that touch the same key")
-  void lineBlameReturnsDataIfCalled(Project project, Module module, PlatformTest test) {
+  void lineBlameReturnsDataIfCalled(Project project, Module module, PlatformTest test) throws TimeoutException,
+      InterruptedException {
     VirtualFile file = getRoot(module).findChild(FILE_NAME);
     Document document = test.executeInEdt(() -> test.getDocument(file));
+    MessageBusConnection connect = project.getMessageBus().connect();
+    Exchanger<RevisionInfo> exchange = new Exchanger<>();
+    connect.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
+      @Override
+      public void blameUpdated(@NotNull VirtualFile file) {
+        try {
+          exchange.exchange(BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0));
+        } catch (InterruptedException e) {
+          fail(e.getMessage(), e);
+        }
+      }
+    });
+    BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
 
-    RevisionInfo lineBlame =  BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
-
+    RevisionInfo lineInfo = exchange.exchange(null, 30, TimeUnit.SECONDS);
     assertSoftly(softly -> {
-      softly.assertThat(lineBlame.isNotEmpty()).isTrue();
+      softly.assertThat(lineInfo.isNotEmpty()).isTrue();
     });
   }
 }

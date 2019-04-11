@@ -5,22 +5,22 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.FeatureToggles;
-import zielu.gittoolbox.ProjectGateway;
-import zielu.gittoolbox.util.ExecutableTask;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.FeatureToggles;
+import zielu.gittoolbox.util.ExecutableTask;
 
 class BlameCacheExecutor implements Disposable {
   private final Project project;
+  private final BlameCacheGateway gateway;
   private final ExecutorService executor;
   private final Consumer<ExecutableTask> execution;
 
-  BlameCacheExecutor(@NotNull Project project, @NotNull ProjectGateway gateway) {
+  BlameCacheExecutor(@NotNull Project project, @NotNull BlameCacheGateway gateway) {
     this.project = project;
+    this.gateway = gateway;
     if (FeatureToggles.showBlameProgress()) {
       executor = null;
       execution = this::executeWithProgress;
@@ -34,7 +34,7 @@ class BlameCacheExecutor implements Disposable {
   }
 
   void execute(ExecutableTask executable) {
-    execution.accept(executable);
+    gateway.runInBackground(() -> execution.accept(executable));
   }
 
   private void executeWithProgress(ExecutableTask executable) {

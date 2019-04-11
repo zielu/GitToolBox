@@ -19,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.util.Cached;
+import zielu.gittoolbox.util.CachedFactory;
 import zielu.gittoolbox.util.ExecutableTask;
 
 class BlameCacheImpl implements BlameCache, Disposable {
@@ -26,7 +28,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private final BlameCacheGateway gateway;
   private final VirtualFileRepoCache fileRepoCache;
   private final BlameLoader blameLoader;
-  private final Map<VirtualFile, BlameAnnotation> annotations = new ConcurrentHashMap<>();
+  private final Map<VirtualFile, Cached<BlameAnnotation>> annotations = new ConcurrentHashMap<>();
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
   private final Timer getTimer;
   private final Counter discardedSubmitCounter;
@@ -65,21 +67,32 @@ class BlameCacheImpl implements BlameCache, Disposable {
   }
 
   private BlameAnnotation getAnnotationInternal(@NotNull VirtualFile file) {
-    return annotations.compute(file, (fileKey, existingAnnotation) -> {
-      if (existingAnnotation == null) {
-        submitTask(fileKey);
-        return BlameAnnotation.EMPTY;
+    Cached<BlameAnnotation> value = annotations.compute(file, this::computeCachedAnnotation);
+    if (value.isLoading()) {
+      return BlameAnnotation.EMPTY;
+    } else {
+      return value.value();
+    }
+  }
+
+  private Cached<BlameAnnotation> computeCachedAnnotation(@NotNull VirtualFile file, Cached<BlameAnnotation> cached) {
+    if (cached == null) {
+      submitTask(file);
+      return CachedFactory.loading();
+    } else {
+      if (cached.isLoading()) {
+        return cached;
       } else {
-        return handleExistingAnnotation(fileKey, existingAnnotation);
+        return handleExistingAnnotation(file, cached);
       }
-    });
+    }
   }
 
   private void submitTask(@NotNull VirtualFile file) {
     if (queued.add(file)) {
       LOG.debug("Add annotation task for ", file);
       AnnotationLoader loaderTask = new AnnotationLoader(
-          file, blameLoader, loaderTimers, this::updateAnnotation);
+          file, blameLoader, loaderTimers, this::annotationLoaded);
       executor.execute(loaderTask);
     } else {
       LOG.debug("Discard annotation task for ", file);
@@ -88,14 +101,16 @@ class BlameCacheImpl implements BlameCache, Disposable {
   }
 
   @NotNull
-  private BlameAnnotation handleExistingAnnotation(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
+  private Cached<BlameAnnotation> handleExistingAnnotation(@NotNull VirtualFile file,
+                                                           @NotNull Cached<BlameAnnotation> cached) {
+    BlameAnnotation annotation = cached.value();
     if (isChanged(file, annotation)) {
       LOG.debug("Annotation changed for ", file);
       submitTask(file);
-      return BlameAnnotation.EMPTY;
+      return CachedFactory.loading();
     } else {
       LOG.debug("Annotation not changed for ", file);
-      return annotation;
+      return cached;
     }
   }
 
@@ -104,9 +119,9 @@ class BlameCacheImpl implements BlameCache, Disposable {
     return annotation.isChanged(currentRevision);
   }
 
-  private void updateAnnotation(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
+  private void annotationLoaded(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
     if (queued.remove(file)) {
-      annotations.put(file, annotation);
+      annotations.put(file, CachedFactory.ofValue(annotation));
       gateway.fireBlameUpdated(file, annotation);
     }
   }
@@ -146,9 +161,12 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   @Override
   public void revisionUpdated(@NotNull RevisionInfo revisionInfo) {
-    annotations.forEach((file, blame) -> {
-      if (blame.updateRevision(revisionInfo)) {
-        gateway.fireBlameUpdated(file, blame);
+    annotations.forEach((file, cached) -> {
+      if (!cached.isLoading()) {
+        BlameAnnotation blame = cached.value();
+        if (blame.updateRevision(revisionInfo)) {
+          gateway.fireBlameUpdated(file, blame);
+        }
       }
     });
   }
