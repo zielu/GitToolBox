@@ -67,31 +67,27 @@ class BlameCacheImpl implements BlameCache, Disposable {
   }
 
   private BlameAnnotation getAnnotationInternal(@NotNull VirtualFile file) {
-    return annotations.compute(file, this::computeCachedAnnotation).value();
+    Cached<BlameAnnotation> cached = annotations.compute(file, this::computeCachedAnnotation);
+    if (cached.isLoading() && cached.isEmpty()) {
+      tryTaskSubmission(file);
+      return BlameAnnotation.EMPTY;
+    }
+    return cached.value();
   }
 
   private Cached<BlameAnnotation> computeCachedAnnotation(@NotNull VirtualFile file, Cached<BlameAnnotation> cached) {
     if (cached == null) {
-      submitTask(file);
-      return CachedFactory.loading(BlameAnnotation.EMPTY);
+      return CachedFactory.loading();
     } else {
       if (cached.isLoading()) {
-        return cached;
+        if (cached.isEmpty()) {
+          return CachedFactory.loading(BlameAnnotation.EMPTY);
+        } else {
+          return cached;
+        }
       } else {
         return handleLoadedAnnotation(file, cached);
       }
-    }
-  }
-
-  private void submitTask(@NotNull VirtualFile file) {
-    if (queued.add(file)) {
-      LOG.debug("Add annotation task for ", file);
-      AnnotationLoader loaderTask = new AnnotationLoader(
-          file, blameLoader, loaderTimers, this::annotationLoaded);
-      executor.execute(loaderTask);
-    } else {
-      LOG.debug("Discard annotation task for ", file);
-      discardedSubmitCounter.inc();
     }
   }
 
@@ -101,11 +97,22 @@ class BlameCacheImpl implements BlameCache, Disposable {
     BlameAnnotation annotation = cached.value();
     if (isChanged(file, annotation)) {
       LOG.debug("Annotation changed for ", file);
-      submitTask(file);
-      return CachedFactory.loading(BlameAnnotation.EMPTY);
+      return CachedFactory.loading();
     } else {
       LOG.debug("Annotation not changed for ", file);
       return cached;
+    }
+  }
+
+  private void tryTaskSubmission(@NotNull VirtualFile file) {
+    if (queued.add(file)) {
+      LOG.debug("Add annotation task for ", file);
+      AnnotationLoader loaderTask = new AnnotationLoader(
+          file, blameLoader, loaderTimers, this::annotationLoaded);
+      executor.execute(loaderTask);
+    } else {
+      LOG.debug("Discard annotation task for ", file);
+      discardedSubmitCounter.inc();
     }
   }
 

@@ -9,6 +9,10 @@ public final class CachedFactory {
       return true;
     }
 
+    public boolean isEmpty() {
+      return true;
+    }
+
     @NotNull
     @Override
     public Object value() {
@@ -44,6 +48,11 @@ public final class CachedFactory {
     @Override
     public boolean isLoading() {
       return loading;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return value == null;
     }
 
     @NotNull

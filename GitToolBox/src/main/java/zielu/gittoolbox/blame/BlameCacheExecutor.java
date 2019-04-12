@@ -1,6 +1,5 @@
 package zielu.gittoolbox.blame;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -16,12 +15,7 @@ class BlameCacheExecutor {
   BlameCacheExecutor(@NotNull Project project, @NotNull BlameCacheGateway gateway) {
     this.project = project;
     if (FeatureToggles.showBlameProgress()) {
-      if (ApplicationManager.getApplication().isUnitTestMode()) {
-        //during tests there is no backing thread pool behind Task:queue
-        execution = executable -> gateway.runInBackground(() -> executeWithProgress(executable));
-      } else {
-        execution = this::executeWithProgress;
-      }
+      execution = this::executeWithProgress;
     } else {
       execution = executable -> gateway.runInBackground(executable::run);
     }

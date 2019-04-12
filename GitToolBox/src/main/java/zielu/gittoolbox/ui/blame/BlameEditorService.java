@@ -12,9 +12,9 @@ import zielu.gittoolbox.util.AppUtil;
 import java.util.Collection;
 import java.util.Optional;
 
-interface BlameEditorService {
+public interface BlameEditorService {
   @Nullable
-  Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineIndex);
+  public Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineIndex);
 
   void colorsSchemeChanged(@NotNull EditorColorsScheme colorsScheme);
 

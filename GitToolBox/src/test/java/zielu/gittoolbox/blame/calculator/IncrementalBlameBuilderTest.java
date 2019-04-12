@@ -3,32 +3,26 @@ package zielu.gittoolbox.blame.calculator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.google.common.base.Charsets;
 import com.intellij.execution.process.ProcessOutputTypes;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import zielu.junit5.intellij.extension.resources.ResourcePath;
+import zielu.junit5.intellij.extension.resources.ResourcesExtension;
+import zielu.junit5.intellij.extension.resources.TextResource;
 
+@ExtendWith(ResourcesExtension.class)
 class IncrementalBlameBuilderTest {
-  private static List<String> annotationLines;
-
-  @BeforeAll
-  static void beforeAll() throws IOException {
-    Path annotationOutput = Paths.get(".", "testData", "blame-incremental.txt");
-    annotationLines = Files.readAllLines(annotationOutput, Charsets.UTF_8);
-  }
 
   @Test
-  void parsedBlameOutputHasCorrectLineCount() {
+  void parsedBlameOutputHasCorrectLineCount(@ResourcePath("/blame-incremental.txt") TextResource resource) {
+    List<String> annotationLines = resource.getLines();
     IncrementalBlameBuilder calculator = new IncrementalBlameBuilder();
     for (int i = 0; i < annotationLines.size(); i++) {
       try {
@@ -48,8 +42,8 @@ class IncrementalBlameBuilderTest {
     private List<CommitInfo> commitInfos;
 
     @BeforeAll
-    void beforeAll() {
-      commitInfos = buildCommitInfos();
+    void beforeAll(@ResourcePath("/blame-incremental.txt") TextResource resource) {
+      commitInfos = buildCommitInfos(resource.getLines());
     }
 
     @ParameterizedTest(name = " {0} has revision {1}")
@@ -64,7 +58,7 @@ class IncrementalBlameBuilderTest {
     }
   }
 
-  private List<CommitInfo> buildCommitInfos() {
+  private List<CommitInfo> buildCommitInfos(List<String> annotationLines) {
     IncrementalBlameBuilder calculator = new IncrementalBlameBuilder();
     for (int i = 0; i < annotationLines.size(); i++) {
       try {

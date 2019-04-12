@@ -23,11 +23,9 @@ import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.eclipse.jgit.api.Git;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,7 +33,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
@@ -47,20 +44,23 @@ import zielu.junit5.intellij.extension.git.GitTestExtension;
 import zielu.junit5.intellij.extension.git.GitTestSetup;
 import zielu.junit5.intellij.extension.platform.PlatformTest;
 import zielu.junit5.intellij.extension.platform.PlatformTestCaseExtension;
+import zielu.junit5.intellij.extension.resources.ExternalPath;
+import zielu.junit5.intellij.extension.resources.ResourcesExtension;
 
 @Tag(TestType.INTEGRATION)
 @ExtendWith(PlatformTestCaseExtension.class)
 @ExtendWith(GitTestExtension.class)
+@ExtendWith(ResourcesExtension.class)
 class IntegrationTest {
   private static final String FILE_NAME = "file.txt";
   private static final String TAG = "1.0.0";
   private static Path myTestDataPath;
 
   @BeforeAll
-  static void beforeAll(GitTest gitTest) throws Exception {
-    myTestDataPath = Paths.get(".", "testDataDynamic", "it", IntegrationTest.class.getSimpleName())
-        .normalize()
-        .toAbsolutePath();
+  static void beforeAll(GitTest gitTest,
+                        @ExternalPath({".", "testDataDynamic", "it", "IntegrationTest"}) Path testDataPath)
+      throws Exception {
+    myTestDataPath = testDataPath;
     initGit(gitTest, myTestDataPath);
   }
 
@@ -88,9 +88,9 @@ class IntegrationTest {
     WriteCommandAction.runWriteCommandAction(project, () -> {
       refreshRecursively(root);
       ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
-      String rootpath = root.getPath();
-      vcsManager.setDirectoryMappings(Collections.singletonList(new VcsDirectoryMapping(rootpath, GitVcs.NAME)));
-      assertThat(LocalFileSystem.getInstance().findFileByPath(rootpath)).isNotNull();
+      String rootPath = root.getPath();
+      vcsManager.setDirectoryMappings(Collections.singletonList(new VcsDirectoryMapping(rootPath, GitVcs.NAME)));
+      assertThat(LocalFileSystem.getInstance().findFileByPath(rootPath)).isNotNull();
       GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
       assertThat(repository).isNotNull();
       PsiTestUtil.addContentRoot(module, root);
@@ -138,25 +138,13 @@ class IntegrationTest {
   }
 
   @Test
-  void lineBlameReturnsDataIfCalled(Project project, Module module, PlatformTest test) throws TimeoutException,
-      InterruptedException {
+  void lineBlameReturnsDataIfCalled(Project project, Module module, PlatformTest test) {
     VirtualFile file = getRoot(module).findChild(FILE_NAME);
     Document document = test.executeInEdt(() -> test.getDocument(file));
-    MessageBusConnection connect = project.getMessageBus().connect();
-    Exchanger<RevisionInfo> exchange = new Exchanger<>();
-    connect.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
-      @Override
-      public void blameUpdated(@NotNull VirtualFile file) {
-        try {
-          exchange.exchange(BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0));
-        } catch (InterruptedException e) {
-          fail(e.getMessage(), e);
-        }
-      }
-    });
-    BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
 
-    RevisionInfo lineInfo = exchange.exchange(null, 30, TimeUnit.SECONDS);
+    BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
+    RevisionInfo lineInfo = BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
+
     assertSoftly(softly -> {
       softly.assertThat(lineInfo.isNotEmpty()).isTrue();
     });
