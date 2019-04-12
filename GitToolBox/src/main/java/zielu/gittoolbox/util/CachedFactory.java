@@ -24,20 +24,26 @@ public final class CachedFactory {
     return LOADING;
   }
 
-  public static <T> Cached<T> ofValue(@NotNull T value) {
-    return new CachedImpl<>(value);
+  public static <T> Cached<T> loading(@NotNull T value) {
+    return new CachedImpl<>(value, true);
+  }
+
+  public static <T> Cached<T> loaded(@NotNull T value) {
+    return new CachedImpl<>(value, false);
   }
 
   private static class CachedImpl<T> implements Cached<T> {
     private final T value;
+    private final boolean loading;
 
-    private CachedImpl(T value) {
+    private CachedImpl(T value, boolean loading) {
       this.value = value;
+      this.loading = loading;
     }
 
     @Override
     public boolean isLoading() {
-      return false;
+      return loading;
     }
 
     @NotNull

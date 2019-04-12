@@ -1,40 +1,34 @@
 package zielu.gittoolbox.blame;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.FeatureToggles;
 import zielu.gittoolbox.util.ExecutableTask;
 
-class BlameCacheExecutor implements Disposable {
+class BlameCacheExecutor {
   private final Project project;
-  private final BlameCacheGateway gateway;
-  private final ExecutorService executor;
   private final Consumer<ExecutableTask> execution;
 
   BlameCacheExecutor(@NotNull Project project, @NotNull BlameCacheGateway gateway) {
     this.project = project;
-    this.gateway = gateway;
     if (FeatureToggles.showBlameProgress()) {
-      executor = null;
-      execution = this::executeWithProgress;
+      if (ApplicationManager.getApplication().isUnitTestMode()) {
+        //during tests there is no backing thread pool behind Task:queue
+        execution = executable -> gateway.runInBackground(() -> executeWithProgress(executable));
+      } else {
+        execution = this::executeWithProgress;
+      }
     } else {
-      executor = Executors.newCachedThreadPool(
-          new ThreadFactoryBuilder().setNameFormat("Blame-" + project.getName() + "-%d").setDaemon(true).build()
-      );
-      execution = this::executeInThreadPool;
+      execution = executable -> gateway.runInBackground(executable::run);
     }
-    gateway.disposeWithProject(this);
   }
 
   void execute(ExecutableTask executable) {
-    gateway.runInBackground(() -> execution.accept(executable));
+    execution.accept(executable);
   }
 
   private void executeWithProgress(ExecutableTask executable) {
@@ -46,16 +40,5 @@ class BlameCacheExecutor implements Disposable {
       }
     };
     task.queue();
-  }
-
-  private void executeInThreadPool(ExecutableTask executableTask) {
-    executor.submit(executableTask::run);
-  }
-
-  @Override
-  public void dispose() {
-    if (executor != null) {
-      executor.shutdownNow();
-    }
   }
 }

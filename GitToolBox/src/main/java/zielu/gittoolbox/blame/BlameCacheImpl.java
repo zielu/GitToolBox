@@ -67,23 +67,18 @@ class BlameCacheImpl implements BlameCache, Disposable {
   }
 
   private BlameAnnotation getAnnotationInternal(@NotNull VirtualFile file) {
-    Cached<BlameAnnotation> value = annotations.compute(file, this::computeCachedAnnotation);
-    if (value.isLoading()) {
-      return BlameAnnotation.EMPTY;
-    } else {
-      return value.value();
-    }
+    return annotations.compute(file, this::computeCachedAnnotation).value();
   }
 
   private Cached<BlameAnnotation> computeCachedAnnotation(@NotNull VirtualFile file, Cached<BlameAnnotation> cached) {
     if (cached == null) {
       submitTask(file);
-      return CachedFactory.loading();
+      return CachedFactory.loading(BlameAnnotation.EMPTY);
     } else {
       if (cached.isLoading()) {
         return cached;
       } else {
-        return handleExistingAnnotation(file, cached);
+        return handleLoadedAnnotation(file, cached);
       }
     }
   }
@@ -101,13 +96,13 @@ class BlameCacheImpl implements BlameCache, Disposable {
   }
 
   @NotNull
-  private Cached<BlameAnnotation> handleExistingAnnotation(@NotNull VirtualFile file,
-                                                           @NotNull Cached<BlameAnnotation> cached) {
+  private Cached<BlameAnnotation> handleLoadedAnnotation(@NotNull VirtualFile file,
+                                                         @NotNull Cached<BlameAnnotation> cached) {
     BlameAnnotation annotation = cached.value();
     if (isChanged(file, annotation)) {
       LOG.debug("Annotation changed for ", file);
       submitTask(file);
-      return CachedFactory.loading();
+      return CachedFactory.loading(BlameAnnotation.EMPTY);
     } else {
       LOG.debug("Annotation not changed for ", file);
       return cached;
@@ -121,7 +116,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   private void annotationLoaded(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
     if (queued.remove(file)) {
-      annotations.put(file, CachedFactory.ofValue(annotation));
+      annotations.put(file, CachedFactory.loaded(annotation));
       gateway.fireBlameUpdated(file, annotation);
     }
   }
