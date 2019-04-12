@@ -11,7 +11,7 @@ plugins {
     id "org.jetbrains.intellij" version "0.4.5"
     id 'com.palantir.git-version' version '0.11.0'
     id 'ch.netzwerg.release' version '1.2.5'
-    id "com.github.spotbugs" version "1.6.10"
+    id "com.github.spotbugs" version "1.7.1"
 }
 
 repositories {
@@ -19,10 +19,16 @@ repositories {
 }
 
 apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'idea'
 apply plugin: "java"
 
-sourceCompatibility = javaVersion
-targetCompatibility = javaVersion
+def javaVersion = JavaVersion.VERSION_1_8;
+def encoding = 'UTF-8'
+
+java {
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+}
 
 def fast = Boolean.valueOf(String.valueOf(findProperty('fast')))
 
@@ -44,20 +50,12 @@ intellij {
     ideaDependencyCachePath = ideaCacheDir
 }
 
-apply plugin: 'idea'
-idea {
-    project {
-        jdkName = javaVersion
-        languageLevel = javaVersion
-    }
-}
-
 compileJava.options.encoding = encoding
 compileTestJava.options.encoding = encoding
 
 patchPluginXml {
-    changeNotes "${file('change-notes.html').getText('UTF-8')}"
-    pluginDescription "${file('description.html').getText('UTF-8')}"
+    changeNotes "${file('change-notes.html').getText(encoding)}"
+    pluginDescription "${file('description.html').getText(encoding)}"
             .replace("RELEASE_DATETIME", buildTime())
             .replace("RELEASE_TYPE", buildType());
 }
