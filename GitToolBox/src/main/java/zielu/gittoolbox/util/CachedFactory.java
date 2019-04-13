@@ -16,7 +16,7 @@ public final class CachedFactory {
     @NotNull
     @Override
     public Object value() {
-      throw new IllegalStateException("Loading - no value yet. Check with isLoading()");
+      throw new IllegalStateException("Loading - no value yet. Check with isEmpty() and isLoading()");
     }
   };
 
