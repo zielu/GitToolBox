@@ -19,4 +19,8 @@ public final class FeatureToggles {
   public static boolean showBlameProgress() {
     return NEW_BLAME;
   }
+
+  public static boolean enableBlameStatusbar() {
+    return false;
+  }
 }

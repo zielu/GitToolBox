@@ -8,10 +8,11 @@ import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.util.messages.MessageBusConnection;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.FeatureToggles;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 
 class StatusBarManager implements ProjectComponent {
   private final AtomicBoolean opened = new AtomicBoolean();
@@ -29,7 +30,7 @@ class StatusBarManager implements ProjectComponent {
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
-        SwingUtilities.invokeLater(() -> {
+        AppUiUtil.invokeLater(project, () -> {
           if (opened.get()) {
             setVisible(current.showStatusWidget, current.showBlame);
           }
@@ -48,8 +49,10 @@ class StatusBarManager implements ProjectComponent {
       if (hasUi()) {
         statusWidget = GitStatusWidget.create(project);
         statusWidget.opened();
-        blameWidget = new BlameStatusWidget(project);
-        blameWidget.opened();
+        if (FeatureToggles.enableBlameStatusbar()) {
+          blameWidget = new BlameStatusWidget(project);
+          blameWidget.opened();
+        }
         install();
 
         GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
@@ -74,16 +77,18 @@ class StatusBarManager implements ProjectComponent {
         }
       }
 
-      if (showBlame) {
-        if (blameWidget == null) {
-          blameWidget = new BlameStatusWidget(project);
-          blameWidget.opened();
-        }
-        setVisible(statusBar, blameWidget, true);
-      } else {
-        if (blameWidget != null) {
-          setVisible(statusBar, blameWidget, false);
-          blameWidget = null;
+      if (FeatureToggles.enableBlameStatusbar()) {
+        if (showBlame) {
+          if (blameWidget == null) {
+            blameWidget = new BlameStatusWidget(project);
+            blameWidget.opened();
+          }
+          setVisible(statusBar, blameWidget, true);
+        } else {
+          if (blameWidget != null) {
+            setVisible(statusBar, blameWidget, false);
+            blameWidget = null;
+          }
         }
       }
     }
