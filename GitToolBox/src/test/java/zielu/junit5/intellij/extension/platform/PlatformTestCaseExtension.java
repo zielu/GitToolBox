@@ -12,6 +12,8 @@ import com.intellij.testFramework.EdtTestUtil;
 import com.intellij.testFramework.EdtTestUtilKt;
 import com.intellij.testFramework.PlatformTestCase;
 import com.intellij.testFramework.TestRunnerUtil;
+import com.intellij.util.messages.MessageBusConnection;
+import com.intellij.util.messages.Topic;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.swing.SwingUtilities;
@@ -45,7 +47,7 @@ public class PlatformTestCaseExtension implements BeforeEachCallback, AfterEachC
     context.getStore(NS).remove(PlatformTestCaseJUnit5.class);
   }
 
-  private PlatformTestCaseJUnit5 getTestCase(ExtensionContext context) {
+  private static PlatformTestCaseJUnit5 getTestCase(ExtensionContext context) {
     return context.getStore(NS).get(PlatformTestCaseJUnit5.class, PlatformTestCaseJUnit5.class);
   }
 
@@ -125,7 +127,7 @@ public class PlatformTestCaseExtension implements BeforeEachCallback, AfterEachC
     private PlatformTest getPlatformTest(ExtensionContext extensionContext) {
       return new PlatformTest() {
         @Override
-        public void execute(Runnable test) {
+        public void execute(@NotNull Runnable test) {
           try {
             invokeTestRunnable(test);
           } catch (Exception e) {
@@ -134,13 +136,26 @@ public class PlatformTestCaseExtension implements BeforeEachCallback, AfterEachC
         }
 
         @Override
-        public <T> T executeInEdt(Computable<T> test) {
+        public <T> T executeInEdt(@NotNull Computable<T> test) {
           return EdtTestUtilKt.runInEdtAndGet(test::compute);
         }
 
         @Override
         public Document getDocument(@NotNull VirtualFile file) {
-          return FileDocumentManager.getInstance().getDocument(file);
+          return executeInEdt(() -> FileDocumentManager.getInstance().getDocument(file));
+        }
+
+        @Override
+        public <L> void subscribe(@NotNull Topic<L> topic, @NotNull L listener) {
+          connect().subscribe(topic, listener);
+        }
+
+        private MessageBusConnection connect() {
+          PlatformTestCaseJUnit5 testCase = getTestCase(extensionContext);
+          Project project = testCase.getProject();
+          Store store = getStore(extensionContext);
+          return store.getOrComputeIfAbsent(MessageBusConnection.class,
+              type -> project.getMessageBus().connect(project), MessageBusConnection.class);
         }
       };
     }

@@ -2,7 +2,6 @@ package zielu.gittoolbox;
 
 import static com.intellij.testFramework.UsefulTestCase.refreshRecursively;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import com.google.common.base.Charsets;
@@ -17,14 +16,13 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.PsiTestUtil;
-import com.intellij.util.messages.MessageBusConnection;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.concurrent.Exchanger;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jgit.api.Git;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
@@ -102,23 +101,20 @@ class IntegrationTest {
   }
 
   @Test
-  void perRepoInfoCacheLoadsDataIfCalled(Project project, Module module) throws Exception {
+  void perRepoInfoCacheLoadsDataIfCalled(Project project, Module module, PlatformTest test) throws Exception {
     VirtualFile root = getRoot(module);
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
-    MessageBusConnection connect = project.getMessageBus().connect();
-    Exchanger<RepoInfo> exchange = new Exchanger<>();
-    connect.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+    Semaphore awaitInfoUpdate = new Semaphore(0);
+    test.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-        try {
-          exchange.exchange(info);
-        } catch (InterruptedException e) {
-          fail(e.getMessage(), e);
-        }
+        awaitInfoUpdate.release();
       }
     });
     PerRepoInfoCache.getInstance(project).getInfo(repository);
-    RepoInfo info = exchange.exchange(null, 30, TimeUnit.SECONDS);
+    assertThat(awaitInfoUpdate.tryAcquire(30, TimeUnit.SECONDS)).isTrue();
+    RepoInfo info = PerRepoInfoCache.getInstance(project).getInfo(repository);
+
     assertSoftly(softly -> {
       softly.assertThat(info).isNotNull();
       softly.assertThat(info.count()).isNotEmpty();
@@ -138,13 +134,21 @@ class IntegrationTest {
   }
 
   @Test
-  void lineBlameReturnsDataIfCalled(Project project, Module module, PlatformTest test) {
+  void lineBlameReturnsDataIfCalled(Project project, Module module, PlatformTest test) throws InterruptedException {
     VirtualFile file = getRoot(module).findChild(FILE_NAME);
-    Document document = test.executeInEdt(() -> test.getDocument(file));
+    Document document = test.getDocument(file);
 
+    Semaphore awaitBlameUpdate = new Semaphore(0);
+    test.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
+      @Override
+      public void blameUpdated(@NotNull VirtualFile file) {
+        awaitBlameUpdate.release();
+      }
+    });
     BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
-    RevisionInfo lineInfo = BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
+    assertThat(awaitBlameUpdate.tryAcquire(30, TimeUnit.SECONDS)).isTrue();
 
+    RevisionInfo lineInfo = BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
     assertSoftly(softly -> {
       softly.assertThat(lineInfo.isNotEmpty()).isTrue();
     });
