@@ -22,8 +22,6 @@ import git4idea.repo.GitRepository;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import org.eclipse.jgit.api.Git;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -38,6 +36,7 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.status.Status;
+import zielu.intellij.test.Awaiter;
 import zielu.junit5.intellij.extension.git.GitTest;
 import zielu.junit5.intellij.extension.git.GitTestExtension;
 import zielu.junit5.intellij.extension.git.GitTestSetup;
@@ -104,15 +103,15 @@ class IntegrationTest {
   void perRepoInfoCacheLoadsDataIfCalled(Project project, Module module, PlatformTest test) throws Exception {
     VirtualFile root = getRoot(module);
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
-    Semaphore awaitInfoUpdate = new Semaphore(0);
+    Awaiter awaitInfoUpdate = new Awaiter();
     test.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-        awaitInfoUpdate.release();
+        awaitInfoUpdate.satisfied();
       }
     });
     PerRepoInfoCache.getInstance(project).getInfo(repository);
-    assertThat(awaitInfoUpdate.tryAcquire(30, TimeUnit.SECONDS)).isTrue();
+    awaitInfoUpdate.await();
     RepoInfo info = PerRepoInfoCache.getInstance(project).getInfo(repository);
 
     assertSoftly(softly -> {
@@ -138,15 +137,15 @@ class IntegrationTest {
     VirtualFile file = getRoot(module).findChild(FILE_NAME);
     Document document = test.getDocument(file);
 
-    Semaphore awaitBlameUpdate = new Semaphore(0);
+    Awaiter awaitBlameUpdate = new Awaiter();
     test.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
       @Override
       public void blameUpdated(@NotNull VirtualFile file) {
-        awaitBlameUpdate.release();
+        awaitBlameUpdate.satisfied();
       }
     });
     BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
-    assertThat(awaitBlameUpdate.tryAcquire(30, TimeUnit.SECONDS)).isTrue();
+    awaitBlameUpdate.await();
 
     RevisionInfo lineInfo = BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
     assertSoftly(softly -> {
