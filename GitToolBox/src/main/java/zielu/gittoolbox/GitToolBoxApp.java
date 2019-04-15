@@ -13,11 +13,11 @@ public class GitToolBoxApp {
 
   GitToolBoxApp() {
     autoFetchExecutor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(),
-        new ThreadFactoryBuilder().setDaemon(true).setNameFormat("AutoFetch-%s").build()
+        new ThreadFactoryBuilder().setDaemon(true).setNameFormat("GitToolBox-AutoFetch-%s").build()
     );
     log.debug("Created auto-fetch executor: ", autoFetchExecutor);
-    tasksExecutor = Executors.newScheduledThreadPool(2,
-        new ThreadFactoryBuilder().setDaemon(true).setNameFormat("GtTask-%s").build()
+    tasksExecutor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(),
+        new ThreadFactoryBuilder().setDaemon(true).setNameFormat("GitToolBox-Task-%s").build()
     );
     log.debug("Created tasks executor: ", tasksExecutor);
   }

@@ -9,19 +9,24 @@ import com.intellij.openapi.vcs.impl.UpToDateLineNumberProviderImpl;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
 import git4idea.GitVcs;
+import java.util.concurrent.ExecutorService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.GitToolBoxApp;
+import zielu.gittoolbox.util.DisposeSafeRunnable;
 import zielu.gittoolbox.util.GatewayBase;
 import zielu.gittoolbox.util.GtUtil;
 
 class BlameServiceGateway extends GatewayBase {
   private final GitVcs git;
   private final MessageBus messageBus;
+  private final ExecutorService executor;
 
-  BlameServiceGateway(@NotNull Project project) {
+  BlameServiceGateway(@NotNull Project project, @NotNull GitToolBoxApp app) {
     super(project);
     git = GitVcs.getInstance(project);
     messageBus = project.getMessageBus();
+    executor = app.tasksExecutor();
   }
 
   @NotNull
@@ -35,10 +40,14 @@ class BlameServiceGateway extends GatewayBase {
   }
 
   void fireBlameUpdated(@NotNull VirtualFile file) {
-    messageBus.syncPublisher(BlameService.BLAME_UPDATE).blameUpdated(file);
+    publishAsync(() -> messageBus.syncPublisher(BlameService.BLAME_UPDATE).blameUpdated(file));
+  }
+
+  private void publishAsync(Runnable task) {
+    executor.submit(new DisposeSafeRunnable(project, task));
   }
 
   void fireBlameInvalidated(@NotNull VirtualFile file) {
-    messageBus.syncPublisher(BlameService.BLAME_UPDATE).blameInvalidated(file);
+    publishAsync(() -> messageBus.syncPublisher(BlameService.BLAME_UPDATE).blameInvalidated(file));
   }
 }

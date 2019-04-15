@@ -11,6 +11,7 @@ import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.history.VcsFileRevision;
 import com.intellij.openapi.vfs.VirtualFile;
+import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +26,8 @@ class BlameServiceImpl implements BlameService, Disposable {
   private final BlameCache blameCache;
   private final RevisionService revisionService;
   private final Cache<VirtualFile, BlameAnnotation> annotationCache = CacheBuilder.newBuilder()
+      .maximumSize(50)
+      .expireAfterAccess(Duration.ofMinutes(30))
       .build();
   private final Cache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
       .weakKeys()
@@ -91,11 +94,9 @@ class BlameServiceImpl implements BlameService, Disposable {
       return RevisionInfo.EMPTY;
     }
     CachedLineProvider lineProvider = getLineProvider(document);
-    if (lineProvider != null) {
-      if (!lineProvider.isLineChanged(lineIndex)) {
-        int correctedLineIndex = lineProvider.getLineIndex(lineIndex);
-        return getLineBlameInternal(file, correctedLineIndex);
-      }
+    if (lineProvider != null && !lineProvider.isLineChanged(lineIndex)) {
+      int correctedLineIndex = lineProvider.getLineIndex(lineIndex);
+      return getLineBlameInternal(file, correctedLineIndex);
     }
     return RevisionInfo.EMPTY;
   }
@@ -135,7 +136,7 @@ class BlameServiceImpl implements BlameService, Disposable {
 
   @Override
   public void fileClosed(@NotNull VirtualFile file) {
-    blameCache.invalidate(file);
+    //do nothing
   }
 
   @Override

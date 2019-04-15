@@ -3,7 +3,7 @@ package zielu.gittoolbox.blame;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.util.DisposeSafeRunnable;
@@ -11,7 +11,7 @@ import zielu.gittoolbox.util.GatewayBase;
 
 class BlameCacheGateway extends GatewayBase {
   private final MessageBus messageBus;
-  private final Executor executor;
+  private final ExecutorService executor;
 
   BlameCacheGateway(@NotNull Project project, GitToolBoxApp app) {
     super(project);
@@ -20,14 +20,14 @@ class BlameCacheGateway extends GatewayBase {
   }
 
   void fireBlameUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-    messageBus.syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(file, annotation);
-  }
-
-  void fireBlameInvalidated(@NotNull VirtualFile file) {
-    messageBus.syncPublisher(BlameCache.CACHE_UPDATES).invalidated(file);
+    runInBackground(() -> messageBus.syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(file, annotation));
   }
 
   void runInBackground(Runnable task) {
     executor.execute(new DisposeSafeRunnable(project, task));
+  }
+
+  void fireBlameInvalidated(@NotNull VirtualFile file) {
+    runInBackground(() -> messageBus.syncPublisher(BlameCache.CACHE_UPDATES).invalidated(file));
   }
 }
