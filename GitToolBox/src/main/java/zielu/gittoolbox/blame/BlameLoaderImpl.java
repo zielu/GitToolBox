@@ -2,14 +2,12 @@ package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.FeatureToggles;
 import zielu.gittoolbox.blame.calculator.BlameCalculator;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.revision.RevisionDataProvider;
@@ -31,19 +29,10 @@ class BlameLoaderImpl implements BlameLoader {
   public BlameAnnotation annotate(@NotNull VirtualFile file) throws VcsException {
     try {
       BlameUtil.annotationLock(project, file);
-      if (FeatureToggles.useIncrementalBlame()) {
-        return incrementalAnnotation(file);
-      } else {
-        return fileAnnotation(file);
-      }
+      return incrementalAnnotation(file);
     } finally {
       BlameUtil.annotationUnlock(project, file);
     }
-  }
-
-  private BlameAnnotation fileAnnotation(@NotNull VirtualFile file) throws VcsException {
-    FileAnnotation annotation = git.getAnnotationProvider().annotate(file);
-    return new BlameAnnotationImpl(new FileAnnotationRevisionDataProvider(annotation), revisionService);
   }
 
   private BlameAnnotation incrementalAnnotation(@NotNull VirtualFile file) {

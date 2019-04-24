@@ -29,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import zielu.gittoolbox.blame.BlameCache;
 import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
@@ -62,7 +63,7 @@ class IntegrationTest {
     initGit(gitTest, myTestDataPath);
   }
 
-  private static void initGit(GitTest gitTest, Path rootPath) throws Exception {
+  private static void initGit(GitTest gitTest, Path rootPath) {
     gitTest.prepare(new GitTestSetup() {
       @Override
       public Path getRootPath() {
@@ -100,7 +101,7 @@ class IntegrationTest {
   }
 
   @Test
-  void perRepoInfoCacheLoadsDataIfCalled(Project project, Module module, PlatformTest test) throws Exception {
+  void perRepoInfoCacheLoadsDataIfCalled(Project project, Module module, PlatformTest test) {
     VirtualFile root = getRoot(module);
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
     Awaiter awaitInfoUpdate = new Awaiter();
@@ -123,17 +124,7 @@ class IntegrationTest {
   }
 
   @Test
-  void fileBlameReturnsDataIfCalled(Project project, Module module) {
-    VirtualFile file = getRoot(module).findChild(FILE_NAME);
-    RevisionInfo fileBlame = BlameService.getInstance(project).getFileBlame(file);
-
-    assertSoftly(softly -> {
-      softly.assertThat(fileBlame.isNotEmpty()).isTrue();
-    });
-  }
-
-  @Test
-  void lineBlameReturnsDataIfCalled(Project project, Module module, PlatformTest test) throws InterruptedException {
+  void lineBlameReturnsDataIfCalled(Project project, Module module, PlatformTest test) {
     VirtualFile file = getRoot(module).findChild(FILE_NAME);
     Document document = test.getDocument(file);
 
@@ -150,6 +141,33 @@ class IntegrationTest {
     RevisionInfo lineInfo = BlameService.getInstance(project).getDocumentLineIndexBlame(document, file, 0);
     assertSoftly(softly -> {
       softly.assertThat(lineInfo.isNotEmpty()).isTrue();
+    });
+  }
+
+  @Test
+  void lineBlameReturnsSameRevisionIfRepoRefreshedButNotChanged(Project project, Module module, PlatformTest test) {
+    VirtualFile root = getRoot(module);
+    VirtualFile file = root.findChild(FILE_NAME);
+    Document document = test.getDocument(file);
+
+    Awaiter awaitBlameUpdate = new Awaiter();
+    test.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
+      @Override
+      public void blameUpdated(@NotNull VirtualFile file) {
+        awaitBlameUpdate.satisfied();
+      }
+    });
+    BlameService blameService = BlameService.getInstance(project);
+    blameService.getDocumentLineIndexBlame(document, file, 0);
+    awaitBlameUpdate.await();
+
+    RevisionInfo firstLineInfo = blameService.getDocumentLineIndexBlame(document, file, 0);
+
+    BlameCache.getExistingInstance(project).orElseThrow(IllegalStateException::new).refreshForRoot(root);
+    RevisionInfo secondLineInfo = blameService.getDocumentLineIndexBlame(document, file, 0);
+
+    assertSoftly(softly -> {
+      softly.assertThat(firstLineInfo.getRevisionNumber()).isEqualTo(secondLineInfo.getRevisionNumber());
     });
   }
 }

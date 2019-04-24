@@ -9,7 +9,6 @@ import com.intellij.openapi.wm.WindowManager;
 import com.intellij.util.messages.MessageBusConnection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.FeatureToggles;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.ui.util.AppUiUtil;
@@ -19,7 +18,6 @@ class StatusBarManager implements ProjectComponent {
   private final Project project;
   private final MessageBusConnection connection;
   private GitStatusWidget statusWidget;
-  private BlameStatusWidget blameWidget;
 
   StatusBarManager(@NotNull Project project) {
     this.project = project;
@@ -32,7 +30,7 @@ class StatusBarManager implements ProjectComponent {
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         AppUiUtil.invokeLater(project, () -> {
           if (opened.get()) {
-            setVisible(current.showStatusWidget, current.showBlame);
+            setVisible(current.showStatusWidget);
           }
         });
       }
@@ -40,28 +38,22 @@ class StatusBarManager implements ProjectComponent {
   }
 
   private void uninstall() {
-    setVisible(false, false);
+    setVisible(false);
   }
 
   @Override
   public void projectOpened() {
-    if (opened.compareAndSet(false, true)) {
-      if (hasUi()) {
-        statusWidget = GitStatusWidget.create(project);
-        statusWidget.opened();
-        if (FeatureToggles.enableBlameStatusbar()) {
-          blameWidget = new BlameStatusWidget(project);
-          blameWidget.opened();
-        }
-        install();
+    if (opened.compareAndSet(false, true) && hasUi()) {
+      statusWidget = GitStatusWidget.create(project);
+      statusWidget.opened();
+      install();
 
-        GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
-        setVisible(config.showStatusWidget, config.showBlame);
-      }
+      GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
+      setVisible(config.showStatusWidget);
     }
   }
 
-  private void setVisible(boolean showStatusWidget, boolean showBlame) {
+  private void setVisible(boolean showStatusWidget) {
     StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
     if (statusBar != null) {
       if (showStatusWidget) {
@@ -74,21 +66,6 @@ class StatusBarManager implements ProjectComponent {
         if (statusWidget != null) {
           setVisible(statusBar, statusWidget, false);
           statusWidget = null;
-        }
-      }
-
-      if (FeatureToggles.enableBlameStatusbar()) {
-        if (showBlame) {
-          if (blameWidget == null) {
-            blameWidget = new BlameStatusWidget(project);
-            blameWidget.opened();
-          }
-          setVisible(statusBar, blameWidget, true);
-        } else {
-          if (blameWidget != null) {
-            setVisible(statusBar, blameWidget, false);
-            blameWidget = null;
-          }
         }
       }
     }

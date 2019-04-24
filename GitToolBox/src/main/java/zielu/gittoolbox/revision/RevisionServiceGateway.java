@@ -20,10 +20,6 @@ class RevisionServiceGateway extends GatewayBase {
     super(project);
   }
 
-  void fireRevisionUpdated(RevisionInfo revisionInfo) {
-    project.getMessageBus().syncPublisher(RevisionService.UPDATES).revisionUpdated(revisionInfo);
-  }
-
   @Nullable
   VirtualFile rootForFile(@NotNull VirtualFile file) {
     return Optional.ofNullable(VirtualFileRepoCache.getInstance(project).getRepoForFile(file))
@@ -38,7 +34,9 @@ class RevisionServiceGateway extends GatewayBase {
       IndexDataGetter getter = dataManager.getIndex().getDataGetter();
       if (getter != null) {
         int commitIndex = dataManager.getCommitIndex(HashImpl.build(revisionNumber.asString()), root);
-        return getter.getFullMessage(commitIndex);
+        if (commitIndex > -1) {
+          return getter.getFullMessage(commitIndex);
+        }
       }
     }
     return null;

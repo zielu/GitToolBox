@@ -13,9 +13,6 @@ public interface BlameService {
   Topic<BlameListener> BLAME_UPDATE = Topic.create("RevisionInfo updates", BlameListener.class);
 
   @NotNull
-  RevisionInfo getFileBlame(@NotNull VirtualFile file);
-
-  @NotNull
   RevisionInfo getDocumentLineIndexBlame(@NotNull Document document, @NotNull VirtualFile file, int lineIndex);
 
   void fileClosed(@NotNull VirtualFile file);

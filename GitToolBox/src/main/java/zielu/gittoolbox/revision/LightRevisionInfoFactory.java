@@ -1,7 +1,6 @@
 package zielu.gittoolbox.revision;
 
 import com.intellij.openapi.vcs.history.VcsFileRevision;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import java.util.Date;
 import org.jetbrains.annotations.NotNull;
@@ -10,12 +9,11 @@ import zielu.gittoolbox.util.GtStringUtil;
 class LightRevisionInfoFactory implements RevisionInfoFactory {
   @NotNull
   @Override
-  public RevisionInfo forLine(@NotNull RevisionDataProvider provider, @NotNull VcsRevisionNumber lineRevision,
-                              int lineNumber) {
+  public RevisionInfo forLine(@NotNull RevisionDataProvider provider, int lineNumber) {
     Date lineDate = provider.getDate(lineNumber);
     String author = provider.getAuthor(lineNumber);
     String subject = provider.getSubject(lineNumber);
-    return new RevisionInfoImpl(lineRevision, author, lineDate, subject);
+    return new RevisionInfoImpl(provider.getRevisionNumber(lineNumber), author, lineDate, subject);
   }
 
   @NotNull

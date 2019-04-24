@@ -9,6 +9,11 @@ public final class CachedFactory {
       return true;
     }
 
+    @Override
+    public boolean isLoaded() {
+      return false;
+    }
+
     public boolean isEmpty() {
       return true;
     }
@@ -48,6 +53,11 @@ public final class CachedFactory {
     @Override
     public boolean isLoading() {
       return loading;
+    }
+
+    @Override
+    public boolean isLoaded() {
+      return !loading;
     }
 
     @Override

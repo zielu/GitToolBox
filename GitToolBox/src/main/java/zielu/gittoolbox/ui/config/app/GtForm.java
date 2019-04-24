@@ -35,7 +35,6 @@ import javax.swing.event.ListDataEvent;
 import jodd.util.StringBand;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.FeatureToggles;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.config.AuthorNameType;
 import zielu.gittoolbox.config.CommitCompletionMode;
@@ -191,7 +190,7 @@ public class GtForm implements GtFormUi {
     });
     blameDateTypeCombo.setModel(new DefaultComboBoxModel<>(DateType.values()));
 
-    blameEnabledCheckBox.setVisible(FeatureToggles.enableBlameStatusbar());
+    blameEnabledCheckBox.setVisible(false);
   }
 
   private Optional<DecorationPartConfig> getCurrentDecorationPart() {

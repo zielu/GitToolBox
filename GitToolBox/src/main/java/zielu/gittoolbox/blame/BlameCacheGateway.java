@@ -23,7 +23,7 @@ class BlameCacheGateway extends GatewayBase {
     runInBackground(() -> messageBus.syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(file, annotation));
   }
 
-  void runInBackground(Runnable task) {
+  private void runInBackground(Runnable task) {
     executor.execute(new DisposeSafeRunnable(project, task));
   }
 

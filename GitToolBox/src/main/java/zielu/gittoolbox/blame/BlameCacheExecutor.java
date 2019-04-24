@@ -5,20 +5,15 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.FeatureToggles;
 import zielu.gittoolbox.util.ExecutableTask;
 
 class BlameCacheExecutor {
   private final Project project;
   private final Consumer<ExecutableTask> execution;
 
-  BlameCacheExecutor(@NotNull Project project, @NotNull BlameCacheGateway gateway) {
+  BlameCacheExecutor(@NotNull Project project) {
     this.project = project;
-    if (FeatureToggles.showBlameProgress()) {
-      execution = this::executeWithProgress;
-    } else {
-      execution = executable -> gateway.runInBackground(executable::run);
-    }
+    execution = this::executeWithProgress;
   }
 
   void execute(ExecutableTask executable) {

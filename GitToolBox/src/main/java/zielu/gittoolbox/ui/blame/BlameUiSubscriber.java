@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -45,6 +46,16 @@ class BlameUiSubscriber {
       }
     });
     connection.subscribe(EditorColorsManager.TOPIC, this::onColorSchemeChanged);
+    connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
+      @Override
+      public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+        onFileClosed(file);
+      }
+    });
+  }
+
+  private void onFileClosed(@NotNull VirtualFile file) {
+    BlameService.getExistingInstance(project).ifPresent(sevice -> sevice.fileClosed(file));
   }
 
   private void handleConfigChanged() {
