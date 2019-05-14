@@ -18,6 +18,7 @@ class StatusBarManager implements ProjectComponent {
   private final Project project;
   private final MessageBusConnection connection;
   private GitStatusWidget statusWidget;
+  private BlameStatusWidget blameWidget;
 
   StatusBarManager(@NotNull Project project) {
     this.project = project;
@@ -30,7 +31,7 @@ class StatusBarManager implements ProjectComponent {
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         AppUiUtil.invokeLater(project, () -> {
           if (opened.get()) {
-            setVisible(current.showStatusWidget);
+            setVisible(current.showStatusWidget, current.showBlameWidget);
           }
         });
       }
@@ -38,7 +39,7 @@ class StatusBarManager implements ProjectComponent {
   }
 
   private void uninstall() {
-    setVisible(false);
+    setVisible(false, false);
   }
 
   @Override
@@ -46,14 +47,15 @@ class StatusBarManager implements ProjectComponent {
     if (opened.compareAndSet(false, true) && hasUi()) {
       statusWidget = GitStatusWidget.create(project);
       statusWidget.opened();
+      blameWidget = new BlameStatusWidget(project);
       install();
 
       GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
-      setVisible(config.showStatusWidget);
+      setVisible(config.showStatusWidget, config.showBlameWidget);
     }
   }
 
-  private void setVisible(boolean showStatusWidget) {
+  private void setVisible(boolean showStatusWidget, boolean showBlameWidget) {
     StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
     if (statusBar != null) {
       if (showStatusWidget) {
@@ -66,6 +68,17 @@ class StatusBarManager implements ProjectComponent {
         if (statusWidget != null) {
           setVisible(statusBar, statusWidget, false);
           statusWidget = null;
+        }
+      }
+      if (showBlameWidget) {
+        if (blameWidget == null) {
+          blameWidget = new BlameStatusWidget(project);
+        }
+        setVisible(statusBar, blameWidget, true);
+      } else {
+        if (blameWidget != null) {
+          setVisible(statusBar, blameWidget, false);
+          blameWidget = null;
         }
       }
     }

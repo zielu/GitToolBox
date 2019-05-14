@@ -25,7 +25,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public boolean behindTracker = true;
   public boolean showStatusWidget = true;
   public boolean showProjectViewStatus = true;
-  public boolean showBlame = false;
+  public boolean showBlameWidget = false;
   public boolean showEditorInlineBlame = true;
   public String updateProjectActionId = DefaultUpdateProjectAction.ID;
   public List<DecorationPartConfig> decorationParts = Lists.newArrayList(
@@ -52,7 +52,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     copy.behindTracker = behindTracker;
     copy.showStatusWidget = showStatusWidget;
     copy.showProjectViewStatus = showProjectViewStatus;
-    copy.showBlame = showBlame;
+    copy.showBlameWidget = showBlameWidget;
     copy.showEditorInlineBlame = showEditorInlineBlame;
     copy.updateProjectActionId = updateProjectActionId;
     copy.decorationParts = decorationParts.stream().map(DecorationPartConfig::copy).collect(Collectors.toList());
@@ -101,8 +101,8 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     return !this.decorationParts.equals(decorationParts);
   }
 
-  public boolean isShowBlameChanged(boolean showBlame) {
-    return this.showBlame != showBlame;
+  public boolean isShowBlameWidgetChanged(boolean showBlameWidget) {
+    return this.showBlameWidget != showBlameWidget;
   }
 
   public boolean isShowEditorInlineBlameChanged(boolean showEditorInlineBlame) {

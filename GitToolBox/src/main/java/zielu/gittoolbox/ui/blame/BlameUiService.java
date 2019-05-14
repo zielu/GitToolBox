@@ -12,9 +12,12 @@ import zielu.gittoolbox.util.AppUtil;
 import java.util.Collection;
 import java.util.Optional;
 
-public interface BlameEditorService {
+public interface BlameUiService {
   @Nullable
-  public Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineIndex);
+  Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineIndex);
+
+  @Nullable
+  String getBlameStatus(@NotNull VirtualFile file, int editorLineIndex);
 
   void colorsSchemeChanged(@NotNull EditorColorsScheme colorsScheme);
 
@@ -23,12 +26,12 @@ public interface BlameEditorService {
   void blameUpdated(@NotNull VirtualFile file);
 
   @NotNull
-  static BlameEditorService getInstance(@NotNull Project project) {
-    return AppUtil.getServiceInstance(project, BlameEditorService.class);
+  static BlameUiService getInstance(@NotNull Project project) {
+    return AppUtil.getServiceInstance(project, BlameUiService.class);
   }
 
   @NotNull
-  static Optional<BlameEditorService> getExistingInstance(@NotNull Project project) {
-    return AppUtil.getExistingServiceInstance(project, BlameEditorService.class);
+  static Optional<BlameUiService> getExistingInstance(@NotNull Project project) {
+    return AppUtil.getExistingServiceInstance(project, BlameUiService.class);
   }
 }

@@ -1,24 +1,22 @@
 package zielu.gittoolbox.ui.blame;
 
-import com.intellij.openapi.editor.LineExtensionInfo;
 import com.intellij.openapi.util.Key;
-import java.util.Collection;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.revision.RevisionInfo;
 
 class BlameEditorData {
   static final Key<BlameEditorData> KEY = new Key<>("GitToolBox-blame-editor");
 
   private final int editorLineIndex;
-  private final Collection<LineExtensionInfo> lineInfo;
   private final boolean lineModified;
   private final int generation;
+  private final RevisionInfo revisionInfo;
 
-  BlameEditorData(int editorLineIndex, boolean lineModified, int generation,
-                  @Nullable Collection<LineExtensionInfo> lineInfo) {
+  BlameEditorData(int editorLineIndex, boolean lineModified, int generation, @NotNull RevisionInfo revisionInfo) {
     this.editorLineIndex = editorLineIndex;
-    this.lineInfo = lineInfo;
     this.lineModified = lineModified;
     this.generation = generation;
+    this.revisionInfo = revisionInfo;
   }
 
   boolean isSameEditorLineIndex(int editorLine) {
@@ -33,8 +31,8 @@ class BlameEditorData {
     return lineModified;
   }
 
-  @Nullable
-  Collection<LineExtensionInfo> getLineInfo() {
-    return lineInfo;
+  @NotNull
+  RevisionInfo getRevisionInfo() {
+    return revisionInfo;
   }
 }

@@ -93,8 +93,8 @@
 
     <applicationService serviceInterface="zielu.gittoolbox.ui.blame.BlamePresenter"
                         serviceImplementation="zielu.gittoolbox.ui.blame.BlamePresenterImpl"/>
-    <projectService serviceInterface="zielu.gittoolbox.ui.blame.BlameEditorService"
-                    serviceImplementation="zielu.gittoolbox.ui.blame.BlameEditorServiceImpl"/>
+    <projectService serviceInterface="zielu.gittoolbox.ui.blame.BlameUiService"
+                    serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiServiceImpl"/>
     <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter"/>
 
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchGateway"/>

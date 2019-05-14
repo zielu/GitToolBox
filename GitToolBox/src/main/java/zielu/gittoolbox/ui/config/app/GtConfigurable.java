@@ -46,7 +46,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     form.setBehindTrackerEnabled(config.behindTracker);
     form.setUpdateProjectAction(GitToolBoxUpdateProjectApp.getInstance().getById(config.getUpdateProjectActionId()));
     form.setDecorationParts(config.decorationParts);
-    form.setShowBlame(config.showBlame);
+    form.setShowStatusBlame(config.showBlameWidget);
     form.setShowEditorInlineBlame(config.showEditorInlineBlame);
     form.setCommitDialogCompletionMode(config.commitDialogCompletionMode);
     form.setBlameAuthorNameType(config.blameInlineAuthorNameType);
@@ -62,7 +62,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     modified = modified || config.isBehindTrackerChanged(form.getBehindTrackerEnabled());
     modified = modified || config.isUpdateProjectActionId(form.getUpdateProjectAction().getId());
     modified = modified || config.isDecorationPartsChanged(form.getDecorationParts());
-    modified = modified || config.isShowBlameChanged(form.getShowBlame());
+    modified = modified || config.isShowBlameWidgetChanged(form.getShowStatusBlame());
     modified = modified || config.isShowEditorInlineBlameChanged(form.getShowEditorInlineBlame());
     modified = modified || config.isCommitDialogCompletionModeChanged(form.getCommitDialogCompletionMode());
     modified = modified || config.isBlameInlineAuthorNameTypeChanged(form.getBlameAuthorNameType());
@@ -83,7 +83,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     config.behindTracker = form.getBehindTrackerEnabled();
     config.updateProjectActionId = form.getUpdateProjectAction().getId();
     config.decorationParts = form.getDecorationParts();
-    config.showBlame = form.getShowBlame();
+    config.showBlameWidget = form.getShowStatusBlame();
     config.showEditorInlineBlame = form.getShowEditorInlineBlame();
     config.commitDialogCompletionMode = form.getCommitDialogCompletionMode();
     config.blameInlineAuthorNameType = form.getBlameAuthorNameType();

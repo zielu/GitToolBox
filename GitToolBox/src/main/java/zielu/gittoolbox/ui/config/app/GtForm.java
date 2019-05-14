@@ -67,7 +67,7 @@ public class GtForm implements GtFormUi {
   private JBTextField decorationPartPrefixTextField;
   private JBTextField decorationPartPostfixTextField;
   private JBTextField layoutPreviewTextField;
-  private JCheckBox blameEnabledCheckBox;
+  private JCheckBox statusBlameEnabledCheckBox;
   private JCheckBox editorInlineBlameEnabledCheckBox;
   private ComboBox<CommitCompletionMode> commitDialogCompletionMode;
   private ComboBox<AuthorNameType> blameAuthorNameTypeCombo;
@@ -189,8 +189,6 @@ public class GtForm implements GtFormUi {
       }
     });
     blameDateTypeCombo.setModel(new DefaultComboBoxModel<>(DateType.values()));
-
-    blameEnabledCheckBox.setVisible(false);
   }
 
   private Optional<DecorationPartConfig> getCurrentDecorationPart() {
@@ -297,12 +295,12 @@ public class GtForm implements GtFormUi {
     showProjectViewStatusCheckBox.setSelected(showProjectViewStatus);
   }
 
-  void setShowBlame(boolean showBlame) {
-    blameEnabledCheckBox.setSelected(showBlame);
+  void setShowStatusBlame(boolean showBlame) {
+    statusBlameEnabledCheckBox.setSelected(showBlame);
   }
 
-  boolean getShowBlame() {
-    return blameEnabledCheckBox.isSelected();
+  boolean getShowStatusBlame() {
+    return statusBlameEnabledCheckBox.isSelected();
   }
 
   void setShowEditorInlineBlame(boolean showEditorInlineBlame) {

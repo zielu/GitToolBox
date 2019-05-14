@@ -17,7 +17,7 @@ public class BlameEditorLinePainter extends EditorLinePainter {
                                                          int editorLineIndex) {
     if (shouldShow(project)) {
       //lines are 0-indexed
-      return BlameEditorService.getInstance(project).getLineExtensions(file, editorLineIndex);
+      return BlameUiService.getInstance(project).getLineExtensions(file, editorLineIndex);
     }
     return null;
   }

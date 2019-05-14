@@ -69,7 +69,7 @@ class BlameUiSubscriber {
   private void onBlameUpdate(@NotNull VirtualFile file) {
     GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
     if (config.showEditorInlineBlame) {
-      BlameEditorService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file));
+      BlameUiService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file));
       AppUiUtil.invokeLater(project, () -> handleBlameUpdate(file));
     }
   }
@@ -97,14 +97,14 @@ class BlameUiSubscriber {
 
   private void onColorSchemeChanged(@Nullable EditorColorsScheme scheme) {
     if (scheme != null) {
-      BlameEditorService.getExistingInstance(project).ifPresent(service -> service.colorsSchemeChanged(scheme));
+      BlameUiService.getExistingInstance(project).ifPresent(service -> service.colorsSchemeChanged(scheme));
     }
   }
 
   private boolean onConfigChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
     boolean blamePresentationChanged = current.isBlameInlinePresentationChanged(previous);
-    BlameEditorService.getExistingInstance(project).ifPresent(service -> service.configChanged(previous, current));
-    return current.showBlame != previous.showBlame
+    BlameUiService.getExistingInstance(project).ifPresent(service -> service.configChanged(previous, current));
+    return current.showBlameWidget != previous.showBlameWidget
         || current.showEditorInlineBlame != previous.showEditorInlineBlame
         || blamePresentationChanged;
   }
