@@ -95,7 +95,7 @@ class BlameUiServiceImpl implements BlameUiService {
   }
 
   private boolean isDocumentValid(Document document) {
-    return document != null;
+    return document != null && document.getLineCount() > 0;
   }
 
   @Nullable
