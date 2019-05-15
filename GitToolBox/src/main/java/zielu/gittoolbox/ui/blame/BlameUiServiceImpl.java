@@ -233,12 +233,16 @@ class BlameUiServiceImpl implements BlameUiService {
             return lineInfo;
           }
         } else {
-          BlameEditorData.KEY.set(editor, null);
-          BlameEditorLineData.KEY.set(editor, null);
-          BlameStatusLineData.KEY.set(editor, null);
+          clear();
         }
       }
       return null;
+    }
+
+    private void clear() {
+      BlameEditorData.KEY.set(editor, null);
+      BlameEditorLineData.KEY.set(editor, null);
+      BlameStatusLineData.KEY.set(editor, null);
     }
 
     private boolean isSameEditorData(BlameEditorData editorData) {
@@ -262,9 +266,7 @@ class BlameUiServiceImpl implements BlameUiService {
             return lineInfo;
           }
         } else {
-          BlameEditorData.KEY.set(editor, null);
-          BlameEditorLineData.KEY.set(editor, null);
-          BlameStatusLineData.KEY.set(editor, null);
+          clear();
         }
       }
       return null;
