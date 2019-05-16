@@ -29,6 +29,7 @@ import zielu.gittoolbox.config.DecorationColors;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.revision.RevisionService;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 
 class BlameUiServiceImpl implements BlameUiService {
@@ -97,6 +98,22 @@ class BlameUiServiceImpl implements BlameUiService {
 
   private boolean isDocumentValid(Document document, int lineIndex) {
     return document != null  && lineIndex < document.getLineCount();
+  }
+
+  @Nullable
+  @Override
+  public String getBlameStatusTooltip(@NotNull VirtualFile file, int editorLineIndex) {
+    if (fileRepoCache.isUnderGitRoot(file)) {
+      Document document = FileDocumentManager.getInstance().getDocument(file);
+      if (isDocumentValid(document, editorLineIndex)) {
+        RevisionInfo revisionInfo = getLineBlame(document, file, editorLineIndex);
+        if (revisionInfo.isNotEmpty()) {
+          String message = RevisionService.getInstance(project).getCommitMessage(file, revisionInfo);
+          return BlamePresenter.getInstance().getPopup(revisionInfo, message);
+        }
+      }
+    }
+    return null;
   }
 
   @Nullable

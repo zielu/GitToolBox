@@ -19,6 +19,9 @@ public interface BlameUiService {
   @Nullable
   String getBlameStatus(@NotNull VirtualFile file, int editorLineIndex);
 
+  @Nullable
+  String getBlameStatusTooltip(@NotNull VirtualFile file, int editorLineIndex);
+
   void colorsSchemeChanged(@NotNull EditorColorsScheme colorsScheme);
 
   void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current);

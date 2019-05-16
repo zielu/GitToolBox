@@ -1,7 +1,6 @@
 package zielu.gittoolbox.ui.statusbar;
 
 import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.CaretEvent;
@@ -22,6 +21,8 @@ import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.ui.blame.BlameUi;
 import zielu.gittoolbox.ui.blame.BlameUiService;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 
@@ -37,7 +38,6 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   };
   private BlameUiService uiService;
   private String text = "";
-  private String tooltip;
 
   BlameStatusWidget(@NotNull Project project) {
     super(project);
@@ -102,7 +102,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
         @Override
         public void blameInvalidated(@NotNull VirtualFile file) {
           if (shouldShow()) {
-            updatePresentation(null);
+            AppUiUtil.invokeLaterIfNeeded(myProject, () -> updatePresentation(null));
           }
         }
       });
@@ -110,7 +110,15 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
         @Override
         public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
           if (shouldShow() && current.isBlameStatusPresentationChanged(previous)) {
-            updateBlame();
+            AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame());
+          }
+        }
+      });
+      myConnection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
+        @Override
+        public void exitDumbMode() {
+          if (shouldShow()) {
+            AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame());
           }
         }
       });
@@ -128,11 +136,11 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   }
 
   private void updateBlame(@NotNull VirtualFile file) {
-    Editor editor = getEditor();
-    if (editor != null && Objects.equals(getSelectedFile(), file)) {
-      CaretModel caretModel = editor.getCaretModel();
-      int lineIndex = caretModel.getLogicalPosition().line;
-      updateStatus(file, lineIndex);
+    if (Objects.equals(getSelectedFile(), file)) {
+      int lineIndex = BlameUi.getCurrentLineIndex(getEditor());
+      if (BlameUi.isValidLineIndex(lineIndex)) {
+        updateStatus(file, lineIndex);
+      }
     }
   }
 
@@ -150,12 +158,34 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   @Nullable
   @Override
   public String getTooltipText() {
-    return tooltip;
+    VirtualFile selectedFile = getSelectedFile();
+    if (selectedFile != null) {
+      int lineIndex = BlameUi.getCurrentLineIndex(getEditor());
+      if (BlameUi.isValidLineIndex(lineIndex)) {
+        return uiService.getBlameStatusTooltip(selectedFile, lineIndex);
+      }
+    }
+    return null;
   }
 
   @Nullable
   @Override
   public Consumer<MouseEvent> getClickConsumer() {
-    return null;
+    return this::showPopup;
+  }
+
+  private void showPopup(MouseEvent event) {
+    VirtualFile selectedFile = getSelectedFile();
+    Editor editor = getEditor();
+    if (selectedFile != null && editor != null) {
+      int lineIndex = BlameUi.getCurrentLineIndex(getEditor());
+      if (BlameUi.isValidLineIndex(lineIndex)) {
+        RevisionInfo revisionInfo = BlameService.getInstance(myProject)
+            .getDocumentLineIndexBlame(editor.getDocument(), selectedFile, lineIndex);
+        if (revisionInfo.isNotEmpty()) {
+          BlameUi.showBlamePopup(editor, selectedFile, revisionInfo);
+        }
+      }
+    }
   }
 }

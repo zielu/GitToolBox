@@ -34,13 +34,16 @@ public final class BlameUi {
     return false;
   }
 
-  public static int getCurrentLineIndex(@NotNull Editor editor) {
-    CaretModel caretModel = editor.getCaretModel();
-    if (!caretModel.isUpToDate()) {
-      return NO_LINE;
+  public static int getCurrentLineIndex(@Nullable Editor editor) {
+    if (editor != null) {
+      CaretModel caretModel = editor.getCaretModel();
+      if (!caretModel.isUpToDate()) {
+        return NO_LINE;
+      }
+      LogicalPosition position = caretModel.getLogicalPosition();
+      return position.line;
     }
-    LogicalPosition position = caretModel.getLogicalPosition();
-    return position.line;
+    return NO_LINE;
   }
 
   public static boolean isValidLineIndex(int lineNumber) {
