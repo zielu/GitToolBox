@@ -83,7 +83,7 @@ class BlameUiServiceImpl implements BlameUiService {
   private String getBlameStatusInternal(@NotNull VirtualFile file, int editorLineIndex) {
     if (fileRepoCache.isUnderGitRoot(file)) {
       Document document = FileDocumentManager.getInstance().getDocument(file);
-      if (isDocumentValid(document)) {
+      if (isDocumentValid(document, editorLineIndex)) {
         Editor editor = getEditor(document);
         if (editor != null) {
           return blameGetStatusBarInfoTimer.timeSupplier(() ->
@@ -94,8 +94,8 @@ class BlameUiServiceImpl implements BlameUiService {
     return null;
   }
 
-  private boolean isDocumentValid(Document document) {
-    return document != null && document.getLineCount() > 0;
+  private boolean isDocumentValid(Document document, int lineIndex) {
+    return document != null  && lineIndex < document.getLineCount();
   }
 
   @Nullable
@@ -108,7 +108,7 @@ class BlameUiServiceImpl implements BlameUiService {
   private List<LineExtensionInfo> getLineExtensionsInternal(@NotNull VirtualFile file, int editorLineIndex) {
     if (fileRepoCache.isUnderGitRoot(file)) {
       Document document = FileDocumentManager.getInstance().getDocument(file);
-      if (isDocumentValid(document)) {
+      if (isDocumentValid(document, editorLineIndex)) {
         Editor editor = getEditor(document);
         if (editor != null && isLineWithCaret(editor, editorLineIndex)) {
           return blameGetEditorInfoTimer.timeSupplier(() ->
