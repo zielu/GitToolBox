@@ -49,9 +49,10 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     form.setShowStatusBlame(config.showBlameWidget);
     form.setShowEditorInlineBlame(config.showEditorInlineBlame);
     form.setCommitDialogCompletionMode(config.commitDialogCompletionMode);
-    form.setBlameAuthorNameType(config.blameInlineAuthorNameType);
+    form.setBlameInlineAuthorNameType(config.blameInlineAuthorNameType);
     form.setBlameDateType(config.blameInlineDateType);
     form.setBlameShowSubject(config.blameInlineShowSubject);
+    form.setBlameStatusAuthorNameType(config.blameStatusAuthorNameType);
   }
 
   @Override
@@ -65,9 +66,10 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     modified = modified || config.isShowBlameWidgetChanged(form.getShowStatusBlame());
     modified = modified || config.isShowEditorInlineBlameChanged(form.getShowEditorInlineBlame());
     modified = modified || config.isCommitDialogCompletionModeChanged(form.getCommitDialogCompletionMode());
-    modified = modified || config.isBlameInlineAuthorNameTypeChanged(form.getBlameAuthorNameType());
+    modified = modified || config.isBlameInlineAuthorNameTypeChanged(form.getBlameInlineAuthorNameType());
     modified = modified || config.isBlameInlineDateTypeChanged(form.getBlameDateType());
     modified = modified || config.isBlameInlineShowSubjectChanged(form.getBlameShowSubject());
+    modified = modified || config.isBlameStatusAuthorNameTypeChanged(form.getBlameStatusAuthorNameType());
     log.debug("Modified: ", modified);
     return modified;
   }
@@ -86,9 +88,10 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     config.showBlameWidget = form.getShowStatusBlame();
     config.showEditorInlineBlame = form.getShowEditorInlineBlame();
     config.commitDialogCompletionMode = form.getCommitDialogCompletionMode();
-    config.blameInlineAuthorNameType = form.getBlameAuthorNameType();
+    config.blameInlineAuthorNameType = form.getBlameInlineAuthorNameType();
     config.blameInlineDateType = form.getBlameDateType();
     config.blameInlineShowSubject = form.getBlameShowSubject();
+    config.blameStatusAuthorNameType = form.getBlameStatusAuthorNameType();
 
     //Mark migrated here to handle case when config is modified without opening a project
     //Example: from launch dialog

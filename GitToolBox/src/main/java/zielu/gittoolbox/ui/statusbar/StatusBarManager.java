@@ -67,6 +67,7 @@ class StatusBarManager implements ProjectComponent {
       } else {
         if (statusWidget != null) {
           setVisible(statusBar, statusWidget, false);
+          statusWidget.closed();
           statusWidget = null;
         }
       }

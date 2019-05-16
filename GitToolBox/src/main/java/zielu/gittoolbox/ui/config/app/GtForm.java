@@ -30,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.ListDataEvent;
 import jodd.util.StringBand;
@@ -70,9 +71,10 @@ public class GtForm implements GtFormUi {
   private JCheckBox statusBlameEnabledCheckBox;
   private JCheckBox editorInlineBlameEnabledCheckBox;
   private ComboBox<CommitCompletionMode> commitDialogCompletionMode;
-  private ComboBox<AuthorNameType> blameAuthorNameTypeCombo;
+  private ComboBox<AuthorNameType> blameInlineAuthorNameTypeCombo;
   private ComboBox<DateType> blameDateTypeCombo;
   private JCheckBox blameShowSubjectCheckBox;
+  private ComboBox<AuthorNameType> blameStatusAuthorNameTypeCombo;
 
   @Override
   public void init() {
@@ -175,13 +177,10 @@ public class GtForm implements GtFormUi {
       }
     });
     commitDialogCompletionMode.setModel(new DefaultComboBoxModel<>(CommitCompletionMode.values()));
-    blameAuthorNameTypeCombo.setRenderer(new ListCellRendererWrapper<AuthorNameType>() {
-      @Override
-      public void customize(JList list, AuthorNameType value, int index, boolean selected, boolean hasFocus) {
-        setText(value.getDescription());
-      }
-    });
-    blameAuthorNameTypeCombo.setModel(new DefaultComboBoxModel<>(AuthorNameType.values()));
+    blameInlineAuthorNameTypeCombo.setRenderer(createAuthorNameTypeRenderer());
+    blameInlineAuthorNameTypeCombo.setModel(new DefaultComboBoxModel<>(AuthorNameType.inlineBlame()));
+    blameStatusAuthorNameTypeCombo.setRenderer(createAuthorNameTypeRenderer());
+    blameStatusAuthorNameTypeCombo.setModel(new DefaultComboBoxModel<>(AuthorNameType.statusBlame()));
     blameDateTypeCombo.setRenderer(new ListCellRendererWrapper<DateType>() {
       @Override
       public void customize(JList list, DateType value, int index, boolean selected, boolean hasFocus) {
@@ -189,6 +188,15 @@ public class GtForm implements GtFormUi {
       }
     });
     blameDateTypeCombo.setModel(new DefaultComboBoxModel<>(DateType.values()));
+  }
+
+  private ListCellRenderer<AuthorNameType> createAuthorNameTypeRenderer() {
+    return new ListCellRendererWrapper<AuthorNameType>() {
+      @Override
+      public void customize(JList list, AuthorNameType value, int index, boolean selected, boolean hasFocus) {
+        setText(value.getDescription());
+      }
+    };
   }
 
   private Optional<DecorationPartConfig> getCurrentDecorationPart() {
@@ -336,12 +344,12 @@ public class GtForm implements GtFormUi {
     commitDialogCompletionMode.setSelectedItem(mode);
   }
 
-  AuthorNameType getBlameAuthorNameType() {
-    return (AuthorNameType) blameAuthorNameTypeCombo.getSelectedItem();
+  AuthorNameType getBlameInlineAuthorNameType() {
+    return (AuthorNameType) blameInlineAuthorNameTypeCombo.getSelectedItem();
   }
 
-  void setBlameAuthorNameType(AuthorNameType authorNameType) {
-    blameAuthorNameTypeCombo.setSelectedItem(authorNameType);
+  void setBlameInlineAuthorNameType(AuthorNameType authorNameType) {
+    blameInlineAuthorNameTypeCombo.setSelectedItem(authorNameType);
   }
 
   DateType getBlameDateType() {
@@ -358,5 +366,13 @@ public class GtForm implements GtFormUi {
 
   void setBlameShowSubject(boolean showSubject) {
     blameShowSubjectCheckBox.setSelected(showSubject);
+  }
+
+  AuthorNameType getBlameStatusAuthorNameType() {
+    return (AuthorNameType) blameStatusAuthorNameTypeCombo.getSelectedItem();
+  }
+
+  void setBlameStatusAuthorNameType(AuthorNameType authorNameType) {
+    blameStatusAuthorNameTypeCombo.setSelectedItem(authorNameType);
   }
 }

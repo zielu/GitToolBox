@@ -21,7 +21,7 @@ class BlamePresenterImpl implements BlamePresenter {
   @Override
   public String getEditorInline(@NotNull RevisionInfo revisionInfo) {
     StringBand info = new StringBand(5)
-        .append(formatAuthor(revisionInfo.getAuthor()))
+        .append(formatInlineAuthor(revisionInfo.getAuthor()))
         .append(", ")
         .append(formatDate(revisionInfo.getDate()));
     boolean showSubject = GitToolBoxConfig2.getInstance().blameInlineShowSubject;
@@ -37,7 +37,7 @@ class BlamePresenterImpl implements BlamePresenter {
     return new StringBand(5)
         .append(ResBundle.message("blame.prefix"))
         .append(" ")
-        .append(AuthorNameType.LASTNAME.shorten(revisionInfo.getAuthor()))
+        .append(formatStatusAuthor(revisionInfo.getAuthor()))
         .append(" ")
         .append(DateType.ABSOLUTE.format(revisionInfo.getDate()))
         .toString();
@@ -62,8 +62,12 @@ class BlamePresenterImpl implements BlamePresenter {
     return text.toString();
   }
 
-  private String formatAuthor(@Nullable String author) {
+  private String formatInlineAuthor(@Nullable String author) {
     return GitToolBoxConfig2.getInstance().blameInlineAuthorNameType.shorten(author);
+  }
+
+  private String formatStatusAuthor(@Nullable String author) {
+    return GitToolBoxConfig2.getInstance().blameStatusAuthorNameType.shorten(author);
   }
 
   private String formatDate(@Nullable Date date) {

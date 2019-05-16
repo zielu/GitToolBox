@@ -68,7 +68,8 @@ class BlameUiServiceImpl implements BlameUiService {
 
   @Override
   public void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
-    if (current.isBlameInlinePresentationChanged(previous)) {
+    if (current.isBlameInlinePresentationChanged(previous)
+        || current.isBlameStatusPresentationChanged(previous)) {
       configGeneration.incrementAndGet();
     }
   }

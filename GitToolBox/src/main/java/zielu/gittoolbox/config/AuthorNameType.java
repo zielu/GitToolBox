@@ -10,6 +10,9 @@ public enum AuthorNameType {
   FIRSTNAME(ShortNameType.FIRSTNAME),
   FULL(ShortNameType.NONE);
 
+  private static final AuthorNameType[] INLINE_BLAME = values();
+  private static final AuthorNameType[] STATUS_BLAME = new AuthorNameType[] {INITIALS, LASTNAME, FIRSTNAME};
+
   private final ShortNameType type;
 
   AuthorNameType(ShortNameType type) {
@@ -24,5 +27,13 @@ public enum AuthorNameType {
   @Nullable
   public String shorten(@Nullable String author) {
     return ShortNameType.shorten(author, type);
+  }
+
+  public static AuthorNameType[] inlineBlame() {
+    return INLINE_BLAME;
+  }
+
+  public static AuthorNameType[] statusBlame() {
+    return STATUS_BLAME;
   }
 }
