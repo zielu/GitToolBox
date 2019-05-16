@@ -55,14 +55,13 @@ class CompletionServiceImpl implements CompletionService, Disposable {
   }
 
   private CompletionScopeProvider getScopeProvider() {
-    CompletionScopeProvider scopeProvider = CompletionScopeProvider.EMPTY;
     if (scopeProviderRef != null) {
       CompletionScopeProvider provider = scopeProviderRef.get();
       if (provider != null) {
         return provider;
       }
     }
-    return scopeProvider;
+    return CompletionScopeProvider.EMPTY;
   }
 
   private Collection<GitRepository> findAffectedRepositories(Collection<File> affectedFiles) {
