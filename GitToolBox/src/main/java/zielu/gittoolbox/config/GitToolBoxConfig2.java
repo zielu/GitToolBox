@@ -25,7 +25,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public boolean behindTracker = true;
   public boolean showStatusWidget = true;
   public boolean showProjectViewStatus = true;
-  public boolean showBlameWidget = false;
+  public boolean showBlameWidget = true;
   public boolean showEditorInlineBlame = true;
   public String updateProjectActionId = DefaultUpdateProjectAction.ID;
   public List<DecorationPartConfig> decorationParts = Lists.newArrayList(
