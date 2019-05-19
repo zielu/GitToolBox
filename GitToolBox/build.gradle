@@ -60,6 +60,14 @@ patchPluginXml {
             .replace("RELEASE_TYPE", buildType());
 }
 
+apply from: 'publish.gradle'
+publishPlugin {
+    token = project.publishToken
+    username = project.publishUsername
+    password = project.publishPassword
+    channels = publishChannels();
+}
+
 jar {
     manifest {
         attributes(
@@ -167,7 +175,15 @@ def static buildTime() {
     return df.format(new Date())
 }
 
-def buildType() {
+def isStableBuild() {
     def details = versionDetails()
-    return details.branchName != "master" ? "EAP" : "Stable"
+    return details.branchName == "master"
+}
+
+def buildType() {
+    return isStableBuild() ? "Stable" : "EAP"
+}
+
+def publishChannels() {
+    return isStableBuild() ? ['default', 'eap'] : ['eap']
 }

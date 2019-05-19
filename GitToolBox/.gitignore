@@ -2,3 +2,4 @@
 build/
 testDataDynamic/
 out/
+publish.gradle
