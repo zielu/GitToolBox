@@ -31,6 +31,7 @@ java {
 }
 
 def fast = Boolean.valueOf(String.valueOf(findProperty('fast')))
+def publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
 
 configurations {
     testAgent {
@@ -60,12 +61,14 @@ patchPluginXml {
             .replace("RELEASE_TYPE", buildType());
 }
 
-apply from: 'publish.gradle'
-publishPlugin {
-    token = project.publishToken
-    username = project.publishUsername
-    password = project.publishPassword
-    channels = publishChannels();
+if (publish) {
+    apply from: 'publish.gradle'
+    publishPlugin {
+        token = project.publishToken
+        username = project.publishUsername
+        password = project.publishPassword
+        channels = publishChannels();
+    }    
 }
 
 jar {
