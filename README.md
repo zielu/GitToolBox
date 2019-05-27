@@ -40,6 +40,13 @@ gradle clean check jacocoTestReport buildPlugin releaseMinorVersion
 gradle clean check jacocoTestReport buildPlugin releaseMajorVersion
 ```
 
+#### Release and publish
+Append ```-Ppublish=true``` and include ```publishPlugin``` task.
+For example
+```
+gradle clean check jacocoTestReport buildPlugin release publishPlugin -Ppublish=true
+```
+
 ### Useful build commands
 Full verification of build
 ```
