@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import com.google.common.base.Charsets;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -84,16 +83,14 @@ class IntegrationTest {
   void populateTestData(Project project, Module module) throws Exception {
     VirtualFile root = getRoot(module);
     FileUtil.copyDir(myTestDataPath.toFile(), VfsUtil.virtualToIoFile(root));
-    WriteCommandAction.runWriteCommandAction(project, () -> {
-      refreshRecursively(root);
-      ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
-      String rootPath = root.getPath();
-      vcsManager.setDirectoryMappings(Collections.singletonList(new VcsDirectoryMapping(rootPath, GitVcs.NAME)));
-      assertThat(LocalFileSystem.getInstance().findFileByPath(rootPath)).isNotNull();
-      GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
-      assertThat(repository).isNotNull();
-      PsiTestUtil.addContentRoot(module, root);
-    });
+    refreshRecursively(root);
+    ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
+    String rootPath = root.getPath();
+    vcsManager.setDirectoryMappings(Collections.singletonList(new VcsDirectoryMapping(rootPath, GitVcs.NAME)));
+    assertThat(LocalFileSystem.getInstance().findFileByPath(rootPath)).isNotNull();
+    GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
+    assertThat(repository).isNotNull();
+    PsiTestUtil.addContentRoot(module, root);
   }
 
   private VirtualFile getRoot(Module module) {

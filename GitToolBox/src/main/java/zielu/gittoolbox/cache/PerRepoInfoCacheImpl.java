@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import git4idea.GitUtil;
@@ -50,9 +49,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   }
 
   private void updateRepositoryStatus(@NotNull GitRepository repository) {
-    DumbService dumbService = DumbService.getInstance(project);
-    Runnable update = () -> updateAction(repository);
-    dumbService.runReadActionInSmartMode(update);
+    updateAction(repository);
   }
 
   private void updateAction(@NotNull GitRepository repository) {

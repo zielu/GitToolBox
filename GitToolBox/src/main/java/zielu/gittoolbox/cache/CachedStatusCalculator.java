@@ -2,10 +2,11 @@ package zielu.gittoolbox.cache;
 
 import com.codahale.metrics.Timer;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.vcs.log.Hash;
 import git4idea.repo.GitRepository;
 import java.util.List;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
@@ -27,17 +28,24 @@ class CachedStatusCalculator {
 
   private RepoInfo updateStatus(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
                             RepoStatus status) {
-    Timer statusUpdateLatency = metrics.timer("status-update");
-    GitAheadBehindCount count = statusUpdateLatency
+    Timer statusUpdateTimer = metrics.timer("status-update");
+    GitAheadBehindCount count = statusUpdateTimer
         .timeSupplier(() -> calculator.aheadBehindStatus(repo, status.localHash(), status.parentHash()));
     log.debug("Calculated status [", GtUtil.name(repo), "]: ", count);
     if (!status.sameHashes(count)) {
       log.warn("Hash mismatch between count and status: " + count + " <> " + status);
     }
-    GitTagCalculator tagCalculator = GitTagCalculator.create(repo.getProject());
-    List<String> tags = Optional.ofNullable(status.localHash())
-        .map(hash -> tagCalculator.tagsForCommit(repo.getRoot(), hash))
-        .orElseGet(() -> tagCalculator.tagsForHead(repo.getRoot()));
+    Timer tagsUpdateTimer = metrics.timer("tags-update");
+    List<String> tags = tagsUpdateTimer.timeSupplier(() -> calculateTags(repo, status.localHash()));
     return RepoInfo.create(status, count, tags);
+  }
+
+  private List<String> calculateTags(@NotNull GitRepository repository, @Nullable Hash localHash) {
+    GitTagCalculator tagCalculator = GitTagCalculator.create(repository.getProject());
+    if (localHash == null) {
+      return tagCalculator.tagsForHead(repository.getRoot());
+    } else {
+      return tagCalculator.tagsForCommit(repository.getRoot(), localHash);
+    }
   }
 }
