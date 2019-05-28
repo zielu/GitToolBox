@@ -1,6 +1,7 @@
 package zielu.gittoolbox.startup;
 
 import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
@@ -12,10 +13,8 @@ import zielu.gittoolbox.config.GitToolBoxConfig2;
 
 public class GitToolBoxStartup implements StartupActivity, DumbAware {
   private final Logger log = Logger.getInstance(getClass());
-  private final Application application;
 
-  public GitToolBoxStartup(Application application) {
-    this.application = application;
+  public GitToolBoxStartup() {
   }
 
   @Override
@@ -50,6 +49,7 @@ public class GitToolBoxStartup implements StartupActivity, DumbAware {
   }
 
   private void saveAppSettings() {
+    Application application = ApplicationManager.getApplication();
     if (!application.isUnitTestMode()) {
       log.info("Saving settings");
       try {
