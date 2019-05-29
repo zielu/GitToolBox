@@ -32,6 +32,7 @@ java {
 
 def fast = Boolean.valueOf(String.valueOf(findProperty('fast')))
 def publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
+def runSpotBugs = false
 
 configurations {
     testAgent {
@@ -124,10 +125,10 @@ spotbugs {
     includeFilter = file("${projectDir}/config/findbugs/includeFilter.xml")
 }
 spotbugsMain.onlyIf {
-    !fast
+    !fast && runSpotBugs
 }
 spotbugsTest.onlyIf {
-    !fast
+    !fast && runSpotBugs
 }
 
 apply plugin: 'checkstyle'
