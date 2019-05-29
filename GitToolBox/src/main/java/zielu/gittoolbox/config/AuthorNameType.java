@@ -10,9 +10,6 @@ public enum AuthorNameType {
   FIRSTNAME(ShortNameType.FIRSTNAME),
   FULL(ShortNameType.NONE);
 
-  private static final AuthorNameType[] INLINE_BLAME = values();
-  private static final AuthorNameType[] STATUS_BLAME = new AuthorNameType[] {INITIALS, LASTNAME, FIRSTNAME};
-
   private final ShortNameType type;
 
   AuthorNameType(ShortNameType type) {
@@ -30,10 +27,10 @@ public enum AuthorNameType {
   }
 
   public static AuthorNameType[] inlineBlame() {
-    return INLINE_BLAME;
+    return values();
   }
 
   public static AuthorNameType[] statusBlame() {
-    return STATUS_BLAME;
+    return values();
   }
 }
