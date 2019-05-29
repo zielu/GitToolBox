@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -83,13 +82,21 @@ class BlameUiServiceImpl implements BlameUiService {
 
   @Nullable
   private String getBlameStatusInternal(@NotNull VirtualFile file, int editorLineIndex) {
+    LineInfo lineInfo = createLineInfo(file, editorLineIndex);
+    if (lineInfo != null) {
+      return blameGetStatusBarInfoTimer.timeSupplier(() -> getStatusWithCaching(lineInfo));
+    }
+    return null;
+  }
+
+  @Nullable
+  private LineInfo createLineInfo(@NotNull VirtualFile file, int lineIndex) {
     if (fileRepoCache.isUnderGitRoot(file)) {
       Document document = FileDocumentManager.getInstance().getDocument(file);
-      if (isDocumentValid(document, editorLineIndex)) {
+      if (isDocumentValid(document, lineIndex)) {
         Editor editor = getEditor(document);
         if (editor != null) {
-          return blameGetStatusBarInfoTimer.timeSupplier(() ->
-              getStatusWithCaching(editor, document, file, editorLineIndex));
+          return new LineInfo(file, editor, document, lineIndex, configGeneration.get());
         }
       }
     }
@@ -124,46 +131,38 @@ class BlameUiServiceImpl implements BlameUiService {
 
   @Nullable
   private List<LineExtensionInfo> getLineExtensionsInternal(@NotNull VirtualFile file, int editorLineIndex) {
-    if (fileRepoCache.isUnderGitRoot(file)) {
-      Document document = FileDocumentManager.getInstance().getDocument(file);
-      if (isDocumentValid(document, editorLineIndex)) {
-        Editor editor = getEditor(document);
-        if (editor != null && isLineWithCaret(editor, editorLineIndex)) {
-          return blameGetEditorInfoTimer.timeSupplier(() ->
-              getLineInfosWithCaching(editor, document, file, editorLineIndex));
-        }
-      }
+    LineInfo lineInfo = createLineInfo(file, editorLineIndex);
+    if (lineInfo != null && isLineWithCaret(lineInfo.editor, lineInfo.lineIndex)) {
+      return blameGetEditorInfoTimer.timeSupplier(() -> getLineInfosWithCaching(lineInfo));
     }
     return null;
   }
 
   @Nullable
-  private List<LineExtensionInfo> getLineInfosWithCaching(@NotNull Editor editor, @NotNull Document document,
-                                                          @NotNull VirtualFile file, int editorLineIndex) {
-    LineState lineState = new LineState(editor, document, editorLineIndex, configGeneration.get());
+  private List<LineExtensionInfo> getLineInfosWithCaching(@NotNull LineInfo lineInfo) {
+    LineState lineState = new LineState(lineInfo);
     List<LineExtensionInfo> cachedInfo = lineState.getOrClearCachedLineInfo(this::getLineInfoDecoration);
     if (cachedInfo != null) {
       return cachedInfo;
     } else {
-      RevisionInfo lineRevisionInfo = getLineBlame(document, file, editorLineIndex);
+      RevisionInfo lineRevisionInfo = getLineBlame(lineInfo);
       if (lineRevisionInfo.isNotEmpty()) {
-        lineState.setEditorData(lineRevisionInfo);
+        lineState.setRevisionInfo(lineRevisionInfo);
       }
       return lineState.getOrClearCachedLineInfo(this::getLineInfoDecoration);
     }
   }
 
   @Nullable
-  private String getStatusWithCaching(@NotNull Editor editor, @NotNull Document document, @NotNull VirtualFile file,
-                                      int editorLineIndex) {
-    LineState lineState = new LineState(editor, document, editorLineIndex, configGeneration.get());
+  private String getStatusWithCaching(@NotNull LineInfo lineInfo) {
+    LineState lineState = new LineState(lineInfo);
     String cachedInfo = lineState.getOrClearCachedStatus(this::getStatusDecoration);
     if (cachedInfo != null) {
       return cachedInfo;
     } else {
-      RevisionInfo lineRevisionInfo = getLineBlame(document, file, editorLineIndex);
+      RevisionInfo lineRevisionInfo = getLineBlame(lineInfo);
       if (lineRevisionInfo.isNotEmpty()) {
-        lineState.setEditorData(lineRevisionInfo);
+        lineState.setRevisionInfo(lineRevisionInfo);
       }
       return lineState.getOrClearCachedStatus(this::getStatusDecoration);
     }
@@ -177,9 +176,7 @@ class BlameUiServiceImpl implements BlameUiService {
   private void handleBlameUpdated(@NotNull VirtualFile file) {
     FileEditor[] editors = FileEditorManager.getInstance(project).getAllEditors(file);
     for (FileEditor editor : editors) {
-      BlameEditorData.KEY.set(editor, null);
-      BlameEditorLineData.KEY.set(editor, null);
-      BlameStatusLineData.KEY.set(editor, null);
+      LineState.clear(editor);
     }
   }
 
@@ -202,6 +199,11 @@ class BlameUiServiceImpl implements BlameUiService {
   }
 
   @NotNull
+  private RevisionInfo getLineBlame(@NotNull LineInfo lineInfo) {
+    return blameService.getDocumentLineIndexBlame(lineInfo.document, lineInfo.file, lineInfo.lineIndex);
+  }
+
+  @NotNull
   private List<LineExtensionInfo> getLineInfoDecoration(RevisionInfo revisionInfo) {
     String text = formatBlameText(revisionInfo);
     return Collections.singletonList(new LineExtensionInfo(text, blameTextAttributes));
@@ -216,78 +218,5 @@ class BlameUiServiceImpl implements BlameUiService {
         .append(BLAME_PREFIX)
         .append(blamePresenter.getEditorInline(revisionInfo))
         .toString();
-  }
-
-  private static class LineState {
-    private final Editor editor;
-    private final int editorLineIndex;
-    private final boolean lineModified;
-    private final int generation;
-
-    private LineState(@NotNull Editor editor, @NotNull Document document, int editorLineIndex, int generation) {
-      this.editor = editor;
-      this.editorLineIndex = editorLineIndex;
-      this.generation = generation;
-      lineModified = document.isLineModified(editorLineIndex);
-    }
-
-    void setEditorData(@NotNull RevisionInfo revisionInfo) {
-      BlameEditorData editorData = new BlameEditorData(editorLineIndex, lineModified, generation, revisionInfo);
-      BlameEditorData.KEY.set(editor, editorData);
-    }
-
-    @Nullable
-    List<LineExtensionInfo> getOrClearCachedLineInfo(Function<RevisionInfo, List<LineExtensionInfo>> lineInfoMaker) {
-      BlameEditorData editorData = BlameEditorData.KEY.get(editor);
-      if (editorData != null) {
-        if (isSameEditorData(editorData)) {
-          RevisionInfo revisionInfo = editorData.getRevisionInfo();
-          BlameEditorLineData lineData = BlameEditorLineData.KEY.get(editor);
-          if (lineData != null && lineData.isSameRevision(revisionInfo)) {
-            return lineData.getLineInfo();
-          } else {
-            List<LineExtensionInfo> lineInfo = lineInfoMaker.apply(revisionInfo);
-            BlameEditorLineData.KEY.set(editor, new BlameEditorLineData(lineInfo, revisionInfo));
-            return lineInfo;
-          }
-        } else {
-          clear();
-        }
-      }
-      return null;
-    }
-
-    private void clear() {
-      BlameEditorData.KEY.set(editor, null);
-      BlameEditorLineData.KEY.set(editor, null);
-      BlameStatusLineData.KEY.set(editor, null);
-    }
-
-    private boolean isSameEditorData(BlameEditorData editorData) {
-      return editorData.isSameEditorLineIndex(editorLineIndex)
-          && editorData.isSameGeneration(generation)
-          && editorData.isLineModified() == lineModified;
-    }
-
-    @Nullable
-    String getOrClearCachedStatus(Function<RevisionInfo, String> statusMaker) {
-      BlameEditorData editorData = BlameEditorData.KEY.get(editor);
-      if (editorData != null) {
-        if (isSameEditorData(editorData)) {
-          RevisionInfo revisionInfo = editorData.getRevisionInfo();
-          BlameStatusLineData lineData = BlameStatusLineData.KEY.get(editor);
-          if (lineData != null && lineData.isSameRevision(revisionInfo)) {
-            return lineData.getLineInfo();
-          } else {
-            String lineInfo = statusMaker.apply(revisionInfo);
-            BlameStatusLineData.KEY.set(editor, new BlameStatusLineData(lineInfo, revisionInfo));
-            return lineInfo;
-          }
-        } else {
-          clear();
-        }
-      }
-      return null;
-    }
   }
 }
