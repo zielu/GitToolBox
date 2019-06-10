@@ -31,7 +31,6 @@
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2"/>
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigForProject"/>
 
-    <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxApp"/>
     <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
                         serviceImplementation="zielu.gittoolbox.metrics.AppMetricsImpl"/>
     <projectService serviceInterface="zielu.gittoolbox.metrics.ProjectMetrics"
