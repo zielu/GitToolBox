@@ -8,10 +8,10 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.5"
+    id "org.jetbrains.intellij" version "0.4.9"
     id 'com.palantir.git-version' version '0.11.0'
     id 'ch.netzwerg.release' version '1.2.5'
-    id "com.github.spotbugs" version "1.7.1"
+    id "com.github.spotbugs" version "2.0.0"
 }
 
 repositories {
@@ -42,6 +42,7 @@ configurations {
 
 def ideaCacheDir = Paths.get(System.getProperty('user.home')).resolve('intellij-gradle-cache').toAbsolutePath().toString()
 println("Idea cache dir: " + ideaCacheDir)
+println("Build type: " + buildType())
 
 intellij {
     version = ideaVersion
@@ -181,7 +182,7 @@ def static buildTime() {
 
 def isStableBuild() {
     def details = versionDetails()
-    return details.branchName == "master"
+    return details.branchName ==~ /(master|\d+-release)/
 }
 
 def buildType() {
