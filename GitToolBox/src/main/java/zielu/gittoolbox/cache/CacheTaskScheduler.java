@@ -1,20 +1,19 @@
 package zielu.gittoolbox.cache;
 
 import com.codahale.metrics.Counter;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import git4idea.repo.GitRepository;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,10 +43,7 @@ class CacheTaskScheduler implements Disposable {
   }
 
   private ScheduledExecutorService createExecutor() {
-    ThreadFactoryBuilder threadBuilder = new ThreadFactoryBuilder()
-        .setDaemon(true)
-        .setNameFormat(getClass().getSimpleName() + "-[" + project.getName() + "]-%d");
-    return Executors.newSingleThreadScheduledExecutor(threadBuilder.build());
+    return AppExecutorUtil.createBoundedScheduledExecutorService("GtCache", 1);
   }
 
   void setTaskDelayMillis(long delayMillis) {
@@ -57,13 +53,9 @@ class CacheTaskScheduler implements Disposable {
   @Override
   public void dispose() {
     active.compareAndSet(true, false);
-    destroyExecutor();
-  }
-
-  private void destroyExecutor() {
-    List<Runnable> notStartedTasks = updateExecutor.shutdownNow();
-    statusQueueSize.dec(notStartedTasks.size());
-    notStartedTasks.forEach(notStarted -> log.info("Task " + notStarted + " was never started"));
+    Collection<Collection<CacheTask>> tasks = new ArrayList<>(scheduledRepositories.values());
+    scheduledRepositories.clear();
+    tasks.stream().flatMap(Collection::stream).forEach(CacheTask::kill);
   }
 
   void scheduleOptional(@NotNull GitRepository repository, @NotNull Task task) {

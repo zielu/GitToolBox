@@ -1,5 +1,6 @@
 package zielu.gittoolbox.blame;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
 import com.intellij.openapi.project.Project;
@@ -9,10 +10,8 @@ import com.intellij.openapi.vcs.impl.UpToDateLineNumberProviderImpl;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
 import git4idea.GitVcs;
-import java.util.concurrent.ExecutorService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.util.DisposeSafeRunnable;
 import zielu.gittoolbox.util.GatewayBase;
 import zielu.gittoolbox.util.GtUtil;
@@ -20,13 +19,11 @@ import zielu.gittoolbox.util.GtUtil;
 class BlameServiceGateway extends GatewayBase {
   private final GitVcs git;
   private final MessageBus messageBus;
-  private final ExecutorService executor;
 
-  BlameServiceGateway(@NotNull Project project, @NotNull GitToolBoxApp app) {
+  BlameServiceGateway(@NotNull Project project) {
     super(project);
     git = GitVcs.getInstance(project);
     messageBus = project.getMessageBus();
-    executor = app.tasksExecutor();
   }
 
   @NotNull
@@ -44,7 +41,7 @@ class BlameServiceGateway extends GatewayBase {
   }
 
   private void publishAsync(Runnable task) {
-    executor.submit(new DisposeSafeRunnable(project, task));
+    ApplicationManager.getApplication().executeOnPooledThread(new DisposeSafeRunnable(project, task));
   }
 
   void fireBlameInvalidated(@NotNull VirtualFile file) {

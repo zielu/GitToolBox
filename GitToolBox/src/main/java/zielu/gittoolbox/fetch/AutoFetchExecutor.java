@@ -4,6 +4,7 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.ControlFlowException;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import git4idea.repo.GitRepository;
 import java.time.Duration;
 import java.util.LinkedList;
@@ -17,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
 public class AutoFetchExecutor implements ProjectComponent {
@@ -45,7 +45,7 @@ public class AutoFetchExecutor implements ProjectComponent {
 
   @Override
   public void initComponent() {
-    executor = GitToolBoxApp.getInstance().autoFetchExecutor();
+    executor = AppExecutorUtil.createBoundedScheduledExecutorService("GtAutoFetch", 1);
   }
 
   @Override

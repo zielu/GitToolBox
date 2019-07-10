@@ -3,12 +3,13 @@ package zielu.gittoolbox.status.behindtracker;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
@@ -31,7 +32,9 @@ public class BehindTrackerController implements ProjectComponent {
   @Override
   public void initComponent() {
     behindTracker = BehindTracker.getInstance(project);
-    executor = new ReschedulingExecutor(GitToolBoxApp.getInstance().tasksExecutor(), true);
+    ScheduledExecutorService scheduledExecutor = AppExecutorUtil
+        .createBoundedScheduledExecutorService("GtBehindTracker", 1);
+    this.executor = new ReschedulingExecutor(scheduledExecutor, true);
     connectToMessageBus();
   }
 
