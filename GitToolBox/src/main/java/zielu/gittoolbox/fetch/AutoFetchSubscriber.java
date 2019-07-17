@@ -1,7 +1,7 @@
 package zielu.gittoolbox.fetch;
 
 import com.google.common.base.Preconditions;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
@@ -14,7 +14,7 @@ import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
-class AutoFetchSubscriber implements ProjectComponent {
+class AutoFetchSubscriber implements BaseComponent {
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
   private final AutoFetchExclusions exclusions;

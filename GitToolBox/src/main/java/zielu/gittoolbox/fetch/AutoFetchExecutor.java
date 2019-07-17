@@ -1,9 +1,10 @@
 package zielu.gittoolbox.fetch;
 
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.ControlFlowException;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import git4idea.repo.GitRepository;
 import java.time.Duration;
@@ -20,10 +21,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
-public class AutoFetchExecutor implements ProjectComponent {
+public class AutoFetchExecutor implements Disposable {
   private final Logger log = Logger.getInstance(getClass());
 
-  private final AtomicBoolean active = new AtomicBoolean();
+  private final AtomicBoolean active = new AtomicBoolean(true);
   private final AtomicBoolean autoFetchEnabled = new AtomicBoolean();
 
   private final List<ScheduledFuture<?>> scheduledCyclicTasks = new LinkedList<>();
@@ -32,29 +33,21 @@ public class AutoFetchExecutor implements ProjectComponent {
   private final AtomicInteger scheduledRepoTasksCount = new AtomicInteger();
   private final Project project;
   private final AutoFetchSchedule schedule;
+  private final ScheduledExecutorService executor;
   private final Semaphore autoFetchLock = new Semaphore(1);
-  private ScheduledExecutorService executor;
 
   public AutoFetchExecutor(@NotNull Project project, @NotNull AutoFetchSchedule schedule,
                            @NotNull ProjectMetrics metrics) {
     this.project = project;
     this.schedule = schedule;
+    executor = AppExecutorUtil.createBoundedScheduledExecutorService("GtAutoFetch", 1);
     metrics.gauge("auto-fetch.cyclic-tasks-size", scheduledCyclicTasksCount::get);
     metrics.gauge("auto-fetch.repo-tasks-size", scheduledRepoTasksCount::get);
+    Disposer.register(project, this);
   }
 
   @Override
-  public void initComponent() {
-    executor = AppExecutorUtil.createBoundedScheduledExecutorService("GtAutoFetch", 1);
-  }
-
-  @Override
-  public void projectOpened() {
-    active.set(true);
-  }
-
-  @Override
-  public void projectClosed() {
+  public void dispose() {
     if (active.compareAndSet(true, false)) {
       cancelCurrentTasks();
     }

@@ -103,10 +103,6 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
     return project;
   }
 
-  private boolean isActive() {
-    return active.get();
-  }
-
   @Override
   public long lastAutoFetch() {
     return schedule.getLastAutoFetchDate();
@@ -121,6 +117,6 @@ public class AutoFetch implements ProjectComponent, AutoFetchComponent {
 
   @Override
   public void projectClosed() {
-    active.set(false);
+    active.compareAndSet(true, false);
   }
 }

@@ -1,6 +1,6 @@
 package zielu.gittoolbox.fetch;
 
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.components.BaseComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
@@ -13,11 +13,10 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.extension.AutoFetchAllowed;
 import zielu.gittoolbox.extension.AutoFetchAllowedEP;
 
-public class AutoFetchState implements ProjectComponent {
+public class AutoFetchState implements BaseComponent {
   private final Logger log = Logger.getInstance(getClass());
 
   private final AtomicBoolean fetchRunning = new AtomicBoolean();
-  private final AtomicBoolean active = new AtomicBoolean();
   private final List<AutoFetchAllowed> extensions = new ArrayList<>();
   private final Project project;
   private MessageBusConnection connection;
@@ -57,18 +56,8 @@ public class AutoFetchState implements ProjectComponent {
     return extension;
   }
 
-  @Override
-  public void projectOpened() {
-    active.compareAndSet(false, true);
-  }
-
   private void fireStateChanged() {
     project.getMessageBus().syncPublisher(AutoFetchNotifier.TOPIC).stateChanged(this);
-  }
-
-  @Override
-  public void projectClosed() {
-    active.compareAndSet(true, false);
   }
 
   @Override
@@ -90,7 +79,7 @@ public class AutoFetchState implements ProjectComponent {
   }
 
   private boolean isFetchAllowed() {
-    return active.get() && extensions.stream().allMatch(AutoFetchAllowed::isAllowed);
+    return extensions.stream().allMatch(AutoFetchAllowed::isAllowed);
   }
 
   boolean canAutoFetch() {

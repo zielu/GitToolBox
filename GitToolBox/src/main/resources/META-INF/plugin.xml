@@ -99,6 +99,7 @@
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchGateway"/>
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSchedule"/>
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchOnBranchSwitch"/>
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchExecutor"/>
 
     <webHelpProvider implementation="zielu.gittoolbox.help.GithubWikiHelpProvider"/>
   </extensions>
@@ -114,9 +115,6 @@
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.fetch.AutoFetchSubscriber</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.fetch.AutoFetchExecutor</implementation-class>
     </component>
     <component>
       <interface-class>zielu.gittoolbox.fetch.AutoFetchComponent</interface-class>
@@ -155,7 +153,7 @@
 
   <actions>
     <action class="zielu.gittoolbox.ui.actions.GitPushTagsAction" id="GitToolBox.PushTags"
-            text="Push tags on branch...">
+            text="Push Tags on Branch...">
       <add-to-group group-id="GitRepositoryActions" anchor="after" relative-to-action="Vcs.Push"/>
     </action>
     <action class="zielu.gittoolbox.ui.actions.BlameDetailsAction" id="GitToolBox.BlameDetails"
