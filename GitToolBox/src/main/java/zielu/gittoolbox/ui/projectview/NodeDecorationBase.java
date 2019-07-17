@@ -1,6 +1,6 @@
 package zielu.gittoolbox.ui.projectview;
 
-import com.intellij.dvcs.repo.Repository;
+import com.intellij.dvcs.repo.Repository.State;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
@@ -35,23 +35,40 @@ public abstract class NodeDecorationBase implements NodeDecoration {
 
   @NotNull
   protected final String getBranchText() {
-    if (repo.getState() == Repository.State.NORMAL) {
-      RepoStatus status = repoInfo.status();
-      if (status.isParentDifferentFromTracking()) {
-        GitRemoteBranch parentBranch = status.parentBranch();
-        if (parentBranch != null) {
-          String branchName = status.localBranch().getName();
-          String parentBranchName = parentBranch.getNameForRemoteOperations();
-          return ui.getPresenter().branchAndParent(branchName, parentBranchName);
-        }
-      }
+    if (repo.getState() == State.NORMAL) {
+      return getNormalStateBranchText();
+    } else if (repo.getState() == State.DETACHED) {
+      return getDetachedStateBranchText();
     }
     return GitBranchUtil.getDisplayableBranchText(repo);
   }
 
+  @NotNull
+  private String getNormalStateBranchText() {
+    RepoStatus status = repoInfo.status();
+    if (status.isParentDifferentFromTracking()) {
+      GitRemoteBranch parentBranch = status.parentBranch();
+      if (parentBranch != null) {
+        String branchName = status.localBranch() == null ? "" : status.localBranch().getName();
+        String parentBranchName = parentBranch.getNameForRemoteOperations();
+        return ui.getPresenter().branchAndParent(branchName, parentBranchName);
+      }
+    } else if (status.localBranch() != null) {
+      return status.localBranch().getName();
+    }
+    return GitBranchUtil.getDisplayableBranchText(repo);
+  }
+
+  @NotNull
+  private String getDetachedStateBranchText() {
+    RepoStatus status = repoInfo.status();
+    return status.localShortHash() == null ? GitBranchUtil.getDisplayableBranchText(repo) : status.localShortHash();
+  }
+
   @Nullable
   protected final String getTagsText() {
-    if (repoInfo.tags().isEmpty()) {
+    State state = repo.getState();
+    if (repoInfo.tags().isEmpty() || (state != State.NORMAL && state != State.DETACHED)) {
       return null;
     } else {
       return String.join(", ", repoInfo.tags());

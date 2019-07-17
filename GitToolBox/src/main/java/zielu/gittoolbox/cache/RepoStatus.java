@@ -17,11 +17,13 @@ public final class RepoStatus {
 
   private final GitLocalBranch localBranch;
   private final Hash localHash;
+  private final String localShortHash;
   private final RepoStatusRemote remote;
 
   private RepoStatus(GitLocalBranch localBranch, Hash localHash, RepoStatusRemote remote) {
     this.localBranch = localBranch;
     this.localHash = localHash;
+    this.localShortHash = localHash == null ? null : localHash.toShortString();
     this.remote = remote;
   }
 
@@ -36,6 +38,11 @@ public final class RepoStatus {
   @Nullable
   public Hash localHash() {
     return localHash;
+  }
+
+  @Nullable
+  public String localShortHash() {
+    return localShortHash;
   }
 
   @Nullable
@@ -75,13 +82,13 @@ public final class RepoStatus {
 
   public boolean sameHashes(GitAheadBehindCount aheadBehind) {
     return Objects.equals(localHash, aheadBehind.ahead.top())
-        && Objects.equals(remote.parentHash(), aheadBehind.behind.top());
+               && Objects.equals(remote.parentHash(), aheadBehind.behind.top());
   }
 
   public boolean isEmpty() {
     return localHash == null
-        && localBranch == null
-        && remote.isEmpty();
+               && localBranch == null
+               && remote.isEmpty();
   }
 
   @Override
@@ -94,10 +101,10 @@ public final class RepoStatus {
     }
     RepoStatus that = (RepoStatus) o;
     return new EqualsBuilder()
-        .append(localBranch, that.localBranch)
-        .append(localHash, that.localHash)
-        .append(remote, that.remote)
-        .build();
+               .append(localBranch, that.localBranch)
+               .append(localHash, that.localHash)
+               .append(remote, that.remote)
+               .build();
   }
 
   @Override
@@ -108,9 +115,9 @@ public final class RepoStatus {
   @Override
   public String toString() {
     return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
-        .append("localHash", localHash)
-        .append("localBranch", localBranch)
-        .append("remote", remote)
-        .build();
+               .append("localHash", localHash)
+               .append("localBranch", localBranch)
+               .append("remote", remote)
+               .build();
   }
 }
