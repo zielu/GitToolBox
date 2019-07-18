@@ -4,7 +4,6 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.PresentableNodeDescriptor.ColoredFragment;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.FontUtil;
-import java.util.Optional;
 
 public final class PresentationDataUtil {
   private PresentationDataUtil() {
@@ -16,10 +15,8 @@ public final class PresentationDataUtil {
   private static final ColoredFragment SPACER = new ColoredFragment(FontUtil.thinSpace(),
       SimpleTextAttributes.REGULAR_ATTRIBUTES);
 
-  public static Optional<String> getFirstColoredTextValue(PresentationData data) {
-    return data.getColoredText().stream()
-        .map(ColoredFragment::getText)
-        .findFirst();
+  public static boolean hasEmptyColoredTextValue(PresentationData data) {
+    return data.getColoredText().isEmpty();
   }
 
   public static ColoredFragment wideSpacer() {

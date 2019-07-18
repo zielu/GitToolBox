@@ -4,6 +4,7 @@ import com.intellij.dvcs.repo.Repository.State;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
+import java.util.EnumSet;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +14,7 @@ import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.ui.StatusPresenter;
 
 public abstract class NodeDecorationBase implements NodeDecoration {
+  private static final EnumSet<State> TAGS_HIDDEN_STATES = EnumSet.of(State.NORMAL, State.DETACHED);
   protected final NodeDecorationUi ui;
   protected final GitRepository repo;
   protected final RepoInfo repoInfo;
@@ -67,8 +69,7 @@ public abstract class NodeDecorationBase implements NodeDecoration {
 
   @Nullable
   protected final String getTagsText() {
-    State state = repo.getState();
-    if (repoInfo.tags().isEmpty() || (state != State.NORMAL && state != State.DETACHED)) {
+    if (repoInfo.tags().isEmpty() || TAGS_HIDDEN_STATES.contains(repo.getState())) {
       return null;
     } else {
       return String.join(", ", repoInfo.tags());

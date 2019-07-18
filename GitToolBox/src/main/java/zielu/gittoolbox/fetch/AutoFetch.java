@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 
-public class AutoFetch implements ProjectComponent, AutoFetchComponent {
+class AutoFetch implements ProjectComponent, AutoFetchComponent {
   private final Logger log = Logger.getInstance(getClass());
 
   private final AtomicBoolean active = new AtomicBoolean();

@@ -69,7 +69,7 @@ class AutoFetchSchedule implements Disposable {
   }
 
   Duration getInitTaskDelay() {
-    return Duration.ofSeconds(30);
+    return Duration.ofSeconds(10);
   }
 
   void autoFetchDisabled() {

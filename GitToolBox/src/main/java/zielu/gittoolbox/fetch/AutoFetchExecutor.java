@@ -3,25 +3,20 @@ package zielu.gittoolbox.fetch;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.ControlFlowException;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
-import com.intellij.util.concurrency.AppExecutorUtil;
 import git4idea.repo.GitRepository;
 import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.metrics.Metrics;
 
-public class AutoFetchExecutor implements Disposable {
+class AutoFetchExecutor implements Disposable {
   private final Logger log = Logger.getInstance(getClass());
 
   private final AtomicBoolean active = new AtomicBoolean(true);
@@ -31,19 +26,17 @@ public class AutoFetchExecutor implements Disposable {
   private final List<ScheduledFuture<?>> scheduledRepoTasks = new LinkedList<>();
   private final AtomicInteger scheduledCyclicTasksCount = new AtomicInteger();
   private final AtomicInteger scheduledRepoTasksCount = new AtomicInteger();
-  private final Project project;
+  private final AutoFetchGateway gateway;
   private final AutoFetchSchedule schedule;
-  private final ScheduledExecutorService executor;
   private final Semaphore autoFetchLock = new Semaphore(1);
 
-  public AutoFetchExecutor(@NotNull Project project, @NotNull AutoFetchSchedule schedule,
-                           @NotNull ProjectMetrics metrics) {
-    this.project = project;
+  AutoFetchExecutor(@NotNull AutoFetchGateway gateway, @NotNull AutoFetchSchedule schedule) {
+    this.gateway = gateway;
     this.schedule = schedule;
-    executor = AppExecutorUtil.createBoundedScheduledExecutorService("GtAutoFetch", 1);
+    Metrics metrics = gateway.metrics();
     metrics.gauge("auto-fetch.cyclic-tasks-size", scheduledCyclicTasksCount::get);
     metrics.gauge("auto-fetch.repo-tasks-size", scheduledRepoTasksCount::get);
-    Disposer.register(project, this);
+    gateway.disposeWithProject(this);
   }
 
   @Override
@@ -103,7 +96,8 @@ public class AutoFetchExecutor implements Disposable {
 
   private synchronized void trySchedulingTask(Duration delay) {
     if (cleanAndCheckTasks(scheduledCyclicTasks, scheduledCyclicTasksCount)) {
-      ScheduledFuture<?> scheduled = submitTaskToExecutor(delay, new AutoFetchTask(project, this, schedule));
+      ScheduledFuture<?> scheduled = submitTaskToExecutor(delay,
+          new AutoFetchTask(gateway.project(), this, schedule));
       scheduledCyclicTasks.add(scheduled);
       scheduledCyclicTasksCount.set(scheduledCyclicTasks.size());
     } else {
@@ -114,7 +108,7 @@ public class AutoFetchExecutor implements Disposable {
   private synchronized void trySchedulingTask(Duration delay, GitRepository repository) {
     if (cleanAndCheckTasks(scheduledRepoTasks, scheduledRepoTasksCount)) {
       ScheduledFuture<?> scheduled = submitTaskToExecutor(delay,
-          new AutoFetchTask(project, this, schedule, repository));
+          new AutoFetchTask(gateway.project(), this, schedule, repository));
       scheduledRepoTasks.add(scheduled);
       scheduledRepoTasksCount.set(scheduledRepoTasks.size());
     } else {
@@ -122,9 +116,9 @@ public class AutoFetchExecutor implements Disposable {
     }
   }
 
-  private ScheduledFuture<?> submitTaskToExecutor(Duration delay, Runnable task) {
+  private ScheduledFuture submitTaskToExecutor(Duration delay, Runnable task) {
     log.debug("Scheduling auto-fetch in ", delay);
-    return executor.schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS);
+    return gateway.schedule(task, delay);
   }
 
   void runIfActive(@NotNull Runnable task) {

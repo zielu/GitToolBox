@@ -6,6 +6,7 @@ import zielu.gittoolbox.util.AppUtil;
 
 public interface ProjectMetrics extends Metrics {
 
+  @NotNull
   static Metrics getInstance(@NotNull Project project) {
     return AppUtil.getServiceInstance(project, ProjectMetrics.class);
   }
