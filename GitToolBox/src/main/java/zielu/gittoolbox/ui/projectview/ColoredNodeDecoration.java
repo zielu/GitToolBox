@@ -22,6 +22,7 @@ import zielu.gittoolbox.ui.util.PresentationDataUtil;
 public class ColoredNodeDecoration extends NodeDecorationBase {
   private static final Map<DecorationPartType, Function<ColoredNodeDecoration, ColoredFragment>> DECORATORS =
       new EnumMap<>(DecorationPartType.class);
+
   static {
     DECORATORS.put(BRANCH, decoration -> {
       String value = decoration.coloredUi.getDecorationPartText(decoration.getBranchText(), BRANCH);

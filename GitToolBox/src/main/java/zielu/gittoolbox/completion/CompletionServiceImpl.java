@@ -3,37 +3,28 @@ package zielu.gittoolbox.completion;
 import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import git4idea.repo.GitRepository;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.compat.GitCompatUtil;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.formatter.Formatter;
-import zielu.gittoolbox.metrics.ProjectMetrics;
 
 class CompletionServiceImpl implements CompletionService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
-  private final Project project;
+  private final CompletionGateway gateway;
   private WeakReference<CompletionScopeProvider> scopeProviderRef;
-  private List<Formatter> formatters = Collections.emptyList();
+  private List<Formatter> formatters;
 
-  CompletionServiceImpl(@NotNull Project project) {
-    this.project = project;
-    fillFormatters(GitToolBoxConfigForProject.getInstance(project));
-    Disposer.register(project, this);
+  CompletionServiceImpl(@NotNull CompletionGateway gateway) {
+    this.gateway = gateway;
+    formatters = gateway.getFormatters();
+    gateway.disposeWithProject(this);
   }
 
   public void onConfigChanged(@NotNull GitToolBoxConfigForProject config) {
-    fillFormatters(config);
-  }
-
-  private void fillFormatters(GitToolBoxConfigForProject config) {
     formatters = ImmutableList.copyOf(config.getCompletionFormatters());
   }
 
@@ -65,12 +56,8 @@ class CompletionServiceImpl implements CompletionService, Disposable {
   }
 
   private Collection<GitRepository> findAffectedRepositories(Collection<File> affectedFiles) {
-    return ProjectMetrics.getInstance(project).timer("completion-get-repos")
-      .timeSupplier(() -> getRepositories(project, affectedFiles));
-  }
-
-  private Collection<GitRepository> getRepositories(Project project, Collection<File> selectedFiles) {
-    return GitCompatUtil.getRepositoriesForFiles(project, selectedFiles);
+    return gateway.metrics().timer("completion-get-repos")
+      .timeSupplier(() -> gateway.getRepositories(affectedFiles));
   }
 
   @Override
@@ -82,5 +69,6 @@ class CompletionServiceImpl implements CompletionService, Disposable {
   @Override
   public void dispose() {
     formatters = null;
+    scopeProviderRef = null;
   }
 }

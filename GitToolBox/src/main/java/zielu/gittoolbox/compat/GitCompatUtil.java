@@ -17,6 +17,7 @@ public final class GitCompatUtil {
     throw new IllegalStateException();
   }
 
+  @NotNull
   public static Collection<GitRepository> getRepositoriesForFiles(@NotNull Project project,
                                                                   @NotNull Collection<File> files) {
     List<GitRepoInfo> repositories = getRepos(project);
