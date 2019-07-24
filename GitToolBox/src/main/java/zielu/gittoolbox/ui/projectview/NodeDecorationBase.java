@@ -5,16 +5,16 @@ import git4idea.GitRemoteBranch;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import java.util.EnumSet;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.cache.RepoStatus;
+import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.ui.StatusPresenter;
 
 public abstract class NodeDecorationBase implements NodeDecoration {
-  private static final EnumSet<State> TAGS_HIDDEN_STATES = EnumSet.of(State.NORMAL, State.DETACHED);
+  private static final EnumSet<State> TAGS_VISIBLE_STATES = EnumSet.of(State.NORMAL, State.DETACHED);
   protected final NodeDecorationUi ui;
   protected final GitRepository repo;
   protected final RepoInfo repoInfo;
@@ -29,10 +29,13 @@ public abstract class NodeDecorationBase implements NodeDecoration {
 
   @Nullable
   protected final String getCountText() {
-    return repoInfo.count().filter(count -> count.status() == Status.SUCCESS).map(count -> {
+    GitAheadBehindCount count = repoInfo.count();
+    if (count != null && count.status() == Status.SUCCESS) {
       StatusPresenter presenter = ui.getPresenter();
-      return presenter.nonZeroAheadBehindStatus(count.ahead.value(), count.behind.value());
-    }).filter(StringUtils::isNotBlank).orElse(null);
+      String status = presenter.nonZeroAheadBehindStatus(count.ahead.value(), count.behind.value());
+      return status.length() > 0 ? status : null;
+    }
+    return null;
   }
 
   @NotNull
@@ -69,11 +72,10 @@ public abstract class NodeDecorationBase implements NodeDecoration {
 
   @Nullable
   protected final String getTagsText() {
-    if (repoInfo.tags().isEmpty() || TAGS_HIDDEN_STATES.contains(repo.getState())) {
-      return null;
-    } else {
+    if (repoInfo.tagsNotEmpty() && TAGS_VISIBLE_STATES.contains(repo.getState())) {
       return String.join(", ", repoInfo.tags());
     }
+    return null;
   }
 
   protected final boolean isTrackingBranch() {

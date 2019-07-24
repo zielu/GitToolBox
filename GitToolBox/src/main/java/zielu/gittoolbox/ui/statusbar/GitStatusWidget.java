@@ -22,6 +22,7 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.DisposeSafeRunnable;
@@ -172,9 +173,13 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void updateData(@NotNull GitRepository repository, RepoInfo repoInfo) {
-    toolTip.update(repository, repoInfo.count().orElse(null));
-    text = ResBundle.message("status.prefix") + " " + repoInfo.count().map(StatusText::format)
-        .orElse(ResBundle.na());
+    GitAheadBehindCount count = repoInfo.count();
+    if (count == null) {
+      text = ResBundle.na();
+    } else {
+      text = StatusText.format(count);
+    }
+    toolTip.update(repository, count);
   }
 
   private void runUpdate(@Nullable Project project) {

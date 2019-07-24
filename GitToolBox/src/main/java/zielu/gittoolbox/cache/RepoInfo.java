@@ -40,12 +40,21 @@ public class RepoInfo {
     return status;
   }
 
-  public Optional<GitAheadBehindCount> count() {
+  public Optional<GitAheadBehindCount> maybeCount() {
     return Optional.ofNullable(count);
+  }
+
+  @Nullable
+  public GitAheadBehindCount count() {
+    return count;
   }
 
   public ImmutableList<String> tags() {
     return tags;
+  }
+
+  public boolean tagsNotEmpty() {
+    return !tags.isEmpty();
   }
 
   public boolean isEmpty() {

@@ -124,7 +124,7 @@ class BehindTracker implements ProjectComponent {
       BehindStatus status = null;
       if (previousInfo == null) {
         status = calculateBehindStatus(info, count -> BehindStatus.create(count.behind));
-      } else if (info.count().isPresent()) {
+      } else if (info.maybeCount().isPresent()) {
         status = calculateBehindStatus(info, count -> calculateBehindStatus(previousInfo, count));
       }
       if (status != null) {
@@ -137,14 +137,14 @@ class BehindTracker implements ProjectComponent {
 
   private BehindStatus calculateBehindStatus(@NotNull RepoInfo info,
                                              @NotNull Function<GitAheadBehindCount, BehindStatus> operation) {
-    return info.count()
+    return info.maybeCount()
         .filter(GitAheadBehindCount::isNotZeroBehind)
         .map(operation)
         .orElseGet(BehindStatus::empty);
   }
 
   private BehindStatus calculateBehindStatus(@Nullable RepoInfo previous, @NotNull GitAheadBehindCount currentCount) {
-    int oldBehind = Optional.ofNullable(previous).flatMap(RepoInfo::count)
+    int oldBehind = Optional.ofNullable(previous).flatMap(RepoInfo::maybeCount)
         .map(count -> count.behind.value()).orElse(0);
     int delta = currentCount.behind.value() - oldBehind;
     return BehindStatus.create(currentCount.behind, delta);

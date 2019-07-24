@@ -114,8 +114,8 @@ class IntegrationTest {
 
     assertSoftly(softly -> {
       softly.assertThat(info).isNotNull();
-      softly.assertThat(info.count()).isNotEmpty();
-      softly.assertThat(info.count().get().status()).isEqualTo(Status.NO_REMOTE);
+      softly.assertThat(info.maybeCount()).isNotEmpty();
+      softly.assertThat(info.maybeCount().get().status()).isEqualTo(Status.NO_REMOTE);
       softly.assertThat(info.tags()).containsOnly(TAG);
     });
   }

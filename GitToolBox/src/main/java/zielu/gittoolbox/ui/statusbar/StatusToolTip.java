@@ -60,7 +60,7 @@ public class StatusToolTip {
     if (repositories.size() == 1) {
       PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
       RepoInfo info = cache.getInfo(currentRepository);
-      info.count().map(StatusText::formatToolTip).ifPresent(infoPart::append);
+      info.maybeCount().map(StatusText::formatToolTip).ifPresent(infoPart::append);
     } else if (repositories.size() > 2) {
       prepareMultiRepoTooltip(infoPart, repositories);
     }
@@ -73,7 +73,7 @@ public class StatusToolTip {
     Map<GitRepository, String> statuses = new LinkedHashMap<>();
     final AtomicReference<GitRepository> currentRepo = new AtomicReference<>();
     for (GitRepository repository : GtUtil.sort(repositories)) {
-      cache.getInfo(repository).count().map(StatusText::format).ifPresent(statusText -> {
+      cache.getInfo(repository).maybeCount().map(StatusText::format).ifPresent(statusText -> {
         if (repository.equals(currentRepository)) {
           currentRepo.set(repository);
         }
