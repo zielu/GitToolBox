@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.CalledInAwt;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.ui.statusbar.actions.RefreshStatusAction;
+import zielu.gittoolbox.ui.statusbar.actions.UpdateAction;
 import zielu.gittoolbox.util.GtUtil;
 
 /**
@@ -27,10 +28,17 @@ public class RootActions extends DefaultActionGroup {
   @CalledInAwt
   public boolean update() {
     removeAll();
+    add(new RefreshStatusAction());
+    add(new UpdateAction());
+    addPerRepositoryActions();
+
+    return true;
+  }
+
+  private void addPerRepositoryActions() {
     Collection<GitRepository> repositories = GitUtil.getRepositories(project);
     repositories = GtUtil.sort(repositories);
     List<GitRepository> repos = repositories.stream().filter(GtUtil::hasRemotes).collect(Collectors.toList());
-    add(new RefreshStatusAction());
     if (hasRepositories(repos)) {
       addSeparator(ResBundle.message("statusBar.status.menu.repositories.title"));
       if (repos.size() == 1) {
@@ -40,7 +48,6 @@ public class RootActions extends DefaultActionGroup {
         addAll(repos.stream().map(RepositoryActions::new).collect(Collectors.toList()));
       }
     }
-    return true;
   }
 
   private boolean hasRepositories(Collection<GitRepository> repositories) {
