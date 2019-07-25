@@ -16,7 +16,7 @@ public class UpdateAction extends DumbAwareAction {
   public void actionPerformed(@NotNull AnActionEvent event) {
     Project project = getEventProject(event);
     if (project != null) {
-      UpdateProject.create(project).execute();
+      UpdateProject.create(project).execute(event);
     }
   }
 }

@@ -21,7 +21,7 @@ class BehindTrackerUiService implements BehindTrackerUi {
       @Override
       protected void hyperlinkActivated(@NotNull Notification notification,
                                         @NotNull HyperlinkEvent hyperlinkEvent) {
-        UpdateProject.create(project).execute();
+        UpdateProject.create(project).execute(hyperlinkEvent.getInputEvent());
       }
     };
   }
