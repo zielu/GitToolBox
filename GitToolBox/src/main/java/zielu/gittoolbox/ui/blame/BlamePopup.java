@@ -21,6 +21,7 @@ import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.impl.AbstractVcsHelperImpl;
 import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.Gray;
 import com.intellij.ui.HyperlinkAdapter;
 import com.intellij.ui.JBColor;
 import com.intellij.vcs.log.impl.VcsLogContentUtil;
@@ -42,6 +43,7 @@ import zielu.gittoolbox.revision.RevisionService;
 class BlamePopup {
   private static final Logger LOG = Logger.getInstance(BlamePopup.class);
 
+  private static final JBColor BACKGROUND = new JBColor(Gray._224, Gray._92);
   private static final String REVEAL_IN_LOG = "reveal-in-log";
   private static final String AFFECTED_FILES = "affected-files";
   private static final String COPY_REVISION = "copy-revision";
@@ -60,7 +62,7 @@ class BlamePopup {
 
   void showFor(@NotNull JComponent component) {
     balloon = JBPopupFactory.getInstance()
-        .createHtmlTextBalloonBuilder(prepareText(), null, JBColor.LIGHT_GRAY, createLinkListener())
+        .createHtmlTextBalloonBuilder(prepareText(), null, BACKGROUND, createLinkListener())
         .setTitle(ResBundle.message("statusBar.blame.popup.title"))
         .setAnimationCycle(200)
         .setShowCallout(false)
@@ -81,7 +83,8 @@ class BlamePopup {
   private String prepareText() {
     String message = RevisionService.getInstance(project).getCommitMessage(file, revisionInfo);
     String details = BlamePresenter.getInstance().getPopup(revisionInfo, message);
-    return  "<pre>" + details + "</pre><br/>"
+    details = details.replace("\n", "<br>");
+    return  details
         + "<a href='" + REVEAL_IN_LOG + "'>Git Log</a>&nbsp;&nbsp;&nbsp"
         + "<a href='" + AFFECTED_FILES + "'>Affected Files</a>&nbsp;&nbsp;&nbsp"
         + "<a href='" + COPY_REVISION + "'>Copy Revision</a>";
