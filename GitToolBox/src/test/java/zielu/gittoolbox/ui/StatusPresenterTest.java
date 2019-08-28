@@ -10,7 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.TestType;
+import zielu.TestType;
 import zielu.gittoolbox.UtfSeq;
 import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.status.RevListCount;

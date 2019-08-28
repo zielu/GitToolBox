@@ -10,12 +10,19 @@ import zielu.gittoolbox.config.AuthorNameType;
 import zielu.gittoolbox.config.DateType;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.ui.DatePresenter;
 
 class BlamePresenterImpl implements BlamePresenter {
   private static final String SUBJECT_SEPARATOR = " " + UtfSeq.BULLET + " ";
   private static final String COMMIT_PREFIX = ResBundle.message("blame.commit") + " ";
   private static final String AUTHOR_PREFIX = ResBundle.message("blame.author") + " ";
   private static final String DATE_PREFIX = ResBundle.message("blame.date") + " ";
+
+  private final DatePresenter datePresenter;
+
+  BlamePresenterImpl(@NotNull DatePresenter datePresenter) {
+    this.datePresenter = datePresenter;
+  }
 
   @NotNull
   @Override
@@ -39,7 +46,7 @@ class BlamePresenterImpl implements BlamePresenter {
         .append(" ")
         .append(formatStatusAuthor(revisionInfo.getAuthor()))
         .append(" ")
-        .append(DateType.ABSOLUTE.format(revisionInfo.getDate()))
+        .append(datePresenter.format(DateType.ABSOLUTE, revisionInfo.getDate()))
         .toString();
   }
 
@@ -54,7 +61,7 @@ class BlamePresenterImpl implements BlamePresenter {
         .append(AuthorNameType.FULL.shorten(revisionInfo.getAuthor()))
         .append("\n")
         .append(DATE_PREFIX)
-        .append(DateType.ABSOLUTE.format(revisionInfo.getDate()))
+        .append(datePresenter.format(DateType.ABSOLUTE, revisionInfo.getDate()))
         .append("\n");
     if (details != null) {
       text.append("\n").append(details);
@@ -71,10 +78,11 @@ class BlamePresenterImpl implements BlamePresenter {
   }
 
   private String formatDate(@Nullable Date date) {
-    if (date != null) {
-      return GitToolBoxConfig2.getInstance().blameInlineDateType.format(date);
-    } else {
+    String formatted = datePresenter.format(GitToolBoxConfig2.getInstance().blameInlineDateType, date);
+    if (formatted == null) {
       return "";
+    } else {
+      return formatted;
     }
   }
 }

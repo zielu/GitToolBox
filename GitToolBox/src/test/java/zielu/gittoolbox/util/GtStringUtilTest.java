@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import zielu.gittoolbox.TestType;
+import zielu.TestType;
 
 @Tag(TestType.FAST)
 class GtStringUtilTest {

@@ -1,4 +1,4 @@
-package zielu.gittoolbox;
+package zielu;
 
 public class TestType {
   public static final String FAST = "fast";

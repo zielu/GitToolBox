@@ -28,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import zielu.TestType;
 import zielu.gittoolbox.blame.BlameCache;
 import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;

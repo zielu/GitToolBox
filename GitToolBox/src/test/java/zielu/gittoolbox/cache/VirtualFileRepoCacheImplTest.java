@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zielu.gittoolbox.TestType;
+import zielu.TestType;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.MockMetrics;
 

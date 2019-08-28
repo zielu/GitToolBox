@@ -30,7 +30,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zielu.gittoolbox.TestType;
+import zielu.TestType;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.cache.RepoStatus;
 import zielu.gittoolbox.cache.RepoStatusRemote;

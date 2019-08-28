@@ -8,7 +8,7 @@ import static zielu.gittoolbox.config.DecorationPartType.TAGS_ON_HEAD;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import zielu.gittoolbox.TestType;
+import zielu.TestType;
 import zielu.gittoolbox.config.DecorationPartType;
 import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.config.GitToolBoxConfig2;

@@ -370,7 +370,7 @@
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="2" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="configurable.app.blameDate"/>
+                  <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="configurable.app.blameDateType"/>
                 </properties>
               </component>
               <component id="64adc" class="com.intellij.openapi.ui.ComboBox" binding="blameDateTypeCombo">

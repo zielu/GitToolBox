@@ -14,7 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import zielu.gittoolbox.TestType;
+import zielu.TestType;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 
