@@ -4,7 +4,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.ListCellRendererWrapper;
+import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
@@ -37,6 +37,7 @@ import jodd.util.StringBand;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
+import zielu.gittoolbox.config.AbsoluteDateTimeStyle;
 import zielu.gittoolbox.config.AuthorNameType;
 import zielu.gittoolbox.config.CommitCompletionMode;
 import zielu.gittoolbox.config.DateType;
@@ -45,6 +46,7 @@ import zielu.gittoolbox.config.DecorationPartType;
 import zielu.gittoolbox.extension.UpdateProjectAction;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
+import zielu.gittoolbox.ui.config.AbsoluteDateTimeStyleRenderer;
 import zielu.gittoolbox.ui.util.ListDataAnyChangeAdapter;
 import zielu.intellij.ui.GtFormUi;
 
@@ -75,6 +77,7 @@ public class GtForm implements GtFormUi {
   private ComboBox<DateType> blameDateTypeCombo;
   private JCheckBox blameShowSubjectCheckBox;
   private ComboBox<AuthorNameType> blameStatusAuthorNameTypeCombo;
+  private ComboBox<AbsoluteDateTimeStyle> absoluteDateTimeStyleCombo;
 
   @Override
   public void init() {
@@ -99,7 +102,7 @@ public class GtForm implements GtFormUi {
       }
     });
 
-    decorationLayoutList.setCellRenderer(new ListCellRendererWrapper<DecorationPartConfig>() {
+    decorationLayoutList.setCellRenderer(new SimpleListCellRenderer<DecorationPartConfig>() {
       @Override
       public void customize(JList list, DecorationPartConfig value, int index, boolean selected, boolean hasFocus) {
         setText(value.prefix + value.type.getPlaceholder() + value.postfix);
@@ -147,7 +150,7 @@ public class GtForm implements GtFormUi {
       }
     });
 
-    presentationMode.setRenderer(new ListCellRendererWrapper<StatusPresenter>() {
+    presentationMode.setRenderer(new SimpleListCellRenderer<StatusPresenter>() {
       @Override
       public void customize(JList list, StatusPresenter presenter, int index, boolean isSelected,
                             boolean hasFocus) {
@@ -162,7 +165,7 @@ public class GtForm implements GtFormUi {
       presentationBehindTrackerPreview.setText(PresenterPreview.getBehindTrackerPreview(presenter));
     });
     showProjectViewStatusCheckBox.addItemListener(e -> onProjectViewStatusChange());
-    updateProjectAction.setRenderer(new ListCellRendererWrapper<UpdateProjectAction>() {
+    updateProjectAction.setRenderer(new SimpleListCellRenderer<UpdateProjectAction>() {
       @Override
       public void customize(JList list, UpdateProjectAction action, int index, boolean selected,
                             boolean hasFocus) {
@@ -170,7 +173,7 @@ public class GtForm implements GtFormUi {
       }
     });
     updateProjectAction.setModel(getUpdateModeModel());
-    commitDialogCompletionMode.setRenderer(new ListCellRendererWrapper<CommitCompletionMode>() {
+    commitDialogCompletionMode.setRenderer(new SimpleListCellRenderer<CommitCompletionMode>() {
       @Override
       public void customize(JList list, CommitCompletionMode value, int index, boolean selected, boolean hasFocus) {
         setText(value.getDisplayLabel());
@@ -181,17 +184,19 @@ public class GtForm implements GtFormUi {
     blameInlineAuthorNameTypeCombo.setModel(new DefaultComboBoxModel<>(AuthorNameType.inlineBlame()));
     blameStatusAuthorNameTypeCombo.setRenderer(createAuthorNameTypeRenderer());
     blameStatusAuthorNameTypeCombo.setModel(new DefaultComboBoxModel<>(AuthorNameType.statusBlame()));
-    blameDateTypeCombo.setRenderer(new ListCellRendererWrapper<DateType>() {
+    blameDateTypeCombo.setRenderer(new SimpleListCellRenderer<DateType>() {
       @Override
       public void customize(JList list, DateType value, int index, boolean selected, boolean hasFocus) {
         setText(value.getDescription());
       }
     });
     blameDateTypeCombo.setModel(new DefaultComboBoxModel<>(DateType.values()));
+    absoluteDateTimeStyleCombo.setRenderer(new AbsoluteDateTimeStyleRenderer());
+    absoluteDateTimeStyleCombo.setModel(new DefaultComboBoxModel<>(AbsoluteDateTimeStyle.values()));
   }
 
   private ListCellRenderer<AuthorNameType> createAuthorNameTypeRenderer() {
-    return new ListCellRendererWrapper<AuthorNameType>() {
+    return new SimpleListCellRenderer<AuthorNameType>() {
       @Override
       public void customize(JList list, AuthorNameType value, int index, boolean selected, boolean hasFocus) {
         setText(value.getDescription());
@@ -374,5 +379,13 @@ public class GtForm implements GtFormUi {
 
   void setBlameStatusAuthorNameType(AuthorNameType authorNameType) {
     blameStatusAuthorNameTypeCombo.setSelectedItem(authorNameType);
+  }
+
+  AbsoluteDateTimeStyle getAbsoluteDateTimeStyle() {
+    return (AbsoluteDateTimeStyle) absoluteDateTimeStyleCombo.getSelectedItem();
+  }
+
+  void setAbsoluteDateTimeStyle(AbsoluteDateTimeStyle absoluteDateTimeStyle) {
+    absoluteDateTimeStyleCombo.setSelectedItem(absoluteDateTimeStyle);
   }
 }

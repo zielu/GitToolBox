@@ -53,6 +53,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     form.setBlameDateType(config.blameInlineDateType);
     form.setBlameShowSubject(config.blameInlineShowSubject);
     form.setBlameStatusAuthorNameType(config.blameStatusAuthorNameType);
+    form.setAbsoluteDateTimeStyle(config.absoluteDateTimeStyle);
   }
 
   @Override
@@ -70,6 +71,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     modified = modified || config.isBlameInlineDateTypeChanged(form.getBlameDateType());
     modified = modified || config.isBlameInlineShowSubjectChanged(form.getBlameShowSubject());
     modified = modified || config.isBlameStatusAuthorNameTypeChanged(form.getBlameStatusAuthorNameType());
+    modified = modified || config.isAbsoluteDateTimeStyleChanged(form.getAbsoluteDateTimeStyle());
     log.debug("Modified: ", modified);
     return modified;
   }
@@ -92,6 +94,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     config.blameInlineDateType = form.getBlameDateType();
     config.blameInlineShowSubject = form.getBlameShowSubject();
     config.blameStatusAuthorNameType = form.getBlameStatusAuthorNameType();
+    config.absoluteDateTimeStyle = form.getAbsoluteDateTimeStyle();
 
     //Mark migrated here to handle case when config is modified without opening a project
     //Example: from launch dialog

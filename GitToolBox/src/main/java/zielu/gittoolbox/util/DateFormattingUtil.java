@@ -10,17 +10,7 @@ public final class DateFormattingUtil {
   }
 
   @NotNull
-  public static String formatPrettyDateTime(@NotNull Date date) {
-    return DateFormatUtil.formatPrettyDateTime(date);
-  }
-
-  @NotNull
   public static String formatRelativeBetweenDateTimes(@NotNull Date start, @NotNull Date end) {
     return DateFormatUtil.formatBetweenDates(start.getTime(), end.getTime());
-  }
-
-  @NotNull
-  public static String formatAbsoluteDateTime(@NotNull Date date) {
-    return DateFormatUtil.formatDateTime(date);
   }
 }

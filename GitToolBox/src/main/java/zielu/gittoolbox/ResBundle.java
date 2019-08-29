@@ -49,4 +49,8 @@ public final class ResBundle {
   public static String disabled() {
     return message("common.disabled");
   }
+
+  public static String example() {
+    return message("common.example.label");
+  }
 }

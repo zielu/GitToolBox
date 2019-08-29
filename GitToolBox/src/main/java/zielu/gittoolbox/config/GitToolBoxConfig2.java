@@ -39,6 +39,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public AuthorNameType blameStatusAuthorNameType = AuthorNameType.LASTNAME;
   public DateType blameInlineDateType = DateType.AUTO;
   public boolean blameInlineShowSubject = true;
+  public AbsoluteDateTimeStyle absoluteDateTimeStyle = AbsoluteDateTimeStyle.FROM_LOCALE;
 
   public boolean previousVersionMigrated;
 
@@ -62,6 +63,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     copy.blameStatusAuthorNameType = blameStatusAuthorNameType;
     copy.blameInlineDateType = blameInlineDateType;
     copy.blameInlineShowSubject = blameInlineShowSubject;
+    copy.absoluteDateTimeStyle = absoluteDateTimeStyle;
 
     copy.previousVersionMigrated = previousVersionMigrated;
     return copy;
@@ -144,6 +146,10 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
 
   public boolean isBlameStatusPresentationChanged(GitToolBoxConfig2 other) {
     return isBlameStatusAuthorNameTypeChanged(other.blameStatusAuthorNameType);
+  }
+
+  public boolean isAbsoluteDateTimeStyleChanged(AbsoluteDateTimeStyle other) {
+    return absoluteDateTimeStyle != other;
   }
 
   @Nullable
