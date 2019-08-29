@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.blame;
 
+import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
@@ -18,6 +19,7 @@ import com.intellij.openapi.vcs.CommittedChangesProvider;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
+import com.intellij.openapi.vcs.changes.issueLinks.IssueLinkHtmlRenderer;
 import com.intellij.openapi.vcs.impl.AbstractVcsHelperImpl;
 import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -39,14 +41,12 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.revision.RevisionService;
+import zielu.intellij.ui.ZUiUtil;
 
 class BlamePopup {
   private static final Logger LOG = Logger.getInstance(BlamePopup.class);
 
   private static final JBColor BACKGROUND = new JBColor(Gray._224, Gray._92);
-  private static final String REVEAL_IN_LOG = "reveal-in-log";
-  private static final String AFFECTED_FILES = "affected-files";
-  private static final String COPY_REVISION = "copy-revision";
 
   private final Project project;
   private final VirtualFile file;
@@ -82,12 +82,14 @@ class BlamePopup {
 
   private String prepareText() {
     String message = RevisionService.getInstance(project).getCommitMessage(file, revisionInfo);
-    String details = BlamePresenter.getInstance().getPopup(revisionInfo, message);
-    details = details.replace("\n", "<br>");
-    return  details
-        + "<a href='" + REVEAL_IN_LOG + "'>Git Log</a>&nbsp;&nbsp;&nbsp"
-        + "<a href='" + AFFECTED_FILES + "'>Affected Files</a>&nbsp;&nbsp;&nbsp"
-        + "<a href='" + COPY_REVISION + "'>Copy Revision</a>";
+    message = IssueLinkHtmlRenderer.formatTextWithLinks(project, message != null ? message : "");
+    String commitInformation = BlamePresenter.getInstance().getPopup(revisionInfo, message);
+    return ZUiUtil.asHtml(commitInformation
+        + "<br><br>"
+        + PopupAction.REVEAL_IN_LOG.createHtmlLink() + "&nbsp;&nbsp;&nbsp"
+        + PopupAction.AFFECTED_FILES.createHtmlLink() + "&nbsp;&nbsp;&nbsp"
+        + PopupAction.COPY_REVISION.createHtmlLink()
+    );
   }
 
   private HyperlinkListener createLinkListener() {
@@ -100,12 +102,14 @@ class BlamePopup {
   }
 
   private void handleLinkClick(String action) {
-    if (REVEAL_IN_LOG.equalsIgnoreCase(action)) {
+    if (PopupAction.REVEAL_IN_LOG.isAction(action)) {
       VcsLogContentUtil.openMainLogAndExecute(project, this::revealRevisionInLog);
-    } else if (AFFECTED_FILES.equalsIgnoreCase(action)) {
+    } else if (PopupAction.AFFECTED_FILES.isAction(action)) {
       showAffectedFiles();
-    } else if (COPY_REVISION.equalsIgnoreCase(action)) {
+    } else if (PopupAction.COPY_REVISION.isAction(action)) {
       CopyPasteManager.getInstance().setContents(new StringSelection(revisionInfo.getRevisionNumber().asString()));
+    } else {
+      BrowserUtil.open(action);
     }
     close();
   }
@@ -122,7 +126,7 @@ class BlamePopup {
           try {
             future.get();
           } catch (CancellationException | InterruptedException ignored) {
-            //ignored
+            Thread.currentThread().interrupt();
           } catch (ExecutionException e) {
             LOG.error(e);
           }
@@ -167,6 +171,29 @@ class BlamePopup {
   private void close() {
     if (balloon != null) {
       balloon.hide(true);
+    }
+  }
+
+  private enum PopupAction {
+    REVEAL_IN_LOG("reveal-in-log", "blame.popup.action.reveal.in.log.label"),
+    AFFECTED_FILES("affected-files", "blame.popup.action.affected.files.label"),
+    COPY_REVISION("copy-revision", "blame.popup.action.copy.revision.label")
+    ;
+
+    private final String key;
+    private final String labelKey;
+
+    PopupAction(String key, String labelKey) {
+      this.key = key;
+      this.labelKey = labelKey;
+    }
+
+    boolean isAction(String key) {
+      return this.key.equalsIgnoreCase(key);
+    }
+
+    String createHtmlLink() {
+      return "<a href='" + key + "'>" + ResBundle.message(labelKey) + "</a>";
     }
   }
 }

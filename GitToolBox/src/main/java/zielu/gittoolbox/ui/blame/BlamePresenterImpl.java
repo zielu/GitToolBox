@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.blame;
 
+import com.intellij.openapi.util.text.StringUtil;
 import java.util.Date;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +64,7 @@ class BlamePresenterImpl implements BlamePresenter {
         .append(DATE_PREFIX)
         .append(datePresenter.format(DateType.ABSOLUTE, revisionInfo.getDate()))
         .append("\n");
-    if (details != null) {
+    if (StringUtil.isNotEmpty(details)) {
       text.append("\n").append(details);
     }
     return text.toString();
