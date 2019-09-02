@@ -5,7 +5,6 @@ import com.intellij.ui.SimpleTextAttributes;
 import java.util.Date;
 import javax.swing.JList;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.config.AbsoluteDateTimeStyle;
 
 public class AbsoluteDateTimeStyleRenderer extends ColoredListCellRenderer<AbsoluteDateTimeStyle> {
@@ -14,8 +13,9 @@ public class AbsoluteDateTimeStyleRenderer extends ColoredListCellRenderer<Absol
   @Override
   protected void customizeCellRenderer(@NotNull JList<? extends AbsoluteDateTimeStyle> list,
                                        AbsoluteDateTimeStyle value, int index, boolean selected, boolean hasFocus) {
-    append(value.getLabel(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-    append("    " + ResBundle.example() + "  " + value.getFormat().format(now),
-        SimpleTextAttributes.GRAY_ATTRIBUTES);
+    append(value.getFormat().format(now));
+    if (value == AbsoluteDateTimeStyle.FROM_LOCALE) {
+      append("    Default", SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES);
+    }
   }
 }
