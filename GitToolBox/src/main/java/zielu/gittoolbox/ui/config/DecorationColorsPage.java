@@ -75,7 +75,7 @@ public class DecorationColorsPage implements ColorSettingsPage {
   @NotNull
   @Override
   public String getDisplayName() {
-    return ResBundle.message("app.displayName");
+    return ResBundle.message("colors.page.display.label");
   }
 
   @Nullable
