@@ -146,7 +146,8 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   }
 
   public boolean isBlameStatusPresentationChanged(GitToolBoxConfig2 other) {
-    return isBlameStatusAuthorNameTypeChanged(other.blameStatusAuthorNameType);
+    return isBlameStatusAuthorNameTypeChanged(other.blameStatusAuthorNameType)
+        || isAbsoluteDateTimeStyleChanged(other.absoluteDateTimeStyle);
   }
 
   public boolean isAbsoluteDateTimeStyleChanged(AbsoluteDateTimeStyle other) {
