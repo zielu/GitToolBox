@@ -60,6 +60,11 @@ public final class RepoStatus {
     return localBranch;
   }
 
+  @Nullable
+  public GitRemoteBranch remoteBranch() {
+    return remote.remoteBranch();
+  }
+
   public boolean sameLocalBranch(RepoStatus other) {
     return Objects.equals(localBranch, other.localBranch);
   }

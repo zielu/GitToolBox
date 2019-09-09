@@ -55,7 +55,13 @@ public abstract class NodeDecorationBase implements NodeDecoration {
       GitRemoteBranch parentBranch = status.parentBranch();
       if (parentBranch != null) {
         String branchName = status.localBranch() == null ? "" : status.localBranch().getName();
-        String parentBranchName = parentBranch.getNameForRemoteOperations();
+        GitRemoteBranch remoteBranch = status.remoteBranch();
+        String parentBranchName;
+        if (remoteBranch != null && !remoteBranch.getRemote().equals(parentBranch.getRemote())) {
+          parentBranchName = parentBranch.getNameForLocalOperations();
+        } else {
+          parentBranchName = parentBranch.getNameForRemoteOperations();
+        }
         return ui.getPresenter().branchAndParent(branchName, parentBranchName);
       }
     } else if (status.localBranch() != null) {

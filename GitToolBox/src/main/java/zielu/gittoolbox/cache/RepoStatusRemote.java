@@ -40,6 +40,11 @@ public final class RepoStatusRemote {
     return parentBranch;
   }
 
+  @Nullable
+  public GitRemoteBranch remoteBranch() {
+    return remoteTrackingBranch;
+  }
+
   public boolean sameParentHash(RepoStatusRemote other) {
     return Objects.equals(parentHash, other.parentHash);
   }

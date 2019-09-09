@@ -32,11 +32,13 @@ class InfoCacheGateway {
   }
 
   void notifyEvicted(@NotNull Collection<GitRepository> repositories) {
-    messageBus.syncPublisher(CACHE_CHANGE).evicted(repositories);
+    messageBus.syncPublisher(CACHE_CHANGE)
+        .evicted(repositories);
   }
 
   void notifyRepoChanged(@NotNull GitRepository repo, @NotNull RepoInfo previous, @NotNull RepoInfo current) {
-    messageBus.syncPublisher(CACHE_CHANGE).stateChanged(previous, current, repo);
+    messageBus.syncPublisher(CACHE_CHANGE)
+        .stateChanged(previous, current, repo);
     log.debug("Published cache changed event: ", repo);
   }
 
@@ -48,7 +50,8 @@ class InfoCacheGateway {
     GitLocalBranch localBranch = repository.getCurrentBranch();
     if (localBranch != null) {
       GitRepoInfo repoInfo = repository.getInfo();
-      localHash = repoInfo.getLocalBranchesWithHashes().get(localBranch);
+      localHash = repoInfo.getLocalBranchesWithHashes()
+                      .get(localBranch);
       remote = createRemoteStatus(repository, localBranch);
     }
 
@@ -64,16 +67,37 @@ class InfoCacheGateway {
     if (type == ReferencePointForStatusType.TRACKED_REMOTE_BRANCH) {
       parentBranch = trackedBranch;
     } else if (type == ReferencePointForStatusType.SELECTED_PARENT_BRANCH) {
-      GitBranchTrackInfo trackInfo = repository.getBranchTrackInfo(config.referencePointForStatus.name);
-      if (trackInfo != null) {
-        parentBranch = trackInfo.getRemoteBranch();
-      }
+      parentBranch = findRemoteParent(repository, config.referencePointForStatus.name).orElse(null);
     } else if (type == ReferencePointForStatusType.AUTOMATIC) {
       parentBranch = getRemoteBranchFromActiveTask(repository).orElse(trackedBranch);
     }
 
-    Hash parentHash = repoInfo.getRemoteBranchesWithHashes().get(parentBranch);
+    Hash parentHash = repoInfo.getRemoteBranchesWithHashes()
+                          .get(parentBranch);
     return new RepoStatusRemote(trackedBranch, parentBranch, parentHash);
+  }
+
+  private Optional<GitRemoteBranch> findRemoteParent(@NotNull GitRepository repository,
+                                                     @NotNull String referencePointName) {
+    if (referencePointName.contains("/")) {
+      Optional<GitRemoteBranch> maybeRemoteBranch = repository.getBranches()
+                .getRemoteBranches()
+                .stream()
+                .filter(remoteBranch -> remoteBranch
+                                            .getNameForLocalOperations()
+                                            .equals(referencePointName))
+                .findFirst();
+      return maybeRemoteBranch.isPresent() ? maybeRemoteBranch : findRemoteParentByLocalName(repository,
+          referencePointName);
+    } else {
+      return findRemoteParentByLocalName(repository, referencePointName);
+    }
+  }
+
+  private Optional<GitRemoteBranch> findRemoteParentByLocalName(@NotNull GitRepository repository,
+                                                                @NotNull String localName) {
+    return Optional.ofNullable(repository.getBranchTrackInfo(localName))
+               .map(GitBranchTrackInfo::getRemoteBranch);
   }
 
   private Optional<GitRemoteBranch> getRemoteBranchFromActiveTask(@NotNull GitRepository repository) {
@@ -82,11 +106,12 @@ class InfoCacheGateway {
       return Optional.empty();
     }
     LocalTask activeTask = manager.getActiveTask();
-    return activeTask.getBranches(true).stream()
-        .filter(branchInfo -> Objects.equals(repository.getPresentableUrl(), branchInfo.repository))
-        .findFirst()
-        .map(branchInfo -> branchInfo.name)
-        .map(repository::getBranchTrackInfo)
-        .map(GitBranchTrackInfo::getRemoteBranch);
+    return activeTask.getBranches(true)
+               .stream()
+               .filter(branchInfo -> Objects.equals(repository.getPresentableUrl(), branchInfo.repository))
+               .findFirst()
+               .map(branchInfo -> branchInfo.name)
+               .map(repository::getBranchTrackInfo)
+               .map(GitBranchTrackInfo::getRemoteBranch);
   }
 }
