@@ -8,6 +8,10 @@ public class GithubWikiHelpProvider extends WebHelpProvider {
   @Nullable
   @Override
   public String getHelpPageUrl(@NotNull String helpTopicId) {
-    return "https://github.com/zielu/GitToolBox/wiki/Manual";
+    String anchor = HelpKey.findKeyById(helpTopicId)
+                        .map(HelpKey::getAnchorId)
+                        .map(anchorId -> "#" + anchorId)
+                        .orElse("");
+    return "https://github.com/zielu/GitToolBox/wiki/Manual" + anchor;
   }
 }
