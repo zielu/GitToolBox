@@ -148,6 +148,7 @@ dependencies {
 
     //keep compile instead of implementation for org.jetbrains.intellij to package plugin correctly
     compile ("org.jodd:jodd-core:${joddVersion}")
+    compile ("com.google.guava:guava:${guavaVersion}")
     compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
     compile ("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
         exclude group: 'org.slf4j', module:'slf4j-api'
