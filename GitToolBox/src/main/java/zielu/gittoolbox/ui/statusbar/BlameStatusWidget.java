@@ -30,6 +30,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   private static final String ID = BlameStatusWidget.class.getName();
 
   private final AtomicBoolean visible = new AtomicBoolean();
+  private final AtomicBoolean connected = new AtomicBoolean();
   private final CaretListener caretListener = new CaretListener() {
     @Override
     public void caretPositionChanged(@NotNull CaretEvent event) {
@@ -82,7 +83,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
 
   @Nullable
   @Override
-  public WidgetPresentation getPresentation(@NotNull PlatformType type) {
+  public WidgetPresentation getPresentation() {
     return this;
   }
 
@@ -91,41 +92,47 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
     if (visible && this.visible.compareAndSet(false, true)) {
       uiService = BlameUiService.getInstance(myProject);
       EditorFactory.getInstance().getEventMulticaster().addCaretListener(caretListener);
-      myConnection.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
-        @Override
-        public void blameUpdated(@NotNull VirtualFile file) {
-          if (shouldShow()) {
-            AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame(file));
-          }
-        }
-
-        @Override
-        public void blameInvalidated(@NotNull VirtualFile file) {
-          if (shouldShow()) {
-            AppUiUtil.invokeLaterIfNeeded(myProject, () -> updatePresentation(null));
-          }
-        }
-      });
-      myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
-        @Override
-        public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
-          if (shouldShow() && current.isBlameStatusPresentationChanged(previous)) {
-            AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame());
-          }
-        }
-      });
-      myConnection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
-        @Override
-        public void exitDumbMode() {
-          if (shouldShow()) {
-            AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame());
-          }
-        }
-      });
+      if (connected.compareAndSet(false, true)) {
+        connect();
+      }
       AppUiUtil.invokeLater(myProject, this::updateBlame);
     } else if (!visible && this.visible.compareAndSet(true, false)) {
       EditorFactory.getInstance().getEventMulticaster().removeCaretListener(caretListener);
     }
+  }
+
+  private void connect() {
+    myConnection.subscribe(BlameService.BLAME_UPDATE, new BlameListener() {
+      @Override
+      public void blameUpdated(@NotNull VirtualFile file) {
+        if (shouldShow()) {
+          AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame(file));
+        }
+      }
+
+      @Override
+      public void blameInvalidated(@NotNull VirtualFile file) {
+        if (shouldShow()) {
+          AppUiUtil.invokeLaterIfNeeded(myProject, () -> updatePresentation(null));
+        }
+      }
+    });
+    myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
+      @Override
+      public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
+        if (shouldShow() && current.isBlameStatusPresentationChanged(previous)) {
+          AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame());
+        }
+      }
+    });
+    myConnection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener() {
+      @Override
+      public void exitDumbMode() {
+        if (shouldShow()) {
+          AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame());
+        }
+      }
+    });
   }
 
   private void updateBlame() {
@@ -166,6 +173,11 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
       }
     }
     return null;
+  }
+
+  @Override
+  public void closed() {
+    dispose();
   }
 
   @Nullable

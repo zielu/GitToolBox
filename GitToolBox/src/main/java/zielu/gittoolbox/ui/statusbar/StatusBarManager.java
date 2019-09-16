@@ -8,6 +8,8 @@ import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.util.messages.MessageBusConnection;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
@@ -26,12 +28,15 @@ class StatusBarManager implements ProjectComponent {
   }
 
   private void install() {
+    GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
+    updateWidgets(config.showStatusWidget, config.showBlameWidget);
+
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         AppUiUtil.invokeLater(project, () -> {
           if (opened.get()) {
-            setVisible(current.showStatusWidget, current.showBlameWidget);
+            updateWidgets(current.showStatusWidget, current.showBlameWidget);
           }
         });
       }
@@ -39,50 +44,47 @@ class StatusBarManager implements ProjectComponent {
   }
 
   private void uninstall() {
-    setVisible(false, false);
+    updateWidgets(false, false);
   }
 
   @Override
   public void projectOpened() {
     if (opened.compareAndSet(false, true) && hasUi()) {
-      statusWidget = GitStatusWidget.create(project);
-      statusWidget.opened();
-      blameWidget = new BlameStatusWidget(project);
       install();
-
-      GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
-      setVisible(config.showStatusWidget, config.showBlameWidget);
     }
   }
 
-  private void setVisible(boolean showStatusWidget, boolean showBlameWidget) {
+  private void updateWidgets(boolean showStatusWidget, boolean showBlameWidget) {
     StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
     if (statusBar != null) {
-      if (showStatusWidget) {
-        if (statusWidget == null) {
-          statusWidget = GitStatusWidget.create(project);
-          statusWidget.opened();
-        }
-        setVisible(statusBar, statusWidget, true);
-      } else {
-        if (statusWidget != null) {
-          setVisible(statusBar, statusWidget, false);
-          statusWidget.closed();
-          statusWidget = null;
-        }
-      }
-      if (showBlameWidget) {
-        if (blameWidget == null) {
-          blameWidget = new BlameStatusWidget(project);
-        }
-        setVisible(statusBar, blameWidget, true);
-      } else {
-        if (blameWidget != null) {
-          setVisible(statusBar, blameWidget, false);
-          blameWidget = null;
-        }
-      }
+      statusWidget = presentWidget(() -> statusWidget, GitStatusWidget::create, statusBar, showStatusWidget);
+      blameWidget = presentWidget(() -> blameWidget, BlameStatusWidget::new, statusBar, showBlameWidget);
     }
+  }
+
+  private <T extends StatusBarWidget & StatusBarUi> T presentWidget(Supplier<T> current, Function<Project, T> creator,
+                                                                    StatusBar statusBar, boolean state) {
+    if (state) {
+      T instance = createWidget(current, creator);
+      setVisible(statusBar, instance, state);
+      return instance;
+    } else {
+      T instance = current.get();
+      if (instance != null) {
+        setVisible(statusBar, instance, state);
+        instance.closed();
+      }
+      return null;
+    }
+  }
+
+  private <T extends StatusBarWidget & StatusBarUi> T createWidget(Supplier<T> current, Function<Project, T> creator) {
+    T instance = current.get();
+    if (instance == null) {
+      instance = creator.apply(project);
+      instance.opened();
+    }
+    return instance;
   }
 
   private <T extends StatusBarWidget & StatusBarUi> void setVisible(StatusBar statusBar, T widget, boolean visible) {
