@@ -11,23 +11,25 @@ import java.util.Optional;
 import javax.swing.JList;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.config.AutoFetchExclusionConfig;
 import zielu.gittoolbox.util.GtUtil;
 
-public class GitRepositoryRenderer extends ColoredListCellRenderer<String> {
+public class AutoFetchExclusionRenderer extends ColoredListCellRenderer<AutoFetchExclusionConfig> {
   private final Project project;
 
-  public GitRepositoryRenderer(@NotNull Project project) {
+  public AutoFetchExclusionRenderer(@NotNull Project project) {
     this.project = project;
   }
 
   @Override
-  protected void customizeCellRenderer(@NotNull JList<? extends String> list, String value, int index,
+  protected void customizeCellRenderer(@NotNull JList<? extends AutoFetchExclusionConfig> list,
+                                       AutoFetchExclusionConfig value, int index,
                                        boolean selected, boolean hasFocus) {
-    Optional<GitRepository> repository = GtUtil.getRepositoryForRoot(project, value);
+    Optional<GitRepository> repository = GtUtil.getRepositoryForRoot(project, value.getRepositoryRootPath());
     if (repository.isPresent()) {
       render(repository.get());
     } else {
-      renderMissing(value);
+      renderMissing(value.getRepositoryRootPath());
     }
   }
 

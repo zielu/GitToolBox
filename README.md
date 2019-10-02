@@ -58,7 +58,7 @@ gradle clean test jacocoTestReport -Pfast=true
 ```
 Update gradlew version
 ```
-gradle wrapper --gradle-version 4.7 --distribution-type ALL
+gradle wrapper --gradle-version 5.6.2 --distribution-type ALL
 ```
 
 ### Useful run commands

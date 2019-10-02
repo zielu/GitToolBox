@@ -11,7 +11,7 @@ plugins {
     id "org.jetbrains.intellij" version "0.4.10"
     id 'com.palantir.git-version' version '0.11.0'
     id 'ch.netzwerg.release' version '1.2.5'
-    id "com.github.spotbugs" version "2.0.0"
+    id "org.jetbrains.kotlin.jvm" version "1.3.50"
 }
 
 repositories {
@@ -32,7 +32,6 @@ java {
 
 def fast = Boolean.valueOf(String.valueOf(findProperty('fast')))
 def publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
-def runSpotBugs = false
 
 configurations {
     testAgent {
@@ -119,19 +118,6 @@ test {
     }
 }
 
-spotbugs {
-    toolVersion = "${spotbugsVersion}"
-    ignoreFailures = false
-    effort = 'default'
-    includeFilter = file("${projectDir}/config/findbugs/includeFilter.xml")
-}
-spotbugsMain.onlyIf {
-    !fast && runSpotBugs
-}
-spotbugsTest.onlyIf {
-    !fast && runSpotBugs
-}
-
 apply plugin: 'checkstyle'
 checkstyle {
     toolVersion = "${checkstyleVersion}"
@@ -144,21 +130,19 @@ checkstyle {
 dependencies {
     checkstyle ("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
     testAgent ("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
-    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.8.0'
 
     //keep compile instead of implementation for org.jetbrains.intellij to package plugin correctly
-    compile ("org.jodd:jodd-core:${joddVersion}")
-    compile ("com.google.guava:guava:${guavaVersion}")
-    compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
-    compile ("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
+    implementation ("org.jodd:jodd-core:${joddVersion}")
+    implementation ("com.google.guava:guava:${guavaVersion}")
+    implementation ("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation ("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
         exclude group: 'org.slf4j', module:'slf4j-api'
     }
-    compile ("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
+    implementation ("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
         exclude group: 'org.slf4j', module:'slf4j-api'
     }
 
-    compileOnly ('com.google.code.findbugs:jsr305:3.0.2')
-    compileOnly ("com.github.spotbugs:spotbugs:${spotbugsVersion}")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     testImplementation ("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
     testImplementation ("org.mockito:mockito-core:${mockitoVersion}")

@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.fetch.GitFetchResult;
-import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
@@ -160,10 +159,9 @@ class AutoFetchTask implements Runnable {
 
   private void executeIdeaFetch(@NotNull List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
     Collection<GitRepository> fetched = ImmutableList.copyOf(repos);
-    GitFetchSupport fetchSupport = GitFetchSupport.fetchSupport(project);
     Metrics metrics = ProjectMetrics.getInstance(project);
     GitFetchResult fetchResult = metrics.timer("fetch-roots-idea")
-        .timeSupplier(() -> fetchSupport.fetchAllRemotes(repos));
+        .timeSupplier(() -> GtFetchUtil.fetch(project, repos));
     fetchPerformed(fetched);
     if (fetchResult.showNotificationIfFailed(autoFetchFailedTitle())) {
       finishedNotification(fetched);

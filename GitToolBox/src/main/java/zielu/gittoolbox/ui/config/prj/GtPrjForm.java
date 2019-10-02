@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config;
+package zielu.gittoolbox.ui.config.prj;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.diagnostic.Logger;
@@ -18,6 +18,8 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,19 +37,23 @@ import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.IconHandle;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.config.AutoFetchExclusionConfig;
 import zielu.gittoolbox.config.CommitCompletionConfig;
 import zielu.gittoolbox.config.CommitCompletionType;
 import zielu.gittoolbox.config.ReferencePointForStatusConfig;
 import zielu.gittoolbox.config.ReferencePointForStatusType;
 import zielu.gittoolbox.fetch.AutoFetchParams;
+import zielu.gittoolbox.ui.config.AutoFetchExclusionRenderer;
+import zielu.gittoolbox.ui.config.GtPatternFormatterForm;
+import zielu.gittoolbox.ui.config.ReferencePointForStatusTypeRenderer;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.intellij.ui.GtFormUi;
 
 public class GtPrjForm implements GtFormUi {
   private final Logger log = Logger.getInstance(getClass());
-  private final CollectionListModel<String> autoFetchExclusionsModel = new CollectionListModel<>();
-  private final JBList<String> autoFetchExclusionsList = new JBList<>(autoFetchExclusionsModel);
+  private final CollectionListModel<AutoFetchExclusionConfig> autoFetchExclusionsModel = new CollectionListModel<>();
+  private final JBList<AutoFetchExclusionConfig> autoFetchExclusionsList = new JBList<>(autoFetchExclusionsModel);
   private final CollectionListModel<CommitCompletionConfig> completionItemModel = new CollectionListModel<>();
   private final JBList<CommitCompletionConfig> completionItemList = new JBList<>(completionItemModel);
   private final JBPopupMenu addCommitCompletionPopup = new JBPopupMenu();
@@ -198,7 +204,7 @@ public class GtPrjForm implements GtFormUi {
   private void onAddAutoFetchExclusion() {
     log.debug("Add exclusions...");
     GtRepoChooser chooser = new GtRepoChooser(project, content);
-    List<GitRepository> excluded = GtUtil.getRepositoriesForRoots(project, autoFetchExclusionsModel.getItems());
+    List<GitRepository> excluded = getExcludedRepositories(autoFetchExclusionsModel.getItems());
     log.debug("Currently excluded: ", excluded);
     chooser.setSelectedRepositories(excluded);
     chooser.setRepositories(GitRepositoryManager.getInstance(project).getRepositories());
@@ -206,11 +212,12 @@ public class GtPrjForm implements GtFormUi {
       log.debug("Exclusions about to change");
       List<GitRepository> selectedRepositories = chooser.getSelectedRepositories();
       selectedRepositories = GtUtil.sort(selectedRepositories);
-      List<String> selectedRoots = selectedRepositories.stream()
+      List<AutoFetchExclusionConfig> selectedRoots = selectedRepositories.stream()
           .map(GitRepository::getRoot)
           .map(VirtualFile::getUrl)
+          .map(AutoFetchExclusionConfig::new)
           .collect(Collectors.toList());
-      List<String> newContent = autoFetchExclusionsModel.toList();
+      List<AutoFetchExclusionConfig> newContent = autoFetchExclusionsModel.toList();
       newContent.addAll(selectedRoots);
       log.debug("New exclusions: ", newContent);
       replaceAutoFetchExclusions(newContent);
@@ -219,8 +226,15 @@ public class GtPrjForm implements GtFormUi {
     }
   }
 
+  private List<GitRepository> getExcludedRepositories(Collection<AutoFetchExclusionConfig> exclusions) {
+    List<String> roots = exclusions.stream()
+        .map(AutoFetchExclusionConfig::getRepositoryRootPath)
+        .collect(Collectors.toList());
+    return GtUtil.getRepositoriesForRoots(project, roots);
+  }
+
   private void onRemoveAutoFetchExclusion() {
-    List<String> selectedValues = autoFetchExclusionsList.getSelectedValuesList();
+    List<AutoFetchExclusionConfig> selectedValues = autoFetchExclusionsList.getSelectedValuesList();
     log.debug("Removing exclusions: ", selectedValues);
     selectedValues.forEach(autoFetchExclusionsModel::remove);
   }
@@ -231,7 +245,7 @@ public class GtPrjForm implements GtFormUi {
   }
 
   public void afterInit() {
-    autoFetchExclusionsList.setCellRenderer(new GitRepositoryRenderer(project));
+    autoFetchExclusionsList.setCellRenderer(new AutoFetchExclusionRenderer(project));
     boolean defaultProject = project.isDefault();
     log.debug("Project.isDefault={}", defaultProject);
     if (defaultProject) {
@@ -279,17 +293,17 @@ public class GtPrjForm implements GtFormUi {
     completionItemModel.replaceAll(configs.stream().map(CommitCompletionConfig::copy).collect(Collectors.toList()));
   }
 
-  public void setAutoFetchExclusions(List<String> autoFetchExclusions) {
+  public void setAutoFetchExclusions(List<AutoFetchExclusionConfig> autoFetchExclusions) {
     replaceAutoFetchExclusions(autoFetchExclusions);
   }
 
-  private void replaceAutoFetchExclusions(List<String> exclusions) {
-    List<String> newContent = new ArrayList<>(exclusions);
-    newContent.sort(String::compareTo);
+  private void replaceAutoFetchExclusions(List<AutoFetchExclusionConfig> exclusions) {
+    List<AutoFetchExclusionConfig> newContent = new ArrayList<>(exclusions);
+    newContent.sort(Comparator.comparing(AutoFetchExclusionConfig::getRepositoryRootPath));
     autoFetchExclusionsModel.replaceAll(newContent);
   }
 
-  public List<String> getAutoFetchExclusions() {
+  public List<AutoFetchExclusionConfig> getAutoFetchExclusions() {
     return autoFetchExclusionsModel.toList();
   }
 

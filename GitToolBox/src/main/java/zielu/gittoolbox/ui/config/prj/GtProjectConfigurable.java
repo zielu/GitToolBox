@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config;
+package zielu.gittoolbox.ui.config.prj;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
@@ -56,7 +56,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     form.setAutoFetchInterval(config.autoFetchIntervalMinutes);
     form.setCommitCompletionEnabled(config.commitDialogCompletion);
     form.setCommitCompletionConfigs(config.completionConfigs);
-    form.setAutoFetchExclusions(config.autoFetchExclusions);
+    form.setAutoFetchExclusions(config.autoFetchExclusionConfigs);
     form.setAutoFetchOnBranchSwitchEnabled(config.autoFetchOnBranchSwitch);
     form.setReferencePointConfig(config.referencePointForStatus);
   }
@@ -67,7 +67,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     modified = modified || config.isAutoFetchIntervalMinutesChanged(form.getAutoFetchInterval());
     modified = modified || config.isCommitDialogCompletionChanged(form.getCommitCompletionEnabled());
     modified = modified || config.isCommitDialogCompletionConfigsChanged(form.getCommitCompletionConfigs());
-    modified = modified || config.isAutoFetchExclusionsChanged(form.getAutoFetchExclusions());
+    modified = modified || config.isAutoFetchExclusionConfigsChanged(form.getAutoFetchExclusions());
     modified = modified || config.isAutoFetchOnBranchSwitchChanged(form.getAutoFetchOnBranchSwitchEnabled());
     modified = modified || config.isReferencePointForStatusChanged(form.getReferencePointConfig());
     log.debug("Modified: ", modified);
@@ -82,7 +82,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
     config.autoFetchIntervalMinutes = form.getAutoFetchInterval();
     config.commitDialogCompletion = form.getCommitCompletionEnabled();
     config.completionConfigs = form.getCommitCompletionConfigs();
-    config.autoFetchExclusions = form.getAutoFetchExclusions();
+    config.autoFetchExclusionConfigs = form.getAutoFetchExclusions();
     config.autoFetchOnBranchSwitch = form.getAutoFetchOnBranchSwitchEnabled();
     config.referencePointForStatus = form.getReferencePointConfig();
 

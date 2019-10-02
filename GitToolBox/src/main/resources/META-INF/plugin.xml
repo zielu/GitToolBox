@@ -48,7 +48,7 @@
                         serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService"/>
 
     <applicationConfigurable instance="zielu.gittoolbox.ui.config.app.GtConfigurable" id="zielu.gittoolbox.app.config"/>
-    <projectConfigurable instance="zielu.gittoolbox.ui.config.GtProjectConfigurable" id="zielu.svntoolbox.prj.config"/>
+    <projectConfigurable instance="zielu.gittoolbox.ui.config.prj.GtProjectConfigurable" id="zielu.svntoolbox.prj.config"/>
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator"/>
 
     <projectService serviceInterface="zielu.gittoolbox.notification.GtNotifier"

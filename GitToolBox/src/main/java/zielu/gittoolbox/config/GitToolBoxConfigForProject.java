@@ -24,6 +24,7 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
   public boolean autoFetch = true;
   public int autoFetchIntervalMinutes = AutoFetchParams.DEFAULT_INTERVAL_MINUTES;
   public List<String> autoFetchExclusions = new ArrayList<>();
+  public List<AutoFetchExclusionConfig> autoFetchExclusionConfigs;
   public boolean autoFetchOnBranchSwitch = true;
   public boolean commitDialogCompletion = true;
   public List<CommitCompletionConfig> completionConfigs = Lists.newArrayList(new CommitCompletionConfig());
@@ -42,6 +43,10 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     copy.commitDialogCompletion = commitDialogCompletion;
     copy.completionConfigs = completionConfigs.stream().map(CommitCompletionConfig::copy).collect(Collectors.toList());
     copy.referencePointForStatus = referencePointForStatus.copy();
+    if (autoFetchExclusionConfigs != null) {
+      copy.autoFetchExclusionConfigs = autoFetchExclusionConfigs.stream()
+                                           .map(AutoFetchExclusionConfig::copy).collect(Collectors.toList());
+    }
     return copy;
   }
 
@@ -61,8 +66,8 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     return !this.completionConfigs.equals(completionConfigs);
   }
 
-  public boolean isAutoFetchExclusionsChanged(List<String> autoFetchExclusions) {
-    return !this.autoFetchExclusions.equals(autoFetchExclusions);
+  public boolean isAutoFetchExclusionConfigsChanged(List<AutoFetchExclusionConfig> autoFetchExclusions) {
+    return !this.autoFetchExclusionConfigs.equals(autoFetchExclusions);
   }
 
   public boolean isAutoFetchOnBranchSwitchChanged(boolean autoFetchOnBranchSwitch) {
