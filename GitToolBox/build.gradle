@@ -12,6 +12,7 @@ plugins {
     id 'com.palantir.git-version' version '0.11.0'
     id 'ch.netzwerg.release' version '1.2.5'
     id "org.jetbrains.kotlin.jvm" version "1.3.50"
+    id "org.jlleitschuh.gradle.ktlint" version "9.0.0"
 }
 
 repositories {
@@ -125,6 +126,13 @@ checkstyle {
     maxWarnings = 0
     /*configFile = project(':').file('config/checkstyle/lax_checkstyle.xml')*/
     configProperties = [ "suppressionFile" : project(':').file('config/checkstyle/suppressions.xml')]
+}
+
+ktlint {
+    additionalEditorconfigFile = project(':').file("config/ktlint/.editorconfig")
+    reporters {
+        reporter "checkstyle"
+    }
 }
 
 dependencies {
