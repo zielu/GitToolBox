@@ -1,23 +1,26 @@
 package zielu.gittoolbox.config
 
-data class AutoFetchExclusionConfig(var repositoryRootPath: String = "") {
-    var excludedRemotes: MutableList<RemoteConfig> = ArrayList()
+data class AutoFetchExclusionConfig(
+  var repositoryRootPath: String = "",
+  var excludedRemotes: MutableList<RemoteConfig> = ArrayList()
+) {
 
-    fun copy(): AutoFetchExclusionConfig {
-        val copy = AutoFetchExclusionConfig(repositoryRootPath)
-        copy.excludedRemotes = ArrayList(excludedRemotes.map { it.copy() })
-        return copy
-    }
+  constructor(repositoryRootPath: String) : this(repositoryRootPath, ArrayList())
 
-    fun isRemoteExcluded(remoteName: String): Boolean {
-        return excludedRemotes.any { remoteName == it.name }
-    }
+  fun copy(): AutoFetchExclusionConfig {
+    return AutoFetchExclusionConfig(repositoryRootPath,
+        ArrayList(excludedRemotes.map { it.copy() }))
+  }
 
-    fun noRemotes(): Boolean {
-        return excludedRemotes.isEmpty();
-    }
+  fun isRemoteExcluded(remoteName: String): Boolean {
+    return excludedRemotes.any { remoteName == it.name }
+  }
 
-    fun remoteRemote(remote: RemoteConfig): Boolean {
-        return excludedRemotes.remove(remote)
-    }
+  fun noRemotes(): Boolean {
+    return excludedRemotes.isEmpty()
+  }
+
+  fun remoteRemote(remote: RemoteConfig): Boolean {
+    return excludedRemotes.remove(remote)
+  }
 }

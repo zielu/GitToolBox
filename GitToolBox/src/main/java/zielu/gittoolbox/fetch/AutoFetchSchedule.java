@@ -23,8 +23,8 @@ class AutoFetchSchedule implements Disposable {
   private int currentIntervalMinutes;
 
   AutoFetchSchedule(@NotNull GitToolBoxConfigForProject config, @NotNull AutoFetchGateway gateway) {
-    if (config.autoFetch) {
-      currentIntervalMinutes = config.autoFetchIntervalMinutes;
+    if (config.isAutoFetch()) {
+      currentIntervalMinutes = config.getAutoFetchIntervalMinutes();
     }
     clock = gateway.getClock();
     gateway.disposeWithProject(this);

@@ -11,39 +11,40 @@ import java.awt.Component
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-internal class GtRemoteChooser(val project: Project, parentComponent: Component):
-        DialogWrapper(project, parentComponent, false, IdeModalityType.PROJECT) {
-    private val centerPanel: JPanel
-    private val remoteList: JBList<String> = JBList()
-    var remotes: MutableList<String> = ArrayList()
-    var selectedRemotes: MutableList<String> = ArrayList()
+internal class GtRemoteChooser(val project: Project, parentComponent: Component) :
+  DialogWrapper(project, parentComponent, false, IdeModalityType.PROJECT) {
+  private val centerPanel: JPanel
+  private val remoteList: JBList<String> = JBList()
+  var remotes: MutableList<String> = ArrayList()
+  var selectedRemotes: MutableList<String> = ArrayList()
+  var repositoryName: String = ""
 
-    init {
-        val scrollPane = JBScrollPane(remoteList)
-        centerPanel = JBUI.Panels.simplePanel().addToCenter(scrollPane)
-        centerPanel.preferredSize = JBUI.size(400, 300)
-        title = ResBundle.message("configurable.prj.autoFetch.exclusions.remotes.add.title")
-        init()
-    }
+  init {
+    val scrollPane = JBScrollPane(remoteList)
+    centerPanel = JBUI.Panels.simplePanel().addToCenter(scrollPane)
+    centerPanel.preferredSize = JBUI.size(400, 300)
+    title = ResBundle.message("configurable.prj.autoFetch.exclusions.remotes.add.title", repositoryName)
+    init()
+  }
 
-    override fun createCenterPanel(): JComponent {
-        return centerPanel
-    }
+  override fun createCenterPanel(): JComponent {
+    return centerPanel
+  }
 
-    private fun fillData() {
-        val remotesToShow = ArrayList(remotes)
-        remotesToShow.removeAll(selectedRemotes)
-        remotesToShow.sort()
-        remoteList.model = CollectionListModel<String>(remotesToShow)
-    }
+  private fun fillData() {
+    val remotesToShow = ArrayList(remotes)
+    remotesToShow.removeAll(selectedRemotes)
+    remotesToShow.sort()
+    remoteList.model = CollectionListModel<String>(remotesToShow)
+  }
 
-    override fun show() {
-        fillData()
-        super.show()
-    }
+  override fun show() {
+    fillData()
+    super.show()
+  }
 
-    override fun doOKAction() {
-        selectedRemotes = remoteList.selectedValuesList
-        super.doOKAction()
-    }
+  override fun doOKAction() {
+    selectedRemotes = remoteList.selectedValuesList
+    super.doOKAction()
+  }
 }

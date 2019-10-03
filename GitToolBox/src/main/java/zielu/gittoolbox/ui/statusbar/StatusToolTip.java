@@ -99,7 +99,7 @@ public class StatusToolTip {
   private StringBand prepareInfoToolTipPart() {
     GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project);
     StringBand result = new StringBand();
-    if (config.autoFetch) {
+    if (config.isAutoFetch()) {
       result.append(GitUIUtil.bold(ResBundle.message("message.autoFetch"))).append(": ");
       long lastAutoFetch = AutoFetchComponent.getInstance(project).lastAutoFetch();
       if (lastAutoFetch != 0) {

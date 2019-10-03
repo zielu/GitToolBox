@@ -21,8 +21,8 @@ import zielu.gittoolbox.util.AppUtil;
     storages = @Storage("git_toolbox_prj.xml")
 )
 public class GitToolBoxConfigForProject implements PersistentStateComponent<GitToolBoxConfigForProject> {
-  public boolean autoFetch = true;
-  public int autoFetchIntervalMinutes = AutoFetchParams.DEFAULT_INTERVAL_MINUTES;
+  private boolean autoFetch = true;
+  private int autoFetchIntervalMinutes = AutoFetchParams.DEFAULT_INTERVAL_MINUTES;
   public List<String> autoFetchExclusions = new ArrayList<>();
   public List<AutoFetchExclusionConfig> autoFetchExclusionConfigs;
   public boolean autoFetchOnBranchSwitch = true;
@@ -36,7 +36,7 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
 
   public GitToolBoxConfigForProject copy() {
     GitToolBoxConfigForProject copy = new GitToolBoxConfigForProject();
-    copy.autoFetch = autoFetch;
+    copy.setAutoFetch(isAutoFetch());
     copy.autoFetchIntervalMinutes = autoFetchIntervalMinutes;
     copy.autoFetchExclusions = new ArrayList<>(autoFetchExclusions);
     copy.autoFetchOnBranchSwitch = autoFetchOnBranchSwitch;
@@ -50,12 +50,20 @@ public class GitToolBoxConfigForProject implements PersistentStateComponent<GitT
     return copy;
   }
 
-  public boolean isAutoFetchChanged(boolean autoFetch) {
-    return this.autoFetch != autoFetch;
+  public boolean isAutoFetch() {
+    return autoFetch;
   }
 
-  public boolean isAutoFetchIntervalMinutesChanged(int autoFetchIntervalMinutes) {
-    return this.autoFetchIntervalMinutes != autoFetchIntervalMinutes;
+  public void setAutoFetch(boolean autoFetch) {
+    this.autoFetch = autoFetch;
+  }
+
+  public int getAutoFetchIntervalMinutes() {
+    return autoFetchIntervalMinutes;
+  }
+
+  public void setAutoFetchIntervalMinutes(int intervalMinutes) {
+    autoFetchIntervalMinutes = intervalMinutes;
   }
 
   public boolean isCommitDialogCompletionChanged(boolean commitDialogCompletion) {

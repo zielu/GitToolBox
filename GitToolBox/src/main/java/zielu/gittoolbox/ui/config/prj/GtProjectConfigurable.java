@@ -10,15 +10,25 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.config.GitToolBoxConfigForProject;
 import zielu.gittoolbox.help.HelpKey;
+import zielu.intellij.ui.ConfigUiBinder;
 import zielu.intellij.ui.GtConfigurableBase;
 
 public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitToolBoxConfigForProject> implements
     SearchableConfigurable {
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
+  private final ConfigUiBinder<GitToolBoxConfigForProject, GtPrjForm> binder = new ConfigUiBinder<>();
 
   public GtProjectConfigurable(@NotNull Project project) {
     this.project = project;
+    binder.bind(GitToolBoxConfigForProject::isAutoFetch,
+        GitToolBoxConfigForProject::setAutoFetch,
+        GtPrjForm::getAutoFetchEnabled,
+        GtPrjForm::setAutoFetchEnabled);
+    binder.bind(GitToolBoxConfigForProject::getAutoFetchIntervalMinutes,
+        GitToolBoxConfigForProject::setAutoFetchIntervalMinutes,
+        GtPrjForm::getAutoFetchInterval,
+        GtPrjForm::setAutoFetchInterval);
   }
 
   @Nls
@@ -52,8 +62,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
   @Override
   protected void setFormState(GtPrjForm form, GitToolBoxConfigForProject config) {
     log.debug("Set form state");
-    form.setAutoFetchEnabled(config.autoFetch);
-    form.setAutoFetchInterval(config.autoFetchIntervalMinutes);
+    binder.populateUi(config, form);
     form.setCommitCompletionEnabled(config.commitDialogCompletion);
     form.setCommitCompletionConfigs(config.completionConfigs);
     form.setAutoFetchExclusions(config.autoFetchExclusionConfigs);
@@ -63,8 +72,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
 
   @Override
   protected boolean checkModified(GtPrjForm form, GitToolBoxConfigForProject config) {
-    boolean modified = config.isAutoFetchChanged(form.getAutoFetchEnabled());
-    modified = modified || config.isAutoFetchIntervalMinutesChanged(form.getAutoFetchInterval());
+    boolean modified = binder.checkModified(config, form);
     modified = modified || config.isCommitDialogCompletionChanged(form.getCommitCompletionEnabled());
     modified = modified || config.isCommitDialogCompletionConfigsChanged(form.getCommitCompletionConfigs());
     modified = modified || config.isAutoFetchExclusionConfigsChanged(form.getAutoFetchExclusions());
@@ -78,8 +86,7 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
   protected void doApply(GtPrjForm form, GitToolBoxConfigForProject config) throws ConfigurationException {
     final GitToolBoxConfigForProject previousConfig = config.copy();
 
-    config.autoFetch = form.getAutoFetchEnabled();
-    config.autoFetchIntervalMinutes = form.getAutoFetchInterval();
+    binder.populateConfig(config, form);
     config.commitDialogCompletion = form.getCommitCompletionEnabled();
     config.completionConfigs = form.getCommitCompletionConfigs();
     config.autoFetchExclusionConfigs = form.getAutoFetchExclusions();

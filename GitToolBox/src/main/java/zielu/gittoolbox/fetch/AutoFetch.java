@@ -33,7 +33,7 @@ class AutoFetch implements ProjectComponent, AutoFetchComponent {
   }
 
   private void updateAutoFetchEnabled(GitToolBoxConfigForProject config) {
-    autoFetchEnabled.set(config.autoFetch);
+    autoFetchEnabled.set(config.isAutoFetch());
     executor.setAutoFetchEnabled(autoFetchEnabled.get());
   }
 
@@ -67,17 +67,17 @@ class AutoFetch implements ProjectComponent, AutoFetchComponent {
 
   private void autoFetchEnabled(@NotNull GitToolBoxConfigForProject previous,
                                 @NotNull GitToolBoxConfigForProject current) {
-    if (current.isAutoFetchIntervalMinutesChanged(previous.autoFetchIntervalMinutes)) {
+    if (current.getAutoFetchIntervalMinutes() != previous.getAutoFetchIntervalMinutes()) {
       autoFetchIntervalChanged(current);
     } else {
-      log.debug("Auto-fetch interval did not change: interval=", current.autoFetchIntervalMinutes);
+      log.debug("Auto-fetch interval did not change: interval=", current.getAutoFetchIntervalMinutes());
     }
   }
 
   private void autoFetchIntervalChanged(@NotNull GitToolBoxConfigForProject config) {
-    log.debug("Auto-fetch interval or state changed: enabled=", config.autoFetch,
-        ", interval=", config.autoFetchIntervalMinutes);
-    Duration taskDelay = schedule.updateAutoFetchIntervalMinutes(config.autoFetchIntervalMinutes);
+    log.debug("Auto-fetch interval or state changed: enabled=", config.isAutoFetch(),
+        ", interval=", config.getAutoFetchIntervalMinutes());
+    Duration taskDelay = schedule.updateAutoFetchIntervalMinutes(config.getAutoFetchIntervalMinutes());
     executor.rescheduleTask(taskDelay);
   }
 
