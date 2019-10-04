@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.CommitCompletionMode;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.formatter.Formatted;
 import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.util.GtUtil;
@@ -72,18 +72,18 @@ class CurrentBranchCompletionProvider extends CompletionProvider<CompletionParam
     return completionService.getAffected().stream().map(getGitRepositoryNames()).collect(Collectors.toList());
   }
 
-  private GitToolBoxConfigForProject getConfig(@NotNull CompletionParameters parameters) {
+  private GitToolBoxConfigPrj getConfig(@NotNull CompletionParameters parameters) {
     Project project = getProject(parameters);
     return getConfig(project);
   }
 
-  private GitToolBoxConfigForProject getConfig(@NotNull Project project) {
-    return GitToolBoxConfigForProject.getInstance(project);
+  private GitToolBoxConfigPrj getConfig(@NotNull Project project) {
+    return GitToolBoxConfigPrj.getInstance(project);
   }
 
   private boolean shouldComplete(@NotNull CompletionParameters parameters) {
-    GitToolBoxConfigForProject projectConfig = getConfig(parameters);
-    if (projectConfig.commitDialogCompletion) {
+    GitToolBoxConfigPrj projectConfig = getConfig(parameters);
+    if (projectConfig.getCommitDialogCompletion()) {
       CommitCompletionMode mode = GitToolBoxConfig2.getInstance().commitDialogCompletionMode;
       BooleanFunction<CompletionParameters> modeHandler = MODE_HANDLERS.getOrDefault(mode, params -> true);
       return modeHandler.fun(parameters);

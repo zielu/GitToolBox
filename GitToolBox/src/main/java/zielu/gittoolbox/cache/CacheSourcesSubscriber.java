@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.ConfigNotifier;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 
 class CacheSourcesSubscriber implements BaseComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -50,8 +50,7 @@ class CacheSourcesSubscriber implements BaseComponent {
     connection.subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this::onDirMappingChanged);
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
-      public void configChanged(Project project, GitToolBoxConfigForProject previous,
-                                GitToolBoxConfigForProject current) {
+      public void configChanged(Project project, GitToolBoxConfigPrj previous, GitToolBoxConfigPrj current) {
         if (Objects.equals(CacheSourcesSubscriber.this.project, project)) {
           onConfigChanged(project, previous, current);
         }
@@ -98,9 +97,9 @@ class CacheSourcesSubscriber implements BaseComponent {
     log.debug("Dir mappings change notification done");
   }
 
-  private void onConfigChanged(@NotNull Project project, GitToolBoxConfigForProject previous,
-                               @NotNull GitToolBoxConfigForProject current) {
-    if (previous.referencePointForStatus.isChanged(current.referencePointForStatus)) {
+  private void onConfigChanged(@NotNull Project project, GitToolBoxConfigPrj previous,
+                               @NotNull GitToolBoxConfigPrj current) {
+    if (previous.isReferencePointForStatusChanged(current)) {
       GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
       ImmutableList.copyOf(gitManager.getRepositories()).forEach(repo ->
           repoChangeAwares.forEach(aware -> aware.repoChanged(repo)));

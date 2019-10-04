@@ -46,7 +46,7 @@ internal class AutoFetchExclusionTreeRenderer(private val project: Project) : Co
   }
 
   private fun render(remote: RemoteConfig) {
-    append(ResBundle.message("message.remote.label") + " ", GRAYED_ATTRIBUTES)
+    append(ResBundle.message("message.remote.label") + ": ", GRAYED_ATTRIBUTES)
     append(remote.name)
   }
 

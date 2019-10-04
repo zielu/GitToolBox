@@ -13,7 +13,6 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.treeStructure.Tree;
-import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.awt.BorderLayout;
@@ -247,15 +246,12 @@ public class GtPrjForm implements GtFormUi {
   }
 
   private boolean addAutoFetchExclusionRemote(AutoFetchExclusionConfig config) {
-    Optional<GitRepository> repository = GtUtil.getRepositoryForRoot(project, config.getRepositoryRootPath());
-    if (repository.isPresent()) {
-      List<String> remotes = repository.get()
-                                 .getRemotes()
-                                 .stream()
-                                 .map(GitRemote::getName)
-                                 .collect(Collectors.toList());
+    Optional<GitRepository> maybeRepository = GtUtil.getRepositoryForRoot(project, config.getRepositoryRootPath());
+    if (maybeRepository.isPresent()) {
       GtRemoteChooser chooser = new GtRemoteChooser(project, content);
-      chooser.setRemotes(remotes);
+      GitRepository repository = maybeRepository.get();
+      chooser.setRepositoryName(GtUtil.name(repository));
+      chooser.setRemotes(repository.getRemotes());
       chooser.setSelectedRemotes(config.getExcludedRemotes().stream()
                                      .map(RemoteConfig::getName)
                                      .collect(Collectors.toList()));

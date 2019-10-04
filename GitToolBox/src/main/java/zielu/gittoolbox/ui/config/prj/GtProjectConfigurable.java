@@ -1,34 +1,54 @@
 package zielu.gittoolbox.ui.config.prj;
 
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.help.HelpKey;
 import zielu.intellij.ui.ConfigUiBinder;
-import zielu.intellij.ui.GtConfigurableBase;
+import zielu.intellij.ui.GtBinderConfigurableBase;
 
-public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitToolBoxConfigForProject> implements
+public class GtProjectConfigurable extends GtBinderConfigurableBase<GtPrjForm, GitToolBoxConfigPrj> implements
     SearchableConfigurable {
-  private final Logger log = Logger.getInstance(getClass());
   private final Project project;
-  private final ConfigUiBinder<GitToolBoxConfigForProject, GtPrjForm> binder = new ConfigUiBinder<>();
 
-  public GtProjectConfigurable(@NotNull Project project) {
+  protected GtProjectConfigurable(@NotNull Project project) {
     this.project = project;
-    binder.bind(GitToolBoxConfigForProject::isAutoFetch,
-        GitToolBoxConfigForProject::setAutoFetch,
+  }
+
+  @Override
+  protected void bind(ConfigUiBinder<GitToolBoxConfigPrj, GtPrjForm> binder) {
+    binder.bind(GitToolBoxConfigPrj::getAutoFetch,
+        GitToolBoxConfigPrj::setAutoFetch,
         GtPrjForm::getAutoFetchEnabled,
         GtPrjForm::setAutoFetchEnabled);
-    binder.bind(GitToolBoxConfigForProject::getAutoFetchIntervalMinutes,
-        GitToolBoxConfigForProject::setAutoFetchIntervalMinutes,
+    binder.bind(GitToolBoxConfigPrj::getAutoFetchIntervalMinutes,
+        GitToolBoxConfigPrj::setAutoFetchIntervalMinutes,
         GtPrjForm::getAutoFetchInterval,
         GtPrjForm::setAutoFetchInterval);
+    binder.bind(GitToolBoxConfigPrj::getAutoFetchExclusionConfigs,
+        GitToolBoxConfigPrj::setAutoFetchExclusionConfigs,
+        GtPrjForm::getAutoFetchExclusions,
+        GtPrjForm::setAutoFetchExclusions);
+    binder.bind(GitToolBoxConfigPrj::getAutoFetchOnBranchSwitch,
+        GitToolBoxConfigPrj::setAutoFetchOnBranchSwitch,
+        GtPrjForm::getAutoFetchOnBranchSwitchEnabled,
+        GtPrjForm::setAutoFetchOnBranchSwitchEnabled);
+    binder.bind(GitToolBoxConfigPrj::getCommitDialogCompletion,
+        GitToolBoxConfigPrj::setCommitDialogCompletion,
+        GtPrjForm::getCommitCompletionEnabled,
+        GtPrjForm::setCommitCompletionEnabled);
+    binder.bind(GitToolBoxConfigPrj::getCompletionConfigs,
+        GitToolBoxConfigPrj::setCompletionConfigs,
+        GtPrjForm::getCommitCompletionConfigs,
+        GtPrjForm::setCommitCompletionConfigs);
+    binder.bind(GitToolBoxConfigPrj::getReferencePointForStatus,
+        GitToolBoxConfigPrj::setReferencePointForStatus,
+        GtPrjForm::getReferencePointConfig,
+        GtPrjForm::setReferencePointConfig);
   }
 
   @Nls
@@ -55,46 +75,18 @@ public class GtProjectConfigurable extends GtConfigurableBase<GtPrjForm, GitTool
   }
 
   @Override
-  protected GitToolBoxConfigForProject getConfig() {
-    return GitToolBoxConfigForProject.getInstance(project);
+  protected GitToolBoxConfigPrj getConfig() {
+    return GitToolBoxConfigPrj.getInstance(project);
   }
 
   @Override
-  protected void setFormState(GtPrjForm form, GitToolBoxConfigForProject config) {
-    log.debug("Set form state");
-    binder.populateUi(config, form);
-    form.setCommitCompletionEnabled(config.commitDialogCompletion);
-    form.setCommitCompletionConfigs(config.completionConfigs);
-    form.setAutoFetchExclusions(config.autoFetchExclusionConfigs);
-    form.setAutoFetchOnBranchSwitchEnabled(config.autoFetchOnBranchSwitch);
-    form.setReferencePointConfig(config.referencePointForStatus);
+  protected GitToolBoxConfigPrj copy(GitToolBoxConfigPrj config) {
+    return config.copy();
   }
 
   @Override
-  protected boolean checkModified(GtPrjForm form, GitToolBoxConfigForProject config) {
-    boolean modified = binder.checkModified(config, form);
-    modified = modified || config.isCommitDialogCompletionChanged(form.getCommitCompletionEnabled());
-    modified = modified || config.isCommitDialogCompletionConfigsChanged(form.getCommitCompletionConfigs());
-    modified = modified || config.isAutoFetchExclusionConfigsChanged(form.getAutoFetchExclusions());
-    modified = modified || config.isAutoFetchOnBranchSwitchChanged(form.getAutoFetchOnBranchSwitchEnabled());
-    modified = modified || config.isReferencePointForStatusChanged(form.getReferencePointConfig());
-    log.debug("Modified: ", modified);
-    return modified;
-  }
-
-  @Override
-  protected void doApply(GtPrjForm form, GitToolBoxConfigForProject config) throws ConfigurationException {
-    final GitToolBoxConfigForProject previousConfig = config.copy();
-
-    binder.populateConfig(config, form);
-    config.commitDialogCompletion = form.getCommitCompletionEnabled();
-    config.completionConfigs = form.getCommitCompletionConfigs();
-    config.autoFetchExclusionConfigs = form.getAutoFetchExclusions();
-    config.autoFetchOnBranchSwitch = form.getAutoFetchOnBranchSwitchEnabled();
-    config.referencePointForStatus = form.getReferencePointConfig();
-
-    config.fireChanged(project, previousConfig);
-    log.debug("Applied");
+  protected void afterApply(GitToolBoxConfigPrj previous, GitToolBoxConfigPrj current) {
+    current.fireChanged(project, previous);
   }
 
   @NotNull

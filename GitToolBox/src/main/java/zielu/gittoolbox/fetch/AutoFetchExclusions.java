@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.AutoFetchExclusionConfig;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 
 class AutoFetchExclusions {
   private final Supplier<Map<String, AutoFetchExclusionConfig>> exclusionsProvider;
@@ -22,8 +22,8 @@ class AutoFetchExclusions {
   }
 
   private Map<String, AutoFetchExclusionConfig> projectExclusionsProvider(@NotNull Project project) {
-    GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project);
-    return config.autoFetchExclusionConfigs.stream()
+    GitToolBoxConfigPrj config = GitToolBoxConfigPrj.getInstance(project);
+    return config.getAutoFetchExclusionConfigs().stream()
         .collect(Collectors.toMap(AutoFetchExclusionConfig::getRepositoryRootPath, Function.identity()));
   }
 

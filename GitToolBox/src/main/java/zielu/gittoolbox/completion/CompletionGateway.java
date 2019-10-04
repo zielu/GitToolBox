@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.GitCompatUtil;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.util.GatewayBase;
 
@@ -18,7 +18,7 @@ class CompletionGateway extends GatewayBase {
 
   @NotNull
   ImmutableList<Formatter> getFormatters() {
-    return ImmutableList.copyOf(GitToolBoxConfigForProject.getInstance(project).getCompletionFormatters());
+    return ImmutableList.copyOf(GitToolBoxConfigPrj.getInstance(project).getCompletionFormatters());
   }
 
   @NotNull

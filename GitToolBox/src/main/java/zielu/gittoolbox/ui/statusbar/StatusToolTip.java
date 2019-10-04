@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.RepoInfo;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.fetch.AutoFetchComponent;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
@@ -97,9 +97,9 @@ public class StatusToolTip {
   }
 
   private StringBand prepareInfoToolTipPart() {
-    GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project);
+    GitToolBoxConfigPrj config = GitToolBoxConfigPrj.getInstance(project);
     StringBand result = new StringBand();
-    if (config.isAutoFetch()) {
+    if (config.getAutoFetch()) {
       result.append(GitUIUtil.bold(ResBundle.message("message.autoFetch"))).append(": ");
       long lastAutoFetch = AutoFetchComponent.getInstance(project).lastAutoFetch();
       if (lastAutoFetch != 0) {

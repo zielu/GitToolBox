@@ -12,7 +12,7 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.ConfigNotifier;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 
 class AutoFetchSubscriber implements BaseComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -36,8 +36,7 @@ class AutoFetchSubscriber implements BaseComponent {
     connection = project.getMessageBus().connect();
     connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
       @Override
-      public void configChanged(Project project, GitToolBoxConfigForProject previous,
-                                GitToolBoxConfigForProject current) {
+      public void configChanged(Project project, GitToolBoxConfigPrj previous, GitToolBoxConfigPrj current) {
         autoFetchComponent.configChanged(previous, current);
       }
     });
@@ -59,7 +58,7 @@ class AutoFetchSubscriber implements BaseComponent {
 
   private void handleAutoFetchOnBranchSwitch(@NotNull RepoInfo previous, @NotNull RepoInfo current,
                                              @NotNull GitRepository repository) {
-    if (GitToolBoxConfigForProject.getInstance(project).autoFetchOnBranchSwitch) {
+    if (GitToolBoxConfigPrj.getInstance(project).getAutoFetchOnBranchSwitch()) {
       if (!previous.isEmpty() && !current.isEmpty() && !previous.status().sameLocalBranch(current.status())) {
         if (exclusions.isAllowed(repository)) {
           //TODO: if branch makes through exclusions & inclusions

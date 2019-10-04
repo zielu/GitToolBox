@@ -1,7 +1,5 @@
 package zielu.gittoolbox.cache;
 
-import static zielu.gittoolbox.cache.PerRepoInfoCache.CACHE_CHANGE;
-
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.tasks.LocalTask;
@@ -17,7 +15,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import static zielu.gittoolbox.cache.PerRepoInfoCache.CACHE_CHANGE;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.config.ReferencePointForStatusType;
 
 class InfoCacheGateway {
@@ -59,15 +58,15 @@ class InfoCacheGateway {
   }
 
   private RepoStatusRemote createRemoteStatus(@NotNull GitRepository repository, @NotNull GitLocalBranch localBranch) {
-    GitToolBoxConfigForProject config = GitToolBoxConfigForProject.getInstance(project);
+    GitToolBoxConfigPrj config = GitToolBoxConfigPrj.getInstance(project);
     GitRemoteBranch trackedBranch = localBranch.findTrackedBranch(repository);
     GitRemoteBranch parentBranch = null;
     GitRepoInfo repoInfo = repository.getInfo();
-    ReferencePointForStatusType type = config.referencePointForStatus.type;
+    ReferencePointForStatusType type = config.getReferencePointForStatus().type;
     if (type == ReferencePointForStatusType.TRACKED_REMOTE_BRANCH) {
       parentBranch = trackedBranch;
     } else if (type == ReferencePointForStatusType.SELECTED_PARENT_BRANCH) {
-      parentBranch = findRemoteParent(repository, config.referencePointForStatus.name).orElse(null);
+      parentBranch = findRemoteParent(repository, config.getReferencePointForStatus().name).orElse(null);
     } else if (type == ReferencePointForStatusType.AUTOMATIC) {
       parentBranch = getRemoteBranchFromActiveTask(repository).orElse(trackedBranch);
     }
