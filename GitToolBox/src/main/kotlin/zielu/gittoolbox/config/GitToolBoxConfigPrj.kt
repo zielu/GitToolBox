@@ -42,7 +42,7 @@ data class GitToolBoxConfigPrj(
       completionConfigs.map { it.copy() },
       referencePointForStatus.copy(),
       version
-    );
+    )
   }
 
   @Transient

@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.CollectionListModel
 import com.intellij.ui.ColoredListCellRenderer
-import com.intellij.ui.SimpleTextAttributes
+import com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
@@ -52,12 +52,18 @@ internal class GtRemoteChooser(val project: Project, parentComponent: Component)
   }
 }
 
-private class RemoteRenderer: ColoredListCellRenderer<GitRemote>() {
-  override fun customizeCellRenderer(list: JList<out GitRemote>, value: GitRemote?, index: Int, selected: Boolean, hasFocus: Boolean) {
+private class RemoteRenderer : ColoredListCellRenderer<GitRemote>() {
+  override fun customizeCellRenderer(
+    list: JList<out GitRemote>,
+    value: GitRemote?,
+    index: Int,
+    selected: Boolean,
+    hasFocus: Boolean
+  ) {
     value?.apply {
       append(name)
     }?.firstUrl?.let { url ->
-      append(" ($url)", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+      append(" ($url)", GRAYED_ATTRIBUTES)
     }
   }
 }

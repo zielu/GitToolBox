@@ -7,10 +7,11 @@ import com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES
 import com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES
 import git4idea.repo.GitRepository
 import jodd.util.StringBand
-import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig
+import zielu.gittoolbox.repo.GtRepositoryImpl
 import zielu.gittoolbox.util.GtUtil
+import java.util.Optional
 import javax.swing.JTree
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -26,15 +27,27 @@ internal class AutoFetchExclusionTreeRenderer(private val project: Project) : Co
   ) {
     when (val userValue = (value as DefaultMutableTreeNode).userObject) {
       is AutoFetchExclusionConfig -> {
-        val repository = GtUtil.getRepositoryForRoot(project, userValue.repositoryRootPath)
+        val repository = findRepository(value)
         if (repository.isPresent) {
           render(repository.get())
         } else {
           renderMissing(userValue.repositoryRootPath)
         }
       }
-      is RemoteConfig -> render(userValue)
+      is RemoteConfig -> {
+        val parentConfig = value.parent as DefaultMutableTreeNode
+        val repository = findRepository(parentConfig)
+        render(userValue, repository)
+      }
     }
+  }
+
+  private fun findRepository(node: DefaultMutableTreeNode): Optional<GitRepository> {
+    val userObject = node.userObject
+    if (userObject is AutoFetchExclusionConfig) {
+      return GtUtil.getRepositoryForRoot(project, userObject.repositoryRootPath)
+    }
+    return Optional.empty()
   }
 
   private fun render(repository: GitRepository) {
@@ -45,9 +58,13 @@ internal class AutoFetchExclusionTreeRenderer(private val project: Project) : Co
     append(url.toString(), GRAYED_ATTRIBUTES)
   }
 
-  private fun render(remote: RemoteConfig) {
-    append(ResBundle.message("message.remote.label") + ": ", GRAYED_ATTRIBUTES)
+  private fun render(remote: RemoteConfig, repository: Optional<GitRepository>) {
     append(remote.name)
+    if (repository.isPresent) {
+      GtRepositoryImpl(repository.get()).findRemote(remote.name)?.firstUrl?.let { url ->
+        append(" ($url)", GRAYED_ATTRIBUTES)
+      }
+    }
   }
 
   private fun renderMissing(value: String) {
