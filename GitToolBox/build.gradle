@@ -23,7 +23,7 @@ apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'idea'
 apply plugin: "java"
 
-def javaVersion = JavaVersion.VERSION_1_8;
+def javaVersion = JavaVersion.VERSION_1_8
 def encoding = 'UTF-8'
 
 java {
@@ -60,7 +60,7 @@ patchPluginXml {
     changeNotes "${file('change-notes.html').getText(encoding)}"
     pluginDescription "${file('description.html').getText(encoding)}"
             .replace("RELEASE_DATETIME", buildTime())
-            .replace("RELEASE_TYPE", buildType());
+            .replace("RELEASE_TYPE", buildType())
 }
 
 if (publish) {
@@ -69,7 +69,7 @@ if (publish) {
         token = project.publishToken
         username = project.publishUsername
         password = project.publishPassword
-        channels = publishChannels();
+        channels = publishChannels()
     }    
 }
 
@@ -101,7 +101,7 @@ jacoco {
 // workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
 // as 'test' task cleans generated report
 jacocoTestReport {
-    executionData = files("${project.buildDir.name}/jacoco-junit5/test.exec")
+    executionData.setFrom(files("${project.buildDir.name}/jacoco-junit5/test.exec"))
 }
 
 test {
