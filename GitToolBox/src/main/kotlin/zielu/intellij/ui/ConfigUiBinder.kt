@@ -20,7 +20,7 @@ class ConfigUiBinder<CONFIG, UI> {
   }
 
   fun checkModified(config: CONFIG, ui: UI): Boolean {
-    return bindings.map { it.checkModified(config, ui) }.any { it }
+    return bindings.any { it.checkModified(config, ui) }
   }
 
   fun populateConfig(config: CONFIG, ui: UI) {

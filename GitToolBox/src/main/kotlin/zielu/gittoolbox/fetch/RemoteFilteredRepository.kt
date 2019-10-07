@@ -12,4 +12,8 @@ internal class RemoteFilteredRepository(
   override fun getRemotes(): Collection<GitRemote> {
     return repo.remotes.filter { !config.isRemoteExcluded(it.name) }
   }
+
+  override fun toString(): String {
+    return "${javaClass.simpleName}[$presentableUrl]"
+  }
 }

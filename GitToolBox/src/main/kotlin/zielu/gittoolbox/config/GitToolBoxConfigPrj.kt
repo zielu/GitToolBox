@@ -14,7 +14,7 @@ import zielu.gittoolbox.util.AppUtil
 data class GitToolBoxConfigPrj(
   var autoFetch: Boolean = true,
   var autoFetchIntervalMinutes: Int = AutoFetchParams.DEFAULT_INTERVAL_MINUTES,
-  var autoFetchExclusions: List<String> = ArrayList(),
+  @Deprecated("Since 192.3.1") var autoFetchExclusions: List<String> = ArrayList(),
   var autoFetchExclusionConfigs: List<AutoFetchExclusionConfig> = ArrayList(),
   var autoFetchOnBranchSwitch: Boolean = true,
   var commitDialogCompletion: Boolean = true,
