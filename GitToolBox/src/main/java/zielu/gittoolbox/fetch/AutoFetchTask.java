@@ -102,7 +102,7 @@ class AutoFetchTask implements Runnable {
     List<GitRepository> fetchWithoutExclusions = exclusions.apply(toFetch);
     log.debug("Repos to fetch without exclusions: ", fetchWithoutExclusions);
     List<GitRepository> fetchWithRemotes = fetchWithoutExclusions.stream()
-        .filter(repo -> !repo.getRemotes().isEmpty())
+        .filter(GtUtil::hasRemotes)
         .collect(Collectors.toList());
     log.debug("Repos to fetch with remotes: ", fetchWithRemotes);
     List<GitRepository> fetchWithoutUpdatedAroundNow = schedule.filterUpdatedAroundNow(fetchWithRemotes);
