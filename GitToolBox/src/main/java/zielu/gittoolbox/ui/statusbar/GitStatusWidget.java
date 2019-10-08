@@ -76,7 +76,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
         connect();
       }
     }
-    Optional.ofNullable(myProject).ifPresent(this::runUpdateLater);
+    runUpdateLater(myProject);
   }
 
   private void connect() {
