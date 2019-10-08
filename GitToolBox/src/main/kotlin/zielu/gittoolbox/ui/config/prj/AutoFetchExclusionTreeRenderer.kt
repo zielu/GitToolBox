@@ -6,7 +6,6 @@ import com.intellij.ui.ColoredTreeCellRenderer
 import com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES
 import com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES
 import git4idea.repo.GitRepository
-import jodd.util.StringBand
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig
 import zielu.gittoolbox.repo.GtRepositoryImpl
@@ -52,10 +51,7 @@ internal class AutoFetchExclusionTreeRenderer(private val project: Project) : Co
 
   private fun render(repository: GitRepository) {
     append(GtUtil.name(repository))
-    val url = StringBand(" (")
-    url.append(repository.root.presentableUrl)
-    url.append(")")
-    append(url.toString(), GRAYED_ATTRIBUTES)
+    append(" (${repository.root.presentableUrl})", GRAYED_ATTRIBUTES)
   }
 
   private fun render(remote: RemoteConfig, repository: Optional<GitRepository>) {
