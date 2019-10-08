@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 
 class AutoFetchSchedule implements Disposable {
   private static final Duration DEFAULT_DELAY = Duration.ofMinutes(1);
@@ -22,9 +22,9 @@ class AutoFetchSchedule implements Disposable {
   private final Clock clock;
   private int currentIntervalMinutes;
 
-  AutoFetchSchedule(@NotNull GitToolBoxConfigForProject config, @NotNull AutoFetchGateway gateway) {
-    if (config.autoFetch) {
-      currentIntervalMinutes = config.autoFetchIntervalMinutes;
+  AutoFetchSchedule(@NotNull GitToolBoxConfigPrj config, @NotNull AutoFetchGateway gateway) {
+    if (config.getAutoFetch()) {
+      currentIntervalMinutes = config.getAutoFetchIntervalMinutes();
     }
     clock = gateway.getClock();
     gateway.disposeWithProject(this);

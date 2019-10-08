@@ -29,7 +29,7 @@
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig"/>
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2"/>
-    <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigForProject"/>
+    <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigPrj"/>
 
     <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
                         serviceImplementation="zielu.gittoolbox.metrics.AppMetricsImpl"/>
@@ -48,7 +48,7 @@
                         serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService"/>
 
     <applicationConfigurable instance="zielu.gittoolbox.ui.config.app.GtConfigurable" id="zielu.gittoolbox.app.config"/>
-    <projectConfigurable instance="zielu.gittoolbox.ui.config.GtProjectConfigurable" id="zielu.svntoolbox.prj.config"/>
+    <projectConfigurable instance="zielu.gittoolbox.ui.config.prj.GtProjectConfigurable" id="zielu.svntoolbox.prj.config"/>
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator"/>
 
     <projectService serviceInterface="zielu.gittoolbox.notification.GtNotifier"

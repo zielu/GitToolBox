@@ -10,6 +10,7 @@ import com.intellij.openapi.startup.StartupActivity;
 import com.intellij.util.ThrowableRunnable;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 
 public class GitToolBoxStartup implements StartupActivity, DumbAware {
   private final Logger log = Logger.getInstance(getClass());
@@ -21,6 +22,7 @@ public class GitToolBoxStartup implements StartupActivity, DumbAware {
   public void runActivity(@NotNull Project project) {
     boolean migrated = migrateAppV1toV2();
     migrated = migrateAppV2() || migrated;
+    migrated = migrateProject(project) || migrated;
     if (migrated) {
       saveAppSettings();
     }
@@ -44,6 +46,16 @@ public class GitToolBoxStartup implements StartupActivity, DumbAware {
     boolean migrated = migrator.migrate();
     if (migrated) {
       log.info("V2 config migrated");
+    }
+    return migrated;
+  }
+
+  private boolean migrateProject(@NotNull Project project) {
+    GitToolBoxConfigPrj config = GitToolBoxConfigPrj.getInstance(project);
+    ConfigForProjectMigrator migrator = new ConfigForProjectMigrator(config);
+    boolean migrated = migrator.migrate();
+    if (migrated) {
+      log.info("Project config migrated");
     }
     return migrated;
   }

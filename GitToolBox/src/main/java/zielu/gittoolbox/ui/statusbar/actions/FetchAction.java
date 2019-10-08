@@ -35,7 +35,7 @@ public class FetchAction extends DumbAwareAction {
         ResBundle.message("message.fetching", GtUtil.name(repository))) {
       @Override
       public void run(@NotNull ProgressIndicator indicator) {
-        GtFetchUtil.fetch(repository);
+        GtFetchUtil.fetch(repository).showNotificationIfFailed();
       }
     });
   }

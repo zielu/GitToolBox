@@ -1,17 +1,15 @@
 package zielu.gittoolbox;
 
 import com.intellij.BundleBase;
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-import java.util.ResourceBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
+import zielu.intellij.util.ZBundleHolder;
 
 public final class ResBundle {
   @NonNls
   private static final String BUNDLE_NAME = "zielu.gittoolbox.ResourceBundle";
-  private static Reference<ResourceBundle> bundle;
+  private static final ZBundleHolder BUNDLE_HOLDER = new ZBundleHolder(BUNDLE_NAME);
 
   private ResBundle() {
     throw new IllegalStateException();
@@ -19,19 +17,7 @@ public final class ResBundle {
 
   @NotNull
   public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE_NAME) String key, Object... params) {
-    return BundleBase.message(getBundle(), key, params);
-  }
-
-  private static ResourceBundle getBundle() {
-    ResourceBundle resBundle = null;
-    if (bundle != null) {
-      resBundle = bundle.get();
-    }
-    if (resBundle == null) {
-      resBundle = ResourceBundle.getBundle(BUNDLE_NAME);
-      bundle = new SoftReference<>(resBundle);
-    }
-    return resBundle;
+    return BundleBase.message(BUNDLE_HOLDER.getBundle(), key, params);
   }
 
   public static String na() {

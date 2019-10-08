@@ -47,7 +47,7 @@ public class GtPatternFormatterForm implements GtFormUi {
     });
   }
 
-  void addPatternUpdate(Consumer<String> updateHandler) {
+  public void addPatternUpdate(Consumer<String> updateHandler) {
     patternUpdates.add(updateHandler);
   }
 

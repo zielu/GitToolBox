@@ -8,15 +8,18 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import zielu.TestType;
 import zielu.junit5.intellij.extension.resources.ResourcePath;
 import zielu.junit5.intellij.extension.resources.ResourcesExtension;
 import zielu.junit5.intellij.extension.resources.TextResource;
 
+@Tag(TestType.FAST)
 @ExtendWith(ResourcesExtension.class)
 class IncrementalBlameBuilderTest {
 

@@ -8,10 +8,11 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.9"
-    id 'com.palantir.git-version' version '0.11.0'
+    id "org.jetbrains.intellij" version "0.4.10"
+    id 'com.palantir.git-version' version '0.12.2'
     id 'ch.netzwerg.release' version '1.2.5'
-    id "com.github.spotbugs" version "2.0.0"
+    id "org.jetbrains.kotlin.jvm" version "1.3.50"
+    id "org.jlleitschuh.gradle.ktlint" version "9.0.0"
 }
 
 repositories {
@@ -22,7 +23,7 @@ apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'idea'
 apply plugin: "java"
 
-def javaVersion = JavaVersion.VERSION_1_8;
+def javaVersion = JavaVersion.VERSION_1_8
 def encoding = 'UTF-8'
 
 java {
@@ -32,7 +33,6 @@ java {
 
 def fast = Boolean.valueOf(String.valueOf(findProperty('fast')))
 def publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
-def runSpotBugs = false
 
 configurations {
     testAgent {
@@ -60,7 +60,7 @@ patchPluginXml {
     changeNotes "${file('change-notes.html').getText(encoding)}"
     pluginDescription "${file('description.html').getText(encoding)}"
             .replace("RELEASE_DATETIME", buildTime())
-            .replace("RELEASE_TYPE", buildType());
+            .replace("RELEASE_TYPE", buildType())
 }
 
 if (publish) {
@@ -69,7 +69,7 @@ if (publish) {
         token = project.publishToken
         username = project.publishUsername
         password = project.publishPassword
-        channels = publishChannels();
+        channels = publishChannels()
     }    
 }
 
@@ -101,7 +101,7 @@ jacoco {
 // workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
 // as 'test' task cleans generated report
 jacocoTestReport {
-    executionData = files("${project.buildDir.name}/jacoco-junit5/test.exec")
+    executionData.setFrom(files("${project.buildDir.name}/jacoco-junit5/test.exec"))
 }
 
 test {
@@ -119,19 +119,6 @@ test {
     }
 }
 
-spotbugs {
-    toolVersion = "${spotbugsVersion}"
-    ignoreFailures = false
-    effort = 'default'
-    includeFilter = file("${projectDir}/config/findbugs/includeFilter.xml")
-}
-spotbugsMain.onlyIf {
-    !fast && runSpotBugs
-}
-spotbugsTest.onlyIf {
-    !fast && runSpotBugs
-}
-
 apply plugin: 'checkstyle'
 checkstyle {
     toolVersion = "${checkstyleVersion}"
@@ -141,23 +128,29 @@ checkstyle {
     configProperties = [ "suppressionFile" : project(':').file('config/checkstyle/suppressions.xml')]
 }
 
+ktlint {
+    additionalEditorconfigFile = project(':').file("config/ktlint/.editorconfig")
+    reporters {
+        reporter "checkstyle"
+    }
+}
+
 dependencies {
     checkstyle ("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
     testAgent ("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
-    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.8.0'
 
     //keep compile instead of implementation for org.jetbrains.intellij to package plugin correctly
-    compile ("org.jodd:jodd-core:${joddVersion}")
-    compile ("org.apache.commons:commons-lang3:${commonsLang3Version}")
-    compile ("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
+    implementation ("org.jodd:jodd-core:${joddVersion}")
+    implementation ("com.google.guava:guava:${guavaVersion}")
+    implementation ("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation ("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
         exclude group: 'org.slf4j', module:'slf4j-api'
     }
-    compile ("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
+    implementation ("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
         exclude group: 'org.slf4j', module:'slf4j-api'
     }
 
-    compileOnly ('com.google.code.findbugs:jsr305:3.0.2')
-    compileOnly ("com.github.spotbugs:spotbugs:${spotbugsVersion}")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     testImplementation ("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
     testImplementation ("org.mockito:mockito-core:${mockitoVersion}")

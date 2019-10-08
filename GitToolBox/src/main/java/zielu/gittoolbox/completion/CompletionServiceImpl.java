@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.GitToolBoxConfigForProject;
+import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.formatter.Formatter;
 
 class CompletionServiceImpl implements CompletionService, Disposable {
@@ -24,7 +24,8 @@ class CompletionServiceImpl implements CompletionService, Disposable {
     gateway.disposeWithProject(this);
   }
 
-  public void onConfigChanged(@NotNull GitToolBoxConfigForProject config) {
+  @Override
+  public void onConfigChanged(@NotNull GitToolBoxConfigPrj config) {
     formatters = ImmutableList.copyOf(config.getCompletionFormatters());
   }
 

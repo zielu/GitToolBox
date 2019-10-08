@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.fetch.GitFetchResult;
-import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.util.Collection;
@@ -102,7 +101,11 @@ class AutoFetchTask implements Runnable {
     log.debug("Repos to fetch: ", toFetch);
     List<GitRepository> fetchWithoutExclusions = exclusions.apply(toFetch);
     log.debug("Repos to fetch without exclusions: ", fetchWithoutExclusions);
-    List<GitRepository> fetchWithoutUpdatedAroundNow = schedule.filterUpdatedAroundNow(fetchWithoutExclusions);
+    List<GitRepository> fetchWithRemotes = fetchWithoutExclusions.stream()
+        .filter(repo -> !repo.getRemotes().isEmpty())
+        .collect(Collectors.toList());
+    log.debug("Repos to fetch with remotes: ", fetchWithRemotes);
+    List<GitRepository> fetchWithoutUpdatedAroundNow = schedule.filterUpdatedAroundNow(fetchWithRemotes);
     log.debug("Repos to fetch without updated around now: ", fetchWithoutUpdatedAroundNow);
     return fetchWithoutUpdatedAroundNow;
   }
@@ -118,35 +121,30 @@ class AutoFetchTask implements Runnable {
     return repository.getRoot().exists() && !repository.isRebaseInProgress();
   }
 
-  private boolean tryToFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
+  private void tryToFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
     log.debug("Starting auto-fetch...");
-    boolean result = false;
     AutoFetchState state = AutoFetchState.getInstance(project);
     if (state.canAutoFetch()) {
       log.debug("Can auto-fetch");
-      result = doFetch(repos, indicator, title);
+      doFetch(repos, indicator, title);
     } else {
       log.debug("Auto-fetch inactive");
       finishedWithoutFetch();
     }
-    return result;
   }
 
-  private boolean doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
-    boolean result;
+  private void doFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
     AutoFetchState state = AutoFetchState.getInstance(project);
     if (state.fetchStart()) {
       indicator.setText(title);
-      result = tryExecuteFetch(repos, indicator);
+      boolean result = tryExecuteFetch(repos, indicator);
       if (result) {
         state.fetchFinish();
       }
     } else {
       log.info("Auto-fetch already in progress");
       finishedWithoutFetch();
-      result = true;
     }
-    return result;
   }
 
   private boolean tryExecuteFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
@@ -160,10 +158,9 @@ class AutoFetchTask implements Runnable {
 
   private void executeIdeaFetch(@NotNull List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
     Collection<GitRepository> fetched = ImmutableList.copyOf(repos);
-    GitFetchSupport fetchSupport = GitFetchSupport.fetchSupport(project);
     Metrics metrics = ProjectMetrics.getInstance(project);
     GitFetchResult fetchResult = metrics.timer("fetch-roots-idea")
-        .timeSupplier(() -> fetchSupport.fetchAllRemotes(repos));
+        .timeSupplier(() -> GtFetchUtil.fetch(project, repos));
     fetchPerformed(fetched);
     if (fetchResult.showNotificationIfFailed(autoFetchFailedTitle())) {
       finishedNotification(fetched);
@@ -194,15 +191,13 @@ class AutoFetchTask implements Runnable {
   @Override
   public void run() {
     owner.acquireAutoFetchLock();
-    final List<GitRepository> repos = reposForFetch();
-    boolean shouldFetch = !repos.isEmpty();
-    if (shouldFetch && isNotCancelled()) {
+    if (isNotCancelled()) {
       Runnable task = () -> GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project),
           ResBundle.message("message.autoFetching")) {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
           try {
-            runAutoFetch(repos, indicator);
+            runAutoFetch(reposForFetch(), indicator);
           } finally {
             owner.releaseAutoFetchLock();
           }
@@ -218,11 +213,12 @@ class AutoFetchTask implements Runnable {
   private void runAutoFetch(List<GitRepository> repos, ProgressIndicator indicator) {
     owner.runIfActive(() -> {
       if (isNotCancelled()) {
-        String title = autoFetchTitle(repos);
-        if (tryToFetch(repos, indicator, title) && isNotCancelled()) {
-          if (cyclic) {
-            owner.scheduleNextTask();
-          }
+        if (!repos.isEmpty()) {
+          String title = autoFetchTitle(repos);
+          tryToFetch(repos, indicator, title);
+        }
+        if (cyclic && isNotCancelled()) {
+          owner.scheduleNextTask();
         }
       }
     });

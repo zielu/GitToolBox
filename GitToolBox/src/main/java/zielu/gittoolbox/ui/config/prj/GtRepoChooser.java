@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config;
+package zielu.gittoolbox.ui.config.prj;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;

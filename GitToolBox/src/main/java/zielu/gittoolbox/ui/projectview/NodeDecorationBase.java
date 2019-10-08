@@ -52,16 +52,26 @@ public abstract class NodeDecorationBase implements NodeDecoration {
   private String getNormalStateBranchText() {
     RepoStatus status = repoInfo.status();
     if (status.isParentDifferentFromTracking()) {
-      GitRemoteBranch parentBranch = status.parentBranch();
-      if (parentBranch != null) {
-        String branchName = status.localBranch() == null ? "" : status.localBranch().getName();
-        String parentBranchName = parentBranch.getNameForRemoteOperations();
-        return ui.getPresenter().branchAndParent(branchName, parentBranchName);
+      if (status.parentBranch() != null) {
+        return getParentBranchText(status);
       }
     } else if (status.localBranch() != null) {
       return status.localBranch().getName();
     }
     return GitBranchUtil.getDisplayableBranchText(repo);
+  }
+
+  private String getParentBranchText(RepoStatus status) {
+    GitRemoteBranch parentBranch = status.parentBranch();
+    String branchName = status.localBranch() == null ? "" : status.localBranch().getName();
+    GitRemoteBranch remoteBranch = status.remoteBranch();
+    String parentBranchName;
+    if (remoteBranch != null && !remoteBranch.getRemote().equals(parentBranch.getRemote())) {
+      parentBranchName = parentBranch.getNameForLocalOperations();
+    } else {
+      parentBranchName = parentBranch.getNameForRemoteOperations();
+    }
+    return ui.getPresenter().branchAndParent(branchName, parentBranchName);
   }
 
   @NotNull

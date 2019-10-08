@@ -9,7 +9,6 @@ public interface ConfigNotifier {
   default void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
   }
 
-  default void configChanged(Project project, GitToolBoxConfigForProject previous,
-                             GitToolBoxConfigForProject current) {
+  default void configChanged(Project project, GitToolBoxConfigPrj previous, GitToolBoxConfigPrj current) {
   }
 }
