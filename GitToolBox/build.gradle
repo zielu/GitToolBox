@@ -56,6 +56,12 @@ intellij {
 compileJava.options.encoding = encoding
 compileTestJava.options.encoding = encoding
 
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
 patchPluginXml {
     changeNotes "${file('change-notes.html').getText(encoding)}"
     pluginDescription "${file('description.html').getText(encoding)}"
