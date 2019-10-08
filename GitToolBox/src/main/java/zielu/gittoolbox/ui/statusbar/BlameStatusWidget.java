@@ -91,7 +91,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   public void setVisible(boolean visible) {
     if (visible && this.visible.compareAndSet(false, true)) {
       uiService = BlameUiService.getInstance(myProject);
-      EditorFactory.getInstance().getEventMulticaster().addCaretListener(caretListener);
+      EditorFactory.getInstance().getEventMulticaster().addCaretListener(caretListener, myProject);
       if (connected.compareAndSet(false, true)) {
         connect();
       }

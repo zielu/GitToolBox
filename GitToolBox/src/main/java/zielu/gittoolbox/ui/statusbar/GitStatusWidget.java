@@ -5,7 +5,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ListPopup;
-import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.Conditions;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
@@ -125,7 +125,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   public ListPopup getPopupStep() {
     if (rootActions.update()) {
       String title = ResBundle.message("statusBar.status.menu.title");
-      return new StatusActionGroupPopup(title, rootActions, myProject, Condition.TRUE);
+      return new StatusActionGroupPopup(title, rootActions, myProject, Conditions.alwaysTrue());
     } else {
       return null;
     }
@@ -135,12 +135,6 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Override
   public String getSelectedValue() {
     return text;
-  }
-
-  @NotNull
-  @Override
-  public String getMaxValue() {
-    return "";
   }
 
   @Nullable
