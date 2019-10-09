@@ -2,7 +2,6 @@ package zielu.gittoolbox.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zielu.TestType;
-import zielu.gittoolbox.metrics.MockMetrics;
 
 @Tag(TestType.FAST)
 @ExtendWith({MockitoExtension.class})
@@ -23,13 +21,13 @@ class CacheTaskSchedulerTest {
   @Mock(stubOnly = true)
   private GitRepository repository;
   @Mock(stubOnly = true)
-  private Project project;
+  private CacheTaskSchedulerLocalGateway mockGateway;
 
   private CacheTaskScheduler scheduler;
 
   @BeforeEach
   void before() {
-    scheduler = new CacheTaskScheduler(project, new MockMetrics());
+    scheduler = new CacheTaskScheduler(mockGateway);
     scheduler.setTaskDelayMillis(30);
   }
 

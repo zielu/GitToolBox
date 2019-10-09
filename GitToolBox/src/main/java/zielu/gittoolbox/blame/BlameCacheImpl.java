@@ -6,6 +6,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VfsUtilCore;
@@ -20,8 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.cache.VirtualFileRepoCache;
-import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.util.Cached;
 import zielu.gittoolbox.util.CachedFactory;
 import zielu.gittoolbox.util.ExecutableTask;
@@ -29,9 +29,7 @@ import zielu.gittoolbox.util.ExecutableTask;
 class BlameCacheImpl implements BlameCache, Disposable {
   private static final Blamed EMPTY_BLAMED = new Blamed(BlameAnnotation.EMPTY);
   private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
-  private final BlameCacheGateway gateway;
-  private final VirtualFileRepoCache fileRepoCache;
-  private final BlameLoader blameLoader;
+  private final BlameCacheLocalGateway gateway;
   private final Cache<VirtualFile, Cached<Blamed>> annotations = CacheBuilder.newBuilder()
       .maximumSize(75)
       .expireAfterAccess(Duration.ofMinutes(45))
@@ -40,15 +38,10 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private final Timer getTimer;
   private final Counter discardedSubmitCounter;
   private final LoaderTimers loaderTimers;
-  private final BlameCacheExecutor executor;
 
-  BlameCacheImpl(@NotNull BlameCacheGateway gateway, @NotNull VirtualFileRepoCache fileRepoCache,
-                 @NotNull BlameLoader blameLoader, @NotNull BlameCacheExecutor executor,
-                 @NotNull ProjectMetrics metrics) {
-    this.gateway = gateway;
-    this.fileRepoCache = fileRepoCache;
-    this.blameLoader = blameLoader;
-    this.executor = executor;
+  BlameCacheImpl(@NotNull Project project) {
+    gateway = new BlameCacheLocalGateway(project);
+    Metrics metrics = gateway.getMetrics();
     metrics.gauge("blame-cache.size", annotations::size);
     metrics.gauge("blame-cache.queue-count", queued::size);
     discardedSubmitCounter = metrics.counter("blame-cache.discarded-count");
@@ -56,7 +49,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
     Timer loadTimer = metrics.timer("blame-cache.load");
     Timer queueWaitTimer = metrics.timer("blame-cache.queue-wait");
     loaderTimers = new LoaderTimers(loadTimer, queueWaitTimer);
-    this.gateway.disposeWithProject(this);
+    gateway.disposeWithProject(this);
   }
 
   @Override
@@ -112,9 +105,9 @@ class BlameCacheImpl implements BlameCache, Disposable {
     if (queued.add(file)) {
       LOG.debug("Add annotation task for ", file);
       annotations.put(file, CachedFactory.loading(EMPTY_BLAMED));
-      AnnotationLoader loaderTask = new AnnotationLoader(
-          file, blameLoader, loaderTimers, this::annotationLoaded);
-      executor.execute(loaderTask);
+      AnnotationLoader loaderTask = new AnnotationLoader(file, gateway.getBlameLoader(), loaderTimers,
+          this::annotationLoaded);
+      gateway.execute(loaderTask);
     } else {
       LOG.debug("Discard annotation task for ", file);
       discardedSubmitCounter.inc();
@@ -135,10 +128,10 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   @NotNull
   private VcsRevisionNumber currentCurrentRevision(@NotNull VirtualFile file) {
-    GitRepository repo = fileRepoCache.getRepoForFile(file);
+    GitRepository repo = gateway.getRepoForFile(file);
     if (repo != null) {
       try {
-        VcsRevisionNumber parsedRevision = blameLoader.getCurrentRevision(repo);
+        VcsRevisionNumber parsedRevision = gateway.getCurrentRevision(repo);
         if (parsedRevision != null) {
           return parsedRevision;
         }

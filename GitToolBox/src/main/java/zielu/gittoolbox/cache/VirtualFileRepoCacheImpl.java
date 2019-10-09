@@ -2,15 +2,16 @@ package zielu.gittoolbox.cache;
 
 import static java.util.function.Function.identity;
 
-import com.codahale.metrics.Timer;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,22 +22,23 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.metrics.Metrics;
 
 class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final ConcurrentMap<VirtualFile, GitRepository> rootsCache = new ConcurrentHashMap<>();
   private final ConcurrentMap<VirtualFile, CacheEntry> dirsCache = new ConcurrentHashMap<>();
-  private final VirtualFileRepoCacheGateway gateway;
-  private final Timer repoForDirCacheTimer;
+  private final VirtualFileRepoCacheLocalGateway gateway;
 
-  VirtualFileRepoCacheImpl(@NotNull VirtualFileRepoCacheGateway gateway) {
+  VirtualFileRepoCacheImpl(@NotNull Project project) {
+    this(new VirtualFileRepoCacheLocalGatewayImpl(project));
+  }
+
+  @NonInjectable
+  VirtualFileRepoCacheImpl(@NotNull VirtualFileRepoCacheLocalGateway gateway) {
     this.gateway = gateway;
-    Metrics metrics = gateway.getMetrics();
-    metrics.gauge("vfile-repo-roots-cache-size", rootsCache::size);
-    metrics.gauge("vfile-repo-dirs-cache-size", dirsCache::size);
-    repoForDirCacheTimer = metrics.timer("repo-for-dir-cache");
-    this.gateway.disposeWithProject(this);
+    gateway.rootsCacheSizeGauge(rootsCache::size);
+    gateway.dirsCacheSizeGauge(dirsCache::size);
+    gateway.disposeWithProject(this);
   }
 
   @Override
@@ -68,7 +70,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
 
   @NotNull
   private CacheEntry findRepoForDir(@NotNull VirtualFile dir) {
-    return repoForDirCacheTimer.timeSupplier(() -> calculateRepoForDir(dir));
+    return gateway.repoForDirCacheTimer(() -> calculateRepoForDir(dir));
   }
 
   @NotNull
