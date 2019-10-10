@@ -7,7 +7,7 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.revision.RevisionService
 
-class BlameLoaderLocalGateway(val project: Project) {
+class BlameLoaderLocalGateway(private val project: Project) {
   fun getRepoForFile(vFile: VirtualFile): GitRepository? {
     return VirtualFileRepoCache.getInstance(project).getRepoForFile(vFile)
   }

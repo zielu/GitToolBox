@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import zielu.gittoolbox.util.LocalGateway
 
 internal class CacheTaskSchedulerLocalGatewayImpl(
-  val project: Project
+  project: Project
 ) : LocalGateway(project), CacheTaskSchedulerLocalGateway {
   override fun queueSizeCounterInc() {
     getQueueSizeCounter().inc()

@@ -1,8 +1,9 @@
 package zielu.gittoolbox.fetch;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import git4idea.repo.GitRepository;
-import java.time.Clock;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
@@ -13,21 +14,24 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.util.AppUtil;
 
 class AutoFetchSchedule implements Disposable {
   private static final Duration DEFAULT_DELAY = Duration.ofMinutes(1);
   private static final Duration BRANCH_SWITCH_GRACE_PERIOD = Duration.ofSeconds(30);
   private final Map<GitRepository, AtomicLong> lastFetchTimestamps = new ConcurrentHashMap<>();
   private final AtomicLong lastFetchTimestamp = new AtomicLong();
-  private final Clock clock;
-  private int currentIntervalMinutes;
+  private final Project project;
+  private volatile Integer currentIntervalMinutes;
 
-  AutoFetchSchedule(@NotNull GitToolBoxConfigPrj config, @NotNull AutoFetchGateway gateway) {
-    if (config.getAutoFetch()) {
-      currentIntervalMinutes = config.getAutoFetchIntervalMinutes();
-    }
-    clock = gateway.getClock();
-    gateway.disposeWithProject(this);
+  AutoFetchSchedule(@NotNull Project project) {
+    this.project = project;
+    Disposer.register(project, this);
+  }
+
+  @NotNull
+  static AutoFetchSchedule getInstance(@NotNull Project project) {
+    return AppUtil.getServiceInstance(project, AutoFetchSchedule.class);
   }
 
   @Override
@@ -40,8 +44,12 @@ class AutoFetchSchedule implements Disposable {
   }
 
   void updateLastAutoFetchDate(@NotNull Collection<GitRepository> repositories) {
-    long timestamp = clock.millis();
+    long timestamp = getNowTimestamp();
     repositories.forEach(repo -> getLastFetch(repo).set(timestamp));
+  }
+
+  private long getNowTimestamp() {
+    return AutoFetchGateway.getInstance(project).getClock().millis();
   }
 
   private AtomicLong getLastFetch(@NotNull GitRepository repository) {
@@ -49,7 +57,7 @@ class AutoFetchSchedule implements Disposable {
   }
 
   void updateLastCyclicAutoFetchDate(@NotNull Collection<GitRepository> repositories) {
-    lastFetchTimestamp.set(clock.millis());
+    lastFetchTimestamp.set(getNowTimestamp());
     updateLastAutoFetchDate(repositories);
   }
 
@@ -59,13 +67,34 @@ class AutoFetchSchedule implements Disposable {
 
   Duration updateAutoFetchIntervalMinutes(int newInterval) {
     Duration duration;
-    if (currentIntervalMinutes == 0) {
+    int currentIntervalMin = getCurrentIntervalMinutes();
+    if (currentIntervalMin == 0) {
       duration = Duration.ofSeconds(45);
     } else {
       duration = Duration.ofMinutes(newInterval);
     }
-    currentIntervalMinutes = newInterval;
+    setCurrentIntervalMinutes(newInterval);
     return duration;
+  }
+
+  private int getCurrentIntervalMinutes() {
+    if (currentIntervalMinutes == null) {
+      synchronized (this) {
+        if (currentIntervalMinutes == null) {
+          GitToolBoxConfigPrj config = GitToolBoxConfigPrj.getInstance(project);
+          if (config.getAutoFetch()) {
+            currentIntervalMinutes = config.getAutoFetchIntervalMinutes();
+          } else {
+            currentIntervalMinutes = 0;
+          }
+        }
+      }
+    }
+    return currentIntervalMinutes;
+  }
+
+  private void setCurrentIntervalMinutes(int minutes) {
+    currentIntervalMinutes = minutes;
   }
 
   Duration getInitTaskDelay() {
@@ -73,7 +102,7 @@ class AutoFetchSchedule implements Disposable {
   }
 
   void autoFetchDisabled() {
-    currentIntervalMinutes = 0;
+    setCurrentIntervalMinutes(0);
   }
 
   Duration calculateTaskDelayOnStateChange() {
@@ -86,7 +115,7 @@ class AutoFetchSchedule implements Disposable {
   }
 
   private Duration calculateDelayIfTaskWasExecuted(long lastAutoFetch) {
-    long nextAutoFetch = lastAutoFetch + TimeUnit.MINUTES.toMillis(currentIntervalMinutes);
+    long nextAutoFetch = lastAutoFetch + TimeUnit.MINUTES.toMillis(getCurrentIntervalMinutes());
     long difference = nextAutoFetch - System.currentTimeMillis();
     if (difference > 0) {
       long delay = Math.max(difference, DEFAULT_DELAY.toMillis());
@@ -97,7 +126,7 @@ class AutoFetchSchedule implements Disposable {
   }
 
   Duration getInterval() {
-    return Duration.ofMinutes(currentIntervalMinutes);
+    return Duration.ofMinutes(getCurrentIntervalMinutes());
   }
 
   Duration calculateTaskDelayOnBranchSwitch(@NotNull GitRepository repository) {
@@ -110,7 +139,7 @@ class AutoFetchSchedule implements Disposable {
   }
 
   private Duration calculateDelayOnBranchSwitch(long lastAutoFetch) {
-    long nextAutoFetch = lastAutoFetch + TimeUnit.MINUTES.toMillis(currentIntervalMinutes);
+    long nextAutoFetch = lastAutoFetch + TimeUnit.MINUTES.toMillis(getCurrentIntervalMinutes());
     long difference = nextAutoFetch - System.currentTimeMillis();
     if (difference > BRANCH_SWITCH_GRACE_PERIOD.toMillis()) {
       return Duration.ofSeconds(3);
@@ -121,7 +150,7 @@ class AutoFetchSchedule implements Disposable {
 
   @NotNull
   List<GitRepository> filterUpdatedAroundNow(@NotNull Collection<GitRepository> repositories) {
-    long now = clock.millis();
+    long now = getNowTimestamp();
     return repositories.stream()
         .filter(repo -> updatedSomeTimeAgo(repo, now))
         .collect(Collectors.toList());

@@ -8,7 +8,7 @@ import com.intellij.openapi.vcs.impl.UpToDateLineNumberProviderImpl
 import com.intellij.openapi.vfs.VirtualFile
 import zielu.gittoolbox.util.LocalGateway
 
-internal class BlameServiceLocalGateway(var project: Project) : LocalGateway(project) {
+internal class BlameServiceLocalGateway(private var project: Project) : LocalGateway(project) {
   private val messageBus = project.messageBus
 
   fun lineNumberProvider(document: Document): UpToDateLineNumberProvider {

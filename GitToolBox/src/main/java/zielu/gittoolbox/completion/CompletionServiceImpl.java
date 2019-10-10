@@ -3,6 +3,7 @@ package zielu.gittoolbox.completion;
 import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -14,13 +15,12 @@ import zielu.gittoolbox.formatter.Formatter;
 
 class CompletionServiceImpl implements CompletionService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
-  private final CompletionGateway gateway;
+  private final CompletionLocalGateway gateway;
   private WeakReference<CompletionScopeProvider> scopeProviderRef;
-  private List<Formatter> formatters;
+  private volatile List<Formatter> formatters;
 
-  CompletionServiceImpl(@NotNull CompletionGateway gateway) {
-    this.gateway = gateway;
-    formatters = gateway.getFormatters();
+  CompletionServiceImpl(@NotNull Project project) {
+    gateway = new CompletionLocalGateway(project);
     gateway.disposeWithProject(this);
   }
 
@@ -57,13 +57,19 @@ class CompletionServiceImpl implements CompletionService, Disposable {
   }
 
   private Collection<GitRepository> findAffectedRepositories(Collection<File> affectedFiles) {
-    return gateway.metrics().timer("completion-get-repos")
-      .timeSupplier(() -> gateway.getRepositories(affectedFiles));
+    return gateway.getRepositories(affectedFiles);
   }
 
   @Override
   @NotNull
   public List<Formatter> getFormatters() {
+    if (formatters == null) {
+      synchronized (this) {
+        if (formatters == null) {
+          formatters = gateway.getFormatters();
+        }
+      }
+    }
     return formatters;
   }
 

@@ -6,7 +6,7 @@ import zielu.gittoolbox.util.LocalGateway
 import java.util.function.Supplier
 
 internal class VirtualFileRepoCacheLocalGatewayImpl(
-  val project: Project
+  project: Project
 ) : LocalGateway(project), VirtualFileRepoCacheLocalGateway {
   private val messageBus = project.messageBus
 

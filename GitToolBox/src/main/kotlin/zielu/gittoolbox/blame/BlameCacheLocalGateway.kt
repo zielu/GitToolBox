@@ -9,7 +9,7 @@ import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.util.ExecutableTask
 import zielu.gittoolbox.util.LocalGateway
 
-internal class BlameCacheLocalGateway(var project: Project) : LocalGateway(project) {
+internal class BlameCacheLocalGateway(private val project: Project) : LocalGateway(project) {
   private val messageBus = project.messageBus
 
   fun fireBlameUpdated(vFile: VirtualFile, annotation: BlameAnnotation) {

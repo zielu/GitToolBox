@@ -54,7 +54,6 @@
     <projectService serviceInterface="zielu.gittoolbox.notification.GtNotifier"
                     serviceImplementation="zielu.gittoolbox.notification.GtNotifierImpl"/>
 
-    <projectService serviceImplementation="zielu.gittoolbox.completion.CompletionGateway"/>
     <projectService serviceInterface="zielu.gittoolbox.completion.CompletionService"
                     serviceImplementation="zielu.gittoolbox.completion.CompletionServiceImpl"/>
     <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.completion.CompletionCheckinHandlerFactory"/>
