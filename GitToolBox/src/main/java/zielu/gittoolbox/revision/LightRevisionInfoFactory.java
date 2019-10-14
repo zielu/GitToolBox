@@ -1,8 +1,10 @@
 package zielu.gittoolbox.revision;
 
 import com.intellij.openapi.vcs.history.VcsFileRevision;
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import java.util.Date;
+import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.util.GtStringUtil;
 
@@ -13,7 +15,9 @@ class LightRevisionInfoFactory implements RevisionInfoFactory {
     Date lineDate = provider.getDate(lineNumber);
     String author = provider.getAuthor(lineNumber);
     String subject = provider.getSubject(lineNumber);
-    return new RevisionInfoImpl(provider.getRevisionNumber(lineNumber), author, lineDate, subject);
+    VcsRevisionNumber revisionNumber = provider.getRevisionNumber(lineNumber);
+    return new RevisionInfoImpl(ObjectUtils.defaultIfNull(revisionNumber, VcsRevisionNumber.NULL),
+        author, lineDate, subject);
   }
 
   @NotNull
