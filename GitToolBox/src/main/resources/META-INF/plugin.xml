@@ -72,7 +72,6 @@
 
     <projectService serviceInterface="zielu.gittoolbox.revision.RevisionInfoFactory"
                     serviceImplementation="zielu.gittoolbox.revision.LightRevisionInfoFactory"/>
-    <projectService serviceImplementation="zielu.gittoolbox.revision.RevisionServiceGateway"/>
     <projectService serviceInterface="zielu.gittoolbox.revision.RevisionService"
                     serviceImplementation="zielu.gittoolbox.revision.RevisionServiceImpl"/>
 
