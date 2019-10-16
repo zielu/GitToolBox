@@ -14,32 +14,35 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.util.GtUtil;
+import zielu.gittoolbox.util.MemoizeSupplier;
 
 class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean(true);
-  private final ConcurrentMap<GitRepository, RepoInfo> behindStatuses = Maps.newConcurrentMap();
+  private final Supplier<ConcurrentMap<GitRepository, RepoInfo>> behindStatuses;
   private final CachedStatusCalculator statusCalculator;
   private final Project project;
   private final GitStatusCalculator calculator;
-  private final CacheTaskScheduler taskScheduler;
-  private final InfoCacheGateway gateway;
 
-  PerRepoInfoCacheImpl(@NotNull Project project, @NotNull InfoCacheGateway gateway,
-                       @NotNull CacheTaskScheduler taskScheduler, @NotNull ProjectMetrics metrics) {
+  PerRepoInfoCacheImpl(@NotNull Project project) {
     this.project = project;
-    this.gateway = gateway;
-    this.taskScheduler = taskScheduler;
-    statusCalculator = new CachedStatusCalculator(metrics);
+    behindStatuses = new MemoizeSupplier<>(this::createBehindStatuses);
+    statusCalculator = new CachedStatusCalculator(() -> ProjectMetrics.getInstance(project));
     calculator = GitStatusCalculator.create(project);
-    metrics.gauge("info-cache-size", behindStatuses::size);
     Disposer.register(project, this);
+  }
+
+  private ConcurrentMap<GitRepository, RepoInfo> createBehindStatuses() {
+    ConcurrentMap<GitRepository, RepoInfo> storage = Maps.newConcurrentMap();
+    ProjectMetrics.getInstance(project).gauge("info-cache-size", storage::size);
+    return storage;
   }
 
   private void update(@NotNull GitRepository repository) {
@@ -54,8 +57,9 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   private void updateAction(@NotNull GitRepository repository) {
     RepoInfo info = getRepoInfo(repository);
+    InfoCacheGateway gateway = InfoCacheGateway.getInstance(project);
     RepoStatus currentStatus = gateway.createRepoStatus(repository);
-    RepoInfo freshInfo = behindStatuses.computeIfPresent(repository, (repo, oldInfo) ->
+    RepoInfo freshInfo = behindStatuses.get().computeIfPresent(repository, (repo, oldInfo) ->
         statusCalculator.update(repo, calculator, currentStatus));
 
     if (freshInfo != null && !Objects.equals(info, freshInfo)) {
@@ -77,27 +81,26 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   @NotNull
   private RepoInfo getRepoInfo(@NotNull GitRepository repository) {
-    return behindStatuses.computeIfAbsent(repository, repo -> RepoInfo.empty());
+    return behindStatuses.get().computeIfAbsent(repository, repo -> RepoInfo.empty());
   }
 
   @Override
   public void dispose() {
     if (active.compareAndSet(true, false)) {
-      taskScheduler.dispose();
-      behindStatuses.clear();
+      behindStatuses.get().clear();
     }
   }
 
   private void scheduleRefresh(@NotNull GitRepository repository) {
-    taskScheduler.scheduleOptional(repository, new RefreshTask());
+    CacheTaskScheduler.getInstance(project).scheduleOptional(repository, new RefreshTask());
   }
 
   private void scheduleMandatoryRefresh(@NotNull GitRepository repository) {
-    taskScheduler.scheduleMandatory(repository, new RefreshTask());
+    CacheTaskScheduler.getInstance(project).scheduleMandatory(repository, new RefreshTask());
   }
 
   private void scheduleUpdate(@NotNull GitRepository repository) {
-    taskScheduler.scheduleOptional(repository, new UpdateTask());
+    CacheTaskScheduler.getInstance(project).scheduleOptional(repository, new UpdateTask());
   }
 
   @Override
@@ -108,14 +111,14 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   @Override
   public void updatedRepoList(ImmutableList<GitRepository> repositories) {
-    Set<GitRepository> removed = new HashSet<>(behindStatuses.keySet());
+    Set<GitRepository> removed = new HashSet<>(behindStatuses.get().keySet());
     removed.removeAll(repositories);
     purgeRepositories(removed);
   }
 
   private void purgeRepositories(@NotNull Collection<GitRepository> repositories) {
     removeRepositories(repositories);
-    gateway.notifyEvicted(repositories);
+    InfoCacheGateway.getInstance(project).notifyEvicted(repositories);
   }
 
   private void removeRepositories(@NotNull Collection<GitRepository> repositories) {
@@ -123,8 +126,8 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   }
 
   private void removeRepository(@NotNull GitRepository repository) {
-    taskScheduler.removeRepository(repository);
-    behindStatuses.remove(repository);
+    CacheTaskScheduler.getInstance(project).removeRepository(repository);
+    behindStatuses.get().remove(repository);
   }
 
   private void refreshRepo(GitRepository repository) {

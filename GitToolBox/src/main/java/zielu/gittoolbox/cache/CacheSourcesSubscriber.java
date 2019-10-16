@@ -23,16 +23,16 @@ class CacheSourcesSubscriber implements BaseComponent {
   private final Project project;
   private List<DirMappingAware> dirMappingAwares = new ArrayList<>();
   private List<RepoChangeAware> repoChangeAwares = new ArrayList<>();
-  private final MessageBusConnection connection;
+  private MessageBusConnection connection;
 
   CacheSourcesSubscriber(@NotNull Project project) {
     this.project = project;
-    connection = project.getMessageBus().connect();
   }
 
   @Override
   public void initComponent() {
     if (active.compareAndSet(false, true)) {
+      connection = project.getMessageBus().connect();
       registerOrderedAwares();
       subscribeToMessageBus();
     }

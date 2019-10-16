@@ -130,14 +130,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private VcsRevisionNumber currentCurrentRevision(@NotNull VirtualFile file) {
     GitRepository repo = gateway.getRepoForFile(file);
     if (repo != null) {
-      try {
-        VcsRevisionNumber parsedRevision = gateway.getCurrentRevision(repo);
-        if (parsedRevision != null) {
-          return parsedRevision;
-        }
-      } catch (VcsException e) {
-        LOG.warn("Could not get current repoRevision for " + file, e);
-      }
+      return gateway.getCurrentRevision(repo);
     }
     return VcsRevisionNumber.NULL;
   }

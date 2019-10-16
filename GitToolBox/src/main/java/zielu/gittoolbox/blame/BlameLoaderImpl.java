@@ -6,7 +6,6 @@ import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.blame.calculator.BlameCalculator;
 import zielu.gittoolbox.revision.RevisionDataProvider;
 
@@ -42,9 +41,9 @@ class BlameLoaderImpl implements BlameLoader {
     return BlameAnnotation.EMPTY;
   }
 
-  @Nullable
+  @NotNull
   @Override
-  public VcsRevisionNumber getCurrentRevision(@NotNull GitRepository repository) throws VcsException {
-    return gateway.getGitVcs().parseRevisionNumber(repository.getCurrentRevision());
+  public VcsRevisionNumber getCurrentRevision(@NotNull GitRepository repository) {
+    return gateway.getCurrentRevisionNumber(repository);
   }
 }

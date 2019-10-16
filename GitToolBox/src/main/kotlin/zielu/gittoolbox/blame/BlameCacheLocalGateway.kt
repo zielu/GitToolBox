@@ -1,7 +1,6 @@
 package zielu.gittoolbox.blame
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vcs.VcsException
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
 import git4idea.repo.GitRepository
@@ -28,8 +27,7 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
     BlameCacheExecutor.getInstance(project).execute(task)
   }
 
-  @Throws(VcsException::class)
-  fun getCurrentRevision(repository: GitRepository): VcsRevisionNumber? {
+  fun getCurrentRevision(repository: GitRepository): VcsRevisionNumber {
     return getBlameLoader().getCurrentRevision(repository)
   }
 }

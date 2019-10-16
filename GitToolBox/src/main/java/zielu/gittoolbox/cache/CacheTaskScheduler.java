@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.util.AppUtil;
 import zielu.gittoolbox.util.MemoizeSupplier;
 
 class CacheTaskScheduler implements Disposable {
@@ -45,6 +46,11 @@ class CacheTaskScheduler implements Disposable {
 
   private ScheduledExecutorService createExecutor() {
     return AppExecutorUtil.createBoundedScheduledExecutorService("GtCache", 1);
+  }
+
+  @NotNull
+  static CacheTaskScheduler getInstance(@NotNull Project project) {
+    return AppUtil.getServiceInstance(project, CacheTaskScheduler.class);
   }
 
   void setTaskDelayMillis(long delayMillis) {

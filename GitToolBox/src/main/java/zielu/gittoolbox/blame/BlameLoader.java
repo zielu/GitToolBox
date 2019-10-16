@@ -6,7 +6,6 @@ import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.util.AppUtil;
 
 interface BlameLoader {
@@ -19,6 +18,6 @@ interface BlameLoader {
   @NotNull
   BlameAnnotation annotate(@NotNull VirtualFile file) throws VcsException;
 
-  @Nullable
-  VcsRevisionNumber getCurrentRevision(@NotNull GitRepository repository) throws VcsException;
+  @NotNull
+  VcsRevisionNumber getCurrentRevision(@NotNull GitRepository repository);
 }
