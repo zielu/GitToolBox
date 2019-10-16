@@ -9,7 +9,9 @@ import zielu.gittoolbox.util.ExecutableTask
 import zielu.gittoolbox.util.LocalGateway
 
 internal class BlameCacheLocalGateway(private val project: Project) : LocalGateway(project) {
-  private val messageBus = project.messageBus
+  private val messageBus by lazy {
+    project.messageBus
+  }
 
   fun fireBlameUpdated(vFile: VirtualFile, annotation: BlameAnnotation) {
     runInBackground { messageBus.syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(vFile, annotation) }

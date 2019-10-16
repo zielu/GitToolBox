@@ -8,7 +8,9 @@ import java.util.function.Supplier
 internal class VirtualFileRepoCacheLocalGatewayImpl(
   project: Project
 ) : LocalGateway(project), VirtualFileRepoCacheLocalGateway {
-  private val messageBus = project.messageBus
+  private val messageBus by lazy {
+    project.messageBus
+  }
 
   override fun fireCacheChanged() {
     messageBus.syncPublisher<VirtualFileCacheListener>(CACHE_CHANGE).updated()

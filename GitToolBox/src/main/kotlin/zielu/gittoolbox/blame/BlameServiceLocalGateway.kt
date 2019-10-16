@@ -9,7 +9,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import zielu.gittoolbox.util.LocalGateway
 
 internal class BlameServiceLocalGateway(private var project: Project) : LocalGateway(project) {
-  private val messageBus = project.messageBus
+  private val messageBus by lazy {
+    project.messageBus
+  }
 
   fun lineNumberProvider(document: Document): UpToDateLineNumberProvider {
     return UpToDateLineNumberProviderImpl(document, project)
