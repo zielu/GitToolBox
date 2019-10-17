@@ -23,12 +23,12 @@ class BlameLoaderLocalGateway(private val project: Project) {
     try {
       return GitVcs.getInstance(project).parseRevisionNumber(repo.currentRevision) ?: VcsRevisionNumber.NULL
     } catch (e: VcsException) {
-      logger.warn("Could not get current repoRevision for " + repo.root, e)
+      log.warn("Could not get current repoRevision for " + repo.root, e)
       return VcsRevisionNumber.NULL
     }
   }
 
   companion object {
-    val logger = Logger.getInstance(BlameLoaderLocalGateway::class.java)
+    val log = Logger.getInstance(BlameLoaderLocalGateway::class.java)
   }
 }

@@ -30,12 +30,14 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   private final CachedStatusCalculator statusCalculator;
   private final Project project;
   private final GitStatusCalculator calculator;
+  private final InfoCachePublisher publisher;
 
   PerRepoInfoCacheImpl(@NotNull Project project) {
     this.project = project;
     behindStatuses = new MemoizeSupplier<>(this::createBehindStatuses);
     statusCalculator = new CachedStatusCalculator(() -> ProjectMetrics.getInstance(project));
     calculator = GitStatusCalculator.create(project);
+    publisher = new InfoCachePublisher(project);
     Disposer.register(project, this);
   }
 
@@ -63,7 +65,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
         statusCalculator.update(repo, calculator, currentStatus));
 
     if (freshInfo != null && !Objects.equals(info, freshInfo)) {
-      gateway.notifyRepoChanged(repository, info, freshInfo);
+      publisher.notifyRepoChanged(repository, info, freshInfo);
     } else {
       log.debug("Status did not change [", GtUtil.name(repository), "]: ", freshInfo);
     }
@@ -118,7 +120,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   private void purgeRepositories(@NotNull Collection<GitRepository> repositories) {
     removeRepositories(repositories);
-    InfoCacheGateway.getInstance(project).notifyEvicted(repositories);
+    publisher.notifyEvicted(repositories);
   }
 
   private void removeRepositories(@NotNull Collection<GitRepository> repositories) {

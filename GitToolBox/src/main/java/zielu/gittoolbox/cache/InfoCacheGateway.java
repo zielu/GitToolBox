@@ -1,50 +1,31 @@
 package zielu.gittoolbox.cache;
 
-import static zielu.gittoolbox.cache.PerRepoInfoCache.CACHE_CHANGE;
-
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.tasks.LocalTask;
 import com.intellij.tasks.TaskManager;
-import com.intellij.util.messages.MessageBus;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepoInfo;
 import git4idea.repo.GitRepository;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.config.ReferencePointForStatusType;
 import zielu.gittoolbox.util.AppUtil;
-import zielu.gittoolbox.util.MemoizeSupplier;
 
 class InfoCacheGateway {
-  private final Logger log = Logger.getInstance(getClass());
   private final Project project;
-
-  private final MemoizeSupplier<MessageBus> messageBus;
 
   InfoCacheGateway(@NotNull Project project) {
     this.project = project;
-    messageBus = new MemoizeSupplier<>(project::getMessageBus);
   }
 
   @NotNull
   static InfoCacheGateway getInstance(@NotNull Project project) {
     return AppUtil.getServiceInstance(project, InfoCacheGateway.class);
-  }
-
-  void notifyEvicted(@NotNull Collection<GitRepository> repositories) {
-    messageBus.get().syncPublisher(CACHE_CHANGE).evicted(repositories);
-  }
-
-  void notifyRepoChanged(@NotNull GitRepository repo, @NotNull RepoInfo previous, @NotNull RepoInfo current) {
-    messageBus.get().syncPublisher(CACHE_CHANGE).stateChanged(previous, current, repo);
-    log.debug("Published cache changed event: ", repo);
   }
 
   @NotNull
