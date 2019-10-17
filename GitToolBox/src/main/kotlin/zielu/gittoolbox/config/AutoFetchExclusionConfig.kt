@@ -1,5 +1,7 @@
 package zielu.gittoolbox.config
 
+import com.intellij.util.xmlb.annotations.Transient
+
 data class AutoFetchExclusionConfig(
   var repositoryRootPath: String = "",
   var excludedRemotes: MutableList<RemoteConfig> = ArrayList()
@@ -16,11 +18,16 @@ data class AutoFetchExclusionConfig(
     return excludedRemotes.any { remoteName == it.name }
   }
 
+  fun remoteRemote(remote: RemoteConfig): Boolean {
+    return excludedRemotes.remove(remote)
+  }
+
   fun noRemotes(): Boolean {
     return excludedRemotes.isEmpty()
   }
 
-  fun remoteRemote(remote: RemoteConfig): Boolean {
-    return excludedRemotes.remove(remote)
+  @Transient
+  fun hasRemotes(): Boolean {
+    return !noRemotes()
   }
 }

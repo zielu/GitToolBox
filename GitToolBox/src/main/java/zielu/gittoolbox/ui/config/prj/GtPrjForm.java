@@ -162,6 +162,7 @@ public class GtPrjForm implements GtFormUi {
 
     autoFetchExclusions.setRootVisible(false);
     autoFetchExclusions.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
     autoFetchExclusionsDecorator = ToolbarDecorator.createDecorator(autoFetchExclusions);
     autoFetchExclusionsDecorator.setAddAction(button -> onAddAutoFetchExclusion());
     autoFetchExclusionsDecorator.setAddActionName(
