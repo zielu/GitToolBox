@@ -5,6 +5,7 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.LocalFilePath;
+import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.vcs.log.Hash;
@@ -82,5 +83,10 @@ public final class GtUtil {
   @NotNull
   public static FilePath localFilePath(@NotNull VirtualFile file) {
     return new LocalFilePath(file.getPath(), file.isDirectory());
+  }
+
+  public static boolean hasGitVcs(@NotNull Project project) {
+    ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
+    return vcsManager.findVcsByName(GitVcs.NAME) != null;
   }
 }
