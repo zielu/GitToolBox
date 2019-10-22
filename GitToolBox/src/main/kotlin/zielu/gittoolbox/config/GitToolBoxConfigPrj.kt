@@ -19,8 +19,7 @@ data class GitToolBoxConfigPrj(
   var autoFetchOnBranchSwitch: Boolean = true,
   var commitDialogCompletion: Boolean = true,
   var completionConfigs: List<CommitCompletionConfig> = arrayListOf(CommitCompletionConfig()),
-  var referencePointForStatus: ReferencePointForStatusConfig = ReferencePointForStatusConfig(),
-  var version: Int = 1
+  var referencePointForStatus: ReferencePointForStatusConfig = ReferencePointForStatusConfig()
 ) : PersistentStateComponent<GitToolBoxConfigPrj> {
 
   companion object {
@@ -40,8 +39,7 @@ data class GitToolBoxConfigPrj(
       autoFetchOnBranchSwitch,
       commitDialogCompletion,
       completionConfigs.map { it.copy() },
-      referencePointForStatus.copy(),
-      version
+      referencePointForStatus.copy()
     )
   }
 

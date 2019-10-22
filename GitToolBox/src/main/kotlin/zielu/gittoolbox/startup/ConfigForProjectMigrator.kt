@@ -6,9 +6,11 @@ import zielu.gittoolbox.config.GitToolBoxConfigPrj
 class ConfigForProjectMigrator(private val config: GitToolBoxConfigPrj) {
   fun migrate(): Boolean {
     var migrated = false
-    if (config.version < 2) {
-      config.autoFetchExclusionConfigs = config.autoFetchExclusions.map { AutoFetchExclusionConfig(it) }
-      config.version = 2
+    if (config.autoFetchExclusions.isNotEmpty()) {
+      val configs = ArrayList(config.autoFetchExclusionConfigs)
+      configs.addAll(config.autoFetchExclusions.map { AutoFetchExclusionConfig(it) })
+      config.autoFetchExclusionConfigs = configs
+      config.autoFetchExclusions = ArrayList()
       migrated = true
     }
     return migrated
