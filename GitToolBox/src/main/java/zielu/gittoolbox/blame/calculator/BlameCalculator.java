@@ -4,9 +4,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
-import git4idea.GitVcs;
-import git4idea.commands.Git;
-import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
@@ -17,16 +14,24 @@ import zielu.gittoolbox.util.GtUtil;
 
 public class BlameCalculator {
   private final Logger log = Logger.getInstance(getClass());
+  private final Project project;
+  private final BlameCalculatorLocalGateway gateway;
+
+  public BlameCalculator(@NotNull Project project) {
+    this(project, new BlameCalculatorLocalGatewayImpl(project));
+  }
+
+  // for testing
+  BlameCalculator(@NotNull Project project, BlameCalculatorLocalGateway gateway) {
+    this.project = project;
+    this.gateway = gateway;
+  }
 
   @Nullable
   public RevisionDataProvider annotate(@NotNull GitRepository repository, @NotNull VirtualFile file) {
-    Project project = repository.getProject();
-    GitVcs vcs = GitVcs.getInstance(project);
-    VcsRevisionNumber actualRevision = vcs.getDiffProvider().getCurrentRevision(file);
-    if (actualRevision == null) {
-      return null;
-    } else {
-      GitLineHandler handler = new GitLineHandler(project, repository.getRoot(), GitCommand.BLAME);
+    VcsRevisionNumber actualRevision = gateway.getCurrentRevisionNumber(file);
+    if (actualRevision != VcsRevisionNumber.NULL) {
+      GitLineHandler handler = gateway.createLineHandler(repository);
       IncrementalBlameBuilder builder = new IncrementalBlameBuilder();
       handler.addLineListener(builder);
       handler.setStdoutSuppressed(true);
@@ -34,13 +39,13 @@ public class BlameCalculator {
       handler.endOptions();
       handler.addRelativePaths(GtUtil.localFilePath(file));
 
-      GitCommandResult result = Git.getInstance().runCommandWithoutCollectingOutput(handler);
+      GitCommandResult result = gateway.runCommand(handler);
       if (result.success()) {
         return new BlameRevisionDataProvider(project, builder.buildLineInfos(), file, actualRevision);
       } else if (!result.cancelled()) {
         log.warn("Blame failed:\n" + result.getErrorOutputAsJoinedString());
       }
-      return null;
     }
+    return null;
   }
 }

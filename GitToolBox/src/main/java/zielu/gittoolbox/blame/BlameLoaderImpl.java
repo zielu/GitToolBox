@@ -12,10 +12,12 @@ import zielu.gittoolbox.revision.RevisionDataProvider;
 class BlameLoaderImpl implements BlameLoader {
   private final Project project;
   private final BlameLoaderLocalGateway gateway;
+  private final BlameCalculator calculator;
 
   BlameLoaderImpl(@NotNull Project project) {
     this.project = project;
     gateway = new BlameLoaderLocalGateway(project);
+    calculator = new BlameCalculator(project);
   }
 
   @NotNull
@@ -30,7 +32,6 @@ class BlameLoaderImpl implements BlameLoader {
   }
 
   private BlameAnnotation incrementalAnnotation(@NotNull VirtualFile file) {
-    BlameCalculator calculator = new BlameCalculator();
     GitRepository repo = gateway.getRepoForFile(file);
     if (repo != null) {
       RevisionDataProvider provider = calculator.annotate(repo, file);
