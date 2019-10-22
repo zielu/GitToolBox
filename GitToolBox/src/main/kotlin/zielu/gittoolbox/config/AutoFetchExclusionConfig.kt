@@ -18,16 +18,17 @@ data class AutoFetchExclusionConfig(
     return excludedRemotes.any { remoteName == it.name }
   }
 
-  fun remoteRemote(remote: RemoteConfig): Boolean {
-    return excludedRemotes.remove(remote)
-  }
-
+  @Transient
   fun noRemotes(): Boolean {
     return excludedRemotes.isEmpty()
   }
 
   @Transient
   fun hasRemotes(): Boolean {
-    return !noRemotes()
+    return excludedRemotes.isNotEmpty()
+  }
+
+  fun removeRemote(remote: RemoteConfig): Boolean {
+    return excludedRemotes.remove(remote)
   }
 }
