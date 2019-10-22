@@ -46,7 +46,7 @@ internal class AutoFetchExclusionsTreeModel : DefaultTreeModel(DefaultMutableTre
           is RemoteConfig -> {
             val parent = selected.parent as DefaultMutableTreeNode
             val config = parent.userObject as AutoFetchExclusionConfig
-            if (config.remoteRemote(selectedObject)) {
+            if (config.removeRemote(selectedObject)) {
               parent.remove(selected)
               nodeStructureChanged(parent)
             }
