@@ -10,7 +10,7 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.revision.RevisionService
 
-class BlameLoaderLocalGateway(private val project: Project) {
+internal class BlameLoaderLocalGateway(private val project: Project) {
   fun getRepoForFile(vFile: VirtualFile): GitRepository? {
     return VirtualFileRepoCache.getInstance(project).getRepoForFile(vFile)
   }
@@ -26,6 +26,14 @@ class BlameLoaderLocalGateway(private val project: Project) {
       log.warn("Could not get current repoRevision for " + repo.root, e)
       return VcsRevisionNumber.NULL
     }
+  }
+
+  fun annotationLock(vFile: VirtualFile) {
+    BlameUtil.annotationLock(project, vFile)
+  }
+
+  fun annotationUnlock(vFile: VirtualFile) {
+    BlameUtil.annotationUnlock(project, vFile)
   }
 
   companion object {

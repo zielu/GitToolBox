@@ -1,7 +1,6 @@
 package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.repo.GitRepository;
@@ -22,12 +21,12 @@ class BlameLoaderImpl implements BlameLoader {
 
   @NotNull
   @Override
-  public BlameAnnotation annotate(@NotNull VirtualFile file) throws VcsException {
+  public BlameAnnotation annotate(@NotNull VirtualFile file) {
     try {
-      BlameUtil.annotationLock(project, file);
+      gateway.annotationLock(file);
       return incrementalAnnotation(file);
     } finally {
-      BlameUtil.annotationUnlock(project, file);
+      gateway.annotationUnlock(file);
     }
   }
 
