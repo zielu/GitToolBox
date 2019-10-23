@@ -1,6 +1,7 @@
 package zielu.intellij.test;
 
 import com.intellij.mock.MockVirtualFile;
+import org.jetbrains.annotations.NotNull;
 
 public final class MockVfsUtil {
   private MockVfsUtil() {
@@ -17,7 +18,7 @@ public final class MockVfsUtil {
     return dir;
   }
 
-  public static MockVirtualFile createFile(String name) {
+  public static MockVirtualFile createFile(@NotNull String name) {
     return new MockVirtualFile(false, name);
   }
 
