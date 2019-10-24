@@ -28,6 +28,8 @@ public interface BlameUiService {
 
   void blameUpdated(@NotNull VirtualFile file);
 
+  void refreshBlame();
+
   @NotNull
   static BlameUiService getInstance(@NotNull Project project) {
     return AppUtil.getServiceInstance(project, BlameUiService.class);

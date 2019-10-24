@@ -17,6 +17,10 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
     runInBackground { messageBus.syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(vFile, annotation) }
   }
 
+  fun fireBlameInvalidated(vFile: VirtualFile) {
+    runInBackground { messageBus.syncPublisher(BlameCache.CACHE_UPDATES).invalidated(vFile) }
+  }
+
   fun getRepoForFile(vFile: VirtualFile): GitRepository? {
     return VirtualFileRepoCache.getInstance(project).getRepoForFile(vFile)
   }

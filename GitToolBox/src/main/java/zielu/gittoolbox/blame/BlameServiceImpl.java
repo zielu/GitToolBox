@@ -40,12 +40,14 @@ class BlameServiceImpl implements BlameService, Disposable {
   @NotNull
   private RevisionInfo getLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
                                             int lineIndex) {
+    RevisionInfo revisionInfo = RevisionInfo.NULL;
     CachedLineProvider lineProvider = getLineProvider(document);
     if (lineProvider != null && !lineProvider.isLineChanged(lineIndex)) {
       int correctedLineIndex = lineProvider.getLineIndex(lineIndex);
-      return getLineBlameInternal(file, correctedLineIndex);
+      revisionInfo = getLineBlameInternal(file, correctedLineIndex);
     }
-    return RevisionInfo.EMPTY;
+    log.debug("Get line ", lineIndex, " blame for ", file, " info ", revisionInfo);
+    return revisionInfo;
   }
 
   @NotNull

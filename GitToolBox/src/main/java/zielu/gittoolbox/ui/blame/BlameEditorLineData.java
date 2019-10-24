@@ -27,4 +27,11 @@ class BlameEditorLineData {
   boolean isSameRevision(RevisionInfo revisionInfo) {
     return Objects.equals(this.revisionInfo, revisionInfo);
   }
+
+  @Override
+  public String toString() {
+    return "BlameEditorLineData{"
+               + ", revisionInfo=" + revisionInfo
+               + '}';
+  }
 }

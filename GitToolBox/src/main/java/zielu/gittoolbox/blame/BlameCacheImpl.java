@@ -152,6 +152,21 @@ class BlameCacheImpl implements BlameCache, Disposable {
     }
   }
 
+  @Override
+  public void invalidateForRoot(@NotNull VirtualFile root) {
+    LOG.debug("Invalidate for root: ", root);
+    Set<VirtualFile> files = new HashSet<>(annotations.asMap().keySet());
+    files.stream()
+        .filter(file -> VfsUtilCore.isAncestor(root, file, false))
+        .forEach(this::invalidate);
+  }
+
+  private void invalidate(@NotNull VirtualFile file) {
+    annotations.invalidate(file);
+    gateway.fireBlameInvalidated(file);
+    LOG.debug("Invalidated: ", file);
+  }
+
   private static class Blamed {
     private final BlameAnnotation annotation;
     private final AtomicBoolean dirty = new AtomicBoolean();

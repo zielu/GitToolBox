@@ -7,6 +7,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
+import java.util.List;
+import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.revision.RevisionDataProvider;
@@ -39,9 +41,22 @@ public class BlameCalculator {
       handler.endOptions();
       handler.addRelativePaths(GtUtil.localFilePath(file));
 
+      log.debug("Run blame: ", handler);
+
       GitCommandResult result = gateway.runCommand(handler);
       if (result.success()) {
-        return new BlameRevisionDataProvider(project, builder.buildLineInfos(), file, actualRevision);
+        List<CommitInfo> lineInfos = builder.buildLineInfos();
+        if (log.isTraceEnabled()) {
+          StringBand blameDump = new StringBand(lineInfos.size() * 4);
+          for (int i = 0; i < lineInfos.size(); i++) {
+            blameDump.append(i);
+            blameDump.append(": ");
+            blameDump.append(lineInfos.get(i));
+            blameDump.append("\n");
+          }
+          log.trace("Blame for " + file + " is:\n" + blameDump);
+        }
+        return new BlameRevisionDataProvider(project, lineInfos, file, actualRevision);
       } else if (!result.cancelled()) {
         log.warn("Blame failed:\n" + result.getErrorOutputAsJoinedString());
       }
