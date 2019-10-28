@@ -166,10 +166,10 @@
             text="Refresh Blame">
     </action>
 
-    <group id="GitToolBoxMenu" class="zielu.gittoolbox.ui.actions.GitToolBoxMenu">
+    <group id="GitToolBoxMenu" text="GitToolBox" popup="true">
       <reference id="GitToolBox.PushTags"/>
       <reference id="GitToolBox.RefreshBlame"/>
-      <add-to-group group-id="VcsGlobalGroup" anchor="after" relative-to-action="Vcs.Specific"/>
+      <add-to-group group-id="VcsGlobalGroup" anchor="after" relative-to-action="Git.Menu"/>
     </group>
   </actions>
 
