@@ -3,25 +3,32 @@ import java.text.SimpleDateFormat
 
 buildscript {
     repositories {
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
         mavenCentral()
+    }
+
+    dependencies {
+        //use eap because it fixes internal access between main and test
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.60-eap-76"
     }
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.10"
+    id 'org.jetbrains.intellij' version '0.4.10'
     id 'com.palantir.git-version' version '0.12.2'
     id 'ch.netzwerg.release' version '1.2.5'
-    id "org.jetbrains.kotlin.jvm" version "1.3.50"
-    id "org.jlleitschuh.gradle.ktlint" version "9.0.0"
+    id 'org.jlleitschuh.gradle.ktlint' version '9.0.0'
 }
 
 repositories {
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     mavenCentral()
 }
 
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'idea'
 apply plugin: "java"
+apply plugin: "kotlin"
 
 def javaVersion = JavaVersion.VERSION_1_8
 def encoding = 'UTF-8'
@@ -51,6 +58,7 @@ intellij {
     downloadSources = true
     plugins = ['java', 'git4idea', 'gr.jchrist.gitextender:0.5.2']
     ideaDependencyCachePath = ideaCacheDir
+    instrumentCode = true
 }
 
 compileJava.options.encoding = encoding
