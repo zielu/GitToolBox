@@ -7,8 +7,7 @@ import com.intellij.openapi.util.Disposer
 import zielu.gittoolbox.metrics.Metrics
 import zielu.gittoolbox.metrics.ProjectMetrics
 
-abstract class LocalGateway(private val project: Project) {
-
+internal abstract class LocalGateway(private val project: Project) {
   fun getMetrics(): Metrics {
     return ProjectMetrics.getInstance(project)
   }

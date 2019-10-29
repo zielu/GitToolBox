@@ -1,6 +1,5 @@
 package zielu.gittoolbox.blame;
 
-import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -21,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.util.Cached;
 import zielu.gittoolbox.util.CachedFactory;
 import zielu.gittoolbox.util.ExecutableTask;
@@ -35,20 +33,11 @@ class BlameCacheImpl implements BlameCache, Disposable {
       .expireAfterAccess(Duration.ofMinutes(45))
       .build();
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
-  private final Timer getTimer;
-  private final Counter discardedSubmitCounter;
-  private final LoaderTimers loaderTimers;
 
   BlameCacheImpl(@NotNull Project project) {
     gateway = new BlameCacheLocalGateway(project);
-    Metrics metrics = gateway.getMetrics();
-    metrics.gauge("blame-cache.size", annotations::size);
-    metrics.gauge("blame-cache.queue-count", queued::size);
-    discardedSubmitCounter = metrics.counter("blame-cache.discarded-count");
-    getTimer = metrics.timer("blame-cache.get");
-    Timer loadTimer = metrics.timer("blame-cache.load");
-    Timer queueWaitTimer = metrics.timer("blame-cache.queue-wait");
-    loaderTimers = new LoaderTimers(loadTimer, queueWaitTimer);
+    gateway.registerSizeGauge(annotations::size);
+    gateway.registerQueuedGauge(queued::size);
     gateway.disposeWithProject(this);
   }
 
@@ -61,7 +50,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   @NotNull
   @Override
   public BlameAnnotation getAnnotation(@NotNull VirtualFile file) {
-    return getTimer.timeSupplier(() -> getAnnotationInternal(file));
+    return gateway.getCacheGetTimer().timeSupplier(() -> getAnnotationInternal(file));
   }
 
   private BlameAnnotation getAnnotationInternal(@NotNull VirtualFile file) {
@@ -105,12 +94,11 @@ class BlameCacheImpl implements BlameCache, Disposable {
     if (queued.add(file)) {
       LOG.debug("Add annotation task for ", file);
       annotations.put(file, CachedFactory.loading(EMPTY_BLAMED));
-      AnnotationLoader loaderTask = new AnnotationLoader(file, gateway.getBlameLoader(), loaderTimers,
-          this::annotationLoaded);
+      AnnotationLoader loaderTask = new AnnotationLoader(file, gateway, this::annotationLoaded);
       gateway.execute(loaderTask);
     } else {
       LOG.debug("Discard annotation task for ", file);
-      discardedSubmitCounter.inc();
+      gateway.submitDiscarded();
     }
   }
 
@@ -198,22 +186,23 @@ class BlameCacheImpl implements BlameCache, Disposable {
     private final VirtualFile file;
     private final BlameLoader loader;
     private final BiConsumer<VirtualFile, BlameAnnotation> loaded;
-    private final LoaderTimers timers;
+    private final Timer loadTimer;
+    private final Timer queueWaitTimer;
     private final long createdAt = System.currentTimeMillis();
 
-    private AnnotationLoader(@NotNull VirtualFile file, @NotNull BlameLoader loader,
-                             @NotNull LoaderTimers timers,
+    private AnnotationLoader(@NotNull VirtualFile file, @NotNull BlameCacheLocalGateway gateway,
                              @NotNull BiConsumer<VirtualFile, BlameAnnotation> loaded) {
       this.file = file;
-      this.loader = loader;
-      this.timers = timers;
+      this.loader = gateway.getBlameLoader();
+      this.loadTimer = gateway.getLoadTimer();
+      this.queueWaitTimer = gateway.getQueueWaitTimer();
       this.loaded = loaded;
     }
 
     @Override
     public void run() {
-      timers.queueWait.update(System.currentTimeMillis() - createdAt, TimeUnit.MILLISECONDS);
-      BlameAnnotation annotation = timers.load.timeSupplier(this::load);
+      queueWaitTimer.update(System.currentTimeMillis() - createdAt, TimeUnit.MILLISECONDS);
+      BlameAnnotation annotation = loadTimer.timeSupplier(this::load);
       LOG.info("Annotated " + file + ": " + annotation);
       loaded.accept(file, annotation);
     }

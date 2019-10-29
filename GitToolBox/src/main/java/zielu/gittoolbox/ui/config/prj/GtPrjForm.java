@@ -353,15 +353,14 @@ public class GtPrjForm implements GtFormUi {
   }
 
   public void setReferencePointConfig(ReferencePointForStatusConfig config) {
-    referencePointTypeComboBox.setSelectedItem(config.type);
-    referencePointNameText.setText(config.name);
+    referencePointTypeComboBox.setSelectedItem(config.getType());
+    referencePointNameText.setText(config.getName());
   }
 
   public ReferencePointForStatusConfig getReferencePointConfig() {
-    ReferencePointForStatusConfig config = new ReferencePointForStatusConfig();
-    config.type = getReferencePointType();
-    config.name = referencePointNameText.getText();
-    return config;
+    ReferencePointForStatusType type = getReferencePointType();
+    String name = referencePointNameText.getText();
+    return new ReferencePointForStatusConfig(type, name);
   }
 
   private ReferencePointForStatusType getReferencePointType() {

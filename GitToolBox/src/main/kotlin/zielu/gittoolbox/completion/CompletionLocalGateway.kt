@@ -10,7 +10,6 @@ import zielu.gittoolbox.util.LocalGateway
 import java.io.File
 
 internal class CompletionLocalGateway(private val project: Project) : LocalGateway(project) {
-
   fun getFormatters(): ImmutableList<Formatter> {
     return ImmutableList.copyOf(GitToolBoxConfigPrj.getInstance(project).getCompletionFormatters())
   }

@@ -7,7 +7,7 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.PerRepoInfoCache.CACHE_CHANGE
 import zielu.gittoolbox.util.DisposeSafeRunnable
 
-class InfoCachePublisher(private val project: Project) {
+internal class InfoCachePublisher(private val project: Project) {
   private val messageBus by lazy {
     project.messageBus
   }

@@ -45,9 +45,9 @@ public class AutoFetchState implements BaseComponent {
   }
 
   private AutoFetchAllowed instantiate(AutoFetchAllowedEP extensionPoint) {
-    AutoFetchAllowed extension = extensionPoint.instantiate();
-    extension.initialize(project);
+    AutoFetchAllowed extension = extensionPoint.instantiate(project);
     log.debug("Extension created: ", extension);
+    extension.initialize();
     return extension;
   }
 
@@ -61,7 +61,6 @@ public class AutoFetchState implements BaseComponent {
   }
 
   private void disposeExtensions() {
-    extensions.forEach(AutoFetchAllowed::dispose);
     extensions.clear();
   }
 

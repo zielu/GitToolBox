@@ -38,11 +38,6 @@ class BlameUiSubscriber {
       public void blameUpdated(@NotNull VirtualFile file) {
         onBlameUpdate(file);
       }
-
-      @Override
-      public void blameInvalidated(@NotNull VirtualFile file) {
-        onBlameUpdate(file);
-      }
     });
     connection.subscribe(EditorColorsManager.TOPIC, this::onColorSchemeChanged);
     connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
@@ -97,14 +92,6 @@ class BlameUiSubscriber {
   private void refreshEditorFile(@NotNull VirtualFile file, boolean repaint) {
     FileEditorManagerEx editorManagerEx = FileEditorManagerEx.getInstanceEx(project);
     editorManagerEx.updateFilePresentation(file);
-    /*if (repaint) {
-      for (FileEditor editor : editorManagerEx.getEditors(file)) {
-        if (editor instanceof TextEditor) {
-          TextEditor textEditor = (TextEditor) editor;
-          textEditor.getEditor().getContentComponent().repaint();
-        }
-      }
-    }*/
   }
 
   private void onColorSchemeChanged(@Nullable EditorColorsScheme scheme) {

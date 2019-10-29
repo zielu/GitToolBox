@@ -3,7 +3,7 @@ package zielu.intellij.ui
 import java.util.function.BiConsumer
 import java.util.function.Function
 
-class ConfigUiBinder<CONFIG, UI> {
+internal class ConfigUiBinder<CONFIG, UI> {
   private val bindings: MutableList<Binding<CONFIG, UI, *>> = ArrayList()
 
   fun <T> bind(

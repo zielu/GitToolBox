@@ -8,7 +8,7 @@ import zielu.gittoolbox.config.GitToolBoxConfig2
 import zielu.gittoolbox.ui.blame.BlameUiService
 import zielu.gittoolbox.util.GtUtil
 
-class RefreshBlameAction : DumbAwareAction(ResBundle.message("refresh.blame.action")) {
+internal class RefreshBlameAction : DumbAwareAction(ResBundle.message("refresh.blame.action")) {
   override fun actionPerformed(event: AnActionEvent) {
     val project = AnAction.getEventProject(event)
     project?.let { GitToolBoxConfig2.getInstance() }?.let { isBlameEnabled(it) }?.also {

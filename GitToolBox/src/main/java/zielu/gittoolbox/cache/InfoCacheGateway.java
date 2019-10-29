@@ -49,11 +49,11 @@ class InfoCacheGateway {
     GitRemoteBranch trackedBranch = localBranch.findTrackedBranch(repository);
     GitRemoteBranch parentBranch = null;
     GitRepoInfo repoInfo = repository.getInfo();
-    ReferencePointForStatusType type = config.getReferencePointForStatus().type;
+    ReferencePointForStatusType type = config.getReferencePointForStatus().getType();
     if (type == ReferencePointForStatusType.TRACKED_REMOTE_BRANCH) {
       parentBranch = trackedBranch;
     } else if (type == ReferencePointForStatusType.SELECTED_PARENT_BRANCH) {
-      parentBranch = findRemoteParent(repository, config.getReferencePointForStatus().name).orElse(null);
+      parentBranch = findRemoteParent(repository, config.getReferencePointForStatus().getName()).orElse(null);
     } else if (type == ReferencePointForStatusType.AUTOMATIC) {
       parentBranch = getRemoteBranchFromActiveTask(repository).orElse(trackedBranch);
     }

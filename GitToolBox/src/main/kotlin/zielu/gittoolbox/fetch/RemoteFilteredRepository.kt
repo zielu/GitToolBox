@@ -5,7 +5,7 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import java.util.Objects
 
-class RemoteFilteredRepository(
+internal class RemoteFilteredRepository(
   val repo: GitRepository,
   val config: AutoFetchExclusionConfig
 ) : GitRepository by repo {
