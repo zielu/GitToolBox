@@ -26,14 +26,14 @@ class LineState {
   @Nullable
   List<LineExtensionInfo> getOrClearCachedLineInfo(Function<RevisionInfo, List<LineExtensionInfo>> lineInfoMaker) {
     BlameEditorData editorData = BlameEditorData.get(lineInfo.getEditor());
+    final boolean trace = LOG.isTraceEnabled();
     if (editorData != null) {
       if (isSameEditorData(editorData)) {
-        final boolean trace = LOG.isTraceEnabled();
         if (trace) {
           LOG.trace("BlameEditorData is same: " + editorData);
         }
         RevisionInfo revisionInfo = editorData.getRevisionInfo();
-        BlameEditorLineData lineData = BlameEditorLineData.KEY.get(lineInfo.getEditor());
+        BlameEditorLineData lineData = BlameEditorLineData.get(lineInfo.getEditor());
         if (lineData != null && lineData.isSameRevision(revisionInfo)) {
           if (trace) {
             LOG.trace("Same revision: " + revisionInfo + " == " + lineData);
@@ -41,8 +41,8 @@ class LineState {
           return lineData.getLineInfo();
         } else {
           List<LineExtensionInfo> lineExtensions = lineInfoMaker.apply(revisionInfo);
-          BlameEditorLineData newLineData = new BlameEditorLineData(lineExtensions, revisionInfo);
-          BlameEditorLineData.KEY.set(lineInfo.getEditor(), newLineData);
+          BlameEditorLineData newLineData = new BlameEditorLineData(revisionInfo, lineExtensions);
+          BlameEditorLineData.set(lineInfo.getEditor(), newLineData);
           if (trace) {
             LOG.trace("New BlameEditorLineData: " + newLineData);
           }
@@ -50,12 +50,14 @@ class LineState {
         }
       } else {
         clear();
-        if (LOG.isTraceEnabled()) {
+        if (trace) {
           LOG.trace("BlameEditorData cleared: " + editorData);
         }
       }
     } else {
-      LOG.trace("BlameEditorData: null");
+      if (trace) {
+        LOG.trace("BlameEditorData: null");
+      }
     }
     return null;
   }
@@ -66,8 +68,8 @@ class LineState {
 
   static void clear(@NotNull Editor editor) {
     BlameEditorData.clear(editor);
-    BlameEditorLineData.KEY.set(editor, null);
-    BlameStatusLineData.KEY.set(editor, null);
+    BlameEditorLineData.clear(editor);
+    BlameStatusLineData.clear(editor);
   }
 
   private boolean isSameEditorData(BlameEditorData editorData) {
@@ -82,12 +84,12 @@ class LineState {
     if (editorData != null) {
       if (isSameEditorData(editorData)) {
         RevisionInfo revisionInfo = editorData.getRevisionInfo();
-        BlameStatusLineData lineData = BlameStatusLineData.KEY.get(lineInfo.getEditor());
+        BlameStatusLineData lineData = BlameStatusLineData.get(lineInfo.getEditor());
         if (lineData != null && lineData.isSameRevision(revisionInfo)) {
           return lineData.getLineInfo();
         } else {
           String statusText = statusMaker.apply(revisionInfo);
-          BlameStatusLineData.KEY.set(lineInfo.getEditor(), new BlameStatusLineData(statusText, revisionInfo));
+          BlameStatusLineData.set(lineInfo.getEditor(), new BlameStatusLineData(revisionInfo, statusText));
           return statusText;
         }
       } else {

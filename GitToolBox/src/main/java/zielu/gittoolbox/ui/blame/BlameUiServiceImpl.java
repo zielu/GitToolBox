@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.blame;
 
-import com.codahale.metrics.Timer;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -8,34 +7,21 @@ import com.intellij.openapi.editor.LineExtensionInfo;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.FontUtil;
-import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryManager;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.blame.BlameCache;
-import zielu.gittoolbox.blame.BlameService;
-import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.config.DecorationColors;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
-import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.revision.RevisionInfo;
-import zielu.gittoolbox.revision.RevisionService;
 import zielu.gittoolbox.ui.util.AppUiUtil;
+import zielu.intellij.util.ZUtil;
 
 class BlameUiServiceImpl implements BlameUiService {
   private static final TextAttributesKey ATTRIBUTES_KEY = DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES;
@@ -43,27 +29,12 @@ class BlameUiServiceImpl implements BlameUiService {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicInteger configGeneration = new AtomicInteger(1);
   private final Project project;
-  private final BlamePresenter blamePresenter;
-  private final VirtualFileRepoCache fileRepoCache;
-  private final BlameService blameService;
-  private final Timer blameEditorTimer;
-  private final Timer blameStatusBarTimer;
-  private final Timer blameGetEditorInfoTimer;
-  private final Timer blameGetStatusBarInfoTimer;
+  private final BlameUiServiceLocalGateway gateway;
   private TextAttributes blameTextAttributes;
 
-  BlameUiServiceImpl(@NotNull Project project, @NotNull BlamePresenter blamePresenter,
-                     @NotNull VirtualFileRepoCache fileRepoCache, @NotNull BlameService blameService,
-                     @NotNull ProjectMetrics metrics) {
+  BlameUiServiceImpl(@NotNull Project project) {
     this.project = project;
-    this.blamePresenter = blamePresenter;
-    this.fileRepoCache = fileRepoCache;
-    this.blameService = blameService;
-    blameEditorTimer = metrics.timer("blame-editor-painter");
-    blameStatusBarTimer = metrics.timer("blame-status-bar");
-    blameGetEditorInfoTimer = metrics.timer("blame-editor-get-info");
-    blameGetStatusBarInfoTimer = metrics.timer("blame-status-bar-get-info");
-    blameTextAttributes = DecorationColors.textAttributes(ATTRIBUTES_KEY);
+    this.gateway = new BlameUiServiceLocalGateway(project, ATTRIBUTES_KEY);
   }
 
   @Override
@@ -82,41 +53,30 @@ class BlameUiServiceImpl implements BlameUiService {
 
   @Override
   public void refreshBlame() {
-    GitRepositoryManager manager = GitRepositoryManager.getInstance(project);
-    List<GitRepository> repositories = new ArrayList<>(manager.getRepositories());
-    List<VirtualFile> roots = repositories.stream()
-                                    .map(GitRepository::getRoot)
-                                    .collect(Collectors.toList());
-    if (!roots.isEmpty()) {
-      BlameCache.getExistingInstance(project).ifPresent(cache -> invalidateBlameForRoots(cache, roots));
-    }
-  }
-
-  private void invalidateBlameForRoots(BlameCache cache, Collection<VirtualFile> roots) {
-    roots.forEach(cache::invalidateForRoot);
+    gateway.invalidateAllBlames();
   }
 
   @Nullable
   @Override
   public String getBlameStatus(@NotNull VirtualFile file, int editorLineIndex) {
-    return blameStatusBarTimer.timeSupplier(() -> getBlameStatusInternal(file, editorLineIndex));
+    return gateway.getStatusBarTimer().timeSupplier(() -> getBlameStatusInternal(file, editorLineIndex));
   }
 
   @Nullable
   private String getBlameStatusInternal(@NotNull VirtualFile file, int editorLineIndex) {
     LineInfo lineInfo = createLineInfo(file, editorLineIndex);
     if (lineInfo != null) {
-      return blameGetStatusBarInfoTimer.timeSupplier(() -> getStatusWithCaching(lineInfo));
+      return gateway.getStatusBarInfoTimer().timeSupplier(() -> getStatusWithCaching(lineInfo));
     }
     return null;
   }
 
   @Nullable
   private LineInfo createLineInfo(@NotNull VirtualFile file, int lineIndex) {
-    if (fileRepoCache.isUnderGitRoot(file)) {
-      Document document = FileDocumentManager.getInstance().getDocument(file);
+    if (gateway.isUnderGit(file)) {
+      Document document = gateway.getDocument(file);
       if (isDocumentValid(document, lineIndex)) {
-        Editor editor = getEditor(document);
+        Editor editor = gateway.getEditorIfDocumentSelected(document);
         if (editor != null) {
           return new LineInfo(file, editor, document, lineIndex, configGeneration.get());
         }
@@ -132,14 +92,11 @@ class BlameUiServiceImpl implements BlameUiService {
   @Nullable
   @Override
   public String getBlameStatusTooltip(@NotNull VirtualFile file, int editorLineIndex) {
-    if (fileRepoCache.isUnderGitRoot(file)) {
-      Document document = FileDocumentManager.getInstance().getDocument(file);
+    if (gateway.isUnderGit(file)) {
+      Document document = gateway.getDocument(file);
       if (isDocumentValid(document, editorLineIndex)) {
-        RevisionInfo revisionInfo = getLineBlame(document, file, editorLineIndex);
-        if (revisionInfo.isNotEmpty()) {
-          String message = RevisionService.getInstance(project).getCommitMessage(file, revisionInfo);
-          return BlamePresenter.getInstance().getPopup(revisionInfo, message);
-        }
+        RevisionInfo revisionInfo = gateway.getLineBlame(document, file, editorLineIndex);
+        return gateway.getBlameStatusTooltip(revisionInfo);
       }
     }
     return null;
@@ -148,14 +105,14 @@ class BlameUiServiceImpl implements BlameUiService {
   @Nullable
   @Override
   public Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineIndex) {
-    return blameEditorTimer.timeSupplier(() -> getLineExtensionsInternal(file, editorLineIndex));
+    return gateway.getEditorTimer().timeSupplier(() -> getLineExtensionsInternal(file, editorLineIndex));
   }
 
   @Nullable
   private List<LineExtensionInfo> getLineExtensionsInternal(@NotNull VirtualFile file, int editorLineIndex) {
     LineInfo lineInfo = createLineInfo(file, editorLineIndex);
     if (lineInfo != null && isLineWithCaret(lineInfo.getEditor(), lineInfo.getIndex())) {
-      return blameGetEditorInfoTimer.timeSupplier(() -> getLineInfosWithCaching(lineInfo));
+      return gateway.getEditorInfoTimer().timeSupplier(() -> getLineInfosWithCaching(lineInfo));
     }
     return null;
   }
@@ -167,7 +124,7 @@ class BlameUiServiceImpl implements BlameUiService {
     if (cachedInfo != null) {
       return cachedInfo;
     } else {
-      RevisionInfo lineRevisionInfo = getLineBlame(lineInfo);
+      RevisionInfo lineRevisionInfo = gateway.getLineBlame(lineInfo);
       if (lineRevisionInfo.isNotEmpty()) {
         lineState.setRevisionInfo(lineRevisionInfo);
       }
@@ -178,15 +135,15 @@ class BlameUiServiceImpl implements BlameUiService {
   @Nullable
   private String getStatusWithCaching(@NotNull LineInfo lineInfo) {
     LineState lineState = new LineState(lineInfo);
-    String cachedInfo = lineState.getOrClearCachedStatus(this::getStatusDecoration);
+    String cachedInfo = lineState.getOrClearCachedStatus(gateway::getStatusDecoration);
     if (cachedInfo != null) {
       return cachedInfo;
     } else {
-      RevisionInfo lineRevisionInfo = getLineBlame(lineInfo);
+      RevisionInfo lineRevisionInfo = gateway.getLineBlame(lineInfo);
       if (lineRevisionInfo.isNotEmpty()) {
         lineState.setRevisionInfo(lineRevisionInfo);
       }
-      return lineState.getOrClearCachedStatus(this::getStatusDecoration);
+      return lineState.getOrClearCachedStatus(gateway::getStatusDecoration);
     }
   }
 
@@ -197,54 +154,30 @@ class BlameUiServiceImpl implements BlameUiService {
   }
 
   private void handleBlameUpdated(@NotNull VirtualFile file) {
-    FileEditor[] fileEditors = FileEditorManager.getInstance(project).getAllEditors(file);
-    for (FileEditor fileEditor : fileEditors) {
-      if (fileEditor instanceof TextEditor) {
-        TextEditor textEditor = (TextEditor) fileEditor;
-        Editor editor = textEditor.getEditor();
-        LineState.clear(editor);
-        log.debug("Cleared line state: ", file, ", editor=", editor);
-      }
-    }
-  }
-
-  @Nullable
-  private Editor getEditor(@NotNull Document document) {
-    Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
-    if (editor != null && Objects.equals(editor.getDocument(), document)) {
-      return editor;
-    }
-    return null;
+    gateway.getAllEditors(file).forEach(editor -> {
+      LineState.clear(editor);
+      log.debug("Cleared line state: ", file, ", editor=", editor);
+    });
   }
 
   private boolean isLineWithCaret(@NotNull Editor editor, int editorLineIndex) {
-    return BlameUi.getCurrentLineIndex(editor) == editorLineIndex;
-  }
-
-  @NotNull
-  private RevisionInfo getLineBlame(@NotNull Document document, @NotNull VirtualFile file, int editorLineIndex) {
-    return blameService.getDocumentLineIndexBlame(document, file, editorLineIndex);
-  }
-
-  @NotNull
-  private RevisionInfo getLineBlame(@NotNull LineInfo lineInfo) {
-    return blameService.getDocumentLineIndexBlame(lineInfo.getDocument(), lineInfo.getFile(), lineInfo.getIndex());
+    return gateway.getCurrentLineIndex(editor) == editorLineIndex;
   }
 
   @NotNull
   private List<LineExtensionInfo> getLineInfoDecoration(RevisionInfo revisionInfo) {
     String text = formatBlameText(revisionInfo);
-    return Collections.singletonList(new LineExtensionInfo(text, blameTextAttributes));
+    return Collections.singletonList(new LineExtensionInfo(text, getBlameTextAttributes()));
   }
 
-  private String getStatusDecoration(@NotNull RevisionInfo revisionInfo) {
-    return blamePresenter.getStatusBar(revisionInfo);
+  private TextAttributes getBlameTextAttributes() {
+    return ZUtil.defaultIfNull(blameTextAttributes, gateway::getDefaultBlameTextAttributes);
   }
 
   private String formatBlameText(@NotNull RevisionInfo revisionInfo) {
     return new StringBand(2)
         .append(BLAME_PREFIX)
-        .append(blamePresenter.getEditorInline(revisionInfo))
+        .append(gateway.getEditorInlineDecoration(revisionInfo))
         .toString();
   }
 }

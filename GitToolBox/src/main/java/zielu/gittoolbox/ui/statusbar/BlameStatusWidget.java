@@ -83,7 +83,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
 
   @Nullable
   @Override
-  public WidgetPresentation getPresentation(@NotNull PlatformType platformType) {
+  public WidgetPresentation getPresentation() {
     return this;
   }
 

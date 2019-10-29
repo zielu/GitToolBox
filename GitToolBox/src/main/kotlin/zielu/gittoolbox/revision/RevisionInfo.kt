@@ -17,7 +17,7 @@ interface RevisionInfo {
       override fun getRevisionNumber() = VcsRevisionNumber.NULL
       override fun getAuthor() = "EMPTY"
       override fun getDate() = Date(0)
-      override fun getSubject() = null
+      override fun getSubject(): String? = null
       override fun isEmpty() = true
       override fun isNotEmpty() = false
     }
