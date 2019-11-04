@@ -6,7 +6,7 @@ import static zielu.gittoolbox.status.Status.NO_REMOTE;
 import static zielu.gittoolbox.status.Status.SUCCESS;
 
 import com.google.common.collect.Iterables;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.EnumMap;
@@ -17,6 +17,7 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.Status;
+import zielu.gittoolbox.util.AppUtil;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
@@ -24,6 +25,7 @@ public class StatusMessagesService {
   private final EnumMap<Status, String> commonStatuses = new EnumMap<>(Status.class);
   private final StatusMessagesServiceLocalGateway gateway;
 
+  @NonInjectable
   public StatusMessagesService(StatusMessagesServiceLocalGateway gateway) {
     commonStatuses.put(CANCEL, ResBundle.message("message.cancelled"));
     commonStatuses.put(FAILURE, ResBundle.message("message.failure"));
@@ -31,12 +33,12 @@ public class StatusMessagesService {
     this.gateway = gateway;
   }
 
-  public StatusMessagesService() {
+  StatusMessagesService() {
     this(new StatusMessagesServiceLocalGatewayImpl());
   }
 
   public static StatusMessagesService getInstance() {
-    return ServiceManager.getService(StatusMessagesService.class);
+    return AppUtil.getServiceInstance(StatusMessagesService.class);
   }
 
   private String behindStatus(BehindStatus behind) {
