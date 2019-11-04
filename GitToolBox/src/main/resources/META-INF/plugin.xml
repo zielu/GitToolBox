@@ -41,7 +41,7 @@
     <applicationService serviceInterface="zielu.gittoolbox.ui.DatePresenter"
                         serviceImplementation="zielu.gittoolbox.ui.DatePresenterImpl" />
 
-    <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessages" />
+    <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessagesService" />
     <applicationService serviceInterface="zielu.gittoolbox.ui.StatusMessagesUi"
                         serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService" />
 

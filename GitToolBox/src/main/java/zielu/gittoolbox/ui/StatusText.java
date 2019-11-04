@@ -16,7 +16,7 @@ public final class StatusText {
       if (status == Status.NO_REMOTE) {
         return ResBundle.message("git.no.remote");
       } else {
-        return StatusMessages.getInstance().aheadBehindStatus(aheadBehind);
+        return StatusMessagesService.getInstance().aheadBehindStatus(aheadBehind);
       }
     } else {
       return ResBundle.na();
@@ -27,7 +27,7 @@ public final class StatusText {
     if (aheadBehind.status() == Status.SUCCESS) {
       return "";
     } else {
-      return StatusMessages.getInstance().aheadBehindStatus(aheadBehind);
+      return StatusMessagesService.getInstance().aheadBehindStatus(aheadBehind);
     }
   }
 }

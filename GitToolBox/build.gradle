@@ -146,6 +146,7 @@ checkstyle {
 
 ktlint {
     additionalEditorconfigFile = project(':').file("config/ktlint/.editorconfig")
+    coloredOutput = false
     reporters {
         reporter "checkstyle"
     }
@@ -168,8 +169,12 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     testImplementation ("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
+
     testImplementation ("org.mockito:mockito-core:${mockitoVersion}")
     testImplementation ("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+
+    testImplementation ("io.mockk:mockk:${mockkVersion}")
+
     testImplementation ("org.assertj:assertj-core:${assertjCoreVersion}")
     testImplementation ("org.slf4j:slf4j-api:${slf4jVersion}")
 

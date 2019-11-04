@@ -13,7 +13,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import jodd.util.StringBand;
-import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.status.GitAheadBehindCount;
@@ -21,26 +20,29 @@ import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
-public class StatusMessages {
+public class StatusMessagesService {
   private final EnumMap<Status, String> commonStatuses = new EnumMap<>(Status.class);
-  private final StatusMessagesUi ui;
+  private final StatusMessagesServiceLocalGateway gateway;
 
-  public StatusMessages(@NotNull StatusMessagesUi ui) {
-    this.ui = ui;
-
+  public StatusMessagesService(StatusMessagesServiceLocalGateway gateway) {
     commonStatuses.put(CANCEL, ResBundle.message("message.cancelled"));
     commonStatuses.put(FAILURE, ResBundle.message("message.failure"));
     commonStatuses.put(NO_REMOTE, ResBundle.message("message.no.remote"));
+    this.gateway = gateway;
   }
 
-  public static StatusMessages getInstance() {
-    return ServiceManager.getService(StatusMessages.class);
+  public StatusMessagesService() {
+    this(new StatusMessagesServiceLocalGatewayImpl());
+  }
+
+  public static StatusMessagesService getInstance() {
+    return ServiceManager.getService(StatusMessagesService.class);
   }
 
   private String behindStatus(BehindStatus behind) {
     if (SUCCESS == behind.status()) {
       if (behind.behind() > 0) {
-        return ui.presenter().behindStatus(behind);
+        return gateway.behindStatus(behind);
       } else {
         return ResBundle.message("message.up.to.date");
       }
@@ -52,7 +54,7 @@ public class StatusMessages {
   public String aheadBehindStatus(GitAheadBehindCount count) {
     if (SUCCESS == count.status()) {
       if (count.isNotZero()) {
-        return ui.presenter().aheadBehindStatus(count.ahead.value(), count.behind.value());
+        return gateway.aheadBehindStatus(count);
       } else {
         return ResBundle.message("message.up.to.date");
       }

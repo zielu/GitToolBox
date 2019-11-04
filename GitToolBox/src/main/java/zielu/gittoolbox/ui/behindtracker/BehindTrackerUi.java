@@ -1,11 +1,11 @@
 package zielu.gittoolbox.ui.behindtracker;
 
-import zielu.gittoolbox.ui.StatusMessages;
+import zielu.gittoolbox.ui.StatusMessagesService;
 
 public interface BehindTrackerUi {
   void displaySuccessNotification(String message);
 
   boolean isNotificationEnabled();
 
-  StatusMessages getStatusMessages();
+  StatusMessagesService getStatusMessages();
 }

@@ -8,7 +8,7 @@ import javax.swing.event.HyperlinkEvent;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
-import zielu.gittoolbox.ui.StatusMessages;
+import zielu.gittoolbox.ui.StatusMessagesService;
 import zielu.gittoolbox.ui.UpdateProject;
 
 class BehindTrackerUiService implements BehindTrackerUi {
@@ -37,7 +37,7 @@ class BehindTrackerUiService implements BehindTrackerUi {
   }
 
   @Override
-  public StatusMessages getStatusMessages() {
-    return ServiceManager.getService(StatusMessages.class);
+  public StatusMessagesService getStatusMessages() {
+    return ServiceManager.getService(StatusMessagesService.class);
   }
 }
