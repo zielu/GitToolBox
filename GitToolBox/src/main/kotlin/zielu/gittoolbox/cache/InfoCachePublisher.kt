@@ -28,6 +28,6 @@ internal class InfoCachePublisher(private val project: Project) {
   }
 
   companion object {
-    val log = Logger.getInstance(InfoCachePublisher::class.java)
+    private val log = Logger.getInstance(InfoCachePublisher::class.java)
   }
 }

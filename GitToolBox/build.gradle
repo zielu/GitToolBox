@@ -31,6 +31,7 @@ apply plugin: "java"
 apply plugin: "kotlin"
 
 def javaVersion = JavaVersion.VERSION_1_8
+def kotlinJvmTarget = "1.8"
 def encoding = 'UTF-8'
 
 java {
@@ -66,7 +67,13 @@ compileTestJava.options.encoding = encoding
 
 compileKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = kotlinJvmTarget
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = kotlinJvmTarget
     }
 }
 
@@ -183,7 +190,7 @@ dependencies {
 
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
     //testRuntimeOnly ("org.slf4j:slf4j-simple:${slf4jVersion}")
-    testCompileOnly ('org.apiguardian:apiguardian-api:1.0.0')
+    //testCompileOnly ('org.apiguardian:apiguardian-api:1.0.0')
 }
 
 

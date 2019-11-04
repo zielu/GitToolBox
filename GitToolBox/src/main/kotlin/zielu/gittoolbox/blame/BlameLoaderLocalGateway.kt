@@ -37,6 +37,6 @@ internal class BlameLoaderLocalGateway(private val project: Project) {
   }
 
   companion object {
-    val log = Logger.getInstance(BlameLoaderLocalGateway::class.java)
+    private val log = Logger.getInstance(BlameLoaderLocalGateway::class.java)
   }
 }

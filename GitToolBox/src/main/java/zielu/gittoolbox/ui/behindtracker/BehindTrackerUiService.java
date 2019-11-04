@@ -4,10 +4,13 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import git4idea.repo.GitRepository;
 import javax.swing.event.HyperlinkEvent;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.repo.GtRepository;
+import zielu.gittoolbox.repo.GtRepositoryImpl;
 import zielu.gittoolbox.ui.StatusMessagesService;
 import zielu.gittoolbox.ui.UpdateProject;
 
@@ -27,7 +30,7 @@ class BehindTrackerUiService implements BehindTrackerUi {
   }
 
   @Override
-  public void displaySuccessNotification(String message) {
+  public void displaySuccessNotification(@NotNull String message) {
     Notifier.getInstance(project).behindTrackerSuccess(message, updateProjectListener);
   }
 
@@ -39,5 +42,10 @@ class BehindTrackerUiService implements BehindTrackerUi {
   @Override
   public StatusMessagesService getStatusMessages() {
     return ServiceManager.getService(StatusMessagesService.class);
+  }
+
+  @Override
+  public GtRepository getGtRepository(GitRepository repository) {
+    return new GtRepositoryImpl(repository);
   }
 }

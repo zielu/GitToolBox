@@ -6,24 +6,23 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
-import jodd.util.StringBand;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.cache.RepoInfo;
-import zielu.gittoolbox.status.BehindStatus;
-import zielu.gittoolbox.status.GitAheadBehindCount;
-import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi;
-import zielu.gittoolbox.util.AppUtil;
-import zielu.gittoolbox.util.GtUtil;
-import zielu.gittoolbox.util.Html;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import jodd.util.StringBand;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.repo.GtRepository;
+import zielu.gittoolbox.status.BehindStatus;
+import zielu.gittoolbox.status.GitAheadBehindCount;
+import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi;
+import zielu.gittoolbox.util.AppUtil;
+import zielu.gittoolbox.util.Html;
 
 class BehindTracker implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());
@@ -117,7 +116,8 @@ class BehindTracker implements ProjectComponent {
   private void onStateChangeUnsafe(@NotNull GitRepository repository, @NotNull RepoInfo info) {
     RepoInfo previousInfo = state.put(repository, info);
     if (log.isDebugEnabled()) {
-      log.debug("Info update [", GtUtil.name(repository), "]: ", previousInfo, " > ", info);
+      GtRepository repo = ui.getGtRepository(repository);
+      log.debug("Info update [", repo.getName(), "]: ", previousInfo, " > ", info);
     }
     ChangeType changeType = detectChangeType(previousInfo, info);
     if (changeType == ChangeType.FETCHED) {

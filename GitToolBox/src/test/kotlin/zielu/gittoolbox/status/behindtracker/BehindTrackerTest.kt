@@ -22,6 +22,7 @@ import zielu.TestType
 import zielu.gittoolbox.cache.RepoInfo
 import zielu.gittoolbox.cache.RepoStatus
 import zielu.gittoolbox.cache.RepoStatusRemote
+import zielu.gittoolbox.repo.GtRepository
 import zielu.gittoolbox.status.GitAheadBehindCount
 import zielu.gittoolbox.ui.StatusMessagesService
 import zielu.gittoolbox.ui.StatusMessagesServiceLocalGateway
@@ -54,11 +55,15 @@ internal class BehindTrackerTest {
   private lateinit var gatewayMock: StatusMessagesServiceLocalGateway
   @MockK
   private lateinit var repositoryMock: GitRepository
+  @MockK
+  private lateinit var gtRepositoryMock: GtRepository
   private lateinit var behindTracker: BehindTracker
 
   @BeforeEach
   fun beforeEach() {
     every { behindTrackerUiMock.isNotificationEnabled } returns true
+    every { behindTrackerUiMock.getGtRepository(repositoryMock) } returns gtRepositoryMock
+    every { gtRepositoryMock.getName() } returns ""
     behindTracker = BehindTracker(behindTrackerUiMock)
     behindTracker.projectOpened()
   }
