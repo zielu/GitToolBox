@@ -2,6 +2,7 @@ package zielu.gittoolbox.blame.calculator;
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import git4idea.GitRevisionNumber;
+
 import java.util.Date;
 import java.util.Objects;
 
@@ -10,6 +11,7 @@ class CommitInfo {
 
   private final VcsRevisionNumber revisionNumber;
   private String authorName;
+  private String authorEmail;
   private Date authorDate;
   private String summary;
 
@@ -23,6 +25,10 @@ class CommitInfo {
 
   void setAuthorName(String authorName) {
     this.authorName = authorName;
+  }
+
+  void setAuthorEmail(String authorEmail) {
+    this.authorEmail = authorEmail;
   }
 
   void setAuthorTime(long authorTime) {
@@ -39,6 +45,10 @@ class CommitInfo {
 
   String getAuthorName() {
     return authorName;
+  }
+
+  String getAuthorEmail() {
+    return authorEmail;
   }
 
   Date getAuthorDate() {

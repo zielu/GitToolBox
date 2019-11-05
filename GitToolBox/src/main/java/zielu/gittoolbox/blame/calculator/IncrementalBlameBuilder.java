@@ -4,6 +4,7 @@ import com.intellij.execution.process.ProcessOutputType;
 import com.intellij.openapi.util.Key;
 import git4idea.commands.GitLineHandlerListener;
 import git4idea.util.StringScanner;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ public class IncrementalBlameBuilder implements GitLineHandlerListener {
   private static final String FILENAME_TAG = "filename ";
   private static final String SUMMARY_TAG = "summary ";
   private static final String AUTHOR_TAG = "author ";
+  private static final String AUTHOR_EMAIL_TAG = "author-mail ";
   private static final String AUTHOR_TIME_TAG = "author-time ";
 
   private final Map<String, CommitInfo> commits = new HashMap<>();
@@ -90,6 +92,8 @@ public class IncrementalBlameBuilder implements GitLineHandlerListener {
       currentCommit.setAuthorName(line.substring(AUTHOR_TAG.length()).trim());
     } else if (line.startsWith(AUTHOR_TIME_TAG)) {
       currentCommit.setAuthorTime(Long.parseLong(line.substring(AUTHOR_TIME_TAG.length()).trim()));
+    } else if (line.startsWith(AUTHOR_EMAIL_TAG)) {
+      currentCommit.setAuthorEmail(line.substring(AUTHOR_EMAIL_TAG.length()).trim());
     }
   }
 

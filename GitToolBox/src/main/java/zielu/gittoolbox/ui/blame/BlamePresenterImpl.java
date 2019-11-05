@@ -1,7 +1,6 @@
 package zielu.gittoolbox.ui.blame;
 
 import com.intellij.openapi.util.text.StringUtil;
-import java.util.Date;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +11,8 @@ import zielu.gittoolbox.config.DateType;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.ui.DatePresenter;
+
+import java.util.Date;
 
 class BlamePresenterImpl implements BlamePresenter {
   private static final String SUBJECT_SEPARATOR = " " + UtfSeq.BULLET + " ";
@@ -29,7 +30,7 @@ class BlamePresenterImpl implements BlamePresenter {
   @Override
   public String getEditorInline(@NotNull RevisionInfo revisionInfo) {
     StringBand info = new StringBand(5)
-        .append(formatInlineAuthor(revisionInfo.getAuthor()))
+        .append(formatInlineAuthor(revisionInfo))
         .append(", ")
         .append(formatDate(revisionInfo.getDate()));
     boolean showSubject = GitToolBoxConfig2.getInstance().blameInlineShowSubject;
@@ -45,7 +46,7 @@ class BlamePresenterImpl implements BlamePresenter {
     return new StringBand(5)
         .append(ResBundle.message("blame.prefix"))
         .append(" ")
-        .append(formatStatusAuthor(revisionInfo.getAuthor()))
+        .append(formatStatusAuthor(revisionInfo))
         .append(" ")
         .append(datePresenter.format(DateType.ABSOLUTE, revisionInfo.getDate()))
         .toString();
@@ -70,12 +71,26 @@ class BlamePresenterImpl implements BlamePresenter {
     return text.toString();
   }
 
-  private String formatInlineAuthor(@Nullable String author) {
-    return GitToolBoxConfig2.getInstance().blameInlineAuthorNameType.shorten(author);
+  private String formatInlineAuthor(@NotNull RevisionInfo revisionInfo) {
+    AuthorNameType nameType = GitToolBoxConfig2.getInstance().blameInlineAuthorNameType;
+    switch (nameType) {
+      case EMAIL:
+      case USERNAME:
+        return nameType.shorten(revisionInfo.getEmail());
+      default:
+        return nameType.shorten(revisionInfo.getAuthor());
+    }
   }
 
-  private String formatStatusAuthor(@Nullable String author) {
-    return GitToolBoxConfig2.getInstance().blameStatusAuthorNameType.shorten(author);
+  private String formatStatusAuthor(@NotNull RevisionInfo revisionInfo) {
+    AuthorNameType nameType = GitToolBoxConfig2.getInstance().blameStatusAuthorNameType;
+    switch (nameType) {
+      case EMAIL:
+      case USERNAME:
+        return nameType.shorten(revisionInfo.getEmail());
+      default:
+        return nameType.shorten(revisionInfo.getAuthor());
+    }
   }
 
   private String formatDate(@Nullable Date date) {
