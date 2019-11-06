@@ -10,12 +10,12 @@ import com.intellij.openapi.util.EmptyRunnable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.EdtTestUtil;
 import com.intellij.testFramework.EdtTestUtilKt;
-import com.intellij.testFramework.PlatformTestCase;
-import com.intellij.testFramework.TestRunnerUtil;
+import com.intellij.testFramework.HeavyPlatformTestCase;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -29,26 +29,30 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import zielu.junit5.intellij.parameters.ExtensionContextParamResolver;
 import zielu.junit5.intellij.parameters.ParameterHolder;
 
-public class PlatformTestCaseExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
-  private static final Namespace NS = Namespace.create(PlatformTestCaseExtension.class);
+public class HeavyPlatformTestCaseExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
+  private static final AtomicInteger DEFAULT_TEST_NAME_SEQUENCE = new AtomicInteger(1);
+  private static final Namespace NS = Namespace.create(HeavyPlatformTestCaseExtension.class);
   private static final ParameterResolver RESOLVER = new ExtensionContextParamResolver(NS);
 
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
-    PlatformTestCaseJUnit5 testCase = new PlatformTestCaseJUnit5();
-    context.getStore(NS).put(PlatformTestCaseJUnit5.class, testCase);
+    HeavyPlatformTestCaseJUnit5 testCase = new HeavyPlatformTestCaseJUnit5();
+    context.getStore(NS)
+        .put(HeavyPlatformTestCaseJUnit5.class, testCase);
     testCase.initialize(context);
   }
 
   @Override
   public void afterEach(ExtensionContext context) throws Exception {
-    PlatformTestCaseJUnit5 testCase = getTestCase(context);
+    HeavyPlatformTestCaseJUnit5 testCase = getTestCase(context);
     testCase.destroy(context);
-    context.getStore(NS).remove(PlatformTestCaseJUnit5.class);
+    context.getStore(NS)
+        .remove(HeavyPlatformTestCaseJUnit5.class);
   }
 
-  private static PlatformTestCaseJUnit5 getTestCase(ExtensionContext context) {
-    return context.getStore(NS).get(PlatformTestCaseJUnit5.class, PlatformTestCaseJUnit5.class);
+  private static HeavyPlatformTestCaseJUnit5 getTestCase(ExtensionContext context) {
+    return context.getStore(NS)
+               .get(HeavyPlatformTestCaseJUnit5.class, HeavyPlatformTestCaseJUnit5.class);
   }
 
   @Override
@@ -63,38 +67,29 @@ public class PlatformTestCaseExtension implements BeforeEachCallback, AfterEachC
     return RESOLVER.resolveParameter(parameterContext, extensionContext);
   }
 
-  private static class PlatformTestCaseJUnit5 extends PlatformTestCase {
+  private static class HeavyPlatformTestCaseJUnit5 extends HeavyPlatformTestCase implements JUnit5Adapted {
+    private final TestCaseJUnit5Adapter adapter;
 
-    //based on com.intellij.testFramework.PlatformTestCase.runBare
+    public HeavyPlatformTestCaseJUnit5() {
+      adapter = new TestCaseJUnit5Adapter("testHeavyDefaultName", this);
+    }
+
+    //based on com.intellij.testFramework.HeavyPlatformTestCase.runBare
     private void initialize(ExtensionContext context) throws Exception {
-      setName(getTestName(context));
-      if (runInDispatchThread()) {
-        TestRunnerUtil.replaceIdeEventQueueSafely();
-        EdtTestUtil.runInEdtAndWait(this::setUp);
-      } else {
-        setUp();
-      }
+      adapter.initialize(context);
       ParameterHolder holder = ParameterHolder.getHolder(getStore(context));
       holder.register(Project.class, this::getProject);
       holder.register(Module.class, this::getModule);
       holder.register(PlatformTest.class, () -> getPlatformTest(context));
     }
 
-    private String getTestName(ExtensionContext context) {
-      return context.getTestMethod().map(Method::getName).orElse("testNameNA");
-    }
-
     private Store getStore(ExtensionContext context) {
       return context.getStore(NS);
     }
 
-    //based on com.intellij.testFramework.PlatformTestCase.runBare
+    //based on com.intellij.testFramework.HeavyPlatformTestCase.runBare
     private void destroy(ExtensionContext context) throws Exception {
-      if (runInDispatchThread()) {
-        EdtTestUtil.runInEdtAndWait(this::tearDown);
-      } else {
-        tearDown();
-      }
+      adapter.destroy(context);
 
       ParameterHolder.removeHolder(getStore(context));
 
@@ -124,6 +119,12 @@ public class PlatformTestCaseExtension implements BeforeEachCallback, AfterEachC
       }
     }
 
+    private String getTestName(ExtensionContext context) {
+      return context.getTestMethod()
+                 .map(Method::getName)
+                 .orElseGet(this::getName);
+    }
+
     private PlatformTest getPlatformTest(ExtensionContext extensionContext) {
       return new PlatformTest() {
         @Override
@@ -151,13 +152,34 @@ public class PlatformTestCaseExtension implements BeforeEachCallback, AfterEachC
         }
 
         private MessageBusConnection connect() {
-          PlatformTestCaseJUnit5 testCase = getTestCase(extensionContext);
+          HeavyPlatformTestCaseJUnit5 testCase = getTestCase(extensionContext);
           Project project = testCase.getProject();
           Store store = getStore(extensionContext);
           return store.getOrComputeIfAbsent(MessageBusConnection.class,
-              type -> project.getMessageBus().connect(project), MessageBusConnection.class);
+              type -> project.getMessageBus()
+                          .connect(project), MessageBusConnection.class);
         }
       };
+    }
+
+    @Override
+    public void setTestName(String name) {
+      setName(name);
+    }
+
+    @Override
+    public boolean runInEdt() {
+      return runInDispatchThread();
+    }
+
+    @Override
+    public void doSetUp() throws Exception {
+      setUp();
+    }
+
+    @Override
+    public void doTearDown() throws Exception {
+      tearDown();
     }
   }
 }

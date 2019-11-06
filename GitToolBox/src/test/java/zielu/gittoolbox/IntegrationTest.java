@@ -41,13 +41,13 @@ import zielu.intellij.test.Awaiter;
 import zielu.junit5.intellij.extension.git.GitTest;
 import zielu.junit5.intellij.extension.git.GitTestExtension;
 import zielu.junit5.intellij.extension.git.GitTestSetup;
+import zielu.junit5.intellij.extension.platform.HeavyPlatformTestCaseExtension;
 import zielu.junit5.intellij.extension.platform.PlatformTest;
-import zielu.junit5.intellij.extension.platform.PlatformTestCaseExtension;
 import zielu.junit5.intellij.extension.resources.ExternalPath;
 import zielu.junit5.intellij.extension.resources.ResourcesExtension;
 
 @Tag(TestType.INTEGRATION)
-@ExtendWith(PlatformTestCaseExtension.class)
+@ExtendWith(HeavyPlatformTestCaseExtension.class)
 @ExtendWith(GitTestExtension.class)
 @ExtendWith(ResourcesExtension.class)
 class IntegrationTest {
