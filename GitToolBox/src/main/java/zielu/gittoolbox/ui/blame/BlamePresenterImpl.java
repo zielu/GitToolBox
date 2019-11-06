@@ -55,12 +55,15 @@ class BlamePresenterImpl implements BlamePresenter {
   @NotNull
   @Override
   public String getPopup(@NotNull RevisionInfo revisionInfo, @Nullable String details) {
-    StringBand text = new StringBand(11)
+    StringBand text = new StringBand(14)
         .append(COMMIT_PREFIX)
         .append(revisionInfo.getRevisionNumber().asString())
         .append("\n")
         .append(AUTHOR_PREFIX)
         .append(AuthorNameType.FULL.shorten(revisionInfo.getAuthor()))
+        .append(" &lt;")
+        .append(AuthorNameType.EMAIL.shorten(revisionInfo.getEmail()))
+        .append("&gt;")
         .append("\n")
         .append(DATE_PREFIX)
         .append(datePresenter.format(DateType.ABSOLUTE, revisionInfo.getDate()))
