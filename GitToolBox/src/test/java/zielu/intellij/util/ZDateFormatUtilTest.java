@@ -62,7 +62,7 @@ class ZDateFormatUtilTest {
       (HOUR_MILLIS + MINUTE_MILLIS) + ",Today",
       (HOUR_MILLIS + MINUTE_MILLIS * 2) + ",Today",
       (HOUR_MILLIS + MINUTE_MILLIS * 60) + ",Today",
-      (HOUR_MILLIS + MINUTE_MILLIS * 110) + ",Today",
+      (HOUR_MILLIS + MINUTE_MILLIS * 110) + ",Yesterday",
       (HOUR_MILLIS + MINUTE_MILLIS * 60 * 23) + ",Yesterday",
       (HOUR_MILLIS + MINUTE_MILLIS * 60 * 23) + MINUTE_MILLIS + ",Yesterday"
   })
