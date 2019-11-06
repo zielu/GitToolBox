@@ -9,7 +9,7 @@ buildscript {
 
     dependencies {
         //use eap because it fixes internal access between main and test
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.60-eap-76"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
     }
 }
 
@@ -39,7 +39,6 @@ java {
     targetCompatibility = javaVersion
 }
 
-def fast = Boolean.valueOf(String.valueOf(findProperty('fast')))
 def publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
 
 configurations {
@@ -122,7 +121,7 @@ jacoco {
 // workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
 // as 'test' task cleans generated report
 jacocoTestReport {
-    executionData.setFrom(files("${project.buildDir.name}/jacoco-junit5/test.exec"))
+    executionData.setFrom(fileTree(dir: "${project.buildDir.name}/jacoco-junit5", include: ['*.exec']))
 }
 
 test {
@@ -133,13 +132,26 @@ test {
     useJUnitPlatform {
         //prevent running extensions as Junit 3 tests because of naming convention with TestCase
         exclude('zielu/junit5/**')
-        includeTags = fast ? ['fast'] : ['fast', 'integration']
+        includeTags = ['fast']
         reports {
             html.enabled = false
         }
     }
+}
 
-    finalizedBy jacocoTestReport
+task integrationTest(type: Test) {
+    jacoco {
+        destinationFile = file("${project.buildDir.name}/jacoco-junit5/test-integration.exec")
+    }
+
+    useJUnitPlatform {
+        //prevent running extensions as Junit 3 tests because of naming convention with TestCase
+        exclude('zielu/junit5/**')
+        includeTags = ['integration']
+        reports {
+            html.enabled = false
+        }
+    }
 }
 
 apply plugin: 'checkstyle'
@@ -157,6 +169,15 @@ ktlint {
     reporters {
         reporter "checkstyle"
     }
+}
+
+task buildAll {
+    dependsOn check, integrationTest, buildPlugin
+    tasks.findByName('integrationTest').mustRunAfter 'check'
+}
+
+task buildFast {
+    dependsOn check, buildPlugin
 }
 
 dependencies {
