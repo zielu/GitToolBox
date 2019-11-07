@@ -3,9 +3,6 @@ language: java
 jdk:
   - openjdk8
 
-git:
-  sparse_checkout: skip-worktree-map-file
-
 before_install: cd GitToolBox
 
 before_cache:
