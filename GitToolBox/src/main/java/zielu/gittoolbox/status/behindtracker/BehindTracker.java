@@ -6,6 +6,12 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,13 +23,6 @@ import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi;
 import zielu.gittoolbox.util.AppUtil;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 class BehindTracker implements ProjectComponent {
   private final Logger log = Logger.getInstance(getClass());

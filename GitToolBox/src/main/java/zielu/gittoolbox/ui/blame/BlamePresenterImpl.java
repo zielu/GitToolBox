@@ -1,7 +1,7 @@
 package zielu.gittoolbox.ui.blame;
 
 import com.intellij.openapi.util.text.StringUtil;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,6 +11,7 @@ import zielu.gittoolbox.config.AuthorNameType;
 import zielu.gittoolbox.config.DateType;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.gittoolbox.ui.AuthorPresenter;
 import zielu.gittoolbox.ui.DatePresenter;
 
 class BlamePresenterImpl implements BlamePresenter {
@@ -29,7 +30,7 @@ class BlamePresenterImpl implements BlamePresenter {
   @Override
   public String getEditorInline(@NotNull RevisionInfo revisionInfo) {
     StringBand info = new StringBand(5)
-        .append(formatInlineAuthor(revisionInfo.getAuthor()))
+        .append(formatInlineAuthor(revisionInfo))
         .append(", ")
         .append(formatDate(revisionInfo.getDate()));
     boolean showSubject = GitToolBoxConfig2.getInstance().blameInlineShowSubject;
@@ -45,7 +46,7 @@ class BlamePresenterImpl implements BlamePresenter {
     return new StringBand(5)
         .append(ResBundle.message("blame.prefix"))
         .append(" ")
-        .append(formatStatusAuthor(revisionInfo.getAuthor()))
+        .append(formatStatusAuthor(revisionInfo))
         .append(" ")
         .append(datePresenter.format(DateType.ABSOLUTE, revisionInfo.getDate()))
         .toString();
@@ -59,7 +60,7 @@ class BlamePresenterImpl implements BlamePresenter {
         .append(revisionInfo.getRevisionNumber().asString())
         .append("\n")
         .append(AUTHOR_PREFIX)
-        .append(AuthorNameType.FULL.shorten(revisionInfo.getAuthor()))
+        .append(formatPopupAuthor(revisionInfo))
         .append("\n")
         .append(DATE_PREFIX)
         .append(datePresenter.format(DateType.ABSOLUTE, revisionInfo.getDate()))
@@ -70,15 +71,35 @@ class BlamePresenterImpl implements BlamePresenter {
     return text.toString();
   }
 
-  private String formatInlineAuthor(@Nullable String author) {
-    return GitToolBoxConfig2.getInstance().blameInlineAuthorNameType.shorten(author);
+  private String formatInlineAuthor(@NotNull RevisionInfo revisionInfo) {
+    return formatAuthor(GitToolBoxConfig2.getInstance().blameInlineAuthorNameType, revisionInfo);
   }
 
-  private String formatStatusAuthor(@Nullable String author) {
-    return GitToolBoxConfig2.getInstance().blameStatusAuthorNameType.shorten(author);
+  private String formatStatusAuthor(@NotNull RevisionInfo revisionInfo) {
+    return formatAuthor(GitToolBoxConfig2.getInstance().blameStatusAuthorNameType, revisionInfo);
   }
 
-  private String formatDate(@Nullable Date date) {
+  private String formatPopupAuthor(@NotNull RevisionInfo revisionInfo) {
+    StringBand formatted = new StringBand(5);
+    formatted.append(formatAuthor(AuthorNameType.FULL, revisionInfo));
+    if (revisionInfo.getAuthorEmail() != null) {
+      formatted.append(" <");
+      formatted.append(revisionInfo.getAuthorEmail());
+      formatted.append(">");
+    }
+    return formatted.toString();
+  }
+
+  private String formatAuthor(@NotNull AuthorNameType type, @NotNull RevisionInfo revisionInfo) {
+    if (type == AuthorNameType.EMAIL || type == AuthorNameType.EMAIL_USER) {
+      if (revisionInfo.getAuthorEmail() == null) {
+        return AuthorPresenter.format(type, revisionInfo.getAuthor(), revisionInfo.getAuthor());
+      }
+    }
+    return AuthorPresenter.format(type, revisionInfo.getAuthor(), revisionInfo.getAuthorEmail());
+  }
+
+  private String formatDate(@Nullable ZonedDateTime date) {
     String formatted = datePresenter.format(GitToolBoxConfig2.getInstance().blameInlineDateType, date);
     if (formatted == null) {
       return "";

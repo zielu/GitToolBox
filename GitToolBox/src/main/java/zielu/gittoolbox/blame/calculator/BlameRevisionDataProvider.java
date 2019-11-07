@@ -3,7 +3,7 @@ package zielu.gittoolbox.blame.calculator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,8 +25,8 @@ class BlameRevisionDataProvider implements RevisionDataProvider {
 
   @Nullable
   @Override
-  public Date getDate(int lineIndex) {
-    return getLineCommit(lineIndex).getAuthorDate();
+  public ZonedDateTime getAuthorDateTime(int lineIndex) {
+    return getLineCommit(lineIndex).getAuthorDateTime();
   }
 
   private CommitInfo getLineCommit(int lineIndex) {
@@ -37,6 +37,12 @@ class BlameRevisionDataProvider implements RevisionDataProvider {
   @Override
   public String getAuthor(int lineIndex) {
     return getLineCommit(lineIndex).getAuthorName();
+  }
+
+  @Nullable
+  @Override
+  public String getAuthorEmail(int lineIndex) {
+    return getLineCommit(lineIndex).getAuthorEmail();
   }
 
   @Nullable

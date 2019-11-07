@@ -49,12 +49,18 @@ intellij {
     type = ideaType
     updateSinceUntilBuild = false
     downloadSources = true
-    plugins = ['java', 'git4idea', 'gr.jchrist.gitextender:0.4.1']
+    plugins = ['java', 'git4idea', 'gr.jchrist.gitextender:0.5.2']
     ideaDependencyCachePath = ideaCacheDir
 }
 
 compileJava.options.encoding = encoding
 compileTestJava.options.encoding = encoding
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
 
 patchPluginXml {
     changeNotes "${file('change-notes.html').getText(encoding)}"
@@ -117,6 +123,8 @@ test {
             html.enabled = false
         }
     }
+
+    finalizedBy jacocoTestReport
 }
 
 apply plugin: 'checkstyle'
@@ -124,7 +132,7 @@ checkstyle {
     toolVersion = "${checkstyleVersion}"
     maxErrors = 0
     maxWarnings = 0
-    /*configFile = project(':').file('config/checkstyle/lax_checkstyle.xml')*/
+    configFile = project(':').file('config/checkstyle/checkstyle.xml')
     configProperties = [ "suppressionFile" : project(':').file('config/checkstyle/suppressions.xml')]
 }
 
@@ -139,7 +147,6 @@ dependencies {
     checkstyle ("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
     testAgent ("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
 
-    //keep compile instead of implementation for org.jetbrains.intellij to package plugin correctly
     implementation ("org.jodd:jodd-core:${joddVersion}")
     implementation ("com.google.guava:guava:${guavaVersion}")
     implementation ("org.apache.commons:commons-lang3:${commonsLang3Version}")

@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.intellij.util.text.SyncDateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -22,16 +24,23 @@ class ZDateFormatUtilTest {
   private static final long TWO_DAYS_MILLIS = 2 * DAY_MILLIS;
   private static final SyncDateFormat DATE_FORMAT = new SyncDateFormat(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss"));
 
-  private static final Date NOW = new Date(Clock.fixed(Instant.parse("2007-12-03T10:15:30.00Z"), ZoneOffset.UTC)
-                                               .millis());
+  private static final ZonedDateTime NOW = ZonedDateTime.ofInstant(Instant.parse("2007-12-03T10:15:30.00Z"),
+      ZoneOffset.UTC);
   private static final String NOW_MINUS_TWO_DAYS_FORMATTED = DATE_FORMAT.format(
-      new Date(NOW.getTime() - TWO_DAYS_MILLIS));
+      Date.from(NOW.minus(TWO_DAYS_MILLIS, ChronoUnit.MILLIS).toInstant()));
 
   @Test
   void formatMomentsAgo() {
-    Date date = new Date(NOW.getTime() - 1);
+    ZonedDateTime date = NOW.minus(1, ChronoUnit.MILLIS);
     String text = ZDateFormatUtil.formatPrettyDateTime(date, NOW, DATE_FORMAT);
     assertThat(text).isEqualTo("Moments ago");
+  }
+
+  @Test
+  void handleDateAfterNow() {
+    ZonedDateTime date = NOW.plusNanos(1);
+    String text = ZDateFormatUtil.formatPrettyDateTime(date, NOW, DATE_FORMAT);
+    assertThat(text).isEqualTo("N/A");
   }
 
   @ParameterizedTest
@@ -41,7 +50,7 @@ class ZDateFormatUtilTest {
       (MINUTE_MILLIS * 60) + ",1 hour ago"
   })
   void formatMinutesAgo(long diffFromNow, String expectedText) {
-    Date date = new Date(NOW.getTime() - diffFromNow);
+    ZonedDateTime date = NOW.minus(diffFromNow, ChronoUnit.MILLIS);
     String text = ZDateFormatUtil.formatPrettyDateTime(date, NOW, DATE_FORMAT);
     assertThat(text).isEqualTo(expectedText);
   }
@@ -52,12 +61,11 @@ class ZDateFormatUtilTest {
       (HOUR_MILLIS + MINUTE_MILLIS) + ",Today"
   })
   void formatHoursAgo(long diffFromNow, String expectedText) {
-    Date date = new Date(NOW.getTime() - diffFromNow);
+    ZonedDateTime date = NOW.minus(diffFromNow, ChronoUnit.MILLIS);
     String text = ZDateFormatUtil.formatPrettyDateTime(date, NOW, DATE_FORMAT);
     assertThat(text).isEqualTo(expectedText);
   }
 
-  @ParameterizedTest
   @CsvSource({
       (HOUR_MILLIS + MINUTE_MILLIS) + ",Today",
       (HOUR_MILLIS + MINUTE_MILLIS * 2) + ",Today",
@@ -67,7 +75,7 @@ class ZDateFormatUtilTest {
       (HOUR_MILLIS + MINUTE_MILLIS * 60 * 23) + MINUTE_MILLIS + ",Yesterday"
   })
   void formatToday(long diffFromNow, String expectedText) {
-    Date date = new Date(NOW.getTime() - diffFromNow);
+    ZonedDateTime date = NOW.minus(diffFromNow, ChronoUnit.MILLIS);
     String text = ZDateFormatUtil.formatPrettyDateTime(date, NOW, DATE_FORMAT);
     assertThat(text).isEqualTo(expectedText);
   }
@@ -79,22 +87,31 @@ class ZDateFormatUtilTest {
       (DAY_MILLIS + HOUR_MILLIS) + ",Yesterday"
   })
   void formatYesterday(long diffFromNow, String expectedText) {
-    Date date = new Date(NOW.getTime() - diffFromNow);
+    ZonedDateTime date = NOW.minus(diffFromNow, ChronoUnit.MILLIS);
     String text = ZDateFormatUtil.formatPrettyDateTime(date, NOW, DATE_FORMAT);
     assertThat(text).isEqualTo(expectedText);
   }
 
   @Test
   void formatNowMinusTwoDays() {
-    Date date = new Date(NOW.getTime() - TWO_DAYS_MILLIS);
+    ZonedDateTime date = NOW.minus(TWO_DAYS_MILLIS, ChronoUnit.MILLIS);
     String text = ZDateFormatUtil.formatPrettyDateTime(date, NOW, DATE_FORMAT);
     assertThat(text).isEqualTo(NOW_MINUS_TWO_DAYS_FORMATTED);
   }
 
   @Test
   void formatAsAbsoluteDateTime() {
-    Date date = new Date(NOW.getTime() - (DAY_MILLIS * 2 + HOUR_MILLIS));
+    ZonedDateTime date = NOW.minus(DAY_MILLIS * 2 + HOUR_MILLIS, ChronoUnit.MILLIS);
     String text = ZDateFormatUtil.formatPrettyDateTime(date, NOW, DATE_FORMAT);
-    assertThat(text).isEqualTo(DATE_FORMAT.format(date));
+    assertThat(text).isEqualTo(DATE_FORMAT.format(Date.from(date.toInstant())));
+  }
+
+  @Test
+  void formatReturnsCorrectTimeForPstZoneTime() {
+    ZoneId pstZone = ZoneId.of("America/Los_Angeles");
+    ZonedDateTime now = ZonedDateTime.ofInstant(Instant.parse("2007-12-03T02:15:30.00Z"), pstZone);
+    ZonedDateTime date = now.minus(HOUR_MILLIS * 2 + 50 * MINUTE_MILLIS, ChronoUnit.MILLIS);
+    String text = ZDateFormatUtil.formatPrettyDateTime(date, now, DATE_FORMAT);
+    assertThat(text).isEqualTo("Yesterday");
   }
 }

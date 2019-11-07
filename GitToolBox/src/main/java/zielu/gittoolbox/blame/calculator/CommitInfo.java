@@ -2,15 +2,21 @@ package zielu.gittoolbox.blame.calculator;
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import git4idea.GitRevisionNumber;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 
 class CommitInfo {
   static final CommitInfo NULL = new CommitInfo(null);
 
   private final VcsRevisionNumber revisionNumber;
   private String authorName;
-  private Date authorDate;
+  private String authorEmail;
+  private Instant authorTime;
+  private ZoneOffset authorTimeOffset = ZoneOffset.UTC;
+  private ZonedDateTime authorDateTime;
   private String summary;
 
   CommitInfo(String commitHash) {
@@ -25,8 +31,16 @@ class CommitInfo {
     this.authorName = authorName;
   }
 
-  void setAuthorTime(long authorTime) {
-    this.authorDate = new Date(authorTime * 1000);
+  void setAuthorEmail(String authorEmail) {
+    this.authorEmail = authorEmail;
+  }
+
+  void setAuthorTime(Instant authorTime) {
+    this.authorTime = authorTime;
+  }
+
+  void setAuthorTimeOffset(ZoneOffset authorTimeOffset) {
+    this.authorTimeOffset = authorTimeOffset;
   }
 
   void setSummary(String summary) {
@@ -41,8 +55,19 @@ class CommitInfo {
     return authorName;
   }
 
-  Date getAuthorDate() {
-    return authorDate;
+  String getAuthorEmail() {
+    return authorEmail;
+  }
+
+  @Nullable
+  ZonedDateTime getAuthorDateTime() {
+    if (authorTime == null) {
+      return null;
+    }
+    if (authorDateTime == null) {
+      authorDateTime = ZonedDateTime.ofInstant(authorTime, authorTimeOffset);
+    }
+    return authorDateTime;
   }
 
   String getSummary() {

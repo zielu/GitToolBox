@@ -87,9 +87,9 @@ internal class ConfigForProjectMigratorTest {
     // given
     val config = GitToolBoxConfigPrj()
     config.autoFetchExclusions = listOf("root1", "root2")
-    val exclusionConfig_1 = AutoFetchExclusionConfig("root1", arrayListOf(RemoteConfig("origin")))
-    val exclusionConfig_2 = AutoFetchExclusionConfig("root2", arrayListOf(RemoteConfig("upstream")))
-    config.autoFetchExclusionConfigs = listOf(exclusionConfig_1, exclusionConfig_2)
+    val exclusionConfig1 = AutoFetchExclusionConfig("root1", arrayListOf(RemoteConfig("origin")))
+    val exclusionConfig2 = AutoFetchExclusionConfig("root2", arrayListOf(RemoteConfig("upstream")))
+    config.autoFetchExclusionConfigs = listOf(exclusionConfig1, exclusionConfig2)
     val migrator = ConfigForProjectMigrator(config)
 
     // when
@@ -98,7 +98,7 @@ internal class ConfigForProjectMigratorTest {
     // then
     assertSoftly { softly ->
       softly.assertThat(migrated).isFalse
-      softly.assertThat(config.autoFetchExclusionConfigs).containsExactly(exclusionConfig_1, exclusionConfig_2)
+      softly.assertThat(config.autoFetchExclusionConfigs).containsExactly(exclusionConfig1, exclusionConfig2)
     }
   }
 }

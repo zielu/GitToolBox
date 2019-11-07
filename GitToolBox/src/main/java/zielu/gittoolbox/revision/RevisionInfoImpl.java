@@ -1,25 +1,24 @@
 package zielu.gittoolbox.revision;
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class RevisionInfoImpl implements RevisionInfo {
   private final VcsRevisionNumber revisionNumber;
   private final String author;
-  private final Date date;
+  private final String authorEmail;
+  private final ZonedDateTime date;
   private final String subject;
 
-  RevisionInfoImpl(@NotNull VcsRevisionNumber revisionNumber, String author, @Nullable Date revisionDate,
+  RevisionInfoImpl(@NotNull VcsRevisionNumber revisionNumber, @NotNull String author,
+                   @NotNull ZonedDateTime revisionDate, String authorEmail,
                    String subject) {
     this.revisionNumber = revisionNumber;
     this.author = author != null ? prepareAuthor(author) : "EMPTY";
-    if (revisionDate != null) {
-      date = revisionDate;
-    } else {
-      date = new Date();
-    }
+    this.authorEmail = authorEmail;
+    this.date = revisionDate;
     this.subject = subject;
   }
 
@@ -40,9 +39,15 @@ final class RevisionInfoImpl implements RevisionInfo {
     return author;
   }
 
+  @Nullable
+  @Override
+  public String getAuthorEmail() {
+    return authorEmail;
+  }
+
   @NotNull
   @Override
-  public Date getDate() {
+  public ZonedDateTime getDate() {
     return date;
   }
 

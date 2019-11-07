@@ -6,6 +6,7 @@ import com.intellij.ui.ColoredTreeCellRenderer
 import com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES
 import com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES
 import git4idea.repo.GitRepository
+import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig
 import zielu.gittoolbox.repo.GtRepositoryImpl
@@ -28,7 +29,7 @@ internal class AutoFetchExclusionTreeRenderer(private val project: Project) : Co
       is AutoFetchExclusionConfig -> {
         val repository = findRepository(value)
         if (repository.isPresent) {
-          render(repository.get())
+          render(repository.get(), userValue.hasRemotes())
         } else {
           renderMissing(userValue.repositoryRootPath)
         }
@@ -49,9 +50,14 @@ internal class AutoFetchExclusionTreeRenderer(private val project: Project) : Co
     return Optional.empty()
   }
 
-  private fun render(repository: GitRepository) {
+  private fun render(repository: GitRepository, remoteExclusions: Boolean) {
     append(GtUtil.name(repository))
     append(" (${repository.root.presentableUrl})", GRAYED_ATTRIBUTES)
+    toolTipText = if (remoteExclusions) {
+      null
+    } else {
+      ResBundle.message("configurable.prj.autoFetch.exclusions.all.remotes.tooltip")
+    }
   }
 
   private fun render(remote: RemoteConfig, repository: Optional<GitRepository>) {
@@ -61,10 +67,12 @@ internal class AutoFetchExclusionTreeRenderer(private val project: Project) : Co
         append(" ($url)", GRAYED_ATTRIBUTES)
       }
     }
+    toolTipText = null
   }
 
   private fun renderMissing(value: String) {
     val path = VfsUtilCore.urlToPath(value)
     append(path, ERROR_ATTRIBUTES)
+    toolTipText = ResBundle.message("configurable.prj.autoFetch.exclusions.repo.not.found.tooltip")
   }
 }
