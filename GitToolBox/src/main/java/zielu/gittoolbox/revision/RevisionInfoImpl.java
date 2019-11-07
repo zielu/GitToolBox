@@ -8,13 +8,16 @@ import org.jetbrains.annotations.Nullable;
 final class RevisionInfoImpl implements RevisionInfo {
   private final VcsRevisionNumber revisionNumber;
   private final String author;
+  private final String authorEmail;
   private final ZonedDateTime date;
   private final String subject;
 
-  RevisionInfoImpl(@NotNull VcsRevisionNumber revisionNumber, String author, ZonedDateTime revisionDate,
+  RevisionInfoImpl(@NotNull VcsRevisionNumber revisionNumber, @NotNull String author,
+                   @NotNull ZonedDateTime revisionDate, String authorEmail,
                    String subject) {
     this.revisionNumber = revisionNumber;
     this.author = author != null ? prepareAuthor(author) : "EMPTY";
+    this.authorEmail = authorEmail;
     this.date = revisionDate;
     this.subject = subject;
   }
@@ -34,6 +37,12 @@ final class RevisionInfoImpl implements RevisionInfo {
   @Override
   public String getAuthor() {
     return author;
+  }
+
+  @Nullable
+  @Override
+  public String getAuthorEmail() {
+    return authorEmail;
   }
 
   @NotNull

@@ -24,6 +24,7 @@ public class IncrementalBlameBuilder implements GitLineHandlerListener {
   private static final String AUTHOR_TAG = "author ";
   private static final String AUTHOR_TIME_TAG = "author-time ";
   private static final String AUTHOR_TZ_TAG = "author-tz ";
+  private static final String AUTHOR_EMAIL_TAG = "author-mail ";
 
   private final Map<String, CommitInfo> commits = new HashMap<>();
   private final List<Entry> entries = new ArrayList<>();
@@ -96,7 +97,13 @@ public class IncrementalBlameBuilder implements GitLineHandlerListener {
       currentCommit.setAuthorTime(Instant.ofEpochSecond(epochSeconds));
     } else if (line.startsWith(AUTHOR_TZ_TAG)) {
       currentCommit.setAuthorTimeOffset(ZoneOffset.of(line.substring(AUTHOR_TZ_TAG.length()).trim()));
+    } else if (line.startsWith(AUTHOR_EMAIL_TAG)) {
+      currentCommit.setAuthorEmail(extractEmail(line.substring(AUTHOR_EMAIL_TAG.length()).trim()));
     }
+  }
+
+  private String extractEmail(String email) {
+    return email.substring(1, email.length() - 1);
   }
 
   private static class Entry {

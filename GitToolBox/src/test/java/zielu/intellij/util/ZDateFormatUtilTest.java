@@ -36,6 +36,13 @@ class ZDateFormatUtilTest {
     assertThat(text).isEqualTo("Moments ago");
   }
 
+  @Test
+  void handleDateAfterNow() {
+    ZonedDateTime date = NOW.plusNanos(1);
+    String text = ZDateFormatUtil.formatPrettyDateTime(date, NOW, DATE_FORMAT);
+    assertThat(text).isEqualTo("N/A");
+  }
+
   @ParameterizedTest
   @CsvSource({
       MINUTE_MILLIS + ",A minute ago",

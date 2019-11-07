@@ -21,6 +21,12 @@ public interface RevisionInfo {
       return EMPTY_TEXT;
     }
 
+    @Nullable
+    @Override
+    public String getAuthorEmail() {
+      return null;
+    }
+
     @NotNull
     @Override
     public ZonedDateTime getDate() {
@@ -49,6 +55,9 @@ public interface RevisionInfo {
 
   @NotNull
   String getAuthor();
+
+  @Nullable
+  String getAuthorEmail();
 
   @NotNull
   ZonedDateTime getDate();

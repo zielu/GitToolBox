@@ -13,8 +13,9 @@ class CommitInfo {
 
   private final VcsRevisionNumber revisionNumber;
   private String authorName;
+  private String authorEmail;
   private Instant authorTime;
-  private ZoneOffset authorTimeOffset;
+  private ZoneOffset authorTimeOffset = ZoneOffset.UTC;
   private ZonedDateTime authorDateTime;
   private String summary;
 
@@ -28,6 +29,10 @@ class CommitInfo {
 
   void setAuthorName(String authorName) {
     this.authorName = authorName;
+  }
+
+  void setAuthorEmail(String authorEmail) {
+    this.authorEmail = authorEmail;
   }
 
   void setAuthorTime(Instant authorTime) {
@@ -50,14 +55,17 @@ class CommitInfo {
     return authorName;
   }
 
+  String getAuthorEmail() {
+    return authorEmail;
+  }
+
   @Nullable
   ZonedDateTime getAuthorDateTime() {
     if (authorTime == null) {
       return null;
     }
     if (authorDateTime == null) {
-      ZoneOffset offset = authorTimeOffset == null ? ZoneOffset.UTC : authorTimeOffset;
-      authorDateTime = ZonedDateTime.ofInstant(authorTime, offset);
+      authorDateTime = ZonedDateTime.ofInstant(authorTime, authorTimeOffset);
     }
     return authorDateTime;
   }

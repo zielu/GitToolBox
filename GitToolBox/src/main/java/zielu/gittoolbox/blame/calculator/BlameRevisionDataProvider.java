@@ -41,6 +41,12 @@ class BlameRevisionDataProvider implements RevisionDataProvider {
 
   @Nullable
   @Override
+  public String getAuthorEmail(int lineIndex) {
+    return getLineCommit(lineIndex).getAuthorEmail();
+  }
+
+  @Nullable
+  @Override
   public String getSubject(int lineIndex) {
     return getLineCommit(lineIndex).getSummary();
   }

@@ -13,6 +13,7 @@ class LightRevisionInfoFactory implements RevisionInfoFactory {
     }
     String author = provider.getAuthor(lineNumber);
     String subject = provider.getSubject(lineNumber);
-    return new RevisionInfoImpl(provider.getRevisionNumber(lineNumber), author, authorDateTime, subject);
+    String authorEmail = provider.getAuthorEmail(lineNumber);
+    return new RevisionInfoImpl(provider.getRevisionNumber(lineNumber), author, authorDateTime, authorEmail, subject);
   }
 }

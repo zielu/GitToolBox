@@ -15,6 +15,9 @@ public interface RevisionDataProvider {
   String getAuthor(int lineIndex);
 
   @Nullable
+  String getAuthorEmail(int lineIndex);
+
+  @Nullable
   String getSubject(int lineIndex);
 
   @Nullable

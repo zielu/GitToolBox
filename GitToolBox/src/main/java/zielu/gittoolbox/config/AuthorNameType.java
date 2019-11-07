@@ -2,28 +2,31 @@ package zielu.gittoolbox.config;
 
 import com.intellij.openapi.vcs.actions.ShortNameType;
 import com.intellij.util.xmlb.annotations.Transient;
-import org.jetbrains.annotations.Nullable;
+import java.util.function.Supplier;
+import zielu.gittoolbox.ResBundle;
 
 public enum AuthorNameType {
   INITIALS(ShortNameType.INITIALS),
   LASTNAME(ShortNameType.LASTNAME),
   FIRSTNAME(ShortNameType.FIRSTNAME),
-  FULL(ShortNameType.NONE);
+  FULL(ShortNameType.NONE),
+  EMAIL(() -> ResBundle.message("author.name.type.email")),
+  EMAIL_USER(() -> ResBundle.message("author.name.type.email.user"))
+  ;
 
-  private final ShortNameType type;
+  private final Supplier<String> description;
 
   AuthorNameType(ShortNameType type) {
-    this.type = type;
+    description = type::getDescription;
+  }
+
+  AuthorNameType(Supplier<String> description) {
+    this.description = description;
   }
 
   @Transient
   public String getDescription() {
-    return type.getDescription();
-  }
-
-  @Nullable
-  public String shorten(@Nullable String author) {
-    return ShortNameType.shorten(author, type);
+    return description.get();
   }
 
   public static AuthorNameType[] inlineBlame() {

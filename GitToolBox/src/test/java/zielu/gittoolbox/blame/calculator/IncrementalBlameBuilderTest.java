@@ -1,9 +1,11 @@
 package zielu.gittoolbox.blame.calculator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.intellij.execution.process.ProcessOutputTypes;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -42,6 +44,7 @@ class IncrementalBlameBuilderTest {
   @DisplayName("commit info at line")
   @TestInstance(TestInstance.Lifecycle.PER_CLASS)
   class CommitInfoAtLine {
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     private List<CommitInfo> commitInfos;
 
     @BeforeAll
@@ -49,15 +52,23 @@ class IncrementalBlameBuilderTest {
       commitInfos = buildCommitInfos(resource.getLines());
     }
 
-    @ParameterizedTest(name = " {0} has revision {1}")
+    @ParameterizedTest(name = " {0} has revision {1} at date-time {2}")
     @CsvSource({
-        "1,446d9e1cb82776c773b903c76a61bab16c6c5884",
-        "4,446d9e1cb82776c773b903c76a61bab16c6c5884",
-        "5,8fe24a686949e63f6cd484ca87b335fdd159181c",
-        "33,f0673181af82880cb38368890faa54144322dff1"
+        "1,446d9e1cb82776c773b903c76a61bab16c6c5884,2019-03-28T22:43:29,zieluuuu@gmail.com",
+        "4,446d9e1cb82776c773b903c76a61bab16c6c5884,2019-03-28T22:43:29,zieluuuu@gmail.com",
+        "5,8fe24a686949e63f6cd484ca87b335fdd159181c,2019-03-27T19:43:51,zieluuuu@gmail.com",
+        "33,f0673181af82880cb38368890faa54144322dff1,2019-01-23T22:40:39,zieluuuu@gmail.com"
     })
-    void revisionIsCorrect(int lineNumber, String expectedRevisionHash) {
-      assertThat(commitInfos.get(lineNumber - 1).getRevisionNumber().asString()).isEqualTo(expectedRevisionHash);
+    void revisionIsCorrect(int lineNumber, String expectedRevisionHash,
+                           String expectedAuthorDateTime, String expectedAuthorEmail) {
+      int lineIndex = lineNumber - 1;
+      assertSoftly(softly -> {
+        softly.assertThat(commitInfos.get(lineIndex).getRevisionNumber().asString())
+            .isEqualTo(expectedRevisionHash);
+        softly.assertThat(dateFormat.format(commitInfos.get(lineIndex).getAuthorDateTime()))
+            .isEqualTo(expectedAuthorDateTime);
+        softly.assertThat(commitInfos.get(lineIndex).getAuthorEmail()).isEqualTo(expectedAuthorEmail);
+      });
     }
   }
 
