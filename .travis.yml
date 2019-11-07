@@ -5,6 +5,10 @@ jdk:
 
 before_install: cd GitToolBox
 
+install: ./gradlew assemble --console plain
+
+script: ./gradlew check --console plain
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
