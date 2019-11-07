@@ -1,8 +1,22 @@
 package zielu.gittoolbox.util
 
 object Html {
-  const val BR = "<br/>"
-  const val HR = "<hr/>"
+  const val BRX = "<br/>"
+  const val BR = "<br>"
+  const val HRX = "<hr/>"
+  const val LT = "&lt;"
+  const val GT = "&gt;"
+  private const val NBSP = "&nbsp;"
+
+  @JvmStatic
+  fun br(count: Int): String {
+    return BR.repeat(count)
+  }
+
+  @JvmStatic
+  fun nbsp(count: Int): String {
+    return NBSP.repeat(count)
+  }
 
   @JvmStatic
   fun link(name: String, text: String): String? {

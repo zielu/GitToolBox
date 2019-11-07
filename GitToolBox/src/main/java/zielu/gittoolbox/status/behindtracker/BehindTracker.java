@@ -104,7 +104,7 @@ class BehindTracker implements ProjectComponent {
   private StringBand formatMessage(@NotNull BehindMessage message, @NotNull ChangeType changeType) {
     return new StringBand(GitUIUtil.bold(changeType.title()))
         .append(" (").append(Html.link("update", ResBundle.message("update.project")))
-        .append(")").append(Html.BR).append(message.text);
+        .append(")").append(Html.BRX).append(message.text);
   }
 
   void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {

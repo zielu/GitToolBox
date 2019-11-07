@@ -87,7 +87,7 @@ public class StatusMessagesService {
     boolean first = true;
     for (Entry<GitRepository, BehindStatus> status : statuses.entrySet()) {
       if (!first) {
-        result.append(Html.BR);
+        result.append(Html.BRX);
       } else {
         first = false;
       }

@@ -2,7 +2,6 @@ package zielu.gittoolbox
 
 import com.intellij.openapi.project.Project
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -17,7 +16,6 @@ import zielu.junit5.intellij.extension.platform.BasePlatformTestCaseExtension
 
 @Tag(TestType.INTEGRATION)
 @ExtendWith(BasePlatformTestCaseExtension::class)
-@Disabled
 internal class ExtensionsIntegrationTest {
   @Test
   internal fun shouldReturnStatusMessagesService() {
