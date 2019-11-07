@@ -237,5 +237,11 @@
             <property name="tokens" value="METHOD_DEF"/>
         </module>
         <module name="UnusedImports"/>
+        <module name="ImportOrder">
+          <property name="option" value="top"/>
+          <property name="separatedStaticGroups" value="true"/>
+          <property name="ordered" value="true"/>
+          <property name="sortStaticImportsAlphabetically" value="true"/>
+        </module>
     </module>
 </module>
