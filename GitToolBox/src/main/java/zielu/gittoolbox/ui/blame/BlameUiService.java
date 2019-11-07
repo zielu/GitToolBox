@@ -4,13 +4,12 @@ import com.intellij.openapi.editor.LineExtensionInfo;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import java.util.Collection;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.util.AppUtil;
-
-import java.util.Collection;
-import java.util.Optional;
 
 public interface BlameUiService {
   @Nullable

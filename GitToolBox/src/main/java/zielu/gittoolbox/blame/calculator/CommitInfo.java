@@ -2,15 +2,20 @@ package zielu.gittoolbox.blame.calculator;
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import git4idea.GitRevisionNumber;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 
 class CommitInfo {
   static final CommitInfo NULL = new CommitInfo(null);
 
   private final VcsRevisionNumber revisionNumber;
   private String authorName;
-  private Date authorDate;
+  private Instant authorTime;
+  private ZoneOffset authorTimeOffset;
+  private ZonedDateTime authorDateTime;
   private String summary;
 
   CommitInfo(String commitHash) {
@@ -25,8 +30,12 @@ class CommitInfo {
     this.authorName = authorName;
   }
 
-  void setAuthorTime(long authorTime) {
-    this.authorDate = new Date(authorTime * 1000);
+  void setAuthorTime(Instant authorTime) {
+    this.authorTime = authorTime;
+  }
+
+  void setAuthorTimeOffset(ZoneOffset authorTimeOffset) {
+    this.authorTimeOffset = authorTimeOffset;
   }
 
   void setSummary(String summary) {
@@ -41,8 +50,16 @@ class CommitInfo {
     return authorName;
   }
 
-  Date getAuthorDate() {
-    return authorDate;
+  @Nullable
+  ZonedDateTime getAuthorDateTime() {
+    if (authorTime == null) {
+      return null;
+    }
+    if (authorDateTime == null) {
+      ZoneOffset offset = authorTimeOffset == null ? ZoneOffset.UTC : authorTimeOffset;
+      authorDateTime = ZonedDateTime.ofInstant(authorTime, offset);
+    }
+    return authorDateTime;
   }
 
   String getSummary() {

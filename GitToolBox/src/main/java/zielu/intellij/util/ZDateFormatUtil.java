@@ -5,7 +5,8 @@ import com.intellij.util.text.SyncDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import org.jetbrains.annotations.NotNull;
@@ -19,23 +20,23 @@ public class ZDateFormatUtil {
     //do nothing
   }
 
-  public static String formatPrettyDateTime(@NotNull Date date, @NotNull Date now, @NotNull SyncDateFormat dateFormat) {
+  public static String formatPrettyDateTime(@NotNull ZonedDateTime date, @NotNull ZonedDateTime now,
+                                            @NotNull SyncDateFormat dateFormat) {
     Preconditions.checkArgument(now.compareTo(date) >= 0, "Date is before now");
-    Instant nowInstant = Instant.ofEpochMilli(now.getTime());
-    Instant dateInstant = Instant.ofEpochMilli(date.getTime());
+    Instant nowInstant = now.toInstant();
+    Instant dateInstant = date.toInstant();
     Duration duration = Duration.between(dateInstant, nowInstant);
     if (duration.compareTo(HOUR_AND_MINUTE) < 0) {
       return formatPrettyUntilOneHour(duration);
     } else {
-      ZoneId systemZone = ZoneId.systemDefault();
-      LocalDate nowDate = nowInstant.atZone(systemZone).toLocalDate();
-      LocalDate referenceDate = dateInstant.atZone(systemZone).toLocalDate();
+      LocalDate nowDate = nowInstant.atZone(ZoneOffset.UTC).toLocalDate();
+      LocalDate referenceDate = dateInstant.atZone(ZoneOffset.UTC).toLocalDate();
       if (nowDate.equals(referenceDate)) {
         return ZResBundle.message("date.format.today");
       } else if (nowDate.minusDays(1).equals(referenceDate)) {
         return ZResBundle.message("date.format.yesterday");
       } else {
-        return dateFormat.format(date);
+        return dateFormat.format(Date.from(dateInstant));
       }
     }
   }

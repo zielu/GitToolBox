@@ -1,5 +1,7 @@
 package zielu.gittoolbox.cache;
 
+import static zielu.gittoolbox.cache.PerRepoInfoCache.CACHE_CHANGE;
+
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.tasks.LocalTask;
@@ -15,7 +17,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
-import static zielu.gittoolbox.cache.PerRepoInfoCache.CACHE_CHANGE;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.config.ReferencePointForStatusType;
 

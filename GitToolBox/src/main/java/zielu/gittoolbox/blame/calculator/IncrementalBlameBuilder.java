@@ -4,6 +4,8 @@ import com.intellij.execution.process.ProcessOutputType;
 import com.intellij.openapi.util.Key;
 import git4idea.commands.GitLineHandlerListener;
 import git4idea.util.StringScanner;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ public class IncrementalBlameBuilder implements GitLineHandlerListener {
   private static final String SUMMARY_TAG = "summary ";
   private static final String AUTHOR_TAG = "author ";
   private static final String AUTHOR_TIME_TAG = "author-time ";
+  private static final String AUTHOR_TZ_TAG = "author-tz ";
 
   private final Map<String, CommitInfo> commits = new HashMap<>();
   private final List<Entry> entries = new ArrayList<>();
@@ -89,7 +92,10 @@ public class IncrementalBlameBuilder implements GitLineHandlerListener {
     } else if (line.startsWith(AUTHOR_TAG)) {
       currentCommit.setAuthorName(line.substring(AUTHOR_TAG.length()).trim());
     } else if (line.startsWith(AUTHOR_TIME_TAG)) {
-      currentCommit.setAuthorTime(Long.parseLong(line.substring(AUTHOR_TIME_TAG.length()).trim()));
+      long epochSeconds = Long.parseLong(line.substring(AUTHOR_TIME_TAG.length()).trim());
+      currentCommit.setAuthorTime(Instant.ofEpochSecond(epochSeconds));
+    } else if (line.startsWith(AUTHOR_TZ_TAG)) {
+      currentCommit.setAuthorTimeOffset(ZoneOffset.of(line.substring(AUTHOR_TZ_TAG.length()).trim()));
     }
   }
 

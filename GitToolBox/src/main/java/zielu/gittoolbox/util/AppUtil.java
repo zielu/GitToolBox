@@ -2,9 +2,8 @@ package zielu.gittoolbox.util;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 public final class AppUtil {
   private AppUtil() {

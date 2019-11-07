@@ -1,6 +1,6 @@
 package zielu.gittoolbox.ui;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.config.DateType;
@@ -12,5 +12,5 @@ public interface DatePresenter {
   }
 
   @Nullable
-  String format(@NotNull DateType type, @Nullable Date date);
+  String format(@NotNull DateType type, @Nullable ZonedDateTime date);
 }
