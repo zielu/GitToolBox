@@ -7,7 +7,7 @@ before_install: cd GitToolBox
 
 install: ./gradlew assemble --console plain
 
-script: ./gradlew check --console plain
+script: ./gradlew check integrationTest --console plain
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
