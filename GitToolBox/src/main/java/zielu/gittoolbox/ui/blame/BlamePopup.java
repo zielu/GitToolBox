@@ -41,6 +41,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.revision.RevisionService;
+import zielu.gittoolbox.util.Html;
 import zielu.intellij.ui.ZUiUtil;
 
 class BlamePopup {
@@ -85,9 +86,9 @@ class BlamePopup {
     message = IssueLinkHtmlRenderer.formatTextWithLinks(project, message != null ? message : "");
     String commitInformation = BlamePresenter.getInstance().getPopup(revisionInfo, message);
     return ZUiUtil.asHtml(commitInformation
-        + "<br><br>"
-        + PopupAction.REVEAL_IN_LOG.createHtmlLink() + "&nbsp;&nbsp;&nbsp"
-        + PopupAction.AFFECTED_FILES.createHtmlLink() + "&nbsp;&nbsp;&nbsp"
+        + Html.br(2)
+        + PopupAction.REVEAL_IN_LOG.createHtmlLink() + Html.nbsp(3)
+        + PopupAction.AFFECTED_FILES.createHtmlLink() + Html.nbsp(3)
         + PopupAction.COPY_REVISION.createHtmlLink()
     );
   }
