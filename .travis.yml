@@ -15,10 +15,14 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/scripts/
   - rm -fr $HOME/.gradle/caches/*/scripts-remapped/
   - rm -fr $HOME/.gradle/caches/*/fileHashes/
+  - rm -fr $HOME/.gradle/caches/*/workerMain/
   - rm -f  $HOME/.gradle/caches/*/fileContent/*.lock
   - rm -f  $HOME/.gradle/caches/*/javaCompile/*.lock
+  - rm -f  $HOME/.gradle/caches/*/javaCompile/jarAnalysis.bin
   - rm -f  $HOME/.gradle/caches/*/executionHistory/*.lock
   - rm -f  $HOME/.gradle/caches/*/generated-gradle-jars/*.lock
+  - rm -f  $HOME/.gradle/caches/*/md-rule/*.lock
+  - rm -f  $HOME/.gradle/caches/*/md-supplier/*.lock
   - rm -f  $HOME/.gradle/caches/jars-3/*.lock
   - rm -f  $HOME/.gradle/caches/transforms-1/transforms-1.lock
   - rm -f  $HOME/.gradle/caches/journal-1/file-access.bin
