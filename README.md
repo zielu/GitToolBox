@@ -22,41 +22,40 @@ Decisions are stored [here](./GitToolBox/doc/arch).
 
 ## Building & running
 
-### Build parameters
-```-Pfast=true``` speed-up is achieved by:
-* skipping integration tests 
-* skipping spotbugs
-
 ### Releases
 
 #### Release current `-SNAPSHOT`
 ```
-gradle clean check jacocoTestReport buildPlugin release
+gradle clean buildAll release
 ```
 #### Upgrade to next minor version
 ```
-gradle clean check jacocoTestReport buildPlugin releaseMinorVersion
+gradle clean buildAll releaseMinorVersion
 ```
 #### Upgrade to next major version
 ```
-gradle clean check jacocoTestReport buildPlugin releaseMajorVersion
+gradle clean buildAll releaseMajorVersion
 ```
 
 #### Release and publish
 Append ```-Ppublish=true``` and include ```publishPlugin``` task.
 For example
 ```
-gradle clean check jacocoTestReport buildPlugin release publishPlugin -Ppublish=true
+gradle clean buildAll release publishPlugin -Ppublish=true
 ```
 
 ### Useful build commands
 Full verification of build
 ```
-gradle clean check jacocoTestReport
+gradle clean check integrationTest
 ```
 Quick verification of build
 ```
-gradle clean test jacocoTestReport -Pfast=true
+gradle clean check
+```
+Generate code coverage report
+```
+gradle clean codeCoverage
 ```
 Update gradlew version
 ```
