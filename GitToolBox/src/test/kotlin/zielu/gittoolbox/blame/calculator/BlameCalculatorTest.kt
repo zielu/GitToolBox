@@ -1,6 +1,7 @@
 package zielu.gittoolbox.blame.calculator
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
+import com.intellij.openapi.vfs.VirtualFile
 import git4idea.GitRevisionNumber
 import git4idea.commands.GitCommandResult
 import git4idea.commands.GitLineHandler
@@ -19,7 +20,7 @@ import zielu.intellij.test.MockVfsUtil
 @Tag(TestType.FAST)
 @ExtendWith(MockKExtension::class)
 internal class BlameCalculatorTest {
-  private val vFileMock = MockVfsUtil.createFile("/path/to/file.txt")
+  private val vFileMock: VirtualFile = MockVfsUtil.createFile("/path/to/file.txt")
 
   @Test
   internal fun annotateReturnsNullIfNoCurrentRevisionNumber(
