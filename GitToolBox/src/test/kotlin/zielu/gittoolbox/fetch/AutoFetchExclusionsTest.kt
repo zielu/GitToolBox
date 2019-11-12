@@ -2,7 +2,6 @@ package zielu.gittoolbox.fetch
 
 import com.intellij.mock.MockVirtualFile
 import com.intellij.openapi.vfs.VirtualFile
-import git4idea.repo.GitRemote
 import git4idea.repo.GitRepository
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import zielu.TestType
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig
+import zielu.intellij.test.createRemote
 import java.util.function.Supplier
 
 @Tag(TestType.FAST)
@@ -26,12 +26,12 @@ internal class AutoFetchExclusionsTest {
   private lateinit var repository: GitRepository
 
   @BeforeEach
-  internal fun beforeEach() {
+  fun beforeEach() {
     every { repository.root } returns repoRoot
   }
 
   @Test
-  internal fun repoWithoutSpecifiedRemotesIsExcluded() {
+  fun repoWithoutSpecifiedRemotesIsExcluded() {
     // given
     val exclusionsMap: Map<String, AutoFetchExclusionConfig> = mapOf(
       repoRoot.url to AutoFetchExclusionConfig(repoRoot.url)
@@ -46,7 +46,7 @@ internal class AutoFetchExclusionsTest {
   }
 
   @Test
-  internal fun notConfiguredRepoIsNotExcluded() {
+  fun notConfiguredRepoIsNotExcluded() {
     // given
     val exclusions = AutoFetchExclusions(Supplier { mapOf<String, AutoFetchExclusionConfig>() })
 
@@ -58,7 +58,7 @@ internal class AutoFetchExclusionsTest {
   }
 
   @Test
-  internal fun repoWithSpecifiedRemoteExcludesItFromRemotes() {
+  fun repoWithSpecifiedRemoteExcludesItFromRemotes() {
     // given
     val upstream = createRemote("upstream")
     val origin = createRemote("origin")
@@ -75,6 +75,4 @@ internal class AutoFetchExclusionsTest {
       softly.assertThat(result[0].remotes).containsOnly(origin)
     }
   }
-
-  private fun createRemote(name: String) = GitRemote(name, listOf(), listOf(), listOf(), listOf())
 }

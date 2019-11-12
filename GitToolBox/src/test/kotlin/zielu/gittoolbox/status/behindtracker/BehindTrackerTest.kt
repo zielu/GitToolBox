@@ -74,7 +74,7 @@ internal class BehindTrackerTest {
   }
 
   @Test
-  internal fun displayDeltaNotificationIfStateChanged() {
+  fun displayDeltaNotificationIfStateChanged() {
     // given
     every { gatewayMock.behindStatus(any()) } returns BEHIND_STATUS_VALUE
     every { behindTrackerUiMock.statusMessages } returns StatusMessagesService(gatewayMock)

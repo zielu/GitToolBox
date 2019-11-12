@@ -23,7 +23,7 @@ internal class BlameCalculatorTest {
   private val vFileMock: VirtualFile = MockVfsUtil.createFile("/path/to/file.txt")
 
   @Test
-  internal fun annotateReturnsNullIfNoCurrentRevisionNumber(
+  fun annotateReturnsNullIfNoCurrentRevisionNumber(
     @MockK repoMock: GitRepository,
     @MockK gatewayMock: BlameCalculatorLocalGateway
   ) {
@@ -39,7 +39,7 @@ internal class BlameCalculatorTest {
   }
 
   @Test
-  internal fun annotateReturnsResultIfCurrentRevisionNumberPresentAndCommandSuccess(
+  fun annotateReturnsResultIfCurrentRevisionNumberPresentAndCommandSuccess(
     @MockK repoMock: GitRepository,
     @MockK gatewayMock: BlameCalculatorLocalGateway,
     @RelaxedMockK gitLineHandlerMock: GitLineHandler
@@ -59,7 +59,7 @@ internal class BlameCalculatorTest {
   }
 
   @Test
-  internal fun annotateReturnsNullIfCurrentRevisionNumberPresentAndCommandFailed(
+  fun annotateReturnsNullIfCurrentRevisionNumberPresentAndCommandFailed(
     @MockK repoMock: GitRepository,
     @MockK gatewayMock: BlameCalculatorLocalGateway,
     @RelaxedMockK gitLineHandlerMock: GitLineHandler

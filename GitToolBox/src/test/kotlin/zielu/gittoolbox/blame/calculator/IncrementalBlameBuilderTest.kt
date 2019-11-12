@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
 @ExtendWith(ResourcesExtension::class)
 internal class IncrementalBlameBuilderTest {
   @Test
-  internal fun parsedBlameOutputHasCorrectLineCount(
+  fun parsedBlameOutputHasCorrectLineCount(
     @ResourcePath("/blame-incremental.txt") resource: TextResource
   ) {
     val annotationLines: MutableList<String> = resource.lines
@@ -47,7 +47,7 @@ internal class IncrementalBlameBuilderTest {
     private lateinit var commitInfos: List<CommitInfo>
 
     @BeforeAll
-    internal fun beforeAll(@ResourcePath("/blame-incremental.txt") resource: TextResource) {
+    fun beforeAll(@ResourcePath("/blame-incremental.txt") resource: TextResource) {
       commitInfos = buildCommitInfos(resource.lines)
     }
 
@@ -58,7 +58,7 @@ internal class IncrementalBlameBuilderTest {
       "5,8fe24a686949e63f6cd484ca87b335fdd159181c,2019-03-27T19:43:51,Lukasz Zielinski,zieluuuu@gmail.com",
       "33,f0673181af82880cb38368890faa54144322dff1,2019-01-23T22:40:39,Lukasz Zielinski,zieluuuu@gmail.com"
     )
-    internal fun revisionIsCorrect(
+    fun revisionIsCorrect(
       lineNumber: Int,
       expectedRevisionHash: String,
       expectedAuthorDateTime: String,

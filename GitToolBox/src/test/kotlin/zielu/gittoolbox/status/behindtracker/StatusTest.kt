@@ -16,7 +16,7 @@ internal class StatusTest {
     "CANCEL,false",
     "FAILURE,false"
   )
-  internal fun isValidShouldReturnExpectedValue(status: Status, expected: Boolean) {
+  fun isValidShouldReturnExpectedValue(status: Status, expected: Boolean) {
     assertThat(status.isValid()).isEqualTo(expected)
   }
 }

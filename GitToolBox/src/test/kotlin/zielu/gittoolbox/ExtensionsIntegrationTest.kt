@@ -18,32 +18,32 @@ import zielu.junit5.intellij.extension.platform.BasePlatformTestCaseExtension
 @ExtendWith(BasePlatformTestCaseExtension::class)
 internal class ExtensionsIntegrationTest {
   @Test
-  internal fun shouldReturnStatusMessagesService() {
+  fun shouldReturnStatusMessagesService() {
     assertThat(StatusMessagesService.getInstance()).isNotNull
   }
 
   @Test
-  internal fun shouldReturnDatePresenter() {
+  fun shouldReturnDatePresenter() {
     assertThat(DatePresenter.getInstance()).isNotNull
   }
 
   @Test
-  internal fun shouldReturnBlamePresenter() {
+  fun shouldReturnBlamePresenter() {
     assertThat(BlamePresenter.getInstance()).isNotNull
   }
 
   @Test
-  internal fun shouldReturnStatusMessagesUi() {
+  fun shouldReturnStatusMessagesUi() {
     assertThat(StatusMessagesUi.getInstance()).isNotNull
   }
 
   @Test
-  internal fun shouldReturnAutoFetchGateway(project: Project) {
+  fun shouldReturnAutoFetchGateway(project: Project) {
     assertThat(AutoFetchGateway.getInstance(project)).isNotNull
   }
 
   @Test
-  internal fun shouldReturnBlameCache(project: Project) {
+  fun shouldReturnBlameCache(project: Project) {
     assertThat(BlameCache.getInstance(project)).isNotNull
   }
 }

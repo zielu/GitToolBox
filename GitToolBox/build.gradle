@@ -208,6 +208,8 @@ dependencies {
     testImplementation ("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
 
     testImplementation ("io.mockk:mockk:${mockkVersion}")
+    testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit5"
 
     testImplementation ("org.assertj:assertj-core:${assertjCoreVersion}")
     testImplementation ("org.slf4j:slf4j-api:${slf4jVersion}")

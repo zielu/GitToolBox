@@ -1,6 +1,5 @@
 package zielu.gittoolbox.fetch
 
-import git4idea.repo.GitRemote
 import git4idea.repo.GitRepository
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -12,13 +11,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 import zielu.TestType
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig
+import zielu.intellij.test.createRemote
 
 @Tag(TestType.FAST)
 @ExtendWith(MockKExtension::class)
 internal class RemoteFilteredRepositoryTest {
 
   @Test
-  internal fun sameDelegatesAreEqual(@MockK delegate: GitRepository) {
+  fun sameDelegatesAreEqual(@MockK delegate: GitRepository) {
     // given
     val config = AutoFetchExclusionConfig("")
     val wrapper1 = RemoteFilteredRepository(delegate, config)
@@ -29,7 +29,7 @@ internal class RemoteFilteredRepositoryTest {
   }
 
   @Test
-  internal fun getRemotesAppliesFiltering(@MockK delegate: GitRepository) {
+  fun getRemotesAppliesFiltering(@MockK delegate: GitRepository) {
     // given
     val keptRemote = createRemote("origin")
     val filteredOutRemoteName = "upstream"
@@ -44,6 +44,4 @@ internal class RemoteFilteredRepositoryTest {
     // then
     assertThat(filteredRemotes).containsOnly(keptRemote)
   }
-
-  private fun createRemote(name: String) = GitRemote(name, listOf(), listOf(), listOf(), listOf())
 }

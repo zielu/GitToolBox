@@ -1,6 +1,5 @@
 package zielu.gittoolbox.startup
 
-import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -8,6 +7,7 @@ import zielu.TestType
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
 import zielu.gittoolbox.config.RemoteConfig
+import kotlin.test.assertFalse
 
 @Tag(TestType.FAST)
 internal class ConfigForProjectMigratorTest {
@@ -22,7 +22,7 @@ internal class ConfigForProjectMigratorTest {
     val migrated = migrator.migrate()
 
     // then
-    assertThat(migrated).isFalse()
+    assertFalse { migrated }
   }
 
   @Test
