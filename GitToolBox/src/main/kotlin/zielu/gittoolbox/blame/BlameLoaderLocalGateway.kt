@@ -20,11 +20,11 @@ internal class BlameLoaderLocalGateway(private val project: Project) {
   }
 
   fun getCurrentRevisionNumber(repo: GitRepository): VcsRevisionNumber {
-    try {
-      return GitVcs.getInstance(project).parseRevisionNumber(repo.currentRevision) ?: VcsRevisionNumber.NULL
+    return try {
+      GitVcs.getInstance(project).parseRevisionNumber(repo.currentRevision) ?: VcsRevisionNumber.NULL
     } catch (e: VcsException) {
       log.warn("Could not get current repoRevision for " + repo.root, e)
-      return VcsRevisionNumber.NULL
+      VcsRevisionNumber.NULL
     }
   }
 

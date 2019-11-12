@@ -3,7 +3,7 @@ package zielu.gittoolbox.revision
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import java.time.ZonedDateTime
 
-interface RevisionInfo {
+internal interface RevisionInfo {
   fun getRevisionNumber(): VcsRevisionNumber
   fun getAuthor(): String
   fun getSubject(): String?

@@ -1,6 +1,6 @@
 package zielu.gittoolbox.util
 
-object Html {
+internal object Html {
   const val BRX = "<br/>"
   const val BR = "<br>"
   const val HRX = "<hr/>"

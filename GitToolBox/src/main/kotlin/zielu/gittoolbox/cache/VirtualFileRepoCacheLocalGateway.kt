@@ -3,7 +3,7 @@ package zielu.gittoolbox.cache
 import com.intellij.openapi.Disposable
 import java.util.function.Supplier
 
-interface VirtualFileRepoCacheLocalGateway {
+internal interface VirtualFileRepoCacheLocalGateway {
   fun fireCacheChanged()
 
   fun rootsCacheSizeGauge(size: () -> Int)

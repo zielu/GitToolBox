@@ -2,7 +2,7 @@ package zielu.gittoolbox.cache
 
 import com.intellij.openapi.Disposable
 
-interface CacheTaskSchedulerLocalGateway {
+internal interface CacheTaskSchedulerLocalGateway {
   fun queueSizeCounterInc()
 
   fun queueSizeCounterDec()

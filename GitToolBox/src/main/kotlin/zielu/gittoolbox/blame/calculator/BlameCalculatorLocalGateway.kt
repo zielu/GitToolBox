@@ -6,7 +6,7 @@ import git4idea.commands.GitCommandResult
 import git4idea.commands.GitLineHandler
 import git4idea.repo.GitRepository
 
-interface BlameCalculatorLocalGateway {
+internal interface BlameCalculatorLocalGateway {
   fun getCurrentRevisionNumber(vFile: VirtualFile): VcsRevisionNumber
   fun createLineHandler(repository: GitRepository): GitLineHandler
   fun runCommand(lineHandler: GitLineHandler): GitCommandResult

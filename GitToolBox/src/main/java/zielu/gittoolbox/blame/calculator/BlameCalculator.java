@@ -16,16 +16,14 @@ import zielu.gittoolbox.util.GtUtil;
 
 public class BlameCalculator {
   private final Logger log = Logger.getInstance(getClass());
-  private final Project project;
   private final BlameCalculatorLocalGateway gateway;
 
   public BlameCalculator(@NotNull Project project) {
-    this(project, new BlameCalculatorLocalGatewayImpl(project));
+    this(new BlameCalculatorLocalGatewayImpl(project));
   }
 
   // for testing
-  BlameCalculator(@NotNull Project project, BlameCalculatorLocalGateway gateway) {
-    this.project = project;
+  BlameCalculator(BlameCalculatorLocalGateway gateway) {
     this.gateway = gateway;
   }
 
@@ -33,34 +31,44 @@ public class BlameCalculator {
   public RevisionDataProvider annotate(@NotNull GitRepository repository, @NotNull VirtualFile file) {
     VcsRevisionNumber actualRevision = gateway.getCurrentRevisionNumber(file);
     if (actualRevision != VcsRevisionNumber.NULL) {
-      GitLineHandler handler = gateway.createLineHandler(repository);
+      GitLineHandler handler = prepareLineHandler(repository, file, actualRevision);
       IncrementalBlameBuilder builder = new IncrementalBlameBuilder();
       handler.addLineListener(builder);
-      handler.setStdoutSuppressed(true);
-      handler.addParameters("--incremental", "-l", "-t", "-w", "--encoding=UTF-8", actualRevision.asString());
-      handler.endOptions();
-      handler.addRelativePaths(GtUtil.localFilePath(file));
 
-      log.debug("Run blame: ", handler);
+      log.debug("Will run blame: ", handler);
 
       GitCommandResult result = gateway.runCommand(handler);
       if (result.success()) {
         List<CommitInfo> lineInfos = builder.buildLineInfos();
         if (log.isTraceEnabled()) {
-          StringBand blameDump = new StringBand(lineInfos.size() * 4);
-          for (int i = 0; i < lineInfos.size(); i++) {
-            blameDump.append(i);
-            blameDump.append(": ");
-            blameDump.append(lineInfos.get(i));
-            blameDump.append("\n");
-          }
-          log.trace("Blame for " + file + " is:\n" + blameDump);
+          log.trace("Blame for " + file + " is:\n" + dumpBlame(lineInfos));
         }
-        return new BlameRevisionDataProvider(project, lineInfos, file, actualRevision);
+        return new BlameRevisionDataProvider(lineInfos, file, actualRevision);
       } else if (!result.cancelled()) {
         log.warn("Blame failed:\n" + result.getErrorOutputAsJoinedString());
       }
     }
     return null;
+  }
+
+  private GitLineHandler prepareLineHandler(@NotNull GitRepository repository, @NotNull VirtualFile file,
+                                            @NotNull VcsRevisionNumber revisionNumber) {
+    GitLineHandler handler = gateway.createLineHandler(repository);
+    handler.setStdoutSuppressed(true);
+    handler.addParameters("--incremental", "-l", "-t", "-w", "--encoding=UTF-8", revisionNumber.asString());
+    handler.endOptions();
+    handler.addRelativePaths(GtUtil.localFilePath(file));
+    return handler;
+  }
+
+  private StringBand dumpBlame(List<CommitInfo> lineInfos) {
+    StringBand blameDump = new StringBand(lineInfos.size() * 4);
+    for (int i = 0; i < lineInfos.size(); i++) {
+      blameDump.append(i);
+      blameDump.append(": ");
+      blameDump.append(lineInfos.get(i));
+      blameDump.append("\n");
+    }
+    return blameDump;
   }
 }

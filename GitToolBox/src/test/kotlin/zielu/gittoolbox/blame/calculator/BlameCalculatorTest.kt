@@ -1,6 +1,5 @@
 package zielu.gittoolbox.blame.calculator
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import git4idea.GitRevisionNumber
 import git4idea.commands.GitCommandResult
@@ -24,13 +23,12 @@ internal class BlameCalculatorTest {
 
   @Test
   internal fun annotateReturnsNullIfNoCurrentRevisionNumber(
-    @MockK projectMock: Project,
     @MockK repoMock: GitRepository,
     @MockK gatewayMock: BlameCalculatorLocalGateway
   ) {
     // given
     every { gatewayMock.getCurrentRevisionNumber(vFileMock) } returns VcsRevisionNumber.NULL
-    val calculator = BlameCalculator(projectMock, gatewayMock)
+    val calculator = BlameCalculator(gatewayMock)
 
     // when
     val dataProvider = calculator.annotate(repoMock, vFileMock)
@@ -41,7 +39,6 @@ internal class BlameCalculatorTest {
 
   @Test
   internal fun annotateReturnsResultIfCurrentRevisionNumberPresentAndCommandSuccess(
-    @MockK projectMock: Project,
     @MockK repoMock: GitRepository,
     @MockK gatewayMock: BlameCalculatorLocalGateway,
     @RelaxedMockK gitLineHandlerMock: GitLineHandler
@@ -51,7 +48,7 @@ internal class BlameCalculatorTest {
     every { gatewayMock.createLineHandler(repoMock) } returns gitLineHandlerMock
     val commandResult = GitCommandResult(false, 0, listOf(), listOf())
     every { gatewayMock.runCommand(gitLineHandlerMock) } returns commandResult
-    val calculator = BlameCalculator(projectMock, gatewayMock)
+    val calculator = BlameCalculator(gatewayMock)
 
     // when
     val dataProvider = calculator.annotate(repoMock, vFileMock)
@@ -62,7 +59,6 @@ internal class BlameCalculatorTest {
 
   @Test
   internal fun annotateReturnsNullIfCurrentRevisionNumberPresentAndCommandFailed(
-    @MockK projectMock: Project,
     @MockK repoMock: GitRepository,
     @MockK gatewayMock: BlameCalculatorLocalGateway,
     @RelaxedMockK gitLineHandlerMock: GitLineHandler
@@ -72,7 +68,7 @@ internal class BlameCalculatorTest {
     every { gatewayMock.createLineHandler(repoMock) } returns gitLineHandlerMock
     val commandResult = GitCommandResult(false, 1, listOf("Blame failure for test"), listOf())
     every { gatewayMock.runCommand(gitLineHandlerMock) } returns commandResult
-    val calculator = BlameCalculator(projectMock, gatewayMock)
+    val calculator = BlameCalculator(gatewayMock)
 
     // when
     val dataProvider = calculator.annotate(repoMock, vFileMock)
