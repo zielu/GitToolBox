@@ -2,18 +2,15 @@ package zielu.gittoolbox.ui
 
 import com.intellij.vcs.log.impl.HashImpl
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import zielu.TestType
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.UtfSeq
 import zielu.gittoolbox.status.BehindStatus
 import zielu.gittoolbox.status.RevListCount
 import java.util.stream.Stream
 
-@Tag(TestType.FAST)
 internal class StatusPresenterTest {
   private val hash = HashImpl.build("92c4b38ed6cc6f2091f454d177074fceb70d5a80")
 

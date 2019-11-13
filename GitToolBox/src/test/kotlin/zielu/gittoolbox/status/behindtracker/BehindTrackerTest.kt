@@ -15,10 +15,8 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import zielu.TestType
 import zielu.gittoolbox.cache.RepoInfo
 import zielu.gittoolbox.cache.RepoStatus
 import zielu.gittoolbox.cache.RepoStatusRemote
@@ -28,7 +26,6 @@ import zielu.gittoolbox.ui.StatusMessagesService
 import zielu.gittoolbox.ui.StatusMessagesServiceLocalGateway
 import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi
 
-@Tag(TestType.FAST)
 @ExtendWith(MockKExtension::class)
 internal class BehindTrackerTest {
   private val LOCAL_HASH = HashImpl.build("92c4b38ed6cc6f2091f454d177074fceb70d5a80")

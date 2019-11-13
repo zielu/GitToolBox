@@ -5,15 +5,12 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import zielu.TestType
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig
 import zielu.intellij.test.createRemote
 
-@Tag(TestType.FAST)
 @ExtendWith(MockKExtension::class)
 internal class RemoteFilteredRepositoryTest {
 

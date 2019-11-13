@@ -1,15 +1,12 @@
 package zielu.gittoolbox.startup
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import zielu.TestType
 import zielu.gittoolbox.config.DecorationPartConfig
 import zielu.gittoolbox.config.DecorationPartType
 import zielu.gittoolbox.config.GitToolBoxConfig
 import zielu.gittoolbox.config.GitToolBoxConfig2
 
-@Tag(TestType.FAST)
 internal class ConfigMigratorV1toV2Test {
   @Test
   fun shouldMigrateLocationBeforeStatus() {

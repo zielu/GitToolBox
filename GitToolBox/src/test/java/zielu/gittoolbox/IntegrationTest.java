@@ -25,10 +25,8 @@ import org.eclipse.jgit.api.Git;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import zielu.TestType;
 import zielu.gittoolbox.blame.BlameCache;
 import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
@@ -46,7 +44,7 @@ import zielu.junit5.intellij.extension.platform.PlatformTest;
 import zielu.junit5.intellij.extension.resources.ExternalPath;
 import zielu.junit5.intellij.extension.resources.ResourcesExtension;
 
-@Tag(TestType.INTEGRATION)
+@zielu.IntegrationTest
 @ExtendWith(HeavyPlatformTestCaseExtension.class)
 @ExtendWith(GitTestExtension.class)
 @ExtendWith(ResourcesExtension.class)

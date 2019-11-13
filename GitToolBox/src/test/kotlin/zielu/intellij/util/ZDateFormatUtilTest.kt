@@ -2,11 +2,9 @@ package zielu.intellij.util
 
 import com.intellij.util.text.SyncDateFormat
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import zielu.TestType
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.Instant
@@ -16,7 +14,6 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Date
 
-@Tag(TestType.FAST)
 internal class ZDateFormatUtilTest {
   private val dateFormat = SyncDateFormat(SimpleDateFormat("dd-MM-yyyy HH:mm:ss"))
   private val now = ZonedDateTime.ofInstant(Instant.parse("2007-12-03T10:15:30.00Z"), ZoneOffset.UTC)

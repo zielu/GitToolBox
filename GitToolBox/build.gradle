@@ -133,7 +133,7 @@ test {
     useJUnitPlatform {
         //prevent running extensions as Junit 3 tests because of naming convention with TestCase
         exclude('zielu/junit5/**')
-        includeTags = ['fast']
+        excludeTags = ['integration']
         reports {
             html.enabled = false
         }

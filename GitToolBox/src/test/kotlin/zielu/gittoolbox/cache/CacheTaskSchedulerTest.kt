@@ -7,15 +7,12 @@ import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import zielu.TestType
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertTrue
 
-@Tag(TestType.FAST)
 @ExtendWith(MockKExtension::class)
 internal class CacheTaskSchedulerTest {
   @RelaxedMockK

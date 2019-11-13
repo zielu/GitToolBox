@@ -1,14 +1,11 @@
 package zielu.gittoolbox.ui
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import zielu.TestType
 import zielu.gittoolbox.config.AuthorNameType
 import zielu.gittoolbox.ui.AuthorPresenter.format
 
-@Tag(TestType.FAST)
 internal class AuthorPresenterTest {
   @ParameterizedTest
   @CsvSource(

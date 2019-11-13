@@ -9,16 +9,13 @@ import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import zielu.TestType
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig
 import zielu.intellij.test.createRemote
 import java.util.function.Supplier
 
-@Tag(TestType.FAST)
 @ExtendWith(MockKExtension::class)
 internal class AutoFetchExclusionsTest {
   private val repoRoot: VirtualFile = MockVirtualFile("repo-root")
