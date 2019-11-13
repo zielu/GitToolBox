@@ -49,8 +49,9 @@ configurations {
 }
 
 def ideaCacheDir = Paths.get(System.getProperty('user.home')).resolve('intellij-gradle-cache').toAbsolutePath().toString()
-println("Idea cache dir: " + ideaCacheDir)
+println("Idea cache dir: $ideaCacheDir")
 println("Build type: " + buildType())
+println("CI build: $ci")
 
 intellij {
     version = ideaVersion
@@ -85,11 +86,26 @@ patchPluginXml {
 }
 
 if (publish) {
-    apply from: 'publish.gradle'
+    println('Publish')
+
+    def tokenValue = ''
+    def usernameValue = ''
+    def passwordValue = ''
+    if (ci) {
+        tokenValue = System.getProperty('publish.token')
+        usernameValue = System.getProperty('publish.username')
+        passwordValue = System.getProperty('publish.password')
+    } else {
+        apply from: 'publish.gradle'
+        tokenValue = project.publishToken
+        usernameValue = project.publishUsername
+        passwordValue = project.publishPassword
+    }
+
     publishPlugin {
-        token = project.publishToken
-        username = project.publishUsername
-        password = project.publishPassword
+        token = tokenValue
+        username = usernameValue
+        password = passwordValue
         channels = publishChannels()
     }    
 }

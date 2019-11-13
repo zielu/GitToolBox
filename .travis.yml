@@ -31,3 +31,12 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+
+before_deploy: cd GitToolBox
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: ./gradlew buildPlugin publishPlugin --console plain -Ppublish=true
+  on:
+    tags: true
