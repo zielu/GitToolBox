@@ -39,7 +39,7 @@ java {
     targetCompatibility = javaVersion
 }
 
-def ci = findProperty('CI') != null
+def ci = System.getProperty('CI') != null
 def publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
 
 configurations {

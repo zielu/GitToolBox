@@ -32,8 +32,6 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-before_deploy: cd GitToolBox
-
 deploy:
   skip_cleanup: true
   provider: script
