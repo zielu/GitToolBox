@@ -1,40 +1,40 @@
 language: java
-
 jdk:
-  - openjdk8
-
+- openjdk8
 before_install: cd GitToolBox
-
-install: ./gradlew assemble --console plain
-
-script: ./gradlew check integrationTest --console plain
-
+install: "./gradlew assemble --console plain"
+script: "./gradlew check integrationTest --console plain"
 before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-  - rm -fr $HOME/.gradle/caches/*/scripts/
-  - rm -fr $HOME/.gradle/caches/*/scripts-remapped/
-  - rm -fr $HOME/.gradle/caches/*/fileHashes/
-  - rm -fr $HOME/.gradle/caches/*/workerMain/
-  - rm -f  $HOME/.gradle/caches/*/fileContent/*.lock
-  - rm -f  $HOME/.gradle/caches/*/javaCompile/*.lock
-  - rm -f  $HOME/.gradle/caches/*/javaCompile/jarAnalysis.bin
-  - rm -f  $HOME/.gradle/caches/*/executionHistory/*.lock
-  - rm -f  $HOME/.gradle/caches/*/generated-gradle-jars/*.lock
-  - rm -f  $HOME/.gradle/caches/*/md-rule/*.lock
-  - rm -f  $HOME/.gradle/caches/*/md-supplier/*.lock
-  - rm -f  $HOME/.gradle/caches/jars-3/*.lock
-  - rm -f  $HOME/.gradle/caches/transforms-1/transforms-1.lock
-  - rm -f  $HOME/.gradle/caches/journal-1/file-access.bin
-  - rm -f  $HOME/.gradle/caches/journal-1/*.lock
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+- rm -fr $HOME/.gradle/caches/*/scripts/
+- rm -fr $HOME/.gradle/caches/*/scripts-remapped/
+- rm -fr $HOME/.gradle/caches/*/fileHashes/
+- rm -fr $HOME/.gradle/caches/*/workerMain/
+- rm -f  $HOME/.gradle/caches/*/fileContent/*.lock
+- rm -f  $HOME/.gradle/caches/*/javaCompile/*.lock
+- rm -f  $HOME/.gradle/caches/*/javaCompile/jarAnalysis.bin
+- rm -f  $HOME/.gradle/caches/*/executionHistory/*.lock
+- rm -f  $HOME/.gradle/caches/*/generated-gradle-jars/*.lock
+- rm -f  $HOME/.gradle/caches/*/md-rule/*.lock
+- rm -f  $HOME/.gradle/caches/*/md-supplier/*.lock
+- rm -f  $HOME/.gradle/caches/jars-3/*.lock
+- rm -f  $HOME/.gradle/caches/transforms-1/transforms-1.lock
+- rm -f  $HOME/.gradle/caches/journal-1/file-access.bin
+- rm -f  $HOME/.gradle/caches/journal-1/*.lock
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
 deploy:
   skip_cleanup: true
   provider: script
-  script: ./gradlew buildPlugin publishPlugin --console plain -Ppublish=true
+  script: "./gradlew buildPlugin publishPlugin --console plain -Ppublish=true"
   on:
     tags: true
+env:
+  global:
+  - secure: OoZIq7pmQ7ztv/7LsGnr43IJoONURaPFQDn/piAG3v3OUqTDYV9gZ7BMpOjapiVimKdQc2OmknnU3DqkwESVnwOqvw1K2VuQZ2a8oKWrgE6PEwlvFUr+5pAR3q9c3IqBd1SZJ0ftEHGqxccO99cn1vKn55aokMtFl+2dDAvJKdoMuT6ziysPHCvaghEmFq9BYtdL1Q53n0ryj9P/r4ctb3Al2g2G9s41cOFvvRbLZQ8l2IJeUe/dXxrH4mdl9+qN34PVyMi1CeHLaoS9aJKFQ04mmkAZ2jklnAM1miptc+7SkCTKakbc2VCz2otaQDchTcBigtN8J+R+wAwO8alqdf+gSBdoLTTE1jcsWRzgKUFS3IIa/IOJCkLa72IW2mI2vglrX1/pm+7PNn/8MZRDtWfKbnff5YWYpCOq/8WUYkjCUoxgL138lr1rAHansCdIndap/ohp85zUNSNM09Mi4HcTRXEIPywl46Ah81XHD459zizQFH776HbMQhSxGv8yzeBF4wjrUP6k5VjRcQT1BVEyt8u1ks5VC5VnArtl/pWp49Jga8R0O0E9V9Q0tew69g/xX2yAjjghLDxKuvaloimXSW4T0V9Rzb5MSB7KN0e6od2E62lFoWNrZrlDklmNcMfjIWbD9EYQkNhV/2iRsKUgvJHy1uPL3YXnZAAiEZM=
+  - secure: RHRtyn0E3w2gU25xgzUxibfbKTTln5+V/LCYi3QEBcS8kcOqDMsisfLjXGreSn0mIBP0nXb/l+LZqMA1jVQ6MFRFcIHHWeYtlfh7auGUQx5x9V7OmSsb06pldWsWYiK5xoV3Gjkwg268RfCb7AQ4/g/y7kBrHyg0pP4q41Gu2cynf1SvpdjSZ+kKO5kE9Fw12AQwNmFT1lnV+3LQ/TaOhFNom8IP6SvXzVndc5NT8B5+14RsMSTxzKcA8HzsjxxzRA/inZDZXiLE3qZIf+TqfEMygzQ91pjAdNFC9QFYmX11imEt8QoMXNRRGFR+Ci6a/vT/sIPUa5QdqjpbBk+psDMamATJx0qB8mkoSKKNIeQMFvgVqfgHwLT679/dvjF6TRVWYp5GNb+q8th9Evc9FAYjAawke+p1XungaxGEe4sI2LAiZsLgQ4+GIdoyfqCbrdw/cS9LqEMe3B4OAur1qHdJhNk0X+d/6htWyg2rNM+OU9n7v7kF/McRjcU0twQG0XCM1yb1QBpIyG7V7VFXBNQxuYZZnCotdt0b2xVW8YOAGgytxcflERs/8CTDKFZRCyb22s4zGKmQHvZ0lpVhZN4uNr3Y51ZMcBcO0HdTHeclrJbkN8CkHFHcS+L0KJpKettI3dbZ71y/0Qw6ygkM/BRRgo1bGaeXCbDPiZk6J6M=
+  - secure: j8eueJ5ehfkPxQllzgkDdHesjBXqgucS4ThqE+Zs3CrR+/227sEZrcr6Qk1S3mVnLfsjt/Z8nUGvSOULyr7qWvg9UaXK/1DU3h/rx5QSb03OuIPokO8Fc+FPTbRGaMOdtcPddLwQERfrseJ2U66kd9LYGADLJLlBDtonI05jIKz75Zc/pTK6Lz776ngIvIzRWOFJs5yFu+ydPE7A3AglLrKnm3tIkK2yXXnkbzdyosyNhghSpoLB1TkNz83QNQJg6/8MH8CK7OnlPCGsRPswlFKb1i3TBSsPJxbpEthWHc1n53VNdqqWCaroBeaj4gUg8GSPenA6+T1Fh32A8MhGJRaj2QYZ1XHgUKXq1b+tz+VEwUsZFPet84nC86EQgjYyaVnBpiEcUeX6opUpH91OAAJo/bUKBaFSUrtodWNk2X0zOdh6LSxxLaxorFPW+1d5pHERtNzSJnhc3Aa+NwK9D6F6l9ioe1+mQ72ert1BZTe5p9b/HbPPLKS67SV9NmS5PWqk6jJmJkXTl7bVT/6QdtnPwvkHcHl4/FW+pM7q3WgSg5TiFkC8DwPeWdCDjrlqUVbVCFo2ioonGPhf1FwBv99p/45FqmfpyE7+50Xhrzzh/jyHsxXIkwqLCA48oGqJ28MEwuNBiMtjsLXy2Bap4TlZ0vmIC4fLFBbeK9yIctk=
+  - secure: PbG9WhTArt41oMMwPGqbIgzIDKgmPPrzBWw+skRGgA7lIAYHX/4Bs2dsfaYsv09Zu+og0jjR7GdhQzssrNKhEuPtzesBgciWmvGf/x3qZDekVT/F1i9yIHNYx8p9JNNU+lCSKhGDvmXmHJnUMSTUoPe8sAMBd9r4Tuw/eFWyBeGjb2u70d2JzDII89HVkPGL3qn+064iiwV6iOowruCqrYZKd48T8Ny1n4FTkgZ8CoXNHboTczAVvxYZKWJcJE8hlUFGAfeGdF4el3VhKczMPHG1DXma8Vl0MWKPTzTz4puBhPJvV9wLwbVeirAcc9e/7Y0G/IYBVZfoBLQq6YfqQSfeIMdu1PzpbuYqJNz8FGACUzk4qu+GCs0cDYw4HJW3k3bk5DTfB8Wb6dCLVUmmMLaM8a688/D0WOwZWXyn69L4mrO3Jus7Vl0GKLJk0vDIREhYfAIxBW3qHaNmcitBTay5Y4MtfXuLBxhuxz+UnNp9AT6CPKkse0C2r7cNQR5DwHDcqhPb7U6ZDgRNLV7BZ2ZJOiH6DfHM+uSKe18KUIbZ2N0SpF6whDavFZVm3/Zu819YCFDYVNbkHejXHsmufESaEj91SlhgIIgEFvvLcE/Jn3OVwnKr2Xw02zKPaacjSsR6FEC7ObDGn/MN4ggxfDVwsOsv5ct0zMnpZmzApdQ=
