@@ -29,7 +29,7 @@ cache:
 deploy:
   skip_cleanup: true
   provider: script
-  script: "./gradlew buildPlugin publishPlugin --console plain -Ppublish=true"
+  script: "./gradlew buildPlugin publishPlugin --console plain -Ppublish=true --scan"
   on:
     tags: true
 env:
