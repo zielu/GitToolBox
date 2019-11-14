@@ -92,15 +92,17 @@ if (publish) {
     def usernameValue = ''
     def passwordValue = ''
     if (ci) {
-        tokenValue = System.getProperty('publish_token')
-        usernameValue = System.getProperty('publish_username')
-        passwordValue = System.getProperty('publish_password')
+        tokenValue = System.getenv('publish_token')
+        usernameValue = System.getenv('publish_username')
+        passwordValue = System.getenv('publish_password')
     } else {
         apply from: 'publish.gradle'
         tokenValue = project.publishToken
         usernameValue = project.publishUsername
         passwordValue = project.publishPassword
     }
+
+    println('Has token = ' + (tokenValue != null))
 
     publishPlugin {
         token = tokenValue
