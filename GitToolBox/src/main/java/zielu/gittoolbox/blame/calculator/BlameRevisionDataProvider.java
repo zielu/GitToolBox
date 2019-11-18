@@ -1,6 +1,5 @@
 package zielu.gittoolbox.blame.calculator;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import java.time.ZonedDateTime;
@@ -10,14 +9,12 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.revision.RevisionDataProvider;
 
 class BlameRevisionDataProvider implements RevisionDataProvider {
-  private final Project project;
   private final List<CommitInfo> lineInfos;
   private final VirtualFile file;
   private final VcsRevisionNumber baseRevision;
 
-  BlameRevisionDataProvider(@NotNull Project project, @NotNull List<CommitInfo> lineInfos,
-                            @Nullable VirtualFile file, @Nullable VcsRevisionNumber baseRevision) {
-    this.project = project;
+  BlameRevisionDataProvider(@NotNull List<CommitInfo> lineInfos, @Nullable VirtualFile file,
+                            @Nullable VcsRevisionNumber baseRevision) {
     this.lineInfos = lineInfos;
     this.file = file;
     this.baseRevision = baseRevision;
@@ -61,12 +58,6 @@ class BlameRevisionDataProvider implements RevisionDataProvider {
   @Override
   public VcsRevisionNumber getCurrentRevisionNumber() {
     return baseRevision;
-  }
-
-  @NotNull
-  @Override
-  public Project getProject() {
-    return project;
   }
 
   @Nullable

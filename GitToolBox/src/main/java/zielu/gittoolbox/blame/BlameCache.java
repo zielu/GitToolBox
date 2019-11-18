@@ -15,8 +15,15 @@ public interface BlameCache {
 
   void refreshForRoot(@NotNull VirtualFile root);
 
+  void invalidateForRoot(@NotNull VirtualFile root);
+
   @NotNull
   static Optional<BlameCache> getExistingInstance(@NotNull Project project) {
     return AppUtil.getExistingServiceInstance(project, BlameCache.class);
+  }
+
+  @NotNull
+  static BlameCache getInstance(@NotNull Project project) {
+    return AppUtil.getServiceInstance(project, BlameCache.class);
   }
 }

@@ -17,9 +17,9 @@ public class AutoFetchState implements BaseComponent {
   private final Logger log = Logger.getInstance(getClass());
 
   private final AtomicBoolean fetchRunning = new AtomicBoolean();
+  private final AtomicBoolean extensionsLoaded = new AtomicBoolean();
   private final List<AutoFetchAllowed> extensions = new ArrayList<>();
   private final Project project;
-  private MessageBusConnection connection;
 
   AutoFetchState(@NotNull Project project) {
     this.project = project;
@@ -32,16 +32,11 @@ public class AutoFetchState implements BaseComponent {
 
   @Override
   public void initComponent() {
-    initializeExtensions();
     connectToMessageBus();
   }
 
-  private void initializeExtensions() {
-    extensions.addAll(getExtensionPoints().map(this::instantiate).collect(Collectors.toList()));
-  }
-
   private void connectToMessageBus() {
-    connection = project.getMessageBus().connect();
+    MessageBusConnection connection = project.getMessageBus().connect(project);
     connection.subscribe(AutoFetchAllowed.TOPIC, allowed -> fireStateChanged());
   }
 
@@ -50,9 +45,9 @@ public class AutoFetchState implements BaseComponent {
   }
 
   private AutoFetchAllowed instantiate(AutoFetchAllowedEP extensionPoint) {
-    AutoFetchAllowed extension = extensionPoint.instantiate();
-    extension.initialize(project);
+    AutoFetchAllowed extension = extensionPoint.instantiate(project);
     log.debug("Extension created: ", extension);
+    extension.initialize();
     return extension;
   }
 
@@ -62,23 +57,17 @@ public class AutoFetchState implements BaseComponent {
 
   @Override
   public void disposeComponent() {
-    disconnectFromMessageBus();
     disposeExtensions();
   }
 
-  private void disconnectFromMessageBus() {
-    if (connection != null) {
-      connection.disconnect();
-      connection = null;
-    }
-  }
-
   private void disposeExtensions() {
-    extensions.forEach(AutoFetchAllowed::dispose);
     extensions.clear();
   }
 
   private boolean isFetchAllowed() {
+    if (extensionsLoaded.compareAndSet(false, true)) {
+      extensions.addAll(getExtensionPoints().map(this::instantiate).collect(Collectors.toList()));
+    }
     return extensions.stream().allMatch(AutoFetchAllowed::isAllowed);
   }
 

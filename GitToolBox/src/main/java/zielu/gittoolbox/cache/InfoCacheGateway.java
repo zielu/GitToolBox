@@ -1,45 +1,31 @@
 package zielu.gittoolbox.cache;
 
-import static zielu.gittoolbox.cache.PerRepoInfoCache.CACHE_CHANGE;
-
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.tasks.LocalTask;
 import com.intellij.tasks.TaskManager;
-import com.intellij.util.messages.MessageBus;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepoInfo;
 import git4idea.repo.GitRepository;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.config.ReferencePointForStatusType;
+import zielu.gittoolbox.util.AppUtil;
 
 class InfoCacheGateway {
-  private final Logger log = Logger.getInstance(getClass());
   private final Project project;
-
-  private final MessageBus messageBus;
 
   InfoCacheGateway(@NotNull Project project) {
     this.project = project;
-    messageBus = project.getMessageBus();
   }
 
-  void notifyEvicted(@NotNull Collection<GitRepository> repositories) {
-    messageBus.syncPublisher(CACHE_CHANGE)
-        .evicted(repositories);
-  }
-
-  void notifyRepoChanged(@NotNull GitRepository repo, @NotNull RepoInfo previous, @NotNull RepoInfo current) {
-    messageBus.syncPublisher(CACHE_CHANGE)
-        .stateChanged(previous, current, repo);
-    log.debug("Published cache changed event: ", repo);
+  @NotNull
+  static InfoCacheGateway getInstance(@NotNull Project project) {
+    return AppUtil.getServiceInstance(project, InfoCacheGateway.class);
   }
 
   @NotNull
@@ -63,11 +49,11 @@ class InfoCacheGateway {
     GitRemoteBranch trackedBranch = localBranch.findTrackedBranch(repository);
     GitRemoteBranch parentBranch = null;
     GitRepoInfo repoInfo = repository.getInfo();
-    ReferencePointForStatusType type = config.getReferencePointForStatus().type;
+    ReferencePointForStatusType type = config.getReferencePointForStatus().getType();
     if (type == ReferencePointForStatusType.TRACKED_REMOTE_BRANCH) {
       parentBranch = trackedBranch;
     } else if (type == ReferencePointForStatusType.SELECTED_PARENT_BRANCH) {
-      parentBranch = findRemoteParent(repository, config.getReferencePointForStatus().name).orElse(null);
+      parentBranch = findRemoteParent(repository, config.getReferencePointForStatus().getName()).orElse(null);
     } else if (type == ReferencePointForStatusType.AUTOMATIC) {
       parentBranch = getRemoteBranchFromActiveTask(repository).orElse(trackedBranch);
     }

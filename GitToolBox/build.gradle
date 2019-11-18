@@ -3,27 +3,34 @@ import java.text.SimpleDateFormat
 
 buildscript {
     repositories {
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
         mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
     }
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.10"
+    id 'org.jetbrains.intellij' version '0.4.12'
     id 'com.palantir.git-version' version '0.12.2'
     id 'ch.netzwerg.release' version '1.2.5'
-    id "org.jetbrains.kotlin.jvm" version "1.3.50"
-    id "org.jlleitschuh.gradle.ktlint" version "9.0.0"
+    id 'org.jlleitschuh.gradle.ktlint' version '9.0.0'
 }
 
 repositories {
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     mavenCentral()
 }
 
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'idea'
 apply plugin: "java"
+apply plugin: "kotlin"
 
 def javaVersion = JavaVersion.VERSION_1_8
+def kotlinJvmTarget = "1.8"
 def encoding = 'UTF-8'
 
 java {
@@ -31,8 +38,8 @@ java {
     targetCompatibility = javaVersion
 }
 
-def fast = Boolean.valueOf(String.valueOf(findProperty('fast')))
-def publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
+boolean ci = System.getenv().containsKey('CI')
+boolean publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
 
 configurations {
     testAgent {
@@ -41,8 +48,9 @@ configurations {
 }
 
 def ideaCacheDir = Paths.get(System.getProperty('user.home')).resolve('intellij-gradle-cache').toAbsolutePath().toString()
-println("Idea cache dir: " + ideaCacheDir)
-println("Build type: " + buildType())
+println("Idea cache dir: $ideaCacheDir")
+println("Build type: " + buildType(ci))
+println("CI build: $ci")
 
 intellij {
     version = ideaVersion
@@ -51,6 +59,7 @@ intellij {
     downloadSources = true
     plugins = ['java', 'git4idea', 'gr.jchrist.gitextender:0.5.2']
     ideaDependencyCachePath = ideaCacheDir
+    instrumentCode = true
 }
 
 compileJava.options.encoding = encoding
@@ -58,7 +67,13 @@ compileTestJava.options.encoding = encoding
 
 compileKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = kotlinJvmTarget
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = kotlinJvmTarget
     }
 }
 
@@ -66,17 +81,34 @@ patchPluginXml {
     changeNotes "${file('change-notes.html').getText(encoding)}"
     pluginDescription "${file('description.html').getText(encoding)}"
             .replace("RELEASE_DATETIME", buildTime())
-            .replace("RELEASE_TYPE", buildType())
+            .replace("RELEASE_TYPE", buildType(ci))
 }
 
 if (publish) {
-    apply from: 'publish.gradle'
+    println('Publish')
+
+    if (!ci) {
+        apply from: 'publish.gradle'
+    }
+
     publishPlugin {
-        token = project.publishToken
-        username = project.publishUsername
-        password = project.publishPassword
-        channels = publishChannels()
+        token = getPublishToken(ci, project)
+        username = getPublishUsername(ci, project)
+        password = getPublishPassword(ci, project)
+        channels = publishChannels(ci)
     }    
+}
+
+def static getPublishToken(ci, project) {
+    return ci ? System.getenv('publish_token') : project.publishToken
+}
+
+def static getPublishUsername(ci, project) {
+    return ci ? System.getenv('publish_username') : project.publishUsername
+}
+
+def static getPublishPassword(ci, project) {
+    return ci ? System.getenv('publish_password') : project.publishPassword
 }
 
 jar {
@@ -107,7 +139,7 @@ jacoco {
 // workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
 // as 'test' task cleans generated report
 jacocoTestReport {
-    executionData.setFrom(files("${project.buildDir.name}/jacoco-junit5/test.exec"))
+    executionData.setFrom(fileTree(dir: "${project.buildDir.name}/jacoco-junit5", include: ['*.exec']))
 }
 
 test {
@@ -118,13 +150,26 @@ test {
     useJUnitPlatform {
         //prevent running extensions as Junit 3 tests because of naming convention with TestCase
         exclude('zielu/junit5/**')
-        includeTags = fast ? ['fast'] : ['fast', 'integration']
+        excludeTags = ['integration']
         reports {
             html.enabled = false
         }
     }
+}
 
-    finalizedBy jacocoTestReport
+task integrationTest(type: Test) {
+    jacoco {
+        destinationFile = file("${project.buildDir.name}/jacoco-junit5/test-integration.exec")
+    }
+
+    useJUnitPlatform {
+        //prevent running extensions as Junit 3 tests because of naming convention with TestCase
+        exclude('zielu/junit5/**')
+        includeTags = ['integration']
+        reports {
+            html.enabled = false
+        }
+    }
 }
 
 apply plugin: 'checkstyle'
@@ -138,9 +183,24 @@ checkstyle {
 
 ktlint {
     additionalEditorconfigFile = project(':').file("config/ktlint/.editorconfig")
+    coloredOutput = false
     reporters {
         reporter "checkstyle"
     }
+}
+
+task buildAll {
+    dependsOn check, integrationTest, buildPlugin
+    tasks.findByName('integrationTest').mustRunAfter 'check'
+}
+
+task buildFast {
+    dependsOn check, buildPlugin
+}
+
+task codeCoverage {
+    dependsOn check, integrationTest, jacocoTestReport
+    tasks.findByName('integrationTest').mustRunAfter 'check'
 }
 
 dependencies {
@@ -160,8 +220,14 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     testImplementation ("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
+
     testImplementation ("org.mockito:mockito-core:${mockitoVersion}")
     testImplementation ("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+
+    testImplementation ("io.mockk:mockk:${mockkVersion}")
+    testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit5"
+
     testImplementation ("org.assertj:assertj-core:${assertjCoreVersion}")
     testImplementation ("org.slf4j:slf4j-api:${slf4jVersion}")
 
@@ -170,7 +236,6 @@ dependencies {
 
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
     //testRuntimeOnly ("org.slf4j:slf4j-simple:${slf4jVersion}")
-    testCompileOnly ('org.apiguardian:apiguardian-api:1.0.0')
 }
 
 
@@ -180,15 +245,19 @@ def static buildTime() {
     return df.format(new Date())
 }
 
-def isStableBuild() {
-    def details = versionDetails()
-    return details.branchName ==~ /(master|\d+-release)/
+def isStableBuild(ci) {
+    if (ci) {
+        return Boolean.valueOf(System.getenv("stable"))
+    } else {
+        def details = versionDetails()
+        return details.branchName ==~ /(master|\d+-release)/
+    }
 }
 
-def buildType() {
-    return isStableBuild() ? "Stable" : "EAP"
+def buildType(ci) {
+    return isStableBuild(ci) ? "Stable" : "EAP"
 }
 
-def publishChannels() {
-    return isStableBuild() ? ['default', 'eap'] : ['eap']
+def publishChannels(ci) {
+    return isStableBuild(ci) ? ['default', 'eap'] : ['eap']
 }

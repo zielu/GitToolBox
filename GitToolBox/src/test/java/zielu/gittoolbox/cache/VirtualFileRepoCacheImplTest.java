@@ -2,6 +2,7 @@ package zielu.gittoolbox.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static zielu.intellij.test.MockVfsUtil.createDir;
@@ -12,24 +13,21 @@ import com.intellij.mock.MockVirtualFile;
 import git4idea.repo.GitRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zielu.TestType;
-import zielu.gittoolbox.metrics.Metrics;
-import zielu.gittoolbox.metrics.MockMetrics;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import zielu.intellij.test.MockUtil;
 
-@Tag(TestType.FAST)
 @ExtendWith({MockitoExtension.class})
+@MockitoSettings(strictness = Strictness.WARN)
 class VirtualFileRepoCacheImplTest {
   @Mock(stubOnly = true)
-  private GitRepository repository;
+  private GitRepository repositoryMock;
   @Mock
-  private VirtualFileRepoCacheGateway gateway;
-
-  private Metrics mockMetrics = new MockMetrics();
+  private VirtualFileRepoCacheLocalGateway gatewayMock;
 
   private MockVirtualFile repositoryRoot = createDir("repoRoot");
 
@@ -37,12 +35,12 @@ class VirtualFileRepoCacheImplTest {
 
   @BeforeEach
   void beforeEach() {
-    when(gateway.getMetrics()).thenReturn(mockMetrics);
-    cache = new VirtualFileRepoCacheImpl(gateway);
+    when(gatewayMock.repoForDirCacheTimer(any())).then(MockUtil.callSupplier());
+    cache = new VirtualFileRepoCacheImpl(gatewayMock);
   }
 
   private void mockRepository() {
-    when(repository.getRoot()).thenReturn(repositoryRoot);
+    when(repositoryMock.getRoot()).thenReturn(repositoryRoot);
   }
 
   @AfterEach
@@ -59,12 +57,12 @@ class VirtualFileRepoCacheImplTest {
   void getRepoForRootShouldReturnRepositoryForRoot() {
     setupRepo();
 
-    assertThat(cache.getRepoForRoot(repositoryRoot)).isEqualTo(repository);
+    assertThat(cache.getRepoForRoot(repositoryRoot)).isEqualTo(repositoryMock);
   }
 
   void setupRepo() {
     mockRepository();
-    cache.updatedRepoList(ImmutableList.of(repository));
+    cache.updatedRepoList(ImmutableList.of(repositoryMock));
   }
 
   @Test
@@ -76,15 +74,15 @@ class VirtualFileRepoCacheImplTest {
   void getRepoForDirShouldReturnRepositoryForDirInRoot() {
     setupRepo();
 
-    MockVirtualFile dirInRoot = createDir(repositoryRoot,"dirInRoot");
-    assertThat(cache.getRepoForDir(dirInRoot)).isEqualTo(repository);
+    MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
+    assertThat(cache.getRepoForDir(dirInRoot)).isEqualTo(repositoryMock);
   }
 
   @Test
   void getRepoForDirShouldReturnSameRepositoryForDirInRootIfCalledMoreThanOnce() {
     setupRepo();
 
-    MockVirtualFile dirInRoot = createDir(repositoryRoot,"dirInRoot");
+    MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
     GitRepository repo1 = cache.getRepoForDir(dirInRoot);
     GitRepository repo2 = cache.getRepoForDir(dirInRoot);
     assertThat(repo1).isEqualTo(repo2);
@@ -96,7 +94,7 @@ class VirtualFileRepoCacheImplTest {
 
     MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
     MockVirtualFile dirInDirInRoot = createDir(dirInRoot, "dirInDirInRoot");
-    assertThat(cache.getRepoForDir(dirInDirInRoot)).isEqualTo(repository);
+    assertThat(cache.getRepoForDir(dirInDirInRoot)).isEqualTo(repositoryMock);
   }
 
   @Test
@@ -106,8 +104,10 @@ class VirtualFileRepoCacheImplTest {
     MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
     MockVirtualFile dirInDirInRoot = createDir(dirInRoot, "dirInDirInRoot");
     assertSoftly(softly -> {
-      softly.assertThat(cache.getRepoForDir(dirInRoot)).isEqualTo(repository);
-      softly.assertThat(cache.getRepoForDir(dirInDirInRoot)).isEqualTo(repository);
+      softly.assertThat(cache.getRepoForDir(dirInRoot))
+          .isEqualTo(repositoryMock);
+      softly.assertThat(cache.getRepoForDir(dirInDirInRoot))
+          .isEqualTo(repositoryMock);
     });
 
   }
@@ -116,7 +116,7 @@ class VirtualFileRepoCacheImplTest {
   void updatedRepoListPublishesToMessageBus() {
     setupRepo();
 
-    verify(gateway).fireCacheChanged();
+    verify(gatewayMock).fireCacheChanged();
   }
 
   @Test
@@ -125,7 +125,8 @@ class VirtualFileRepoCacheImplTest {
 
     MockVirtualFile dirInRoot = createDir(repositoryRoot, "dirInRoot");
     assertSoftly(softly -> {
-      softly.assertThat(cache.isUnderGitRoot(dirInRoot)).isTrue();
+      softly.assertThat(cache.isUnderGitRoot(dirInRoot))
+          .isTrue();
     });
   }
 
@@ -135,7 +136,8 @@ class VirtualFileRepoCacheImplTest {
 
     MockVirtualFile dirInRoot = createDir("dirInRoot");
     assertSoftly(softly -> {
-      softly.assertThat(cache.isUnderGitRoot(dirInRoot)).isFalse();
+      softly.assertThat(cache.isUnderGitRoot(dirInRoot))
+          .isFalse();
     });
   }
 
@@ -145,7 +147,8 @@ class VirtualFileRepoCacheImplTest {
 
     MockVirtualFile fileInRoot = createFile(repositoryRoot, "fileInRoot.txt");
     assertSoftly(softly -> {
-      softly.assertThat(cache.isUnderGitRoot(fileInRoot)).isTrue();
+      softly.assertThat(cache.isUnderGitRoot(fileInRoot))
+          .isTrue();
     });
   }
 
@@ -155,7 +158,8 @@ class VirtualFileRepoCacheImplTest {
 
     MockVirtualFile fileInRoot = createFile("fileInRoot.txt");
     assertSoftly(softly -> {
-      softly.assertThat(cache.isUnderGitRoot(fileInRoot)).isFalse();
+      softly.assertThat(cache.isUnderGitRoot(fileInRoot))
+          .isFalse();
     });
   }
 }

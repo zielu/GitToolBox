@@ -13,6 +13,7 @@ import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.ui.AuthorPresenter;
 import zielu.gittoolbox.ui.DatePresenter;
+import zielu.gittoolbox.util.Html;
 
 class BlamePresenterImpl implements BlamePresenter {
   private static final String SUBJECT_SEPARATOR = " " + UtfSeq.BULLET + " ";
@@ -58,15 +59,15 @@ class BlamePresenterImpl implements BlamePresenter {
     StringBand text = new StringBand(11)
         .append(COMMIT_PREFIX)
         .append(revisionInfo.getRevisionNumber().asString())
-        .append("\n")
+        .append(Html.BR)
         .append(AUTHOR_PREFIX)
         .append(formatPopupAuthor(revisionInfo))
-        .append("\n")
+        .append(Html.BR)
         .append(DATE_PREFIX)
         .append(datePresenter.format(DateType.ABSOLUTE, revisionInfo.getDate()))
-        .append("\n");
+        .append(Html.BR);
     if (StringUtil.isNotEmpty(details)) {
-      text.append("\n").append(details);
+      text.append(Html.BR).append(details);
     }
     return text.toString();
   }
@@ -83,9 +84,10 @@ class BlamePresenterImpl implements BlamePresenter {
     StringBand formatted = new StringBand(5);
     formatted.append(formatAuthor(AuthorNameType.FULL, revisionInfo));
     if (revisionInfo.getAuthorEmail() != null) {
-      formatted.append(" <");
+      formatted.append(" ");
+      formatted.append(Html.LT);
       formatted.append(revisionInfo.getAuthorEmail());
-      formatted.append(">");
+      formatted.append(Html.GT);
     }
     return formatted.toString();
   }

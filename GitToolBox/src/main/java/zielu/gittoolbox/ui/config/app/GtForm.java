@@ -2,6 +2,7 @@ package zielu.gittoolbox.ui.config.app;
 
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.JBPopupMenu;
+import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.SimpleListCellRenderer;
@@ -181,13 +182,13 @@ public class GtForm implements GtFormUi {
     });
     commitDialogCompletionMode.setModel(new DefaultComboBoxModel<>(CommitCompletionMode.values()));
     blameInlineAuthorNameTypeCombo.setRenderer(createAuthorNameTypeRenderer());
-    blameInlineAuthorNameTypeCombo.setModel(new DefaultComboBoxModel<>(AuthorNameType.inlineBlame()));
+    blameInlineAuthorNameTypeCombo.setModel(new CollectionComboBoxModel<>(AuthorNameType.getInlineBlame()));
     blameStatusAuthorNameTypeCombo.setRenderer(createAuthorNameTypeRenderer());
-    blameStatusAuthorNameTypeCombo.setModel(new DefaultComboBoxModel<>(AuthorNameType.statusBlame()));
+    blameStatusAuthorNameTypeCombo.setModel(new CollectionComboBoxModel<>(AuthorNameType.getStatusBlame()));
     blameDateTypeCombo.setRenderer(new SimpleListCellRenderer<DateType>() {
       @Override
       public void customize(JList list, DateType value, int index, boolean selected, boolean hasFocus) {
-        setText(value.getDescription());
+        setText(value.getDisplayLabel());
       }
     });
     blameDateTypeCombo.setModel(new DefaultComboBoxModel<>(DateType.values()));
@@ -199,7 +200,7 @@ public class GtForm implements GtFormUi {
     return new SimpleListCellRenderer<AuthorNameType>() {
       @Override
       public void customize(JList list, AuthorNameType value, int index, boolean selected, boolean hasFocus) {
-        setText(value.getDescription());
+        setText(value.getDisplayLabel());
       }
     };
   }

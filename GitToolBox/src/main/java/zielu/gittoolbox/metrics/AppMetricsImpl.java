@@ -5,12 +5,17 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.MetricSet;
 import com.codahale.metrics.Timer;
+import com.intellij.openapi.application.ApplicationManager;
 import org.jetbrains.annotations.NotNull;
 
 class AppMetricsImpl implements AppMetrics {
   private final MetricManager metrics = new MetricManager();
 
   AppMetricsImpl() {
+    ApplicationManager.getApplication().executeOnPooledThread(this::startReporter);
+  }
+
+  private void startReporter() {
     Jmx.reporter(metrics.getRegistry());
   }
 

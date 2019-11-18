@@ -15,7 +15,7 @@ class BlameStateHolder {
   // store editor here to avoid expensive and EDT-only getSelectedEditor() retrievals
   private volatile Reference<Editor> editor = new WeakReference<>(null);
   private volatile Reference<VirtualFile> file = new WeakReference<>(null);
-  private volatile Reference<RevisionInfo> blame = new WeakReference<>(RevisionInfo.EMPTY);
+  private volatile Reference<RevisionInfo> blame = new WeakReference<>(RevisionInfo.NULL);
 
   boolean isCurrentEditorDocument(@Nullable Document document) {
     Editor selectedEditor = editor.get();
@@ -62,7 +62,7 @@ class BlameStateHolder {
   @NotNull
   RevisionInfo getBlame() {
     RevisionInfo revisionInfo = this.blame.get();
-    return revisionInfo != null ? revisionInfo : RevisionInfo.EMPTY;
+    return revisionInfo != null ? revisionInfo : RevisionInfo.NULL;
   }
 
   boolean clearBlame() {

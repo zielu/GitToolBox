@@ -11,14 +11,11 @@ import git4idea.repo.GitRepository;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import zielu.TestType;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 
-@Tag(TestType.FAST)
 class ColoredNodeDecorationTest extends NodeDecorationBaseTest {
   @Mock
   private TextAttributesUi attributesUi;

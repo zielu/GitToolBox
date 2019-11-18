@@ -3,7 +3,7 @@ package zielu.gittoolbox.ui
 import com.intellij.openapi.vcs.actions.ShortNameType
 import zielu.gittoolbox.config.AuthorNameType
 
-object AuthorPresenter {
+internal object AuthorPresenter {
   @JvmStatic
   fun format(type: AuthorNameType, author: String, authorEmail: String?): String? = when (type) {
     AuthorNameType.INITIALS -> ShortNameType.shorten(author, ShortNameType.INITIALS)

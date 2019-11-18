@@ -10,7 +10,6 @@ import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBusConnection;
-import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.blame.BlameListener;
@@ -39,11 +38,6 @@ class BlameUiSubscriber {
       public void blameUpdated(@NotNull VirtualFile file) {
         onBlameUpdate(file);
       }
-
-      @Override
-      public void blameInvalidated(@NotNull VirtualFile file) {
-        onBlameUpdate(file);
-      }
     });
     connection.subscribe(EditorColorsManager.TOPIC, this::onColorSchemeChanged);
     connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
@@ -67,18 +61,18 @@ class BlameUiSubscriber {
   }
 
   private void onBlameUpdate(@NotNull VirtualFile file) {
+    log.debug("Blame updated: ", file);
     GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
     if (config.showEditorInlineBlame) {
       BlameUiService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file));
-      AppUiUtil.invokeLater(project, () -> handleBlameUpdate(file));
+      AppUiUtil.invokeLaterIfNeeded(project, () -> handleBlameUpdate(file));
     }
   }
 
   private void handleBlameUpdate(@NotNull VirtualFile file) {
-    VirtualFile fileInEditor = getFileForSelectedEditor();
-    if (Objects.equals(fileInEditor, file)) {
-      log.debug("Refresh editor on blame update for ", file);
-      refreshEditorFile(file);
+    if (FileEditorManager.getInstance(project).isFileOpen(file)) {
+      log.debug("Refresh editors on blame update for ", file);
+      refreshEditorFile(file, true);
     }
   }
 
@@ -92,7 +86,12 @@ class BlameUiSubscriber {
   }
 
   private void refreshEditorFile(@NotNull VirtualFile file) {
-    FileEditorManagerEx.getInstanceEx(project).updateFilePresentation(file);
+    refreshEditorFile(file, false);
+  }
+
+  private void refreshEditorFile(@NotNull VirtualFile file, boolean repaint) {
+    FileEditorManagerEx editorManagerEx = FileEditorManagerEx.getInstanceEx(project);
+    editorManagerEx.updateFilePresentation(file);
   }
 
   private void onColorSchemeChanged(@Nullable EditorColorsScheme scheme) {

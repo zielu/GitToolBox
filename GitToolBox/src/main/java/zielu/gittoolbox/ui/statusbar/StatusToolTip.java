@@ -45,7 +45,7 @@ public class StatusToolTip {
   private String prepareToolTip() {
     StringBand infoPart = prepareInfoToolTipPart();
     if (infoPart.length() > 0) {
-      infoPart.append(Html.BR);
+      infoPart.append(Html.BRX);
     }
     if (currentStatusText == null) {
       currentStatusText = prepareStatusTooltip();
@@ -82,7 +82,7 @@ public class StatusToolTip {
     }
     if (!statuses.isEmpty()) {
       if (infoPart.length() > 0) {
-        infoPart.append(Html.HR);
+        infoPart.append(Html.HRX);
       }
       infoPart.append(
           statuses.entrySet().stream().map(e -> {
@@ -91,7 +91,7 @@ public class StatusToolTip {
               repoStatus = Html.underline(repoStatus);
             }
             return repoStatus;
-          }).collect(Collectors.joining(Html.BR))
+          }).collect(Collectors.joining(Html.BRX))
       );
     }
   }

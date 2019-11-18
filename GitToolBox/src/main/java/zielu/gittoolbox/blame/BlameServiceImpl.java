@@ -1,34 +1,28 @@
 package zielu.gittoolbox.blame;
 
-import com.codahale.metrics.Timer;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.revision.RevisionInfo;
 
 class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
-  private final BlameServiceGateway gateway;
-  private final BlameCache blameCache;
+  private final BlameServiceLocalGateway gateway;
   private final Cache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
       .weakKeys()
       .build();
-  private final Timer documentLineBlameTimer;
 
-  BlameServiceImpl(@NotNull BlameServiceGateway gateway, @NotNull BlameCache blameCache,
-                   @NotNull ProjectMetrics metrics) {
-    this.gateway = gateway;
-    this.blameCache = blameCache;
-    documentLineBlameTimer = metrics.timer("blame-document-line");
-    this.gateway.disposeWithProject(this);
+  BlameServiceImpl(@NotNull Project project) {
+    gateway = new BlameServiceLocalGateway(project);
+    gateway.disposeWithProject(this);
   }
 
   @Override
@@ -40,23 +34,25 @@ class BlameServiceImpl implements BlameService, Disposable {
   @Override
   public RevisionInfo getDocumentLineIndexBlame(@NotNull Document document, @NotNull VirtualFile file,
                                                 int lineIndex) {
-    return documentLineBlameTimer.timeSupplier(() -> getLineBlameInternal(document, file, lineIndex));
+    return gateway.getLineBlameTimer().timeSupplier(() -> getLineBlameInternal(document, file, lineIndex));
   }
 
   @NotNull
   private RevisionInfo getLineBlameInternal(@NotNull Document document, @NotNull VirtualFile file,
                                             int lineIndex) {
+    RevisionInfo revisionInfo = RevisionInfo.NULL;
     CachedLineProvider lineProvider = getLineProvider(document);
     if (lineProvider != null && !lineProvider.isLineChanged(lineIndex)) {
       int correctedLineIndex = lineProvider.getLineIndex(lineIndex);
-      return getLineBlameInternal(file, correctedLineIndex);
+      revisionInfo = getLineBlameInternal(file, correctedLineIndex);
     }
-    return RevisionInfo.EMPTY;
+    log.debug("Get line ", lineIndex, " blame for ", file, " info ", revisionInfo);
+    return revisionInfo;
   }
 
   @NotNull
   private RevisionInfo getLineBlameInternal(@NotNull VirtualFile file, int lineIndex) {
-    BlameAnnotation blameAnnotation = blameCache.getAnnotation(file);
+    BlameAnnotation blameAnnotation = gateway.getAnnotation(file);
     return blameAnnotation.getBlame(lineIndex);
   }
 
@@ -71,7 +67,7 @@ class BlameServiceImpl implements BlameService, Disposable {
   }
 
   private CachedLineProvider loadLineProvider(@NotNull Document document) {
-    return new CachedLineProvider(gateway.createUpToDateLineProvider(document));
+    return new CachedLineProvider(gateway.lineNumberProvider(document));
   }
 
   @Override

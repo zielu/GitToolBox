@@ -11,7 +11,7 @@ public interface BlameAnnotation {
     @NotNull
     @Override
     public RevisionInfo getBlame(int lineIndex) {
-      return RevisionInfo.EMPTY;
+      return RevisionInfo.NULL;
     }
 
     @Override
