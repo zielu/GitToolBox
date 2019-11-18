@@ -8,7 +8,6 @@ buildscript {
     }
 
     dependencies {
-        //use eap because it fixes internal access between main and test
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
     }
 }
@@ -39,8 +38,8 @@ java {
     targetCompatibility = javaVersion
 }
 
-def ci = System.getenv().containsKey('CI')
-def publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
+boolean ci = System.getenv().containsKey('CI')
+boolean publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
 
 configurations {
     testAgent {
@@ -50,7 +49,7 @@ configurations {
 
 def ideaCacheDir = Paths.get(System.getProperty('user.home')).resolve('intellij-gradle-cache').toAbsolutePath().toString()
 println("Idea cache dir: $ideaCacheDir")
-println("Build type: " + buildType())
+println("Build type: " + buildType(ci))
 println("CI build: $ci")
 
 intellij {
@@ -82,34 +81,34 @@ patchPluginXml {
     changeNotes "${file('change-notes.html').getText(encoding)}"
     pluginDescription "${file('description.html').getText(encoding)}"
             .replace("RELEASE_DATETIME", buildTime())
-            .replace("RELEASE_TYPE", buildType())
+            .replace("RELEASE_TYPE", buildType(ci))
 }
 
 if (publish) {
     println('Publish')
 
-    def tokenValue = ''
-    def usernameValue = ''
-    def passwordValue = ''
-    if (ci) {
-        tokenValue = System.getenv('publish_token')
-        usernameValue = System.getenv('publish_username')
-        passwordValue = System.getenv('publish_password')
-    } else {
+    if (!ci) {
         apply from: 'publish.gradle'
-        tokenValue = project.publishToken
-        usernameValue = project.publishUsername
-        passwordValue = project.publishPassword
     }
 
-    println('Has token = ' + (tokenValue != null))
-
     publishPlugin {
-        token = tokenValue
-        username = usernameValue
-        password = passwordValue
-        channels = publishChannels()
+        token = getPublishToken(ci, project)
+        username = getPublishUsername(ci, project)
+        password = getPublishPassword(ci, project)
+        channels = publishChannels(ci)
     }    
+}
+
+def static getPublishToken(ci, project) {
+    return ci ? System.getenv('publish_token') : project.publishToken
+}
+
+def static getPublishUsername(ci, project) {
+    return ci ? System.getenv('publish_username') : project.publishUsername
+}
+
+def static getPublishPassword(ci, project) {
+    return ci ? System.getenv('publish_password') : project.publishPassword
 }
 
 jar {
@@ -246,15 +245,19 @@ def static buildTime() {
     return df.format(new Date())
 }
 
-def isStableBuild() {
-    def details = versionDetails()
-    return details.branchName ==~ /(master|\d+-release)/
+def isStableBuild(ci) {
+    if (ci) {
+        return Boolean.valueOf(System.getenv("stable"))
+    } else {
+        def details = versionDetails()
+        return details.branchName ==~ /(master|\d+-release)/
+    }
 }
 
-def buildType() {
-    return isStableBuild() ? "Stable" : "EAP"
+def buildType(ci) {
+    return isStableBuild(ci) ? "Stable" : "EAP"
 }
 
-def publishChannels() {
-    return isStableBuild() ? ['default', 'eap'] : ['eap']
+def publishChannels(ci) {
+    return isStableBuild(ci) ? ['default', 'eap'] : ['eap']
 }
