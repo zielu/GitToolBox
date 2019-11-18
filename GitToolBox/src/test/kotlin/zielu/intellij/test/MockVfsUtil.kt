@@ -10,7 +10,7 @@ internal object MockVfsUtil {
 
   @JvmStatic
   fun createDir(parent: MockVirtualFile, name: String): MockVirtualFile {
-    val dir = createDir(name!!)
+    val dir = createDir(name)
     parent.addChild(dir)
     return dir
   }
@@ -22,7 +22,7 @@ internal object MockVfsUtil {
 
   @JvmStatic
   fun createFile(parent: MockVirtualFile, name: String): MockVirtualFile {
-    val file = createFile(name!!)
+    val file = createFile(name)
     parent.addChild(file)
     return file
   }
