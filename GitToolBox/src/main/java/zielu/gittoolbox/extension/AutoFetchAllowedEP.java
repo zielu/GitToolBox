@@ -14,6 +14,10 @@ public class AutoFetchAllowedEP extends AbstractExtensionPointBean {
   public String provider;
 
   public AutoFetchAllowed instantiate(@NotNull Project project) {
-    return instantiateClass(provider, project.getPicoContainer());
+    try {
+      return instantiate(provider, project.getPicoContainer());
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

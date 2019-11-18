@@ -11,7 +11,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
 import java.util.HashSet;
 import java.util.Map;
@@ -33,7 +32,6 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
     this(new VirtualFileRepoCacheLocalGatewayImpl(project));
   }
 
-  @NonInjectable
   VirtualFileRepoCacheImpl(@NotNull VirtualFileRepoCacheLocalGateway gateway) {
     this.gateway = gateway;
     gateway.rootsCacheSizeGauge(rootsCache::size);

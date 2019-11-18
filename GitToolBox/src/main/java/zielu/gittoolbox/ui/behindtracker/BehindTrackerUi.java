@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.behindtracker;
 
-import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.repo.GtRepository;
@@ -13,5 +12,5 @@ public interface BehindTrackerUi {
 
   StatusMessagesService getStatusMessages();
 
-  GtRepository getGtRepository(@NonInjectable GitRepository repository);
+  GtRepository getGtRepository(GitRepository repository);
 }

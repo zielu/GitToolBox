@@ -3,7 +3,6 @@ package zielu.gittoolbox.cache;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.serviceContainer.NonInjectable;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import git4idea.repo.GitRepository;
 import java.util.ArrayList;
@@ -37,7 +36,6 @@ class CacheTaskScheduler implements Disposable {
     this(new CacheTaskSchedulerLocalGatewayImpl(project));
   }
 
-  @NonInjectable
   CacheTaskScheduler(@NotNull CacheTaskSchedulerLocalGateway gateway) {
     this.gateway = gateway;
     updateExecutor = new MemoizeSupplier<>(this::createExecutor);

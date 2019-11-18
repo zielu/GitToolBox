@@ -116,7 +116,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   @Nullable
   @Override
-  public WidgetPresentation getPresentation() {
+  public WidgetPresentation getPresentation(@NotNull PlatformType type) {
     return this;
   }
 

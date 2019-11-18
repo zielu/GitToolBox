@@ -1,6 +1,6 @@
 package zielu.junit5.intellij.extension.platform;
 
-import static com.intellij.testFramework.HeavyPlatformTestCase.cleanupApplicationCaches;
+import static com.intellij.testFramework.PlatformTestCase.cleanupApplicationCaches;
 
 import com.intellij.idea.IdeaLogger;
 import com.intellij.openapi.module.Module;

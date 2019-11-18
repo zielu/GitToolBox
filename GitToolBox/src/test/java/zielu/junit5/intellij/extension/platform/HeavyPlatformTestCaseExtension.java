@@ -10,7 +10,7 @@ import com.intellij.openapi.util.EmptyRunnable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.EdtTestUtil;
 import com.intellij.testFramework.EdtTestUtilKt;
-import com.intellij.testFramework.HeavyPlatformTestCase;
+import com.intellij.testFramework.PlatformTestCase;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import java.lang.reflect.InvocationTargetException;
@@ -67,7 +67,7 @@ public class HeavyPlatformTestCaseExtension implements BeforeEachCallback, After
     return RESOLVER.resolveParameter(parameterContext, extensionContext);
   }
 
-  private static class HeavyPlatformTestCaseJUnit5 extends HeavyPlatformTestCase implements JUnit5Adapted {
+  private static class HeavyPlatformTestCaseJUnit5 extends PlatformTestCase implements JUnit5Adapted {
     private final TestCaseJUnit5Adapter adapter;
 
     public HeavyPlatformTestCaseJUnit5() {

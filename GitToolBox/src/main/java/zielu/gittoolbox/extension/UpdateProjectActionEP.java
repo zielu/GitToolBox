@@ -13,6 +13,10 @@ public class UpdateProjectActionEP extends AbstractExtensionPointBean {
   public String provider;
 
   public UpdateProjectAction instantiate() {
-    return instantiateClass(provider, ApplicationManager.getApplication().getPicoContainer());
+    try {
+      return instantiate(provider, ApplicationManager.getApplication().getPicoContainer());
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
