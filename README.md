@@ -59,7 +59,7 @@ gradle clean codeCoverage
 ```
 Update gradlew version
 ```
-gradle wrapper --gradle-version 5.6.2 --distribution-type ALL
+gradle wrapper --gradle-version 5.6.4 --distribution-type ALL
 ```
 
 ### Useful run commands
