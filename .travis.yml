@@ -1,6 +1,8 @@
 language: java
 jdk:
-- openjdk8
+  - openjdk8
+git:
+  depth: 2
 before_install: cd GitToolBox
 install: "./gradlew assemble --console plain"
 script: "./gradlew check integrationTest --console plain"
