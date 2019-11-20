@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import zielu.IntegrationTest
 import zielu.gittoolbox.blame.BlameCache
-import zielu.gittoolbox.fetch.AutoFetchGateway
 import zielu.gittoolbox.ui.DatePresenter
 import zielu.gittoolbox.ui.StatusMessagesService
 import zielu.gittoolbox.ui.StatusMessagesUi
@@ -34,11 +33,6 @@ internal class ExtensionsIntegrationTest {
   @Test
   fun shouldReturnStatusMessagesUi() {
     assertThat(StatusMessagesUi.getInstance()).isNotNull
-  }
-
-  @Test
-  fun shouldReturnAutoFetchGateway(project: Project) {
-    assertThat(AutoFetchGateway.getInstance(project)).isNotNull
   }
 
   @Test

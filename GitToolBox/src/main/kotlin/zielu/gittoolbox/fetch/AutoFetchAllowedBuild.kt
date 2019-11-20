@@ -9,9 +9,16 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 internal class AutoFetchAllowedBuild(private val project: Project) : AutoFetchAllowed {
   private val gateway = AutoFetchAllowedLocalGateway(project)
-  private val buildRunning = AtomicBoolean()
+  private val buildNotRunning = AtomicBoolean(true)
+  private val initialized = AtomicBoolean()
 
   override fun initialize() {
+    if (initialized.compareAndSet(false, true)) {
+      connectMessageBus()
+    }
+  }
+
+  private fun connectMessageBus() {
     project.messageBus.connect(project).subscribe(BuildManagerListener.TOPIC, object : BuildManagerListener {
       override fun buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean) {
         onBuildStarted(project)
@@ -26,7 +33,7 @@ internal class AutoFetchAllowedBuild(private val project: Project) : AutoFetchAl
   private fun onBuildStarted(builtProject: Project) {
     log.debug("Build started")
     if (isCurrentProject(builtProject)) {
-      buildRunning.set(true)
+      buildNotRunning.set(false)
     }
   }
 
@@ -37,13 +44,13 @@ internal class AutoFetchAllowedBuild(private val project: Project) : AutoFetchAl
   private fun onBuildFinished(builtProject: Project) {
     log.debug("Build finished")
     if (isCurrentProject(builtProject)) {
-      buildRunning.set(false)
+      buildNotRunning.set(true)
       gateway.fireStateChanged(this)
     }
   }
 
   override fun isAllowed(): Boolean {
-    return buildRunning.get()
+    return buildNotRunning.get()
   }
 
   companion object {
