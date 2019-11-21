@@ -54,7 +54,7 @@ class CurrentBranchCompletionProvider extends CompletionProvider<CompletionParam
 
   private void addCompletion(CompletionResultSet result, Formatter formatter, String branchName, String repoName) {
     Formatted formatted = formatter.format(branchName);
-    if (formatted.isDisplayable()) {
+    if (formatted.getDisplayable()) {
       result.addElement(LookupElementBuilder.create(formatted.getText())
           .withTypeText(repoName, true)
           .withIcon(formatter.getIconHandle().getIcon()));
