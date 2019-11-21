@@ -1,6 +1,6 @@
 GitToolBox - plugin for Jetbrains IDEs
 ======================================
-![Travis (.org) branch](https://img.shields.io/travis/zielu/GitToolBox/193-release?label=193-release)
+![Travis (.org) branch](https://img.shields.io/travis/zielu/GitToolBox/193-develop?label=193-develop)
 
 Plugin for family of Jetbrains IDEs that expands build-in `Git Integration`.
 
