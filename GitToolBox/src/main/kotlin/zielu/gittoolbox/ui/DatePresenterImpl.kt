@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui
 
-import com.intellij.serviceContainer.NonInjectable
 import com.intellij.util.text.SyncDateFormat
 import zielu.gittoolbox.config.DateType
 import zielu.gittoolbox.util.DateFormattingUtil
@@ -9,7 +8,7 @@ import java.time.ZonedDateTime
 import java.util.Date
 
 internal class DatePresenterImpl
-@NonInjectable constructor(private val gateway: DatePresenterLocalGateway) : DatePresenter {
+  constructor(private val gateway: DatePresenterLocalGateway) : DatePresenter {
 
   constructor() : this(DatePresenterLocalGatewayImpl())
 

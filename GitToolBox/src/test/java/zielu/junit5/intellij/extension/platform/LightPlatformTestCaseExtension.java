@@ -67,8 +67,8 @@ public class LightPlatformTestCaseExtension implements BeforeEachCallback, After
     private void initialize(ExtensionContext context) throws Exception {
       adapter.initialize(context);
       ParameterHolder holder = ParameterHolder.getHolder(getStore(context));
-      holder.register(Project.class, this::getProject);
-      holder.register(Module.class, this::getModule);
+      holder.register(Project.class, () -> getProject());
+      holder.register(Module.class, () -> getModule());
     }
 
     private Store getStore(ExtensionContext context) {
