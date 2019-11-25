@@ -10,7 +10,9 @@ internal enum class AuthorNameType(private val labelSupplier: () -> String) {
   FIRSTNAME(ShortNameType.FIRSTNAME::getDescription),
   FULL(ShortNameType.NONE::getDescription),
   EMAIL({ ResBundle.message("author.name.type.email") }),
-  EMAIL_USER({ ResBundle.message("author.name.type.email.user") });
+  EMAIL_USER({ ResBundle.message("author.name.type.email.user") }),
+  HIDDEN({ ResBundle.message("author.name.type.hidden") })
+  ;
 
   @Transient
   fun getDisplayLabel() = labelSupplier.invoke()

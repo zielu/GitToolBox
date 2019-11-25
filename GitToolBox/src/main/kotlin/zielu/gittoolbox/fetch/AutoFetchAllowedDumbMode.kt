@@ -1,40 +1,32 @@
 package zielu.gittoolbox.fetch
 
-import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import org.slf4j.LoggerFactory
 import zielu.gittoolbox.extension.AutoFetchAllowed
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class AutoFetchAllowedDumbMode(private val project: Project) : AutoFetchAllowed {
-  private val dumbMode = AtomicBoolean()
   private val gateway = AutoFetchAllowedLocalGateway(project)
+  private val subscriber = AutoFetchAllowedDumbModeSubscriber(project)
+  private val inDumbMode = AtomicBoolean()
 
   override fun initialize() {
-    project.messageBus.connect(project).subscribe(DumbService.DUMB_MODE, object : DumbService.DumbModeListener {
-      override fun enteredDumbMode() {
-        enterDumbMode()
-      }
-
-      override fun exitDumbMode() {
-        leaveDumbMode(project)
-      }
-    })
+    subscriber.subscribe(this::enterDumbMode, this::leaveDumbMode)
   }
 
   private fun enterDumbMode() {
     log.debug("Entered dumb mode")
-    dumbMode.set(true)
+    inDumbMode.set(true)
   }
 
-  private fun leaveDumbMode(project: Project) {
+  private fun leaveDumbMode() {
     log.debug("Exited dumb mode")
-    dumbMode.set(false)
+    inDumbMode.set(false)
     gateway.fireStateChanged(this)
   }
 
   override fun isAllowed(): Boolean {
-    return !dumbMode.get()
+    return !inDumbMode.get()
   }
 
   companion object {

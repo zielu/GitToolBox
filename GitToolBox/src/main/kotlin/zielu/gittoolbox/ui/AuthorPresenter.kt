@@ -12,5 +12,6 @@ internal object AuthorPresenter {
     AuthorNameType.FULL -> ShortNameType.shorten(author, ShortNameType.NONE)
     AuthorNameType.EMAIL -> authorEmail
     AuthorNameType.EMAIL_USER -> authorEmail?.substringBefore('@')
+    AuthorNameType.HIDDEN -> ""
   }
 }
