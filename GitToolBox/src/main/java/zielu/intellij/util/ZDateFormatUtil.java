@@ -20,6 +20,7 @@ public class ZDateFormatUtil {
     //do nothing
   }
 
+  @NotNull
   public static String formatPrettyDateTime(@NotNull ZonedDateTime date, @NotNull ZonedDateTime now,
                                             @NotNull SyncDateFormat dateFormat) {
     if (now.compareTo(date) < 0) {

@@ -12,7 +12,8 @@ internal class AuthorPresenterTest {
     "INITIALS,Jon Snow,jon.snow@the.wall,JS",
     "LASTNAME,Jon Snow,jon.snow@the.wall,Snow",
     "FIRSTNAME,Jon Snow,jon.snow@the.wall,Jon",
-    "FULL,Jon Snow,jon.snow@the.wall,Jon Snow"
+    "FULL,Jon Snow,jon.snow@the.wall,Jon Snow",
+    "HIDDEN,Jon Snow,jon.snow@the.wall,''"
   )
   fun shouldReturnExpectedValueWhenSpaceInside(
     type: AuthorNameType,
@@ -33,7 +34,8 @@ internal class AuthorPresenterTest {
     "EMAIL,JonSnow,jon.snow@the.wall,jon.snow@the.wall",
     "EMAIL,JonSnow,,",
     "EMAIL_USER,JonSnow,jon.snow@the.wall,jon.snow",
-    "EMAIL_USER,JonSnow,jon.snow.at.the.wall,jon.snow.at.the.wall"
+    "EMAIL_USER,JonSnow,jon.snow.at.the.wall,jon.snow.at.the.wall",
+    "HIDDEN,JonSnow,jon.snow@the.wall,''"
   )
   fun shouldReturnExpectedValueWhenNoSpaceInside(
     type: AuthorNameType,
