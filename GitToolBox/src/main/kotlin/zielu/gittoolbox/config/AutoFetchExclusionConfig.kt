@@ -2,7 +2,7 @@ package zielu.gittoolbox.config
 
 import com.intellij.util.xmlb.annotations.Transient
 
-data class AutoFetchExclusionConfig(
+internal data class AutoFetchExclusionConfig(
   var repositoryRootPath: String = "",
   var excludedRemotes: MutableList<RemoteConfig> = ArrayList()
 ) {

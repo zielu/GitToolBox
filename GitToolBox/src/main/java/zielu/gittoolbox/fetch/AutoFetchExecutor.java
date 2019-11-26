@@ -3,6 +3,8 @@ package zielu.gittoolbox.fetch;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.ControlFlowException;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import git4idea.repo.GitRepository;
 import java.time.Duration;
 import java.util.LinkedList;
@@ -15,6 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.Metrics;
+import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.util.AppUtil;
 
 class AutoFetchExecutor implements Disposable {
   private final Logger log = Logger.getInstance(getClass());
@@ -26,17 +30,21 @@ class AutoFetchExecutor implements Disposable {
   private final List<ScheduledFuture<?>> scheduledRepoTasks = new LinkedList<>();
   private final AtomicInteger scheduledCyclicTasksCount = new AtomicInteger();
   private final AtomicInteger scheduledRepoTasksCount = new AtomicInteger();
-  private final AutoFetchGateway gateway;
-  private final AutoFetchSchedule schedule;
   private final Semaphore autoFetchLock = new Semaphore(1);
 
-  AutoFetchExecutor(@NotNull AutoFetchGateway gateway, @NotNull AutoFetchSchedule schedule) {
-    this.gateway = gateway;
-    this.schedule = schedule;
-    Metrics metrics = gateway.metrics();
+  private final Project project;
+
+  AutoFetchExecutor(@NotNull Project project) {
+    this.project = project;
+    Metrics metrics = ProjectMetrics.getInstance(project);
     metrics.gauge("auto-fetch.cyclic-tasks-size", scheduledCyclicTasksCount::get);
     metrics.gauge("auto-fetch.repo-tasks-size", scheduledRepoTasksCount::get);
-    gateway.disposeWithProject(this);
+    Disposer.register(project, this);
+  }
+
+  @NotNull
+  static AutoFetchExecutor getInstance(@NotNull Project project) {
+    return AppUtil.getServiceInstance(project, AutoFetchExecutor.class);
   }
 
   @Override
@@ -58,9 +66,7 @@ class AutoFetchExecutor implements Disposable {
   }
 
   private void trySchedulingNextTask() {
-    if (active.get() && autoFetchEnabled.get()) {
-      scheduleTask(schedule.getInterval());
-    }
+    scheduleTask(AutoFetchSchedule.getInstance(project).getInterval());
   }
 
   void scheduleTask(@NotNull Duration delay) {
@@ -96,8 +102,9 @@ class AutoFetchExecutor implements Disposable {
 
   private synchronized void trySchedulingTask(Duration delay) {
     if (cleanAndCheckTasks(scheduledCyclicTasks, scheduledCyclicTasksCount)) {
-      ScheduledFuture<?> scheduled = submitTaskToExecutor(delay,
-          new AutoFetchTask(gateway.project(), this, schedule));
+      ScheduledFuture<?> scheduled = AutoFetchGateway.getInstance(project)
+                                         .scheduleAutoFetch(delay, (project, schedule) ->
+                                      new AutoFetchTask(project, AutoFetchExecutor.this, schedule));
       scheduledCyclicTasks.add(scheduled);
       scheduledCyclicTasksCount.set(scheduledCyclicTasks.size());
     } else {
@@ -107,18 +114,14 @@ class AutoFetchExecutor implements Disposable {
 
   private synchronized void trySchedulingTask(Duration delay, GitRepository repository) {
     if (cleanAndCheckTasks(scheduledRepoTasks, scheduledRepoTasksCount)) {
-      ScheduledFuture<?> scheduled = submitTaskToExecutor(delay,
-          new AutoFetchTask(gateway.project(), this, schedule, repository));
+      ScheduledFuture<?> scheduled = AutoFetchGateway.getInstance(project)
+                                         .scheduleAutoFetch(delay, (project, schedule) ->
+                                      new AutoFetchTask(project, AutoFetchExecutor.this, schedule, repository));
       scheduledRepoTasks.add(scheduled);
       scheduledRepoTasksCount.set(scheduledRepoTasks.size());
     } else {
       log.debug("Tasks already scheduled (in repo auto-fetch)");
     }
-  }
-
-  private ScheduledFuture submitTaskToExecutor(Duration delay, Runnable task) {
-    log.debug("Scheduling auto-fetch in ", delay);
-    return gateway.schedule(task, delay);
   }
 
   void runIfActive(@NotNull Runnable task) {

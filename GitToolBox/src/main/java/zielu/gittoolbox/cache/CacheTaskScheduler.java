@@ -1,10 +1,8 @@
 package zielu.gittoolbox.cache;
 
-import com.codahale.metrics.Counter;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import git4idea.repo.GitRepository;
 import java.util.ArrayList;
@@ -17,33 +15,40 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.gittoolbox.util.AppUtil;
+import zielu.gittoolbox.util.MemoizeSupplier;
 
 class CacheTaskScheduler implements Disposable {
   private static final long TASK_DELAY_MILLIS = 170;
 
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean(true);
-  private final Project project;
   private final Map<GitRepository, Collection<CacheTask>> scheduledRepositories = new ConcurrentHashMap<>();
-  private final Counter statusQueueSize;
-  private final Counter discardedTasksCount;
-  private ScheduledExecutorService updateExecutor;
+  private final CacheTaskSchedulerLocalGateway gateway;
+  private Supplier<ScheduledExecutorService> updateExecutor;
   private long taskDelayMillis = TASK_DELAY_MILLIS;
 
-  CacheTaskScheduler(@NotNull Project project, @NotNull ProjectMetrics metrics) {
-    this.project = project;
-    updateExecutor = createExecutor();
-    statusQueueSize = metrics.counter("info-cache-queue-size");
-    discardedTasksCount = metrics.counter("info-cache-discarded-updates");
-    Disposer.register(project, this);
+  CacheTaskScheduler(@NotNull Project project) {
+    this(new CacheTaskSchedulerLocalGatewayImpl(project));
+  }
+
+  CacheTaskScheduler(@NotNull CacheTaskSchedulerLocalGateway gateway) {
+    this.gateway = gateway;
+    updateExecutor = new MemoizeSupplier<>(this::createExecutor);
+    gateway.disposeWithProject(this);
   }
 
   private ScheduledExecutorService createExecutor() {
     return AppExecutorUtil.createBoundedScheduledExecutorService("GtCache", 1);
+  }
+
+  @NotNull
+  static CacheTaskScheduler getInstance(@NotNull Project project) {
+    return AppUtil.getServiceInstance(project, CacheTaskScheduler.class);
   }
 
   void setTaskDelayMillis(long delayMillis) {
@@ -64,7 +69,7 @@ class CacheTaskScheduler implements Disposable {
       if (taskToSubmit != null) {
         submitForExecution(taskToSubmit);
       } else {
-        discardedTasksCount.inc();
+        gateway.discardedTasksCounterInc();
         task.discarded();
         log.debug("Tasks for ", repository, " already scheduled");
       }
@@ -95,8 +100,8 @@ class CacheTaskScheduler implements Disposable {
   }
 
   private void submitForExecution(CacheTask task) {
-    updateExecutor.schedule(task, taskDelayMillis, TimeUnit.MILLISECONDS);
-    statusQueueSize.inc();
+    updateExecutor.get().schedule(task, taskDelayMillis, TimeUnit.MILLISECONDS);
+    gateway.queueSizeCounterInc();
     log.debug("Scheduled: ", task);
   }
 
@@ -117,7 +122,7 @@ class CacheTaskScheduler implements Disposable {
     @Override
     public void run() {
       if (scheduledRepositories.getOrDefault(repository, Collections.emptySet()).remove(this)) {
-        statusQueueSize.dec();
+        gateway.queueSizeCounterDec();
       }
       if (taskActive.get() && active.get()) {
         task.run(repository);

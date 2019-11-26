@@ -31,7 +31,7 @@ class BlameAnnotationImpl implements BlameAnnotation {
   public RevisionInfo getBlame(int lineIndex) {
     VcsRevisionNumber revisionNumber = getLineRevisionNumber(lineIndex);
     if (VcsRevisionNumber.NULL.equals(revisionNumber)) {
-      return RevisionInfo.EMPTY;
+      return RevisionInfo.NULL;
     } else {
       RevisionInfo revisionInfo = revisions.get(revisionNumber);
       if (revisionInfo == null) {

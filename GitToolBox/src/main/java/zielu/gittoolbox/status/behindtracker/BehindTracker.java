@@ -17,11 +17,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.repo.GtRepository;
 import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi;
 import zielu.gittoolbox.util.AppUtil;
-import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
 class BehindTracker implements ProjectComponent {
@@ -104,7 +104,7 @@ class BehindTracker implements ProjectComponent {
   private StringBand formatMessage(@NotNull BehindMessage message, @NotNull ChangeType changeType) {
     return new StringBand(GitUIUtil.bold(changeType.title()))
         .append(" (").append(Html.link("update", ResBundle.message("update.project")))
-        .append(")").append(Html.BR).append(message.text);
+        .append(")").append(Html.BRX).append(message.text);
   }
 
   void onStateChange(@NotNull GitRepository repository, @NotNull RepoInfo info) {
@@ -116,7 +116,8 @@ class BehindTracker implements ProjectComponent {
   private void onStateChangeUnsafe(@NotNull GitRepository repository, @NotNull RepoInfo info) {
     RepoInfo previousInfo = state.put(repository, info);
     if (log.isDebugEnabled()) {
-      log.debug("Info update [", GtUtil.name(repository), "]: ", previousInfo, " > ", info);
+      GtRepository repo = ui.getGtRepository(repository);
+      log.debug("Info update [", repo.getName(), "]: ", previousInfo, " > ", info);
     }
     ChangeType changeType = detectChangeType(previousInfo, info);
     if (changeType == ChangeType.FETCHED) {

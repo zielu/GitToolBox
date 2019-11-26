@@ -1,11 +1,16 @@
 package zielu.gittoolbox.ui.behindtracker;
 
-import zielu.gittoolbox.ui.StatusMessages;
+import git4idea.repo.GitRepository;
+import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.repo.GtRepository;
+import zielu.gittoolbox.ui.StatusMessagesService;
 
 public interface BehindTrackerUi {
-  void displaySuccessNotification(String message);
+  void displaySuccessNotification(@NotNull String message);
 
   boolean isNotificationEnabled();
 
-  StatusMessages getStatusMessages();
+  StatusMessagesService getStatusMessages();
+
+  GtRepository getGtRepository(GitRepository repository);
 }

@@ -5,7 +5,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ListPopup;
-import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.Conditions;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
@@ -32,7 +32,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     StatusBarWidget.Multiframe, StatusBarWidget.MultipleTextValuesPresentation {
 
   private static final String ID = GitStatusWidget.class.getName();
-  private final AtomicBoolean opened = new AtomicBoolean();
+  private final AtomicBoolean connected = new AtomicBoolean();
   private final StatusToolTip toolTip;
   private final RootActions rootActions;
   private String text = "";
@@ -42,27 +42,6 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     super(project);
     toolTip = new StatusToolTip(project);
     rootActions = new RootActions(project);
-    myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
-      @Override
-      public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
-        if (isActive()) {
-          onCacheChange(project, info, repository);
-        }
-      }
-    });
-    myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
-      @Override
-      public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
-        if (isActive()) {
-          runUpdateLater(project);
-        }
-      }
-    });
-    myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> {
-      if (isActive()) {
-        AppUiUtil.invokeLaterIfNeeded(project, this::updateStatusBar);
-      }
-    });
   }
 
   public static GitStatusWidget create(@NotNull Project project) {
@@ -92,7 +71,36 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Override
   public void setVisible(boolean visible) {
     this.visible = visible;
-    Optional.ofNullable(myProject).ifPresent(this::runUpdateLater);
+    if (visible) {
+      if (connected.compareAndSet(false, true)) {
+        connect();
+      }
+    }
+    runUpdateLater(myProject);
+  }
+
+  private void connect() {
+    myConnection.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+      @Override
+      public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
+        if (isActive()) {
+          onCacheChange(myProject, info, repository);
+        }
+      }
+    });
+    myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
+      @Override
+      public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
+        if (isActive()) {
+          runUpdateLater(myProject);
+        }
+      }
+    });
+    myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> {
+      if (isActive()) {
+        AppUiUtil.invokeLaterIfNeeded(myProject, this::updateStatusBar);
+      }
+    });
   }
 
   @Override
@@ -108,7 +116,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   @Nullable
   @Override
-  public WidgetPresentation getPresentation(@NotNull PlatformType platformType) {
+  public WidgetPresentation getPresentation(@NotNull PlatformType type) {
     return this;
   }
 
@@ -117,7 +125,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   public ListPopup getPopupStep() {
     if (rootActions.update()) {
       String title = ResBundle.message("statusBar.status.menu.title");
-      return new StatusActionGroupPopup(title, rootActions, myProject, Condition.TRUE);
+      return new StatusActionGroupPopup(title, rootActions, myProject, Conditions.alwaysTrue());
     } else {
       return null;
     }
@@ -129,16 +137,16 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     return text;
   }
 
-  @NotNull
-  @Override
-  public String getMaxValue() {
-    return "";
-  }
-
   @Nullable
   @Override
   public String getTooltipText() {
     return toolTip.getText();
+  }
+
+
+  @Override
+  public void closed() {
+    dispose();
   }
 
   @Override
@@ -197,7 +205,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void update(@Nullable GitRepository repository, RepoInfo repoInfo) {
-    if (visible) {
+    if (isActive()) {
       if (repository != null) {
         updateData(repository, repoInfo);
       } else {
@@ -209,20 +217,12 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private boolean isActive() {
-    return !isDisposed() && opened.get() && visible;
+    return !isDisposed() && visible;
   }
 
   @Nullable
   @Override
   public Consumer<MouseEvent> getClickConsumer() {
     return null;
-  }
-
-  public void opened() {
-    opened.compareAndSet(false, true);
-  }
-
-  public void closed() {
-    opened.compareAndSet(true, false);
   }
 }

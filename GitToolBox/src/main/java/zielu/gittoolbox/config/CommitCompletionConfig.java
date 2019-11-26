@@ -39,7 +39,7 @@ public class CommitCompletionConfig {
   @Transient
   public Formatter createFormatter() {
     if (type == CommitCompletionType.SIMPLE) {
-      return SimpleFormatter.instance;
+      return SimpleFormatter.INSTANCE;
     } else if (type == CommitCompletionType.PATTERN) {
       return RegExpFormatter.create(pattern);
     } else {

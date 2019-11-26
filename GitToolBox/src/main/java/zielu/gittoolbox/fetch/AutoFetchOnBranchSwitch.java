@@ -12,26 +12,25 @@ import zielu.gittoolbox.util.AppUtil;
 
 class AutoFetchOnBranchSwitch {
   private final Logger log = Logger.getInstance(getClass());
-  private final AutoFetchSchedule schedule;
-  private final AutoFetchExecutor executor;
+  private final Project project;
 
-  AutoFetchOnBranchSwitch(@NotNull AutoFetchSchedule schedule, @NotNull AutoFetchExecutor executor) {
-    this.schedule = schedule;
-    this.executor = executor;
+  AutoFetchOnBranchSwitch(@NotNull Project project) {
+    this.project = project;
   }
 
   void onBranchSwitch(@NotNull RepoInfo current, @NotNull GitRepository repository) {
     if (current.status().isTrackingRemote()) {
-      Duration delay = schedule.calculateTaskDelayOnBranchSwitch(repository);
+      Duration delay = AutoFetchSchedule.getInstance(project).calculateTaskDelayOnBranchSwitch(repository);
       log.info("Auto-fetch delay on branch switch is " + delay);
       if (!delay.isZero()) {
-        executor.scheduleTask(delay, repository);
+        AutoFetchExecutor.getInstance(project).scheduleTask(delay, repository);
       }
     }
   }
 
+  //TODO: this seems misplaced
   void onRepositoriesRemoved(@NotNull Collection<GitRepository> repositories) {
-    schedule.repositoriesRemoved(repositories);
+    AutoFetchSchedule.getInstance(project).repositoriesRemoved(repositories);
   }
 
   @NotNull

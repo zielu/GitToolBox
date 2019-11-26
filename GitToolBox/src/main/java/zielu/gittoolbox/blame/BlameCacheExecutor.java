@@ -5,6 +5,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.util.AppUtil;
 import zielu.gittoolbox.util.ExecutableTask;
 
 class BlameCacheExecutor {
@@ -14,6 +15,11 @@ class BlameCacheExecutor {
   BlameCacheExecutor(@NotNull Project project) {
     this.project = project;
     execution = this::executeWithProgress;
+  }
+
+  @NotNull
+  static BlameCacheExecutor getInstance(@NotNull Project project) {
+    return AppUtil.getServiceInstance(project, BlameCacheExecutor.class);
   }
 
   void execute(ExecutableTask executable) {

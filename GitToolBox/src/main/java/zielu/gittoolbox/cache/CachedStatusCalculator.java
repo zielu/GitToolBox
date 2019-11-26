@@ -5,6 +5,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.vcs.log.Hash;
 import git4idea.repo.GitRepository;
 import java.util.List;
+import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.metrics.Metrics;
@@ -12,13 +13,14 @@ import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.tag.GitTagCalculator;
 import zielu.gittoolbox.util.GtUtil;
+import zielu.gittoolbox.util.MemoizeSupplier;
 
 class CachedStatusCalculator {
   private final Logger log = Logger.getInstance(getClass());
-  private final Metrics metrics;
+  private final Supplier<Metrics> metrics;
 
-  CachedStatusCalculator(Metrics metrics) {
-    this.metrics = metrics;
+  CachedStatusCalculator(Supplier<Metrics> metrics) {
+    this.metrics = new MemoizeSupplier<>(metrics);
   }
 
   public RepoInfo update(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
@@ -28,14 +30,14 @@ class CachedStatusCalculator {
 
   private RepoInfo updateStatus(@NotNull GitRepository repo, @NotNull GitStatusCalculator calculator,
                             RepoStatus status) {
-    Timer statusUpdateTimer = metrics.timer("status-update");
+    Timer statusUpdateTimer = metrics.get().timer("status-update");
     GitAheadBehindCount count = statusUpdateTimer
         .timeSupplier(() -> calculator.aheadBehindStatus(repo, status.localHash(), status.parentHash()));
     log.debug("Calculated status [", GtUtil.name(repo), "]: ", count);
     if (!status.sameHashes(count)) {
       log.warn("Hash mismatch between count and status: " + count + " <> " + status);
     }
-    Timer tagsUpdateTimer = metrics.timer("tags-update");
+    Timer tagsUpdateTimer = metrics.get().timer("tags-update");
     List<String> tags = tagsUpdateTimer.timeSupplier(() -> calculateTags(repo, status.localHash()));
     return RepoInfo.create(status, count, tags);
   }

@@ -11,7 +11,7 @@ import zielu.gittoolbox.formatter.Formatter
 import zielu.gittoolbox.util.AppUtil
 
 @State(name = "GitToolBoxProjectSettings", storages = [Storage("git_toolbox_prj.xml")])
-data class GitToolBoxConfigPrj(
+internal data class GitToolBoxConfigPrj(
   var autoFetch: Boolean = true,
   var autoFetchIntervalMinutes: Int = AutoFetchParams.DEFAULT_INTERVAL_MINUTES,
   @Deprecated("Since 192.3.1") var autoFetchExclusions: List<String> = ArrayList(),
