@@ -6,6 +6,7 @@ import static zielu.gittoolbox.status.Status.NO_REMOTE;
 import static zielu.gittoolbox.status.Status.SUCCESS;
 
 import com.google.common.collect.Iterables;
+import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.EnumMap;
@@ -24,6 +25,7 @@ public class StatusMessagesService {
   private final EnumMap<Status, String> commonStatuses = new EnumMap<>(Status.class);
   private final StatusMessagesServiceLocalGateway gateway;
 
+  @NonInjectable
   public StatusMessagesService(StatusMessagesServiceLocalGateway gateway) {
     commonStatuses.put(CANCEL, ResBundle.message("message.cancelled"));
     commonStatuses.put(FAILURE, ResBundle.message("message.failure"));

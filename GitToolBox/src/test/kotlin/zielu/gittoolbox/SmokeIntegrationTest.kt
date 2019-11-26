@@ -14,7 +14,7 @@ import zielu.junit5.intellij.extension.platform.BasePlatformTestCaseExtension
 
 @IntegrationTest
 @ExtendWith(BasePlatformTestCaseExtension::class)
-internal class ExtensionsIntegrationTest {
+internal class SmokeIntegrationTest {
   @Test
   fun shouldReturnStatusMessagesService() {
     assertThat(StatusMessagesService.getInstance()).isNotNull
