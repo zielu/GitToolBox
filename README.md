@@ -1,6 +1,6 @@
 GitToolBox - plugin for Jetbrains IDEs
 ======================================
-[![Build Status](https://travis-ci.org/zielu/GitToolBox.svg?branch=master)](https://travis-ci.org/zielu/GitToolBox)
+[![Build Status](https://travis-ci.org/zielu/GitToolBox.svg?branch=develop)](https://travis-ci.org/zielu/GitToolBox)
 
 Plugin for family of Jetbrains IDEs that expands build-in `Git Integration`.
 
@@ -18,7 +18,7 @@ Add https://plugins.jetbrains.com/plugins/eap/7499 in **Settings > Plugins > Bro
 repositories...** to receive early access builds.
 
 ## Architecture decisions record
-Decisions are stored [here](./GitToolBox/doc/arch).
+Decisions are stored [here](https://github.com/zielu/GitToolBox/wiki/arch).
 
 ## Building & running
 
