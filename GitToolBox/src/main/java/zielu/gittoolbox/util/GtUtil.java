@@ -29,6 +29,7 @@ public final class GtUtil {
     throw new IllegalStateException();
   }
 
+  @NotNull
   public static String name(@NotNull GitRepository repository) {
     return DvcsUtil.getShortRepositoryName(repository);
   }
@@ -38,7 +39,8 @@ public final class GtUtil {
     return repository.getVcs();
   }
 
-  public static Hash hash(String hash) {
+  @NotNull
+  public static Hash hash(@NotNull String hash) {
     return HashImpl.build(hash);
   }
 
@@ -46,7 +48,8 @@ public final class GtUtil {
     return !repository.getRemotes().isEmpty();
   }
 
-  public static List<GitRepository> sort(Collection<GitRepository> repositories) {
+  @NotNull
+  public static List<GitRepository> sort(@NotNull Collection<GitRepository> repositories) {
     return DvcsUtil.sortRepositories(new ArrayList<>(repositories));
   }
 
@@ -58,7 +61,9 @@ public final class GtUtil {
         .getRecentRootPath());
   }
 
-  public static List<GitRepository> getRepositoriesForRoots(@NotNull Project project, Collection<String> roots) {
+  @NotNull
+  public static List<GitRepository> getRepositoriesForRoots(@NotNull Project project,
+                                                            @NotNull Collection<String> roots) {
     GitRepositoryManager manager = GitRepositoryManager.getInstance(project);
     VirtualFileManager vfManager = VirtualFileManager.getInstance();
     return roots.stream()

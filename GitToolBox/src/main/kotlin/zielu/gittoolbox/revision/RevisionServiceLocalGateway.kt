@@ -1,5 +1,6 @@
 package zielu.gittoolbox.revision
 
+import com.codahale.metrics.Gauge
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
@@ -42,5 +43,9 @@ internal class RevisionServiceLocalGateway(private val project: Project) : Local
       }
     }
     return null
+  }
+
+  fun registerMessagesSizeGauge(gauge: Gauge<Long>) {
+    getMetrics().gauge("commitMessageCache.size", gauge)
   }
 }

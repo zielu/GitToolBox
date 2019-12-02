@@ -11,7 +11,6 @@ import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.metrics.Metrics;
 
 class RevisionServiceImpl implements RevisionService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
@@ -25,8 +24,7 @@ class RevisionServiceImpl implements RevisionService, Disposable {
   RevisionServiceImpl(@NotNull Project project) {
     this.project = project;
     gateway = new RevisionServiceLocalGateway(project);
-    Metrics metrics = gateway.getMetrics();
-    metrics.gauge("commitMessageCache.size", commitMessageCache::size);
+    gateway.registerMessagesSizeGauge(commitMessageCache::size);
     gateway.disposeWithProject(this);
   }
 

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import zielu.IntegrationTest
 import zielu.gittoolbox.blame.BlameCache
+import zielu.gittoolbox.revision.RevisionService
 import zielu.gittoolbox.ui.DatePresenter
 import zielu.gittoolbox.ui.StatusMessagesService
 import zielu.gittoolbox.ui.StatusMessagesUi
@@ -44,5 +45,10 @@ internal class SmokeIntegrationTest {
   @Test
   fun `should return ProjectUpdateAction service`() {
     assertThat(UpdateProjectActionService.getInstance()).isNotNull
+  }
+
+  @Test
+  fun `should return RevisionService`(project: Project) {
+    assertThat(RevisionService.getInstance(project)).isNotNull
   }
 }
