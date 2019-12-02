@@ -37,7 +37,6 @@ import javax.swing.event.ListDataEvent;
 import jodd.util.StringBand;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.config.AbsoluteDateTimeStyle;
 import zielu.gittoolbox.config.AuthorNameType;
 import zielu.gittoolbox.config.CommitCompletionMode;
@@ -48,6 +47,7 @@ import zielu.gittoolbox.extension.UpdateProjectAction;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.config.AbsoluteDateTimeStyleRenderer;
+import zielu.gittoolbox.ui.update.UpdateProjectActionService;
 import zielu.gittoolbox.ui.util.ListDataAnyChangeAdapter;
 import zielu.intellij.ui.GtFormUi;
 
@@ -248,7 +248,7 @@ public class GtForm implements GtFormUi {
 
   @NotNull
   private ComboBoxModel<UpdateProjectAction> getUpdateModeModel() {
-    return new DefaultComboBoxModel<>(new Vector<>(GitToolBoxUpdateProjectApp.getInstance().getAll()));
+    return new DefaultComboBoxModel<>(new Vector<>(UpdateProjectActionService.getInstance().getAll()));
   }
 
   @Override

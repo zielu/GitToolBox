@@ -10,8 +10,8 @@ import java.awt.event.InputEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.concurrency.Promise;
-import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.ui.update.UpdateProjectActionService;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 
 public class UpdateProject {
@@ -48,7 +48,7 @@ public class UpdateProject {
 
   private AnAction getAction() {
     String actionId = GitToolBoxConfig2.getInstance().getUpdateProjectActionId();
-    return GitToolBoxUpdateProjectApp.getInstance().getById(actionId).getAction();
+    return UpdateProjectActionService.getInstance().getById(actionId).getAction();
   }
 
   private Promise<AnActionEvent> synthesiseEvent(@NotNull AnAction action, @Nullable InputEvent inputEvent) {

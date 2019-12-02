@@ -13,6 +13,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import jodd.util.StringBand;
+import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.status.GitAheadBehindCount;
@@ -37,6 +38,7 @@ public class StatusMessagesService {
     this(new StatusMessagesServiceLocalGatewayImpl());
   }
 
+  @NotNull
   public static StatusMessagesService getInstance() {
     return AppUtil.getServiceInstance(StatusMessagesService.class);
   }
@@ -53,6 +55,7 @@ public class StatusMessagesService {
     }
   }
 
+  @NotNull
   public String aheadBehindStatus(GitAheadBehindCount count) {
     if (SUCCESS == count.status()) {
       if (count.isNotZero()) {

@@ -5,10 +5,10 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import zielu.gittoolbox.GitToolBoxUpdateProjectApp;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.help.HelpKey;
+import zielu.gittoolbox.ui.update.UpdateProjectActionService;
 import zielu.intellij.ui.GtConfigurableBase;
 
 public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2>
@@ -44,7 +44,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     form.setShowGitStatus(config.showStatusWidget);
     form.setShowProjectViewStatus(config.showProjectViewStatus);
     form.setBehindTrackerEnabled(config.behindTracker);
-    form.setUpdateProjectAction(GitToolBoxUpdateProjectApp.getInstance().getById(config.getUpdateProjectActionId()));
+    form.setUpdateProjectAction(UpdateProjectActionService.getInstance().getById(config.getUpdateProjectActionId()));
     form.setDecorationParts(config.decorationParts);
     form.setShowStatusBlame(config.showBlameWidget);
     form.setShowEditorInlineBlame(config.showEditorInlineBlame);

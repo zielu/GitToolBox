@@ -1,14 +1,12 @@
 package zielu.gittoolbox.extension;
 
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.extensions.AbstractExtensionPointBean;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.Attribute;
 import org.jetbrains.annotations.NotNull;
+import zielu.intellij.extensions.ZAbstractExtensionPointBean;
 
-public class AutoFetchAllowedEP extends AbstractExtensionPointBean {
-  private static final Logger LOG = Logger.getInstance(AutoFetchAllowedEP.class);
+public class AutoFetchAllowedEP extends ZAbstractExtensionPointBean {
   public static final ExtensionPointName<AutoFetchAllowedEP>
       POINT_NAME = ExtensionPointName.create("zielu.gittoolbox.autoFetchAllowed");
 
@@ -16,12 +14,6 @@ public class AutoFetchAllowedEP extends AbstractExtensionPointBean {
   public String provider;
 
   public AutoFetchAllowed instantiate(@NotNull Project project) {
-    try {
-      AutoFetchAllowed extension = instantiate(provider, project.getPicoContainer());
-      LOG.info("Extension created " + provider);
-      return extension;
-    } catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    return createInstance(provider, project);
   }
 }

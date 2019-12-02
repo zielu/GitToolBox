@@ -1,7 +1,6 @@
 package zielu.gittoolbox.util;
 
 import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.LocalFilePath;
@@ -57,10 +56,6 @@ public final class GtUtil {
     GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
     return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, GitVcsSettings.getInstance(project)
         .getRecentRootPath());
-  }
-
-  public static boolean isNotDumb(Project project) {
-    return !DumbService.isDumb(project);
   }
 
   public static List<GitRepository> getRepositoriesForRoots(@NotNull Project project, Collection<String> roots) {
