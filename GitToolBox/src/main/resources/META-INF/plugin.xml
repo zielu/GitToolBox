@@ -174,11 +174,11 @@
   </actions>
 
   <extensionPoints>
-    <extensionPoint name="autoFetchAllowed" beanClass="zielu.gittoolbox.extension.AutoFetchAllowedEP">
-      <with attribute="provider" implements="zielu.gittoolbox.extension.AutoFetchAllowed" />
+    <extensionPoint name="autoFetchAllowed" beanClass="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedEP">
+      <with attribute="provider" implements="zielu.gittoolbox.extension.autofetch.AutoFetchAllowed" />
     </extensionPoint>
-    <extensionPoint name="updateProjectAction" beanClass="zielu.gittoolbox.extension.UpdateProjectActionEP">
-      <with attribute="provider" implements="zielu.gittoolbox.extension.UpdateProjectAction" />
+    <extensionPoint name="updateProjectAction" beanClass="zielu.gittoolbox.extension.update.UpdateProjectActionEP">
+      <with attribute="provider" implements="zielu.gittoolbox.extension.update.UpdateProjectAction" />
     </extensionPoint>
   </extensionPoints>
 

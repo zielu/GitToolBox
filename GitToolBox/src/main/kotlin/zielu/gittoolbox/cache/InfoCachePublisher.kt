@@ -27,7 +27,7 @@ internal class InfoCachePublisher(private val project: Project) {
     ApplicationManager.getApplication().executeOnPooledThread(DisposeSafeRunnable(project, task))
   }
 
-  companion object {
+  private companion object {
     private val log = Logger.getInstance(InfoCachePublisher::class.java)
   }
 }

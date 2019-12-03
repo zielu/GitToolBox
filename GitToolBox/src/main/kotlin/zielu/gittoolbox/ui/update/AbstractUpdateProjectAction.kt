@@ -2,7 +2,7 @@ package zielu.gittoolbox.ui.update
 
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
-import zielu.gittoolbox.extension.UpdateProjectAction
+import zielu.gittoolbox.extension.update.UpdateProjectAction
 
 internal abstract class AbstractUpdateProjectAction(
   private val id: String,

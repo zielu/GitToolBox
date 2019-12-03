@@ -2,7 +2,7 @@ package zielu.gittoolbox.fetch
 
 import com.intellij.openapi.project.Project
 import org.slf4j.LoggerFactory
-import zielu.gittoolbox.extension.AutoFetchAllowed
+import zielu.gittoolbox.extension.autofetch.AutoFetchAllowed
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class AutoFetchAllowedDumbMode(private val project: Project) : AutoFetchAllowed {

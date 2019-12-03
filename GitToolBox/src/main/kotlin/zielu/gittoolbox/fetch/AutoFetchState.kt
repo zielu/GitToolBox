@@ -2,8 +2,10 @@ package zielu.gittoolbox.fetch
 
 import com.intellij.openapi.components.BaseComponent
 import com.intellij.openapi.project.Project
-import zielu.gittoolbox.extension.AutoFetchAllowed
-import zielu.gittoolbox.extension.AutoFetchAllowedExtension
+import zielu.gittoolbox.extension.autofetch.AUTO_FETCH_ALLOWED_TOPIC
+import zielu.gittoolbox.extension.autofetch.AutoFetchAllowed
+import zielu.gittoolbox.extension.autofetch.AutoFetchAllowedExtension
+import zielu.gittoolbox.extension.autofetch.AutoFetchAllowedNotifier
 import zielu.gittoolbox.util.AppUtil
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -13,7 +15,11 @@ internal class AutoFetchState(private val project: Project) : BaseComponent {
 
   override fun initComponent() {
     val connection = project.messageBus.connect(project)
-    connection.subscribe(AutoFetchAllowed.TOPIC, AutoFetchAllowed.Notifier { fireStateChanged() })
+    connection.subscribe(AUTO_FETCH_ALLOWED_TOPIC, object : AutoFetchAllowedNotifier {
+      override fun stateChanged(allowed: AutoFetchAllowed) {
+        fireStateChanged()
+      }
+    })
   }
 
   private fun fireStateChanged() {

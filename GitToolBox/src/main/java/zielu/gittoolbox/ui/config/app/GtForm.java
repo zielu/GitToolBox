@@ -43,7 +43,7 @@ import zielu.gittoolbox.config.CommitCompletionMode;
 import zielu.gittoolbox.config.DateType;
 import zielu.gittoolbox.config.DecorationPartConfig;
 import zielu.gittoolbox.config.DecorationPartType;
-import zielu.gittoolbox.extension.UpdateProjectAction;
+import zielu.gittoolbox.extension.update.UpdateProjectAction;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.config.AbsoluteDateTimeStyleRenderer;

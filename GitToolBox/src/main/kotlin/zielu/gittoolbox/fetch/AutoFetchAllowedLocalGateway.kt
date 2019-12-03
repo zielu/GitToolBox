@@ -1,7 +1,8 @@
 package zielu.gittoolbox.fetch
 
 import com.intellij.openapi.project.Project
-import zielu.gittoolbox.extension.AutoFetchAllowed
+import zielu.gittoolbox.extension.autofetch.AUTO_FETCH_ALLOWED_TOPIC
+import zielu.gittoolbox.extension.autofetch.AutoFetchAllowed
 import zielu.gittoolbox.util.LocalGateway
 
 internal class AutoFetchAllowedLocalGateway(project: Project) : LocalGateway(project) {
@@ -10,6 +11,6 @@ internal class AutoFetchAllowedLocalGateway(project: Project) : LocalGateway(pro
   }
 
   fun fireStateChanged(autoFetchAllowed: AutoFetchAllowed) {
-    runInBackground { messageBus.syncPublisher(AutoFetchAllowed.TOPIC).stateChanged(autoFetchAllowed) }
+    runInBackground { messageBus.syncPublisher(AUTO_FETCH_ALLOWED_TOPIC).stateChanged(autoFetchAllowed) }
   }
 }

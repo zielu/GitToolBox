@@ -1,7 +1,7 @@
 package zielu.gittoolbox.ui.update
 
-import zielu.gittoolbox.extension.UpdateProjectAction
-import zielu.gittoolbox.extension.UpdateProjectActionExtension
+import zielu.gittoolbox.extension.update.UpdateProjectAction
+import zielu.gittoolbox.extension.update.UpdateProjectActionExtension
 import zielu.gittoolbox.util.AppUtil
 
 internal class UpdateProjectActionService {
