@@ -98,6 +98,9 @@
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchOnBranchSwitch" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchExecutor" />
 
+    <projectService serviceInterface="zielu.gittoolbox.changes.ChangesTrackerService"
+                    serviceImplementation="zielu.gittoolbox.changes.ChangesTrackerServiceImpl" />
+
     <webHelpProvider implementation="zielu.gittoolbox.help.GithubWikiHelpProvider" />
   </extensions>
 
@@ -140,6 +143,9 @@
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.ui.statusbar.StatusBarManager</implementation-class>
+    </component>
+    <component>
+      <implementation-class>zielu.gittoolbox.changes.ChangeListSubscriber</implementation-class>
     </component>
     <!--
     <component>
