@@ -11,9 +11,25 @@ internal class ChangesTrackerServiceImpl(project: Project) : ChangesTrackerServi
   private val changesCount = AtomicInteger()
 
   override fun changeListChanged(id: String, changes: Collection<Change>) {
-    val newValue = changes.size
+    val newValue = changes.filter { isUnderGit(it) }.size
     val oldValue = synchronized(changeCounters) { changeCounters.put(id, newValue) }
     if (newValue != oldValue) {
+      countersUpdated()
+    }
+  }
+
+  private fun isUnderGit(change: Change): Boolean {
+    val path = change.afterRevision?.file ?: change.beforeRevision?.file
+    return if (path != null) {
+      gateway.isUnderGit(path)
+    } else {
+      false
+    }
+  }
+
+  override fun changeListRemoved(id: String) {
+    val removedCount = synchronized(changeCounters) { changeCounters.remove(id) }
+    if (removedCount > 0) {
       countersUpdated()
     }
   }

@@ -16,6 +16,8 @@ public class DecorationColors {
       .createTextAttributesKey("GIT_TOOLBOX.STATUS_ATTRIBUTES");
   public static final TextAttributesKey HEAD_TAGS_ATTRIBUTES = TextAttributesKey
       .createTextAttributesKey("GIT_TOOLBOX.HEAD_TAGS_ATTRIBUTES");
+  public static final TextAttributesKey CHANGED_COUNT_ATTRIBUTES = TextAttributesKey
+      .createTextAttributesKey("GIT_TOOLBOX.CHANGED_COUNT_ATTRIBUTES");
   public static final TextAttributesKey EDITOR_INLINE_BLAME_ATTRIBUTES = TextAttributesKey
       .createTextAttributesKey("GIT_TOOLBOX.EDITOR_INLINE_BLAME_ATTRIBUTES");
 

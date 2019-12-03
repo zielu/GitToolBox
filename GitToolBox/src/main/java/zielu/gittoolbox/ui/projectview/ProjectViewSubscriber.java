@@ -12,6 +12,7 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
+import zielu.gittoolbox.changes.ChangesTrackerService;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.ui.util.AppUiUtil;
@@ -42,6 +43,7 @@ class ProjectViewSubscriber implements ProjectComponent {
       }
     });
     connection.subscribe(VirtualFileRepoCache.CACHE_CHANGE, this::refreshProjectView);
+    connection.subscribe(ChangesTrackerService.CHANGES_TRACKER_TOPIC, changesCount -> refreshProjectView());
   }
 
   private void refreshProjectView() {

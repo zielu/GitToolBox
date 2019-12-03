@@ -1,6 +1,7 @@
 package zielu.gittoolbox.ui.projectview;
 
 import static zielu.gittoolbox.config.DecorationPartType.BRANCH;
+import static zielu.gittoolbox.config.DecorationPartType.CHANGED_COUNT;
 import static zielu.gittoolbox.config.DecorationPartType.STATUS;
 import static zielu.gittoolbox.config.DecorationPartType.TAGS_ON_HEAD;
 
@@ -45,6 +46,13 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
       }
       return null;
     });
+    DECORATORS.put(CHANGED_COUNT, decoration -> {
+      String value = decoration.coloredUi.getDecorationPartText(decoration.getChangedCountText(), CHANGED_COUNT);
+      if (value != null) {
+        return new ColoredFragment(value, decoration.coloredUi.getChangedCountAttributes());
+      }
+      return null;
+    });
   }
 
   private static final Function<ColoredNodeDecoration, ColoredFragment> EMPTY_DECORATOR = decoration -> null;
@@ -53,8 +61,9 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
 
   public ColoredNodeDecoration(@NotNull ColoredNodeDecorationUi ui,
                                @NotNull GitRepository repo,
-                               @NotNull RepoInfo repoInfo) {
-    super(ui, repo, repoInfo);
+                               @NotNull RepoInfo repoInfo,
+                               @NotNull ExtendedRepoInfo extendedRepoInfo) {
+    super(ui, repo, repoInfo, extendedRepoInfo);
     coloredUi = ui;
   }
 

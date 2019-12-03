@@ -27,7 +27,8 @@ class ColoredNodeDecorationTest extends NodeDecorationBaseTest {
 
   @Override
   NodeDecoration createDecoration(GitToolBoxConfig2 config, GitRepository repository, RepoInfo repoInfo) {
-    return new ColoredNodeDecoration(new ColoredNodeDecorationUi(config, attributesUi), repository, repoInfo);
+    return new ColoredNodeDecoration(new ColoredNodeDecorationUi(config, attributesUi), repository, repoInfo,
+        new ExtendedRepoInfo());
   }
 
   @Override
@@ -38,7 +39,7 @@ class ColoredNodeDecorationTest extends NodeDecorationBaseTest {
   }
 
   @Test
-  @DisplayName("Name is included if colored text is empty but presentable text is present")
+  @DisplayName("Includes name if colored text is empty but presentable text is present")
   void nameIsIncludedIfPresentableTextIsPresentAndColoredTextIsEmpty() {
     PresentationData data = presentationData(false);
     final String itemName = "item_name";

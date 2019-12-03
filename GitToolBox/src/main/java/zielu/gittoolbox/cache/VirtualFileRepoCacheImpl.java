@@ -9,11 +9,14 @@ import com.google.common.collect.ImmutableSet;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +25,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.util.GtUtil;
 
 class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
@@ -59,6 +63,17 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   public GitRepository getRepoForDir(@NotNull VirtualFile dir) {
     Preconditions.checkArgument(dir.isDirectory(), "%s is not a dir", dir);
     return dirsCache.computeIfAbsent(dir, this::computeRepoForDir).repository;
+  }
+
+  @Nullable
+  @Override
+  public GitRepository getRepoForPath(@NotNull FilePath path) {
+    //TODO: should have this cached also to avoid iteration
+    List<GitRepository> roots = new ArrayList<>(rootsCache.values());
+    return roots.stream()
+        .filter(root -> path.isUnder(GtUtil.localFilePath(root.getRoot()), true))
+        .findFirst()
+        .orElse(null);
   }
 
   @NotNull

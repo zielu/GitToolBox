@@ -7,6 +7,7 @@ import git4idea.repo.GitRepository;
 import java.util.EnumSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.cache.RepoStatus;
 import zielu.gittoolbox.status.GitAheadBehindCount;
@@ -18,13 +19,16 @@ public abstract class NodeDecorationBase implements NodeDecoration {
   protected final NodeDecorationUi ui;
   protected final GitRepository repo;
   protected final RepoInfo repoInfo;
+  protected final ExtendedRepoInfo extendedRepoInfo;
 
   public NodeDecorationBase(@NotNull NodeDecorationUi ui,
                             @NotNull GitRepository repo,
-                            @NotNull RepoInfo repoInfo) {
+                            @NotNull RepoInfo repoInfo,
+                            @NotNull ExtendedRepoInfo extendedRepoInfo) {
     this.ui = ui;
     this.repo = repo;
     this.repoInfo = repoInfo;
+    this.extendedRepoInfo = extendedRepoInfo;
   }
 
   @Nullable
@@ -86,6 +90,20 @@ public abstract class NodeDecorationBase implements NodeDecoration {
       return String.join(", ", repoInfo.tags());
     }
     return null;
+  }
+
+  @Nullable
+  protected final String getChangedCountText() {
+    if (extendedRepoInfo.hasChanged()) {
+      int count = extendedRepoInfo.getChangedCount();
+      if (count == 0) {
+        return ResBundle.message("change.count.no.changes.label");
+      } else {
+        return ResBundle.message("change.count.x.changes.label", count);
+      }
+    } else {
+      return null;
+    }
   }
 
   protected final boolean isTrackingBranch() {

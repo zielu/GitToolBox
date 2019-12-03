@@ -6,6 +6,7 @@ public enum DecorationPartType {
   BRANCH,
   STATUS,
   TAGS_ON_HEAD,
+  CHANGED_COUNT,
   LOCATION
   ;
 

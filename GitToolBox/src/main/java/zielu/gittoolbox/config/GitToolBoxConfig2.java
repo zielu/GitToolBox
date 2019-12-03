@@ -32,7 +32,8 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
       DecorationPartConfig.builder().withType(DecorationPartType.LOCATION).withPrefix("- ").build(),
       DecorationPartConfig.builder().withType(DecorationPartType.BRANCH).build(),
       DecorationPartConfig.builder().withType(DecorationPartType.STATUS).build(),
-      DecorationPartConfig.builder().withType(DecorationPartType.TAGS_ON_HEAD).withPrefix("(").withPostfix(")").build()
+      DecorationPartConfig.builder().withType(DecorationPartType.TAGS_ON_HEAD).withPrefix("(").withPostfix(")").build(),
+      DecorationPartConfig.builder().withType(DecorationPartType.CHANGED_COUNT).build()
   );
   public CommitCompletionMode commitDialogCompletionMode = CommitCompletionMode.AUTOMATIC;
   public AuthorNameType blameInlineAuthorNameType = AuthorNameType.LASTNAME;
@@ -40,6 +41,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public DateType blameInlineDateType = DateType.AUTO;
   public boolean blameInlineShowSubject = true;
   public AbsoluteDateTimeStyle absoluteDateTimeStyle = AbsoluteDateTimeStyle.FROM_LOCALE;
+  public boolean showChangesInfo = true;
 
   public boolean previousVersionMigrated;
 
@@ -64,6 +66,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     copy.blameInlineDateType = blameInlineDateType;
     copy.blameInlineShowSubject = blameInlineShowSubject;
     copy.absoluteDateTimeStyle = absoluteDateTimeStyle;
+    copy.showChangesInfo = showChangesInfo;
 
     copy.previousVersionMigrated = previousVersionMigrated;
     return copy;
