@@ -20,7 +20,7 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
   private val discardedCounter by lazy {
     getMetrics().counter("blame-cache.discarded-count")
   }
-  
+
   private val messageBus by lazy {
     project.messageBus
   }
