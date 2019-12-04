@@ -20,8 +20,8 @@ public class NodeDecorationFactory {
     GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
     ColoredNodeDecorationUi ui = new ColoredNodeDecorationUi(config, DecorationColorsTextAttributesUi.getInstance());
     ExtendedRepoInfo extendedInfo;
-    if (config.showChangesInfo) {
-      int changesCount = ChangesTrackerService.getInstance(repo.getProject()).getChangesCount();
+    if (config.trackChanges) {
+      int changesCount = ChangesTrackerService.getInstance(repo.getProject()).getChangesCount(repo);
       extendedInfo = new ExtendedRepoInfo(changesCount);
     } else {
       extendedInfo = new ExtendedRepoInfo();

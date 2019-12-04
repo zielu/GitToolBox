@@ -1,6 +1,7 @@
 package zielu.gittoolbox.cache
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import zielu.gittoolbox.cache.VirtualFileRepoCache.CACHE_CHANGE
 import zielu.gittoolbox.util.LocalGateway
 import java.util.function.Supplier
@@ -13,11 +14,23 @@ internal class VirtualFileRepoCacheLocalGatewayImpl(
   }
 
   override fun fireCacheChanged() {
-    messageBus.syncPublisher<VirtualFileCacheListener>(CACHE_CHANGE).updated()
+    messageBus.syncPublisher<VirtualFileRepoCacheListener>(CACHE_CHANGE).updated()
   }
 
-  override fun rootsCacheSizeGauge(size: () -> Int) {
+  override fun fireAdded(roots: Collection<VirtualFile>) {
+    messageBus.syncPublisher<VirtualFileRepoCacheListener>(CACHE_CHANGE).added(roots)
+  }
+
+  override fun fireRemoved(roots: Collection<VirtualFile>) {
+    messageBus.syncPublisher<VirtualFileRepoCacheListener>(CACHE_CHANGE).removed(roots)
+  }
+
+  override fun rootsVFileCacheSizeGauge(size: () -> Int) {
     getMetrics().gauge("vfile-repo-roots-cache-size", size)
+  }
+
+  override fun rootsFilePathCacheSizeGauge(size: () -> Int) {
+    getMetrics().gauge("filepath-repo-roots-cache-size", size)
   }
 
   override fun dirsCacheSizeGauge(size: () -> Int) {

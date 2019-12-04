@@ -29,7 +29,8 @@ import zielu.gittoolbox.util.GtUtil;
 
 class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
-  private final ConcurrentMap<VirtualFile, GitRepository> rootsCache = new ConcurrentHashMap<>();
+  private final ConcurrentMap<VirtualFile, GitRepository> rootsVFileCache = new ConcurrentHashMap<>();
+  private final ConcurrentMap<FilePath, GitRepository> rootsFilePathCache = new ConcurrentHashMap<>();
   private final ConcurrentMap<VirtualFile, CacheEntry> dirsCache = new ConcurrentHashMap<>();
   private final VirtualFileRepoCacheLocalGateway gateway;
 
@@ -40,14 +41,16 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   @NonInjectable
   VirtualFileRepoCacheImpl(@NotNull VirtualFileRepoCacheLocalGateway gateway) {
     this.gateway = gateway;
-    gateway.rootsCacheSizeGauge(rootsCache::size);
+    gateway.rootsVFileCacheSizeGauge(rootsVFileCache::size);
+    gateway.rootsFilePathCacheSizeGauge(rootsFilePathCache::size);
     gateway.dirsCacheSizeGauge(dirsCache::size);
     gateway.disposeWithProject(this);
   }
 
   @Override
   public void dispose() {
-    rootsCache.clear();
+    rootsVFileCache.clear();
+    rootsFilePathCache.clear();
     dirsCache.clear();
   }
 
@@ -55,7 +58,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   @Override
   public GitRepository getRepoForRoot(@NotNull VirtualFile root) {
     Preconditions.checkArgument(root.isDirectory(), "%s is not a dir", root);
-    return rootsCache.get(root);
+    return rootsVFileCache.get(root);
   }
 
   @Nullable
@@ -68,11 +71,12 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   @Nullable
   @Override
   public GitRepository getRepoForPath(@NotNull FilePath path) {
-    //TODO: should have this cached also to avoid iteration
-    List<GitRepository> roots = new ArrayList<>(rootsCache.values());
+    //TODO: should have this cached to avoid iteration
+    List<FilePath> roots = new ArrayList<>(rootsFilePathCache.keySet());
     return roots.stream()
-        .filter(root -> path.isUnder(GtUtil.localFilePath(root.getRoot()), true))
+        .filter(root -> path.isUnder(root, true))
         .findFirst()
+        .map(rootsFilePathCache::get)
         .orElse(null);
   }
 
@@ -99,7 +103,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
           return existingEntry;
         }
       }
-      foundRepo = rootsCache.get(currentDir);
+      foundRepo = rootsVFileCache.get(currentDir);
       if (foundRepo != null) {
         break;
       }
@@ -115,16 +119,31 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
     RepoListUpdate update = buildUpdate(repositories);
     rebuildRootsCache(update);
     purgeDirsCache(update);
-    gateway.fireCacheChanged();
+
+    updateNotifications(update);
+  }
+
+  private void updateNotifications(RepoListUpdate update) {
+    if (update.hasRemovals()) {
+      gateway.fireRemoved(update.removedRoots);
+    }
+
+    if (update.hasAdditions()) {
+      gateway.fireAdded(update.addedRoots);
+    }
+
+    if (update.hasUpdates()) {
+      gateway.fireCacheChanged();
+    }
   }
 
   private RepoListUpdate buildUpdate(ImmutableList<GitRepository> repositories) {
     Map<VirtualFile, GitRepository> mappedRepositories = repositories.stream()
         .collect(Collectors.toMap(GitRepository::getRoot, identity()));
-    Set<VirtualFile> removed = new HashSet<>(rootsCache.keySet());
+    Set<VirtualFile> removed = new HashSet<>(rootsVFileCache.keySet());
     removed.removeAll(mappedRepositories.keySet());
     Set<VirtualFile> added = new HashSet<>(mappedRepositories.keySet());
-    added.removeAll(rootsCache.keySet());
+    added.removeAll(rootsVFileCache.keySet());
     return new RepoListUpdate(ImmutableMap.copyOf(mappedRepositories), ImmutableSet.copyOf(added),
         ImmutableSet.copyOf(removed));
   }
@@ -135,15 +154,20 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   }
 
   private void purgeRemovedRoots(RepoListUpdate update) {
-    update.removedRoots.stream()
-        .peek(removed -> log.debug("Root removed: ", removed))
-        .forEach(rootsCache::remove);
+    update.removedRoots.forEach(this::purgeRoot);
+  }
+
+  private void purgeRoot(VirtualFile root) {
+    log.debug("Root removed: ", root);
+    rootsVFileCache.remove(root);
+    rootsFilePathCache.remove(GtUtil.localFilePath(root));
   }
 
   private void addRoots(RepoListUpdate update) {
     update.forEachAdded((root, repo) -> {
       log.debug("Root added: ", root);
-      rootsCache.put(root, repo);
+      rootsVFileCache.put(root, repo);
+      rootsFilePathCache.put(GtUtil.localFilePath(root), repo);
     });
   }
 
@@ -186,6 +210,18 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
         GitRepository repo = repositories.get(root);
         consumer.accept(root, repo);
       });
+    }
+
+    private boolean hasAdditions() {
+      return !addedRoots.isEmpty();
+    }
+
+    private boolean hasRemovals() {
+      return !removedRoots.isEmpty();
+    }
+
+    private boolean hasUpdates() {
+      return hasAdditions() || hasRemovals();
     }
   }
 

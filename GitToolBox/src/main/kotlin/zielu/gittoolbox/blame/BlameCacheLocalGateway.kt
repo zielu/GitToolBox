@@ -11,18 +11,16 @@ import zielu.gittoolbox.util.ExecutableTask
 import zielu.gittoolbox.util.LocalGateway
 
 internal class BlameCacheLocalGateway(private val project: Project) : LocalGateway(project) {
-  val cacheGetTimer: Timer by lazy {
-    getMetrics().timer("blame-cache.get")
-  }
-  val loadTimer: Timer by lazy {
-    getMetrics().timer("blame-cache.load")
-  }
-  val queueWaitTimer: Timer by lazy {
-    getMetrics().timer("blame-cache.queue-wait")
-  }
+  fun getCacheGetTimer(): Timer = getMetrics().timer("blame-cache.get")
+
+  fun getLoadTimer(): Timer = getMetrics().timer("blame-cache.load")
+
+  fun getQueueWaitTimer(): Timer = getMetrics().timer("blame-cache.queue-wait")
+
   private val discardedCounter by lazy {
     getMetrics().counter("blame-cache.discarded-count")
   }
+  
   private val messageBus by lazy {
     project.messageBus
   }

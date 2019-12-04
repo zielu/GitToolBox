@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.util.AppUtil;
 
 public interface VirtualFileRepoCache extends DirMappingAware {
-  Topic<VirtualFileCacheListener> CACHE_CHANGE = Topic.create("File cache change",
-      VirtualFileCacheListener.class);
+  Topic<VirtualFileRepoCacheListener> CACHE_CHANGE = Topic.create("File cache change",
+      VirtualFileRepoCacheListener.class);
 
   @NotNull
   static VirtualFileRepoCache getInstance(@NotNull Project project) {

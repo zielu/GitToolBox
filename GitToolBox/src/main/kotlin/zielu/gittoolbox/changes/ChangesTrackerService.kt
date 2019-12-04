@@ -1,15 +1,15 @@
 package zielu.gittoolbox.changes
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vcs.changes.Change
 import com.intellij.util.messages.Topic
+import git4idea.repo.GitRepository
 import zielu.gittoolbox.util.AppUtil
 
 internal interface ChangesTrackerService {
 
-  fun changeListChanged(id: String, changes: Collection<Change>)
+  fun changeListChanged(changeListData: ChangeListData)
 
-  fun getChangesCount(): Int
+  fun getChangesCount(repository: GitRepository): Int
   fun changeListRemoved(id: String)
 
   companion object {
