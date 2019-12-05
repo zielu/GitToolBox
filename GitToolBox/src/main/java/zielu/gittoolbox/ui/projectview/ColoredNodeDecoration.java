@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.DecorationPartType;
+import zielu.gittoolbox.ui.ExtendedRepoInfo;
 import zielu.gittoolbox.ui.util.PresentationDataUtil;
 
 public class ColoredNodeDecoration extends NodeDecorationBase {

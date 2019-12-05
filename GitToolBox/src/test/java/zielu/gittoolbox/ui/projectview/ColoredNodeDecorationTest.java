@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.ui.ExtendedRepoInfo;
 
 class ColoredNodeDecorationTest extends NodeDecorationBaseTest {
   @Mock

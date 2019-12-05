@@ -4,12 +4,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import git4idea.repo.GitRepository
 import zielu.gittoolbox.util.AppUtil
+import zielu.gittoolbox.util.Count
 
 internal interface ChangesTrackerService {
 
   fun changeListChanged(changeListData: ChangeListData)
 
-  fun getChangesCount(repository: GitRepository): Int
+  fun getChangesCount(repository: GitRepository): Count
   fun changeListRemoved(id: String)
 
   companion object {

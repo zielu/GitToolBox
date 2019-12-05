@@ -39,5 +39,5 @@ internal class ChangeListSubscriberLocalGateway(private val project: Project) : 
     return changeLists.map { ChangeListData(it) }
   }
 
-  fun getEnabled() = GitToolBoxConfig2.getInstance().trackChanges
+  fun getTrackingEnabled() = GitToolBoxConfig2.getInstance().isChangesTrackingEnabled
 }

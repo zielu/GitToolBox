@@ -27,7 +27,7 @@ import zielu.gittoolbox.ui.blame.BlameUiService;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 
 class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, StatusBarWidget.TextPresentation {
-  private static final String ID = BlameStatusWidget.class.getName();
+  public static final String ID = BlameStatusWidget.class.getName();
 
   private final AtomicBoolean visible = new AtomicBoolean();
   private final AtomicBoolean connected = new AtomicBoolean();
@@ -83,7 +83,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
 
   @Nullable
   @Override
-  public WidgetPresentation getPresentation(@NotNull PlatformType type) {
+  public WidgetPresentation getPresentation() {
     return this;
   }
 

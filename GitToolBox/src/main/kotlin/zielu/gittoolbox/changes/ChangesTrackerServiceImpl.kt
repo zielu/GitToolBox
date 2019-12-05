@@ -5,6 +5,7 @@ import com.intellij.openapi.vcs.changes.Change
 import com.jetbrains.rd.util.getOrCreate
 import git4idea.repo.GitRepository
 import gnu.trove.TObjectIntHashMap
+import zielu.gittoolbox.util.Count
 import java.util.concurrent.ConcurrentHashMap
 
 internal class ChangesTrackerServiceImpl(project: Project) : ChangesTrackerService {
@@ -67,8 +68,8 @@ internal class ChangesTrackerServiceImpl(project: Project) : ChangesTrackerServi
     }
   }
 
-  override fun getChangesCount(repository: GitRepository): Int {
-    return changeCounters[repository]?.getTotal() ?: 0
+  override fun getChangesCount(repository: GitRepository): Count {
+    return changeCounters[repository]?.getTotal()?.let { Count(it) } ?: Count.EMPTY
   }
 }
 

@@ -12,17 +12,26 @@ import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
 import git4idea.repo.GitRepository;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import javax.swing.Icon;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.ResIcons;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.changes.ChangesTrackerService;
 import zielu.gittoolbox.config.ConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.status.GitAheadBehindCount;
+import zielu.gittoolbox.ui.ExtendedRepoInfo;
+import zielu.gittoolbox.ui.ExtendedRepoInfoService;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.DisposeSafeRunnable;
@@ -31,12 +40,13 @@ import zielu.gittoolbox.util.GtUtil;
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     StatusBarWidget.Multiframe, StatusBarWidget.MultipleTextValuesPresentation {
 
-  private static final String ID = GitStatusWidget.class.getName();
+  public static final String ID = GitStatusWidget.class.getName();
   private final AtomicBoolean connected = new AtomicBoolean();
   private final StatusToolTip toolTip;
   private final RootActions rootActions;
   private String text = "";
   private boolean visible = true;
+  private Icon icon = null;
 
   private GitStatusWidget(@NotNull Project project) {
     super(project);
@@ -101,6 +111,11 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
         AppUiUtil.invokeLaterIfNeeded(myProject, this::updateStatusBar);
       }
     });
+    myConnection.subscribe(ChangesTrackerService.CHANGES_TRACKER_TOPIC, () -> {
+      if (isActive()) {
+        runUpdateLater(myProject);
+      }
+    });
   }
 
   @Override
@@ -116,7 +131,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   @Nullable
   @Override
-  public WidgetPresentation getPresentation(@NotNull PlatformType type) {
+  public WidgetPresentation getPresentation() {
     return this;
   }
 
@@ -173,21 +188,42 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private void empty() {
     toolTip.clear();
     text = "";
+    icon = null;
   }
 
   private void disabled() {
     toolTip.clear();
     text = ResBundle.message("status.prefix") + " " + ResBundle.disabled();
+    icon = null;
   }
 
-  private void updateData(@NotNull GitRepository repository, RepoInfo repoInfo) {
-    GitAheadBehindCount count = repoInfo.count();
-    if (count == null) {
-      text = ResBundle.na();
-    } else {
-      text = StatusText.format(count);
+  private void updateData(@NotNull GitRepository repository, RepoInfo repoInfo, ExtendedRepoInfo extendedInfo) {
+    icon = null;
+    List<String> parts = new ArrayList<>();
+    GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
+    if (config.showChangesInStatusBar) {
+      parts.add(StatusText.format(extendedInfo));
+      if (extendedInfo.hasChanged()) {
+        if (extendedInfo.getChangedCount().getValue() > 0) {
+          icon = ResIcons.ChangesPresent;
+        } else {
+          icon = ResIcons.NoChanges;
+        }
+      }
     }
-    toolTip.update(repository, count);
+    toolTip.update(repository, null);
+    if (config.showStatusWidget) {
+      GitAheadBehindCount count = repoInfo.count();
+      if (count == null) {
+        parts.add(ResBundle.na());
+      } else {
+        parts.add(StatusText.format(count));
+      }
+      toolTip.update(repository, count);
+    }
+    text = parts.stream()
+               .filter(StringUtils::isNotBlank)
+               .collect(Collectors.joining(" / "));
   }
 
   private void runUpdate(@Nullable Project project) {
@@ -207,7 +243,8 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private void update(@Nullable GitRepository repository, RepoInfo repoInfo) {
     if (isActive()) {
       if (repository != null) {
-        updateData(repository, repoInfo);
+        ExtendedRepoInfo extendedInfo = ExtendedRepoInfoService.getInstance().getExtendedRepoInfo(repository);
+        updateData(repository, repoInfo, extendedInfo);
       } else {
         empty();
       }
@@ -224,5 +261,11 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Override
   public Consumer<MouseEvent> getClickConsumer() {
     return null;
+  }
+
+  @Nullable
+  @Override
+  public Icon getIcon() {
+    return icon;
   }
 }

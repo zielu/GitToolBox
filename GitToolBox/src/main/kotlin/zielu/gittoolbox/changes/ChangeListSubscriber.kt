@@ -34,14 +34,14 @@ internal class ChangeListSubscriber(project: Project) : ProjectComponent {
 
   fun handleChangeListRemoved(id: String) {
     log.debug("Change list removed", id)
-    if (gateway.getEnabled()) {
+    if (gateway.getTrackingEnabled()) {
       gateway.changeListRemoved(id)
     }
   }
 
   fun handleChangeListsChanged() {
     log.debug("Change lists changed")
-    if (gateway.getEnabled()) {
+    if (gateway.getTrackingEnabled()) {
       gateway.changeListsChanged(gateway.getAllChangeLists())
     }
   }

@@ -3,6 +3,7 @@ package zielu.gittoolbox.ui
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.status.GitAheadBehindCount
 import zielu.gittoolbox.status.Status
+import java.util.stream.Collectors
 
 internal object StatusText {
   @JvmStatic
@@ -17,6 +18,16 @@ internal object StatusText {
     } else {
       ResBundle.na()
     }
+  }
+
+  @JvmStatic
+  fun format(extendedRepoInfo: ExtendedRepoInfo): String {
+    val parts = ArrayList<String>()
+    val changedCount = extendedRepoInfo.changedCount
+    if (!changedCount.isEmpty()) {
+      parts.add(ResBundle.message("change.count.x.changes.label", changedCount.value))
+    }
+    return parts.stream().collect(Collectors.joining(" "))
   }
 
   @JvmStatic

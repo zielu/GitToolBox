@@ -12,7 +12,9 @@ import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.cache.RepoStatus;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.Status;
+import zielu.gittoolbox.ui.ExtendedRepoInfo;
 import zielu.gittoolbox.ui.StatusPresenter;
+import zielu.gittoolbox.util.Count;
 
 public abstract class NodeDecorationBase implements NodeDecoration {
   private static final EnumSet<State> TAGS_VISIBLE_STATES = EnumSet.of(State.NORMAL, State.DETACHED);
@@ -95,11 +97,11 @@ public abstract class NodeDecorationBase implements NodeDecoration {
   @Nullable
   protected final String getChangedCountText() {
     if (extendedRepoInfo.hasChanged()) {
-      int count = extendedRepoInfo.getChangedCount();
-      if (count == 0) {
-        return ResBundle.message("change.count.no.changes.label");
+      Count count = extendedRepoInfo.getChangedCount();
+      if (count.isEmpty()) {
+        return "";
       } else {
-        return ResBundle.message("change.count.x.changes.label", count);
+        return ResBundle.message("change.count.x.changes.label", count.getValue());
       }
     } else {
       return null;

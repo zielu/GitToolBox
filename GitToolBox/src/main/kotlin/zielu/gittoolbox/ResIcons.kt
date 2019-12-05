@@ -21,4 +21,8 @@ internal object ResIcons {
   val Commit = IconLoader.getIcon("/zielu/gittoolbox/commit.png")
   @JvmField
   val Blame = IconLoader.getIcon("/zielu/gittoolbox/git-icon-black.png")
+  @JvmField
+  val ChangesPresent = IconLoader.getIcon("/zielu/gittoolbox/changes-present.svg")
+  @JvmField
+  val NoChanges = IconLoader.getIcon("/zielu/gittoolbox/changes-none.svg")
 }

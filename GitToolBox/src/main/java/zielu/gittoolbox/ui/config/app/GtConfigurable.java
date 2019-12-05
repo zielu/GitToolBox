@@ -54,7 +54,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     form.setBlameShowSubject(config.blameInlineShowSubject);
     form.setBlameStatusAuthorNameType(config.blameStatusAuthorNameType);
     form.setAbsoluteDateTimeStyle(config.absoluteDateTimeStyle);
-    form.setTrackChanges(config.trackChanges);
+    form.setShowChangesInStatusBar(config.showChangesInStatusBar);
   }
 
   @Override
@@ -73,7 +73,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     modified = modified || config.isBlameInlineShowSubjectChanged(form.getBlameShowSubject());
     modified = modified || config.isBlameStatusAuthorNameTypeChanged(form.getBlameStatusAuthorNameType());
     modified = modified || config.isAbsoluteDateTimeStyleChanged(form.getAbsoluteDateTimeStyle());
-    modified = modified || config.isTrackChangesChanged(form.getTrackChanges());
+    modified = modified || config.isShowChangesInStatusBarChanged(form.getShowChangesInStatusBar());
     log.debug("Modified: ", modified);
     return modified;
   }
@@ -97,7 +97,7 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     config.blameInlineShowSubject = form.getBlameShowSubject();
     config.blameStatusAuthorNameType = form.getBlameStatusAuthorNameType();
     config.absoluteDateTimeStyle = form.getAbsoluteDateTimeStyle();
-    config.trackChanges = form.getTrackChanges();
+    config.showChangesInStatusBar = form.getShowChangesInStatusBar();
 
     //Mark migrated here to handle case when config is modified without opening a project
     //Example: from launch dialog

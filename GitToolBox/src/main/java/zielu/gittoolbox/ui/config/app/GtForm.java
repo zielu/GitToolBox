@@ -79,7 +79,7 @@ public class GtForm implements GtFormUi {
   private JCheckBox blameShowSubjectCheckBox;
   private ComboBox<AuthorNameType> blameStatusAuthorNameTypeCombo;
   private ComboBox<AbsoluteDateTimeStyle> absoluteDateTimeStyleCombo;
-  private JCheckBox trackChangesCheckBox;
+  private JCheckBox showChangesInStatusBarCheckBox;
 
   @Override
   public void init() {
@@ -391,11 +391,11 @@ public class GtForm implements GtFormUi {
     absoluteDateTimeStyleCombo.setSelectedItem(absoluteDateTimeStyle);
   }
 
-  boolean getTrackChanges() {
-    return trackChangesCheckBox.isSelected();
+  boolean getShowChangesInStatusBar() {
+    return showChangesInStatusBarCheckBox.isSelected();
   }
 
-  void setTrackChanges(boolean trackChanges) {
-    trackChangesCheckBox.setSelected(trackChanges);
+  void setShowChangesInStatusBar(boolean showChangesInStatusBar) {
+    showChangesInStatusBarCheckBox.setSelected(showChangesInStatusBar);
   }
 }

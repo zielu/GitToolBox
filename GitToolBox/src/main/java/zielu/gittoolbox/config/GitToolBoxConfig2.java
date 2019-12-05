@@ -41,7 +41,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public DateType blameInlineDateType = DateType.AUTO;
   public boolean blameInlineShowSubject = true;
   public AbsoluteDateTimeStyle absoluteDateTimeStyle = AbsoluteDateTimeStyle.FROM_LOCALE;
-  public boolean trackChanges = true;
+  public boolean showChangesInStatusBar = true;
 
   public boolean previousVersionMigrated;
 
@@ -66,7 +66,7 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     copy.blameInlineDateType = blameInlineDateType;
     copy.blameInlineShowSubject = blameInlineShowSubject;
     copy.absoluteDateTimeStyle = absoluteDateTimeStyle;
-    copy.trackChanges = trackChanges;
+    copy.showChangesInStatusBar = showChangesInStatusBar;
 
     copy.previousVersionMigrated = previousVersionMigrated;
     return copy;
@@ -157,6 +157,21 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     return absoluteDateTimeStyle != other;
   }
 
+  public boolean isShowChangesInStatusBarChanged(boolean trackChanges) {
+    return this.showChangesInStatusBar != trackChanges;
+  }
+
+  @Transient
+  public boolean isChangesTrackingEnabled() {
+    return showChangesInStatusBar || decorationParts.stream()
+        .anyMatch(part -> part.type == DecorationPartType.CHANGED_COUNT);
+  }
+
+  @Transient
+  public boolean isStatusBarWidgetVisible() {
+    return showStatusWidget || isChangesTrackingEnabled();
+  }
+
   @Nullable
   @Override
   public GitToolBoxConfig2 getState() {
@@ -171,9 +186,5 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   @Override
   public void loadState(@NotNull GitToolBoxConfig2 state) {
     XmlSerializerUtil.copyBean(state, this);
-  }
-
-  public boolean isTrackChangesChanged(boolean trackChanges) {
-    return this.trackChanges != trackChanges;
   }
 }
