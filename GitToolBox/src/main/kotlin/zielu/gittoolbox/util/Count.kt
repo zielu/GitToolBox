@@ -11,5 +11,8 @@ internal data class Count(
   companion object {
     @JvmField
     val EMPTY: Count = Count(Int.MIN_VALUE)
+
+    @JvmField
+    val ZERO: Count = Count(0)
   }
 }

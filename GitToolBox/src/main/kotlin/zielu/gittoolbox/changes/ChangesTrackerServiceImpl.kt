@@ -69,7 +69,7 @@ internal class ChangesTrackerServiceImpl(project: Project) : ChangesTrackerServi
   }
 
   override fun getChangesCount(repository: GitRepository): Count {
-    return changeCounters[repository]?.getTotal()?.let { Count(it) } ?: Count.EMPTY
+    return changeCounters[repository]?.getTotal()?.let { Count(it) } ?: Count.ZERO
   }
 }
 
