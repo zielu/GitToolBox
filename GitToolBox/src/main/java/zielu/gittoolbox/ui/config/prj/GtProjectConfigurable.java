@@ -49,6 +49,14 @@ public class GtProjectConfigurable extends GtBinderConfigurableBase<GtPrjForm, G
         GitToolBoxConfigPrj::setReferencePointForStatus,
         GtPrjForm::getReferencePointConfig,
         GtPrjForm::setReferencePointConfig);
+    binder.bind(GitToolBoxConfigPrj::getCommitMessageValidation,
+        GitToolBoxConfigPrj::setCommitMessageValidation,
+        GtPrjForm::getCommitMessageValidationEnabled,
+        GtPrjForm::setCommitMessageValidationEnabled);
+    binder.bind(GitToolBoxConfigPrj::getCommitMessageValidationRegex,
+        GitToolBoxConfigPrj::setCommitMessageValidationRegex,
+        GtPrjForm::getCommitMessageValidationRegex,
+        GtPrjForm::setCommitMessageValidationRegex);
   }
 
   @Nls

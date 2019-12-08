@@ -19,7 +19,9 @@ internal data class GitToolBoxConfigPrj(
   var autoFetchOnBranchSwitch: Boolean = true,
   var commitDialogCompletion: Boolean = true,
   var completionConfigs: List<CommitCompletionConfig> = arrayListOf(CommitCompletionConfig()),
-  var referencePointForStatus: ReferencePointForStatusConfig = ReferencePointForStatusConfig()
+  var referencePointForStatus: ReferencePointForStatusConfig = ReferencePointForStatusConfig(),
+  var commitMessageValidation: Boolean = false,
+  var commitMessageValidationRegex: String = "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+"
 ) : PersistentStateComponent<GitToolBoxConfigPrj> {
 
   companion object {
@@ -39,7 +41,9 @@ internal data class GitToolBoxConfigPrj(
       autoFetchOnBranchSwitch,
       commitDialogCompletion,
       completionConfigs.map { it.copy() },
-      referencePointForStatus.copy()
+      referencePointForStatus.copy(),
+      commitMessageValidation,
+      commitMessageValidationRegex
     )
   }
 

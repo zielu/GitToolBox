@@ -73,6 +73,8 @@ public class GtPrjForm implements GtFormUi {
   private ComboBox<ReferencePointForStatusType> referencePointTypeComboBox;
   private JTextField referencePointNameText;
   private JCheckBox autoFetchOnBranchSwitchEnabled;
+  private JCheckBox commitMessageValidationCheckBox;
+  private JTextField commitMessageValidationRegex;
 
   private GtPatternFormatterForm completionItemPatternForm;
   private Action addSimpleCompletionAction;
@@ -296,6 +298,22 @@ public class GtPrjForm implements GtFormUi {
   @Override
   public void dispose() {
     completionItemPatternForm.dispose();
+  }
+
+  public boolean getCommitMessageValidationEnabled() {
+    return commitMessageValidationCheckBox.isSelected();
+  }
+
+  public void setCommitMessageValidationEnabled(boolean enabled) {
+    commitMessageValidationCheckBox.setSelected(enabled);
+  }
+
+  public String getCommitMessageValidationRegex() {
+    return commitMessageValidationRegex.getText();
+  }
+
+  public void setCommitMessageValidationRegex(String regex) {
+    commitMessageValidationRegex.setText(regex);
   }
 
   public boolean getAutoFetchEnabled() {
