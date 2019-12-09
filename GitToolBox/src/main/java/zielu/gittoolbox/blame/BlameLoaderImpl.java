@@ -9,12 +9,10 @@ import zielu.gittoolbox.blame.calculator.BlameCalculator;
 import zielu.gittoolbox.revision.RevisionDataProvider;
 
 class BlameLoaderImpl implements BlameLoader {
-  private final Project project;
   private final BlameLoaderLocalGateway gateway;
   private final BlameCalculator calculator;
 
   BlameLoaderImpl(@NotNull Project project) {
-    this.project = project;
     gateway = new BlameLoaderLocalGateway(project);
     calculator = new BlameCalculator(project);
   }
@@ -22,12 +20,7 @@ class BlameLoaderImpl implements BlameLoader {
   @NotNull
   @Override
   public BlameAnnotation annotate(@NotNull VirtualFile file) {
-    try {
-      gateway.annotationLock(file);
-      return incrementalAnnotation(file);
-    } finally {
-      gateway.annotationUnlock(file);
-    }
+    return incrementalAnnotation(file);
   }
 
   private BlameAnnotation incrementalAnnotation(@NotNull VirtualFile file) {

@@ -133,9 +133,9 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
 
   private ColoredFragment getSpacer(boolean first) {
     if (first) {
-      return PresentationDataUtil.wideSpacer();
+      return PresentationDataUtil.wideSpacer;
     } else {
-      return PresentationDataUtil.spacer();
+      return PresentationDataUtil.spacer;
     }
   }
 }

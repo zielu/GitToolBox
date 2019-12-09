@@ -28,14 +28,6 @@ internal class BlameLoaderLocalGateway(private val project: Project) {
     }
   }
 
-  fun annotationLock(vFile: VirtualFile) {
-    BlameUtil.annotationLock(project, vFile)
-  }
-
-  fun annotationUnlock(vFile: VirtualFile) {
-    BlameUtil.annotationUnlock(project, vFile)
-  }
-
   companion object {
     private val log = Logger.getInstance(BlameLoaderLocalGateway::class.java)
   }
