@@ -3,7 +3,6 @@ package zielu.gittoolbox.ui
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.status.GitAheadBehindCount
 import zielu.gittoolbox.status.Status
-import java.util.stream.Collectors
 
 internal object StatusText {
   @JvmStatic
@@ -27,7 +26,7 @@ internal object StatusText {
     if (!changedCount.isEmpty()) {
       parts.add(ResBundle.message("change.count.x.changes.label", changedCount.value))
     }
-    return parts.stream().collect(Collectors.joining(" "))
+    return parts.joinToString { " " }
   }
 
   @JvmStatic
