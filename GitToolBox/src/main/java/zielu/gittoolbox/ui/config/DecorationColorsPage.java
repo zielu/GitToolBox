@@ -19,12 +19,14 @@ public class DecorationColorsPage implements ColorSettingsPage {
   private static final String LOCAL_BRANCH_DEMO_TEXT = new StringBand()
       .append("<localBranch>Local_Branch</localBranch>")
       .append(" <headTags>1.0.0, 1.1.0</headTags>")
+      .append(" <changedCount>3 changes</changedCount>")
       .toString();
 
   private static final String REMOTE_BRANCH_DEMO_TEXT = new StringBand()
       .append("<remoteBranch>Remote_Branch</remoteBranch>")
       .append(" <status>1 // 2</status>")
       .append(" <headTags>1.0.0, 1.1.0</headTags>")
+      .append(" <changedCount>5 changes</changedCount>")
       .toString();
 
   private static final String INLINE_BLAME_DEMO_TEXT = new StringBand()
@@ -46,6 +48,7 @@ public class DecorationColorsPage implements ColorSettingsPage {
       .put("status", DecorationColors.STATUS_ATTRIBUTES)
       .put("headTags", DecorationColors.HEAD_TAGS_ATTRIBUTES)
       .put("localBranch", DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
+      .put("changedCount", DecorationColors.CHANGED_COUNT_ATTRIBUTES)
       .put("editorInlineBlame", DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES)
       .build();
 
@@ -61,6 +64,8 @@ public class DecorationColorsPage implements ColorSettingsPage {
             DecorationColors.HEAD_TAGS_ATTRIBUTES),
       new AttributesDescriptor(ResBundle.message("colors.projectView.local.branch.decoration.label"),
           DecorationColors.LOCAL_BRANCH_ATTRIBUTES),
+      new AttributesDescriptor(ResBundle.message("colors.projectView.changes.decoration.label"),
+          DecorationColors.CHANGED_COUNT_ATTRIBUTES),
       new AttributesDescriptor(ResBundle.message("colors.editor.inline.blame.label"),
           DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES)
     };
