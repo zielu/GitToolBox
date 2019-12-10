@@ -8,7 +8,7 @@ import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.changes.ChangesTrackerService.Companion.CHANGES_TRACKER_TOPIC
 import zielu.gittoolbox.util.LocalGateway
 
-internal class ChangesTrackerServiceLocalGateway(
+internal open class ChangesTrackerServiceLocalGateway(
   private val project: Project
 ) : LocalGateway(project) {
   private val messageBus by lazy {

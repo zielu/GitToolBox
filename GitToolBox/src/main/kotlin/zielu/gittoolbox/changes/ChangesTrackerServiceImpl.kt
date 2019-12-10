@@ -1,14 +1,19 @@
 package zielu.gittoolbox.changes
 
 import com.intellij.openapi.project.Project
+import com.intellij.serviceContainer.NonInjectable
 import com.jetbrains.rd.util.getOrCreate
 import git4idea.repo.GitRepository
 import gnu.trove.TObjectIntHashMap
 import zielu.gittoolbox.util.Count
 import java.util.concurrent.ConcurrentHashMap
 
-internal class ChangesTrackerServiceImpl(project: Project) : ChangesTrackerService {
-  private val gateway = ChangesTrackerServiceLocalGateway(project)
+internal class ChangesTrackerServiceImpl
+  @NonInjectable
+  constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTrackerService {
+
+  constructor(project: Project) : this(ChangesTrackerServiceLocalGateway(project))
+
   private val changeCounters = ConcurrentHashMap<GitRepository, ChangeCounters>()
 
   override fun changeListChanged(changeListData: ChangeListData) {
