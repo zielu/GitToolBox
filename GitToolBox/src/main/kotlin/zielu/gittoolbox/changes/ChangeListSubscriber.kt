@@ -42,7 +42,7 @@ internal class ChangeListSubscriber(project: Project) : ProjectComponent {
   fun handleChangeListsChanged() {
     log.debug("Change lists changed")
     if (gateway.getTrackingEnabled()) {
-      gateway.changeListsChanged(gateway.getAllChangeLists())
+      gateway.changeListsChanged(gateway.getAllChangeListsData())
     }
   }
 

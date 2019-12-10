@@ -26,7 +26,7 @@ internal object StatusText {
     if (!changedCount.isEmpty()) {
       parts.add(ResBundle.message("change.count.x.changes.label", changedCount.value))
     }
-    return parts.joinToString { " " }
+    return parts.joinToString(" ")
   }
 
   @JvmStatic

@@ -1,7 +1,6 @@
 package zielu.gittoolbox.changes
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vcs.changes.Change
 import com.jetbrains.rd.util.getOrCreate
 import git4idea.repo.GitRepository
 import gnu.trove.TObjectIntHashMap
@@ -13,7 +12,7 @@ internal class ChangesTrackerServiceImpl(project: Project) : ChangesTrackerServi
   private val changeCounters = ConcurrentHashMap<GitRepository, ChangeCounters>()
 
   override fun changeListChanged(changeListData: ChangeListData) {
-    if (changeListData.hasChanges()) {
+    if (changeListData.hasChanges) {
       gateway.getNotEmptyChangeListTimer().time { handleNonEmptyChangeList(changeListData) }
     } else {
       handleEmptyChangeList(changeListData.id)
@@ -30,7 +29,7 @@ internal class ChangesTrackerServiceImpl(project: Project) : ChangesTrackerServi
     newCounts.forEach { (repo, aggregator) ->
       val newCounters = aggregator.toCounters()
       val oldCounters = changeCounters.put(repo, newCounters)
-      val difference = oldCounters?.getTotal().let { newCounters.getTotal() != it }
+      val difference = oldCounters?.total.let { newCounters.total != it }
       if (difference) {
         changed = true
       }
@@ -48,13 +47,8 @@ internal class ChangesTrackerServiceImpl(project: Project) : ChangesTrackerServi
     return changeCounters
   }
 
-  private fun getRepoForChange(change: Change): GitRepository? {
-    val path = change.afterRevision?.file ?: change.beforeRevision?.file
-    return if (path != null) {
-      gateway.getRepoForPath(path)
-    } else {
-      null
-    }
+  private fun getRepoForChange(change: ChangeData): GitRepository? {
+    return gateway.getRepoForPath(change.filePath)
   }
 
   override fun changeListRemoved(id: String) {
@@ -69,7 +63,7 @@ internal class ChangesTrackerServiceImpl(project: Project) : ChangesTrackerServi
   }
 
   override fun getChangesCount(repository: GitRepository): Count {
-    return changeCounters[repository]?.getTotal()?.let { Count(it) } ?: Count.ZERO
+    return changeCounters[repository]?.let { Count(it.total) } ?: Count.ZERO
   }
 }
 
@@ -86,20 +80,16 @@ private class ChangeCountersAggregator {
 }
 
 private class ChangeCounters(private val changeCounters: TObjectIntHashMap<String>) {
-  private var total: Int = 0
-  init {
-    total = changeCounters.values.sum()
-  }
+  private var totalCount: Int = changeCounters.values.sum()
+
+  val total: Int
+    get() = totalCount
 
   fun remove(id: String): Boolean {
     synchronized(changeCounters) {
       val removed = changeCounters.remove(id)
-      total -= removed
+      totalCount -= removed
       return removed != 0
     }
-  }
-
-  fun getTotal(): Int {
-    return total
   }
 }

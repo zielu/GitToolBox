@@ -1,11 +1,11 @@
 package zielu.gittoolbox.changes
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.ChangeListListener
 import com.intellij.openapi.vcs.changes.ChangeListManager
 import zielu.gittoolbox.config.ConfigNotifier
 import zielu.gittoolbox.config.GitToolBoxConfig2
+import zielu.gittoolbox.util.AppUtil
 import zielu.gittoolbox.util.LocalGateway
 
 internal class ChangeListSubscriberLocalGateway(private val project: Project) : LocalGateway(project) {
@@ -30,11 +30,11 @@ internal class ChangeListSubscriberLocalGateway(private val project: Project) : 
     ChangesTrackerService.getInstance(project).changeListChanged(changeListData)
   }
 
-  fun getAllChangeLists(): Collection<ChangeListData> {
-    return ApplicationManager.getApplication().runReadAction<Collection<ChangeListData>> { getAllChangeListsData() }
+  fun getAllChangeListsData(): Collection<ChangeListData> {
+    return AppUtil.runReadAction { getAllChangeListsDataInternal() }
   }
 
-  private fun getAllChangeListsData(): Collection<ChangeListData> {
+  private fun getAllChangeListsDataInternal(): Collection<ChangeListData> {
     val changeLists = ChangeListManager.getInstance(project).changeLists
     return changeLists.map { ChangeListData(it) }
   }

@@ -1,5 +1,6 @@
 package zielu.gittoolbox.util
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import java.util.Optional
@@ -23,5 +24,9 @@ internal object AppUtil {
   @JvmStatic
   fun <T> getComponent(project: Project, componentType: Class<T>): T {
     return project.getComponent(componentType)
+  }
+
+  fun <T> runReadAction(block: () -> T): T {
+    return ApplicationManager.getApplication().runReadAction<T> { block.invoke() }
   }
 }
