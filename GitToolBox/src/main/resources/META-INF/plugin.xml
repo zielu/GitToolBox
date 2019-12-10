@@ -61,6 +61,8 @@
                             order="first, before commitCompletion"
                             implementationClass="zielu.gittoolbox.completion.CurrentBranchCompletionContributor" />
 
+    <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.commit.CommitMessageValidationCheckinHandlerFactory" />
+
     <projectService serviceInterface="zielu.gittoolbox.ui.behindtracker.BehindTrackerUi"
                     serviceImplementation="zielu.gittoolbox.ui.behindtracker.BehindTrackerUiService" />
 
