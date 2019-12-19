@@ -43,6 +43,16 @@ public enum AbsoluteDateTimeStyle {
     public SyncDateFormat getFormat() {
       return format;
     }
+  },
+  ISO_8601(4) {
+    private final transient SyncDateFormat format = new SyncDateFormat(
+        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
+    @Transient
+    @Override
+    public SyncDateFormat getFormat() {
+      return format;
+    }
   }
   ;
 
