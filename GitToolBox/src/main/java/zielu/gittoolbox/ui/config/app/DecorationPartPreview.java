@@ -10,7 +10,9 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import jodd.util.StringBand;
 import zielu.gittoolbox.config.DecorationPartType;
+import zielu.gittoolbox.ui.ExtendedRepoInfo;
 import zielu.gittoolbox.ui.StatusPresenter;
+import zielu.gittoolbox.util.Count;
 
 class DecorationPartPreview {
   private static final Map<DecorationPartType, String> PREVIEWS = ImmutableMap.of(BRANCH, "master",
@@ -27,6 +29,8 @@ class DecorationPartPreview {
   private static String getPreview(StatusPresenter presenter, DecorationPartType type) {
     if (type == STATUS) {
       return presenter.aheadBehindStatus(3, 2);
+    } else if (type == CHANGED_COUNT) {
+      return presenter.extendedRepoInfo(new ExtendedRepoInfo(new Count(1)));
     } else {
       return PREVIEWS.getOrDefault(type, "N/A");
     }

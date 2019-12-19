@@ -44,7 +44,7 @@ public enum StatusPresenters implements StatusPresenter {
 
     @Override
     public String extendedRepoInfo(ExtendedRepoInfo extendedRepoInfo) {
-      return StatusPresenters.formatExtendedRepoInfo(extendedRepoInfo,
+      return formatExtendedRepoInfo(extendedRepoInfo,
           value -> value + " " + UtfSeq.DELTA);
     }
 
@@ -91,7 +91,7 @@ public enum StatusPresenters implements StatusPresenter {
 
     @Override
     public String extendedRepoInfo(ExtendedRepoInfo extendedRepoInfo) {
-      return StatusPresenters.formatExtendedRepoInfo(extendedRepoInfo,
+      return formatExtendedRepoInfo(extendedRepoInfo,
           value -> value + " " + UtfSeq.DELTA);
     }
 
@@ -141,7 +141,7 @@ public enum StatusPresenters implements StatusPresenter {
 
     @Override
     public String extendedRepoInfo(ExtendedRepoInfo extendedRepoInfo) {
-      return StatusPresenters.formatExtendedRepoInfo(extendedRepoInfo,
+      return formatExtendedRepoInfo(extendedRepoInfo,
           value -> ResBundle.message("change.count.x.changes.label", value));
     }
 

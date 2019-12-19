@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.cache.RepoInfo;
@@ -28,28 +29,28 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
   static {
     DECORATORS.put(BRANCH, decoration -> {
       String value = decoration.coloredUi.getDecorationPartText(decoration.getBranchText(), BRANCH);
-      if (value != null) {
+      if (StringUtils.isNotBlank(value)) {
         return new ColoredFragment(value, decoration.getBranchAttributes());
       }
       return null;
     });
     DECORATORS.put(STATUS, decoration -> {
       String value = decoration.coloredUi.getDecorationPartText(decoration.getCountText(), STATUS);
-      if (value != null) {
+      if (StringUtils.isNotBlank(value)) {
         return new ColoredFragment(value, decoration.coloredUi.getStatusAttributes());
       }
       return null;
     });
     DECORATORS.put(TAGS_ON_HEAD, decoration -> {
       String value = decoration.coloredUi.getDecorationPartText(decoration.getTagsText(), TAGS_ON_HEAD);
-      if (value != null) {
+      if (StringUtils.isNotBlank(value)) {
         return new ColoredFragment(value, decoration.coloredUi.getHeadTagsAttributes());
       }
       return null;
     });
     DECORATORS.put(CHANGED_COUNT, decoration -> {
       String value = decoration.coloredUi.getDecorationPartText(decoration.getChangedCountText(), CHANGED_COUNT);
-      if (value != null) {
+      if (StringUtils.isNotBlank(value)) {
         return new ColoredFragment(value, decoration.coloredUi.getChangedCountAttributes());
       }
       return null;

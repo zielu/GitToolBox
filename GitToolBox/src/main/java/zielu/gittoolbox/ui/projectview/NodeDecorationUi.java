@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import jodd.util.StringBand;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.config.DecorationPartConfig;
@@ -43,7 +44,7 @@ public class NodeDecorationUi {
 
   @Nullable
   public String getDecorationPartText(@Nullable String value, DecorationPartType type) {
-    if (value != null) {
+    if (StringUtils.isNotBlank(value)) {
       DecorationPartConfig part = configuredParts.get(type);
       return new StringBand(part.prefix).append(value).append(part.postfix).toString();
     }
