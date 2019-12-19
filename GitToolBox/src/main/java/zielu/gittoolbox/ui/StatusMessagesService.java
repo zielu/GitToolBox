@@ -72,6 +72,11 @@ public class StatusMessagesService {
     return commonStatuses.getOrDefault(status, ResBundle.message("message.unknown"));
   }
 
+  @NotNull
+  public String extendedRepoInfo(@NotNull ExtendedRepoInfo extendedRepoInfo) {
+    return gateway.extendedRepoInfo(extendedRepoInfo);
+  }
+
   private String repoNamePrefix(GitRepository repository) {
     return GitUIUtil.code(GtUtil.name(repository) + ": ");
   }

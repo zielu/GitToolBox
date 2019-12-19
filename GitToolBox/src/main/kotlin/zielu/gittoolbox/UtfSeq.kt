@@ -9,4 +9,5 @@ internal object UtfSeq {
   const val ARROWHEAD_RIGHT = "\u02C3"
   const val INCREMENT = "\u2206"
   const val BULLET = "\u2022"
+  const val DELTA = "\u0394"
 }

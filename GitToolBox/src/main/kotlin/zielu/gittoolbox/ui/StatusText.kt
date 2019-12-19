@@ -21,12 +21,7 @@ internal object StatusText {
 
   @JvmStatic
   fun format(extendedRepoInfo: ExtendedRepoInfo): String {
-    val parts = ArrayList<String>()
-    val changedCount = extendedRepoInfo.changedCount
-    if (!changedCount.isEmpty()) {
-      parts.add(ResBundle.message("change.count.x.changes.label", changedCount.value))
-    }
-    return parts.joinToString(" ")
+    return StatusMessagesService.getInstance().extendedRepoInfo(extendedRepoInfo);
   }
 
   @JvmStatic

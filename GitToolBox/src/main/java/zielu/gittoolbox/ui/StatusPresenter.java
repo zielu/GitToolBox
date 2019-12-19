@@ -11,6 +11,8 @@ public interface StatusPresenter {
 
   String branchAndParent(String branchName, String parentBranchName);
 
+  String extendedRepoInfo(ExtendedRepoInfo extendedRepoInfo);
+
   String key();
 
   String getLabel();

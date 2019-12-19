@@ -1,10 +1,14 @@
 package zielu.gittoolbox.ui;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.IntFunction;
 import jodd.util.StringBand;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.UtfSeq;
 import zielu.gittoolbox.status.BehindStatus;
+import zielu.gittoolbox.util.Count;
 
 public enum StatusPresenters implements StatusPresenter {
   arrows {
@@ -36,6 +40,12 @@ public enum StatusPresenters implements StatusPresenter {
     @Override
     public String branchAndParent(String branchName, String parentBranchName) {
       return branchName + " " + UtfSeq.ARROW_RIGHT + " " + parentBranchName;
+    }
+
+    @Override
+    public String extendedRepoInfo(ExtendedRepoInfo extendedRepoInfo) {
+      return StatusPresenters.formatExtendedRepoInfo(extendedRepoInfo,
+          value -> value + " " + UtfSeq.DELTA);
     }
 
     @Override
@@ -80,6 +90,12 @@ public enum StatusPresenters implements StatusPresenter {
     }
 
     @Override
+    public String extendedRepoInfo(ExtendedRepoInfo extendedRepoInfo) {
+      return StatusPresenters.formatExtendedRepoInfo(extendedRepoInfo,
+          value -> value + " " + UtfSeq.DELTA);
+    }
+
+    @Override
     public String key() {
       return "arrowHeads";
     }
@@ -121,6 +137,12 @@ public enum StatusPresenters implements StatusPresenter {
     @Override
     public String branchAndParent(String branchName, String parentBranchName) {
       return branchName + " > " + parentBranchName;
+    }
+
+    @Override
+    public String extendedRepoInfo(ExtendedRepoInfo extendedRepoInfo) {
+      return StatusPresenters.formatExtendedRepoInfo(extendedRepoInfo,
+          value -> ResBundle.message("change.count.x.changes.label", value));
     }
 
     @Override
@@ -180,5 +202,15 @@ public enum StatusPresenters implements StatusPresenter {
       return symbol + delta;
     }
     return "";
+  }
+
+  private static String formatExtendedRepoInfo(ExtendedRepoInfo extendedRepoInfo,
+                                               IntFunction<String> formatChanged) {
+    List<String> parts = new ArrayList<>();
+    Count changedCount = extendedRepoInfo.getChangedCount();
+    if (!changedCount.isEmpty()) {
+      parts.add(formatChanged.apply(changedCount.getValue()));
+    }
+    return String.join(" ", parts);
   }
 }
