@@ -21,7 +21,7 @@ internal object StatusText {
 
   @JvmStatic
   fun format(extendedRepoInfo: ExtendedRepoInfo): String {
-    return StatusMessagesService.getInstance().extendedRepoInfo(extendedRepoInfo);
+    return StatusMessagesService.getInstance().extendedRepoInfo(extendedRepoInfo)
   }
 
   @JvmStatic

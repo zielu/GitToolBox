@@ -13,6 +13,6 @@ internal class StatusMessagesServiceLocalGatewayImpl : StatusMessagesServiceLoca
   }
 
   override fun extendedRepoInfo(extendedRepoInfo: ExtendedRepoInfo): String {
-    return StatusMessagesUi.getInstance().presenter().extendedRepoInfo(extendedRepoInfo);
+    return StatusMessagesUi.getInstance().presenter().extendedRepoInfo(extendedRepoInfo)
   }
 }

@@ -10,7 +10,10 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 
 class YesNoDialog(
-  project: Project, parent: Component, title: String, val message: String
+  project: Project,
+  parent: Component,
+  title: String,
+  val message: String
 ) : DialogWrapper(project, parent, false, IdeModalityType.PROJECT) {
 
   init {
@@ -22,7 +25,7 @@ class YesNoDialog(
     val textLabel = JLabel(message)
     textLabel.setUI(MultiLineLabelUI())
     panel.add(textLabel, BorderLayout.CENTER)
-    return panel;
+    return panel
   }
 
   override fun createCenterPanel(): JComponent? = null
