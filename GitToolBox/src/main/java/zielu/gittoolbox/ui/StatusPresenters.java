@@ -15,13 +15,23 @@ public enum StatusPresenters implements StatusPresenter {
     @Override
     public String behindStatus(BehindStatus behind) {
       StringBand text = formatBehind(behind, UtfSeq.ARROW_DOWN);
-      behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta, UtfSeq.INCREMENT)));
+      behind.delta()
+          .ifPresent(delta -> {
+            text.append(" ");
+            formatDelta(text, delta, UtfSeq.INCREMENT);
+          });
       return text.toString();
     }
 
     @Override
     public String aheadBehindStatus(int ahead, int behind) {
-      return ahead + UtfSeq.ARROW_UP + " " + behind + UtfSeq.ARROW_DOWN;
+      return new StringBand(5)
+                 .append(ahead)
+                 .append(UtfSeq.ARROW_UP)
+                 .append(" ")
+                 .append(behind)
+                 .append(UtfSeq.ARROW_DOWN)
+                 .toString();
     }
 
     @Override
@@ -45,7 +55,7 @@ public enum StatusPresenters implements StatusPresenter {
     @Override
     public String extendedRepoInfo(ExtendedRepoInfo extendedRepoInfo) {
       return formatExtendedRepoInfo(extendedRepoInfo,
-          value -> value + " " + UtfSeq.DELTA);
+          value -> formatChanged(value, UtfSeq.EMPTY_SET, UtfSeq.DELTA));
     }
 
     @Override
@@ -59,10 +69,14 @@ public enum StatusPresenters implements StatusPresenter {
     }
   },
   arrowHeads {
+    private final String noChangesSymbol = UtfSeq.ARROWHEAD_LEFT + UtfSeq.ARROWHEAD_RIGHT;
+
     @Override
     public String behindStatus(BehindStatus behind) {
       StringBand text = formatBehind(behind, UtfSeq.ARROWHEAD_DOWN);
-      behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta)));
+      behind.delta()
+          .ifPresent(delta -> text.append(" ")
+                                  .append(formatDelta(delta)));
       return text.toString();
     }
 
@@ -92,7 +106,7 @@ public enum StatusPresenters implements StatusPresenter {
     @Override
     public String extendedRepoInfo(ExtendedRepoInfo extendedRepoInfo) {
       return formatExtendedRepoInfo(extendedRepoInfo,
-          value -> value + " " + UtfSeq.DELTA);
+          value -> formatChanged(value, noChangesSymbol, UtfSeq.DELTA));
     }
 
     @Override
@@ -112,7 +126,9 @@ public enum StatusPresenters implements StatusPresenter {
     @Override
     public String behindStatus(BehindStatus behind) {
       StringBand text = formatBehind(behind, behindSymbol);
-      behind.delta().ifPresent(delta -> text.append(" ").append(formatDelta(delta)));
+      behind.delta()
+          .ifPresent(delta -> text.append(" ")
+                                  .append(formatDelta(delta)));
       return text.toString();
     }
 
@@ -170,9 +186,13 @@ public enum StatusPresenters implements StatusPresenter {
     return PRESENTERS.get(key);
   }
 
-  private static String format(String aheadText, String behindText) {
+  protected String format(String aheadText, String behindText) {
     if (aheadText.length() > 0 && behindText.length() > 0) {
-      return aheadText + " " + behindText;
+      return new StringBand(3)
+                 .append(aheadText)
+                 .append(" ")
+                 .append(behindText)
+                 .toString();
     } else if (aheadText.length() == 0 && behindText.length() == 0) {
       return "";
     } else {
@@ -184,33 +204,52 @@ public enum StatusPresenters implements StatusPresenter {
     }
   }
 
-  private static StringBand formatBehind(BehindStatus behind, String symbol) {
-    return new StringBand().append(behind.behind()).append(symbol);
+  protected StringBand formatBehind(BehindStatus behind, String symbol) {
+    return new StringBand()
+               .append(behind.behind())
+               .append(symbol);
   }
 
-  private static String formatDelta(int delta) {
+  protected String formatDelta(int delta) {
     if (delta > 0) {
-      return "+" + delta;
+      return new StringBand(2)
+                 .append("+")
+                 .append(delta)
+                 .toString();
     } else if (delta < 0) {
       return String.valueOf(delta);
     }
     return "";
   }
 
-  private static String formatDelta(int delta, String symbol) {
+  protected StringBand formatDelta(StringBand target, int delta, String symbol) {
     if (delta != 0) {
-      return symbol + delta;
+      return target
+                 .append(symbol)
+                 .append(delta);
     }
-    return "";
+    return target;
   }
 
-  private static String formatExtendedRepoInfo(ExtendedRepoInfo extendedRepoInfo,
-                                               IntFunction<String> formatChanged) {
+  protected String formatExtendedRepoInfo(ExtendedRepoInfo extendedRepoInfo,
+                                          IntFunction<String> formatChanged) {
     List<String> parts = new ArrayList<>();
     Count changedCount = extendedRepoInfo.getChangedCount();
     if (!changedCount.isEmpty()) {
       parts.add(formatChanged.apply(changedCount.getValue()));
     }
     return String.join(" ", parts);
+  }
+
+  protected String formatChanged(int changesCount, String noChangesSymbol, String changedSymbol) {
+    if (changesCount == 0) {
+      return noChangesSymbol;
+    } else {
+      return new StringBand(3)
+                 .append(changesCount)
+                 .append(" ")
+                 .append(changedSymbol)
+                 .toString();
+    }
   }
 }

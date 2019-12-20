@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.compat.GitCompatUtil;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
-import zielu.gittoolbox.ui.util.YesNoDialog;
+import zielu.intellij.ui.YesNoDialog;
 
 public class CommitMessageValidationCheckinHandler extends CheckinHandler {
   private final CheckinProjectPanel panel;

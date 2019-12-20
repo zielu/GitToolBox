@@ -25,4 +25,6 @@ internal object ResIcons {
   val ChangesPresent = IconLoader.getIcon("/zielu/gittoolbox/changes-present.svg")
   @JvmField
   val NoChanges = IconLoader.getIcon("/zielu/gittoolbox/changes-none.svg")
+  @JvmField
+  val Logo = IconLoader.getIcon("/META-INF/pluginIcon.svg")
 }
