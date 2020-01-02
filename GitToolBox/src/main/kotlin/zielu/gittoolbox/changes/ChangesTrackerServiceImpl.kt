@@ -91,8 +91,6 @@ private class ChangeCountersAggregator {
 private class ChangeCounters(private val changeCounters: TObjectIntHashMap<String>) {
   private var totalCount: Int = changeCounters.values.sum()
 
-  constructor(): this(TObjectIntHashMap<String>())
-
   val total: Int
     get() = totalCount
 
