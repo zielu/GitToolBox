@@ -45,6 +45,7 @@ internal class ChangesTrackerServiceTest {
 
     // then
     assertThat(changesCount.value).isEqualTo(1)
+    verify(exactly = 1) { gatewayMock.fireChangeCountsUpdated() }
   }
 
   @Test
@@ -61,5 +62,32 @@ internal class ChangesTrackerServiceTest {
 
     // then
     verify(exactly = 0) { gatewayMock.fireChangeCountsUpdated() }
+  }
+
+  @Test
+  fun `should update counts if change is moved between lists`(
+    @MockK filePathMock1: FilePath,
+    @MockK filePathMock2: FilePath,
+    @MockK repoMock: GitRepository
+  ) {
+    // given
+    every { gatewayMock.getRepoForPath(filePathMock1) } returns repoMock
+    every { gatewayMock.getRepoForPath(filePathMock2) } returns repoMock
+    every { gatewayMock.fireChangeCountsUpdated() } just Runs
+
+    val changeListData1 = ChangeListData("list1", listOf(ChangeData(filePathMock1), ChangeData(filePathMock2)))
+    val changeListData21 = ChangeListData("list1", listOf(ChangeData(filePathMock1)))
+    val changeListData22 = ChangeListData("list2", listOf(ChangeData(filePathMock2)))
+
+    // when
+    changesTrackerService.changeListChanged(changeListData1)
+    changesTrackerService.changeListChanged(changeListData21)
+    changesTrackerService.changeListChanged(changeListData22)
+
+    val changesCount = changesTrackerService.getChangesCount(repoMock)
+
+    // then
+    assertThat(changesCount.value).isEqualTo(2)
+    verify(exactly = 3) { gatewayMock.fireChangeCountsUpdated() }
   }
 }

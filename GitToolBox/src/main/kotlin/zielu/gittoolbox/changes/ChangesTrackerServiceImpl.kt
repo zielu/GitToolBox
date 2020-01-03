@@ -32,9 +32,9 @@ internal class ChangesTrackerServiceImpl
     val newCounts = getCountsForChangeList(changeListData)
     var changed = false
     newCounts.forEach { (repo, aggregator) ->
-      val newCounters = aggregator.toCounters()
-      val oldCounters = changeCounters.put(repo, newCounters)
-      val difference = oldCounters?.total.let { newCounters.total != it }
+      val oldTotal = changeCounters[repo]?.total ?: 0
+      val newCounters = changeCounters.merge(repo, aggregator.toCounters(), this::mergeCounters)
+      val difference = newCounters!!.total != oldTotal
       if (difference) {
         changed = true
       }
@@ -54,6 +54,10 @@ internal class ChangesTrackerServiceImpl
 
   private fun getRepoForChange(change: ChangeData): GitRepository? {
     return gateway.getRepoForPath(change.filePath)
+  }
+
+  private fun mergeCounters(existingCounters: ChangeCounters, newCounters: ChangeCounters): ChangeCounters {
+    return existingCounters.merge(newCounters)
   }
 
   override fun changeListRemoved(id: String) {
@@ -95,6 +99,17 @@ private class ChangeCounters(private val changeCounters: TObjectIntHashMap<Strin
       val removed = changeCounters.remove(id)
       totalCount -= removed
       return removed != 0
+    }
+  }
+
+  fun merge(other: ChangeCounters): ChangeCounters {
+    synchronized(changeCounters) {
+      other.changeCounters.forEachEntry { listId, count ->
+        changeCounters.put(listId, count)
+        true
+      }
+      totalCount = changeCounters.values.sum()
+      return this
     }
   }
 }
