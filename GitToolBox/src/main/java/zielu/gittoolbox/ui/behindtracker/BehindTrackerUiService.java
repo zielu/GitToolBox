@@ -2,7 +2,6 @@ package zielu.gittoolbox.ui.behindtracker;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import javax.swing.event.HyperlinkEvent;
@@ -41,7 +40,7 @@ class BehindTrackerUiService implements BehindTrackerUi {
 
   @Override
   public StatusMessagesService getStatusMessages() {
-    return ServiceManager.getService(StatusMessagesService.class);
+    return StatusMessagesService.getInstance();
   }
 
   @Override

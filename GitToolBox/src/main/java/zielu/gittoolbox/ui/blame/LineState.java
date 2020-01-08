@@ -26,40 +26,46 @@ class LineState {
   @Nullable
   List<LineExtensionInfo> getOrClearCachedLineInfo(Function<RevisionInfo, List<LineExtensionInfo>> lineInfoMaker) {
     BlameEditorData editorData = BlameEditorData.get(lineInfo.getEditor());
-    final boolean trace = LOG.isTraceEnabled();
     if (editorData != null) {
       if (isSameEditorData(editorData)) {
-        if (trace) {
-          LOG.trace("BlameEditorData is same: " + editorData);
-        }
-        RevisionInfo revisionInfo = editorData.getRevisionInfo();
-        BlameEditorLineData lineData = BlameEditorLineData.get(lineInfo.getEditor());
-        if (lineData != null && lineData.isSameRevision(revisionInfo)) {
-          if (trace) {
-            LOG.trace("Same revision: " + revisionInfo + " == " + lineData);
-          }
-          return lineData.getLineInfo();
-        } else {
-          List<LineExtensionInfo> lineExtensions = lineInfoMaker.apply(revisionInfo);
-          BlameEditorLineData newLineData = new BlameEditorLineData(revisionInfo, lineExtensions);
-          BlameEditorLineData.set(lineInfo.getEditor(), newLineData);
-          if (trace) {
-            LOG.trace("New BlameEditorLineData: " + newLineData);
-          }
-          return lineExtensions;
-        }
+        return getLineInfo(editorData, lineInfoMaker);
       } else {
         clear();
-        if (trace) {
+        if (LOG.isTraceEnabled()) {
           LOG.trace("BlameEditorData cleared: " + editorData);
         }
       }
     } else {
-      if (trace) {
+      if (LOG.isTraceEnabled()) {
         LOG.trace("BlameEditorData: null");
       }
     }
     return null;
+  }
+
+  @Nullable
+  private List<LineExtensionInfo> getLineInfo(@NotNull BlameEditorData editorData,
+                                              @NotNull Function<RevisionInfo, List<LineExtensionInfo>> lineInfoMaker) {
+    final boolean trace = LOG.isTraceEnabled();
+    if (trace) {
+      LOG.trace("BlameEditorData is same: " + editorData);
+    }
+    RevisionInfo revisionInfo = editorData.getRevisionInfo();
+    BlameEditorLineData lineData = BlameEditorLineData.get(lineInfo.getEditor());
+    if (lineData != null && lineData.isSameRevision(revisionInfo)) {
+      if (trace) {
+        LOG.trace("Same revision: " + revisionInfo + " == " + lineData);
+      }
+      return lineData.getLineInfo();
+    } else {
+      List<LineExtensionInfo> lineExtensions = lineInfoMaker.apply(revisionInfo);
+      BlameEditorLineData newLineData = new BlameEditorLineData(revisionInfo, lineExtensions);
+      BlameEditorLineData.set(lineInfo.getEditor(), newLineData);
+      if (trace) {
+        LOG.trace("New BlameEditorLineData: " + newLineData);
+      }
+      return lineExtensions;
+    }
   }
 
   private void clear() {
