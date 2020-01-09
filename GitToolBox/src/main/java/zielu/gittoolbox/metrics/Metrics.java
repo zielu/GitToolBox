@@ -11,7 +11,7 @@ public interface Metrics {
 
   Counter counter(@NotNull String simpleName);
 
-  <T> Gauge gauge(@NotNull String simpleName, Gauge<T> gauge);
+  <T> Gauge gauge(@NotNull String simpleName, @NotNull Gauge<T> gauge);
 
-  void addAll(MetricSet metricSet);
+  void addAll(@NotNull MetricSet metricSet);
 }

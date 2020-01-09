@@ -29,13 +29,13 @@ class MetricManager implements Metrics {
   }
 
   @Override
-  public <T> Gauge gauge(@NotNull String simpleName, Gauge<T> gauge) {
+  public <T> Gauge gauge(@NotNull String simpleName, @NotNull Gauge<T> gauge) {
     String name = name(simpleName);
     return registry.gauge(name, () -> gauge);
   }
 
   @Override
-  public void addAll(MetricSet metricSet) {
+  public void addAll(@NotNull MetricSet metricSet) {
     registry.registerAll(metricSet);
   }
 }
