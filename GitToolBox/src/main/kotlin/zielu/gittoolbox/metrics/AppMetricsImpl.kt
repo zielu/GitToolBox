@@ -6,7 +6,7 @@ import com.codahale.metrics.MetricSet
 import com.codahale.metrics.Timer
 
 internal class AppMetricsImpl : AppMetrics {
-  private val metrics = MetricManager()
+  private val metrics = MetricsManager()
 
   override fun addAll(metricSet: MetricSet) {
     metrics.addAll(metricSet)
@@ -16,7 +16,7 @@ internal class AppMetricsImpl : AppMetrics {
 
   override fun counter(simpleName: String): Counter = metrics.counter(simpleName)
 
-  override fun <T : Any?> gauge(simpleName: String, gauge: Gauge<T>): Gauge<*> {
-    return metrics.gauge(simpleName, gauge)
+  override fun <T : Any?> gauge(simpleName: String, value: () -> T): Gauge<*> {
+    return metrics.gauge(simpleName, value)
   }
 }

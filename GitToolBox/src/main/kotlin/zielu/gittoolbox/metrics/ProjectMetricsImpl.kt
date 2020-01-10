@@ -13,7 +13,7 @@ import zielu.gittoolbox.metrics.Jmx.startReporting
 import zielu.gittoolbox.util.DisposeSafeRunnable
 
 internal class ProjectMetricsImpl(project: Project) : ProjectMetrics {
-  private val metrics = MetricManager()
+  private val metrics = MetricsManager()
 
   init {
     project.messageBus.connect(project).subscribe(ProjectManager.TOPIC, object : ProjectManagerListener {
@@ -25,7 +25,7 @@ internal class ProjectMetricsImpl(project: Project) : ProjectMetrics {
   }
 
   private fun startReporter(project: Project) {
-    val reporter = startReporting(project, metrics.registry)
+    val reporter = startReporting(project, metrics.getRegistry())
     Disposer.register(project, reporter)
   }
 
@@ -35,7 +35,7 @@ internal class ProjectMetricsImpl(project: Project) : ProjectMetrics {
 
   override fun counter(simpleName: String): Counter = metrics.counter(simpleName)
 
-  override fun <T : Any?> gauge(simpleName: String, gauge: Gauge<T>): Gauge<*> {
-    return metrics.gauge(simpleName, gauge)
+  override fun <T : Any?> gauge(simpleName: String, value: () -> T): Gauge<*> {
+    return metrics.gauge(simpleName, value)
   }
 }
