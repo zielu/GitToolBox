@@ -234,7 +234,11 @@ dependencies {
     testImplementation ("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
     testImplementation ("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
 
+    //testImplementation ("com.tngtech.archunit:archunit-junit5-api:${archUnitVersion}")
+
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    //testRuntimeOnly ("com.tngtech.archunit:archunit-junit5-engine:${archUnitVersion}")
+
     //testRuntimeOnly ("org.slf4j:slf4j-simple:${slf4jVersion}")
 }
 
