@@ -3,7 +3,6 @@ package zielu.gittoolbox.changes
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.ChangeListListener
 import com.intellij.openapi.vcs.changes.ChangeListManager
-import zielu.gittoolbox.config.ConfigNotifier
 import zielu.gittoolbox.config.GitToolBoxConfig2
 import zielu.gittoolbox.util.AppUtil
 import zielu.gittoolbox.util.LocalGateway
@@ -12,10 +11,6 @@ internal class ChangeListSubscriberLocalGateway(private val project: Project) : 
 
   fun subscribe(listener: ChangeListListener) {
     ChangeListManager.getInstance(project).addChangeListListener(listener, project)
-  }
-
-  fun subscribe(listener: ConfigNotifier) {
-    project.messageBus.connect(project).subscribe(ConfigNotifier.CONFIG_TOPIC, listener)
   }
 
   fun changeListRemoved(id: String) {

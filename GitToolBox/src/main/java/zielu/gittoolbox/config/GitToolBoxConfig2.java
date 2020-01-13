@@ -179,7 +179,8 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   }
 
   public void fireChanged(@NotNull GitToolBoxConfig2 previousConfig) {
-    ApplicationManager.getApplication().getMessageBus().syncPublisher(ConfigNotifier.CONFIG_TOPIC)
+    ApplicationManager.getApplication().getMessageBus()
+        .syncPublisher(AppConfigNotifier.CONFIG_TOPIC)
         .configChanged(previousConfig, this);
   }
 

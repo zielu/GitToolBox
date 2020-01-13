@@ -27,7 +27,7 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.changes.ChangesTrackerService;
-import zielu.gittoolbox.config.ConfigNotifier;
+import zielu.gittoolbox.config.AppConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.ExtendedRepoInfo;
@@ -98,7 +98,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
         }
       }
     });
-    myConnection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
+    myConnection.subscribe(AppConfigNotifier.CONFIG_TOPIC, new AppConfigNotifier() {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         if (isActive()) {

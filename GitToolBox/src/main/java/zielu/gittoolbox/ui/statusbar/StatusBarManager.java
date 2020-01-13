@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.ConfigNotifier;
+import zielu.gittoolbox.config.AppConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 
@@ -33,7 +33,7 @@ class StatusBarManager implements ProjectComponent {
     GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
     updateWidgets(config.isStatusBarWidgetVisible(), config.showBlameWidget);
 
-    connection.subscribe(ConfigNotifier.CONFIG_TOPIC, new ConfigNotifier() {
+    connection.subscribe(AppConfigNotifier.CONFIG_TOPIC, new AppConfigNotifier() {
       @Override
       public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
         AppUiUtil.invokeLater(project, () -> {

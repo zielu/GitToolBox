@@ -57,7 +57,7 @@ internal data class GitToolBoxConfigPrj(
   }
 
   fun fireChanged(project: Project, previous: GitToolBoxConfigPrj) {
-    project.messageBus.syncPublisher(ConfigNotifier.CONFIG_TOPIC).configChanged(project, previous, this)
+    project.messageBus.syncPublisher(ProjectConfigNotifier.CONFIG_TOPIC).configChanged(previous, this)
   }
 
   override fun getState(): GitToolBoxConfigPrj? {
