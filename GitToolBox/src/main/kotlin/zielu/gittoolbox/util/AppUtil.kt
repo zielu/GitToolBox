@@ -22,7 +22,7 @@ internal object AppUtil {
   }
 
   @JvmStatic
-  fun <T> getComponent(project: Project, componentType: Class<T>): T {
+  fun <T> getComponentInstance(project: Project, componentType: Class<T>): T {
     return project.getComponent(componentType)
   }
 

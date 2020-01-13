@@ -37,7 +37,7 @@ class BehindTracker implements ProjectComponent {
 
   @NotNull
   static BehindTracker getInstance(@NotNull Project project) {
-    return AppUtil.getComponent(project, BehindTracker.class);
+    return AppUtil.getComponentInstance(project, BehindTracker.class);
   }
 
   private Optional<BehindMessage> prepareMessage(
