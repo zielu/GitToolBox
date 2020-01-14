@@ -29,4 +29,8 @@ internal object AppUtil {
   fun <T> runReadAction(block: () -> T): T {
     return ApplicationManager.getApplication().runReadAction<T> { block.invoke() }
   }
+
+  fun hasUi(): Boolean {
+    return !ApplicationManager.getApplication().isHeadlessEnvironment
+  }
 }

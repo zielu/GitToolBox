@@ -114,6 +114,9 @@
 
     <projectService serviceImplementation="zielu.gittoolbox.ui.projectview.ProjectViewSubscriber" />
 
+    <projectService serviceImplementation="zielu.gittoolbox.status.behindtracker.BehindTrackerSubscriber" />
+    <projectService serviceImplementation="zielu.gittoolbox.status.behindtracker.BehindTracker" />
+
     <webHelpProvider implementation="zielu.gittoolbox.help.GithubWikiHelpProvider" />
   </extensions>
 
@@ -126,12 +129,6 @@
     <component>
       <interface-class>zielu.gittoolbox.fetch.AutoFetchComponent</interface-class>
       <implementation-class>zielu.gittoolbox.fetch.AutoFetch</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTracker</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTrackerController</implementation-class>
     </component>
     <component>
       <implementation-class>zielu.gittoolbox.ui.statusbar.StatusBarManager</implementation-class>
@@ -176,6 +173,9 @@
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
     <listener class="zielu.gittoolbox.fetch.AutoFetchStateAllowedListener"
               topic="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedNotifier" />
+
+    <listener class="zielu.gittoolbox.status.behindtracker.BehindTrackerSubscriberRepoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
 
     <listener class="zielu.gittoolbox.ui.blame.BlameUiSubscriberConfigListener"
               topic="zielu.gittoolbox.config.AppConfigNotifier" />
