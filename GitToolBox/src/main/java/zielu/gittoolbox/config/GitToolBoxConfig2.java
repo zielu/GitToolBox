@@ -101,10 +101,6 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
     return updateProjectActionId;
   }
 
-  public void setUpdateProjectActionId(String id) {
-    updateProjectActionId = id;
-  }
-
   public boolean isUpdateProjectActionId(@NotNull String id) {
     return !updateProjectActionId.equals(id);
   }
@@ -165,11 +161,6 @@ public class GitToolBoxConfig2 implements PersistentStateComponent<GitToolBoxCon
   public boolean isChangesTrackingEnabled() {
     return showChangesInStatusBar || decorationParts.stream()
         .anyMatch(part -> part.type == DecorationPartType.CHANGED_COUNT);
-  }
-
-  @Transient
-  public boolean isStatusBarWidgetVisible() {
-    return showStatusWidget || isChangesTrackingEnabled();
   }
 
   @Nullable

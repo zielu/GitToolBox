@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.event.CaretListener;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
@@ -37,7 +38,6 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
       onCaretPositionChanged(event);
     }
   };
-  private BlameUiService uiService;
   private String text = "";
 
   BlameStatusWidget(@NotNull Project project) {
@@ -62,7 +62,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   }
 
   private void updateStatus(@NotNull VirtualFile file, int lineIndex) {
-    String status = uiService.getBlameStatus(file, lineIndex);
+    String status = BlameUiService.getInstance(myProject).getBlameStatus(file, lineIndex);
     updatePresentation(status);
   }
 
@@ -72,7 +72,11 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
     } else {
       text = "";
     }
-    myStatusBar.updateWidget(ID);
+    repaintStatusBar();
+  }
+
+  private void repaintStatusBar() {
+    AppUiUtil.invokeLaterIfNeeded(myProject, () -> myStatusBar.updateWidget(ID));
   }
 
   @NotNull
@@ -87,17 +91,18 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
     return this;
   }
 
-  @Override
-  public void setVisible(boolean visible) {
+  private void setVisible(boolean visible) {
     if (visible && this.visible.compareAndSet(false, true)) {
-      uiService = BlameUiService.getInstance(myProject);
       EditorFactory.getInstance().getEventMulticaster().addCaretListener(caretListener, myProject);
-      if (connected.compareAndSet(false, true)) {
-        connect();
-      }
       AppUiUtil.invokeLater(myProject, this::updateBlame);
     } else if (!visible && this.visible.compareAndSet(true, false)) {
       EditorFactory.getInstance().getEventMulticaster().removeCaretListener(caretListener);
+    }
+  }
+
+  private void initialize() {
+    if (connected.compareAndSet(false, true)) {
+      connect();
     }
   }
 
@@ -119,9 +124,13 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
     });
     myConnection.subscribe(AppConfigNotifier.CONFIG_TOPIC, new AppConfigNotifier() {
       @Override
-      public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
+      public void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
+        updateVisibleFromConfig();
         if (shouldShow() && current.isBlameStatusPresentationChanged(previous)) {
-          AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame());
+          AppUiUtil.invokeLaterIfNeeded(myProject, BlameStatusWidget.this::updateBlame);
+        }
+        if (current.isShowBlameWidgetChanged(previous.showBlameWidget)) {
+          repaintStatusBar();
         }
       }
     });
@@ -129,7 +138,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
       @Override
       public void exitDumbMode() {
         if (shouldShow()) {
-          AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame());
+          AppUiUtil.invokeLaterIfNeeded(myProject, BlameStatusWidget.this::updateBlame);
         }
       }
     });
@@ -154,7 +163,10 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   @NotNull
   @Override
   public String getText() {
-    return text;
+    if (visible.get()) {
+      return text;
+    }
+    return "";
   }
 
   @Override
@@ -165,25 +177,43 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   @Nullable
   @Override
   public String getTooltipText() {
-    VirtualFile selectedFile = getSelectedFile();
-    if (selectedFile != null) {
-      int lineIndex = BlameUi.getCurrentLineIndex(getEditor());
-      if (BlameUi.isValidLineIndex(lineIndex)) {
-        return uiService.getBlameStatusTooltip(selectedFile, lineIndex);
+    if (visible.get()) {
+      VirtualFile selectedFile = getSelectedFile();
+      if (selectedFile != null) {
+        int lineIndex = BlameUi.getCurrentLineIndex(getEditor());
+        if (BlameUi.isValidLineIndex(lineIndex)) {
+          return BlameUiService.getInstance(myProject).getBlameStatusTooltip(selectedFile, lineIndex);
+        }
       }
     }
     return null;
   }
 
   @Override
-  public void closed() {
-    dispose();
+  public void install(@NotNull StatusBar statusBar) {
+    super.install(statusBar);
+    initialize();
+    updateVisibleFromConfig();
+  }
+
+  private void updateVisibleFromConfig() {
+    setVisible(GitToolBoxConfig2.getInstance().showBlameWidget);
+  }
+
+  @Override
+  public void dispose() {
+    setVisible(false);
+    super.dispose();
   }
 
   @Nullable
   @Override
   public Consumer<MouseEvent> getClickConsumer() {
-    return this::showPopup;
+    if (visible.get()) {
+      return this::showPopup;
+    } else {
+      return null;
+    }
   }
 
   private void showPopup(MouseEvent event) {

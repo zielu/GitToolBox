@@ -16,20 +16,20 @@ public abstract class GtBinderConfigurableBase<F extends GtFormUi, C extends Per
   protected abstract void bind(ConfigUiBinder<C, F> binder);
 
   @Override
-  protected void setFormState(F form, C config) {
+  protected final void setFormState(F form, C config) {
     log.debug("Set form state");
     binder.populateUi(config, form);
   }
 
   @Override
-  protected boolean checkModified(F form, C config) {
+  protected final boolean checkModified(F form, C config) {
     boolean modified = binder.checkModified(config, form);
     log.debug("Modified: ", modified);
     return modified;
   }
 
   @Override
-  protected void doApply(F form, C config) throws ConfigurationException {
+  protected final void doApply(F form, C config) throws ConfigurationException {
     C previous = copy(config);
     binder.populateConfig(config, form);
     log.debug("Applied");

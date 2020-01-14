@@ -118,6 +118,9 @@
     <projectService serviceImplementation="zielu.gittoolbox.status.behindtracker.BehindTracker" />
 
     <webHelpProvider implementation="zielu.gittoolbox.help.GithubWikiHelpProvider" />
+
+    <statusBarWidgetProvider implementation="zielu.gittoolbox.ui.statusbar.GitStatStatusBarWidgetProvider" />
+    <statusBarWidgetProvider implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetProvider" />
   </extensions>
 
   <application-components>
@@ -129,9 +132,6 @@
     <component>
       <interface-class>zielu.gittoolbox.fetch.AutoFetchComponent</interface-class>
       <implementation-class>zielu.gittoolbox.fetch.AutoFetch</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.ui.statusbar.StatusBarManager</implementation-class>
     </component>
     <!--
     <component>

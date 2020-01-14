@@ -99,8 +99,8 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
     config.absoluteDateTimeStyle = form.getAbsoluteDateTimeStyle();
     config.showChangesInStatusBar = form.getShowChangesInStatusBar();
 
-    //Mark migrated here to handle case when config is modified without opening a project
-    //Example: from launch dialog
+    //Mark migrated here to handle case when config gets modified without opening a project
+    //Example: changing default settings from launch dialog
     config.previousVersionMigrated = true;
 
     config.fireChanged(previousConfig);

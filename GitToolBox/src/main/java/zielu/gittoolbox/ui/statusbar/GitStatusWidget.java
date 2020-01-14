@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.Conditions;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.util.Consumer;
@@ -42,10 +43,10 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   public static final String ID = GitStatusWidget.class.getName();
   private final AtomicBoolean connected = new AtomicBoolean();
+  private final AtomicBoolean visible = new AtomicBoolean();
   private final StatusToolTip toolTip;
   private final RootActions rootActions;
   private String text = "";
-  private boolean visible = true;
   private Icon icon = null;
 
   private GitStatusWidget(@NotNull Project project) {
@@ -78,15 +79,15 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     AppUiUtil.invokeLaterIfNeeded(project, update);
   }
 
-  @Override
-  public void setVisible(boolean visible) {
-    this.visible = visible;
-    if (visible) {
-      if (connected.compareAndSet(false, true)) {
-        connect();
-      }
-    }
+  private void setVisible(boolean visible) {
+    this.visible.set(visible);
     runUpdateLater(myProject);
+  }
+
+  private void initialize() {
+    if (connected.compareAndSet(false, true)) {
+      connect();
+    }
   }
 
   private void connect() {
@@ -100,15 +101,19 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     });
     myConnection.subscribe(AppConfigNotifier.CONFIG_TOPIC, new AppConfigNotifier() {
       @Override
-      public void configChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
-        if (isActive()) {
+      public void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
+        updateVisibleFromConfig();
+        if (current.showStatusWidget) {
           runUpdateLater(myProject);
+        }
+        if (current.isShowStatusWidgetChanged(previous.showStatusWidget)) {
+          repaintStatusBar();
         }
       }
     });
     myConnection.subscribe(UISettingsListener.TOPIC, uiSettings -> {
       if (isActive()) {
-        AppUiUtil.invokeLaterIfNeeded(myProject, this::updateStatusBar);
+        repaintStatusBar();
       }
     });
     myConnection.subscribe(ChangesTrackerService.CHANGES_TRACKER_TOPIC, () -> {
@@ -116,6 +121,10 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
         runUpdateLater(myProject);
       }
     });
+  }
+
+  private void repaintStatusBar() {
+    AppUiUtil.invokeLaterIfNeeded(myProject, this::updateStatusBar);
   }
 
   @Override
@@ -149,19 +158,42 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Nullable
   @Override
   public String getSelectedValue() {
-    return text;
+    if (visible.get()) {
+      return text;
+    } else {
+      return null;
+    }
   }
 
   @Nullable
   @Override
   public String getTooltipText() {
-    return toolTip.getText();
+    if (visible.get()) {
+      return toolTip.getText();
+    } else {
+      return null;
+    }
   }
 
+  @Override
+  public void install(@NotNull StatusBar statusBar) {
+    super.install(statusBar);
+    initialize();
+    updateVisibleFromConfig();
+  }
+
+  private void updateVisibleFromConfig() {
+    setVisible(isVisibleFromConfig());
+  }
+
+  private boolean isVisibleFromConfig() {
+    return GitToolBoxConfig2.getInstance().showStatusWidget;
+  }
 
   @Override
-  public void closed() {
-    dispose();
+  public void dispose() {
+    setVisible(false);
+    super.dispose();
   }
 
   @Override
@@ -237,7 +269,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
       repoInfo = PerRepoInfoCache.getInstance(project).getInfo(repository);
     }
     update(repository, repoInfo);
-    updateStatusBar();
+    repaintStatusBar();
   }
 
   private void update(@Nullable GitRepository repository, RepoInfo repoInfo) {
@@ -254,7 +286,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private boolean isActive() {
-    return !isDisposed() && visible;
+    return !isDisposed() && visible.get();
   }
 
   @Nullable
@@ -266,6 +298,10 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Nullable
   @Override
   public Icon getIcon() {
-    return icon;
+    if (visible.get()) {
+      return icon;
+    } else {
+      return null;
+    }
   }
 }
