@@ -35,7 +35,7 @@ class BehindTrackerUiService implements BehindTrackerUi {
 
   @Override
   public boolean isNotificationEnabled() {
-    return GitToolBoxConfig2.getInstance().behindTracker;
+    return GitToolBoxConfig2.getInstance().getBehindTracker();
   }
 
   @Override

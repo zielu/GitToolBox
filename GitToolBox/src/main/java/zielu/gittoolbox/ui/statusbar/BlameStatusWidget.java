@@ -129,7 +129,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
         if (shouldShow() && current.isBlameStatusPresentationChanged(previous)) {
           AppUiUtil.invokeLaterIfNeeded(myProject, BlameStatusWidget.this::updateBlame);
         }
-        if (current.isShowBlameWidgetChanged(previous.showBlameWidget)) {
+        if (current.getShowBlameWidget() != previous.getShowBlameWidget()) {
           repaintStatusBar();
         }
       }
@@ -197,7 +197,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   }
 
   private void updateVisibleFromConfig() {
-    setVisible(GitToolBoxConfig2.getInstance().showBlameWidget);
+    setVisible(GitToolBoxConfig2.getInstance().getShowBlameWidget());
   }
 
   @Override

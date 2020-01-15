@@ -40,7 +40,7 @@ internal class ChangeListSubscriber(project: Project) {
   }
 
   fun onConfigChanged(current: GitToolBoxConfig2) {
-    if (current.isChangesTrackingEnabled) {
+    if (current.isChangesTrackingEnabled()) {
       onChangeListsUpdated()
     }
   }

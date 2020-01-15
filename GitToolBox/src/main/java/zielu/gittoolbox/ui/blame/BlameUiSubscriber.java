@@ -33,7 +33,7 @@ class BlameUiSubscriber {
   void onBlameUpdate(@NotNull VirtualFile file) {
     log.debug("Blame updated: ", file);
     GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
-    if (config.showEditorInlineBlame) {
+    if (config.getShowEditorInlineBlame()) {
       BlameUiService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file));
       AppUiUtil.invokeLaterIfNeeded(project, () -> handleBlameUpdate(file));
     }
@@ -85,8 +85,8 @@ class BlameUiSubscriber {
   private boolean handleConfigChanged(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
     boolean blamePresentationChanged = current.isBlameInlinePresentationChanged(previous);
     BlameUiService.getExistingInstance(project).ifPresent(service -> service.configChanged(previous, current));
-    return current.showBlameWidget != previous.showBlameWidget
-        || current.showEditorInlineBlame != previous.showEditorInlineBlame
+    return current.getShowBlameWidget() != previous.getShowBlameWidget()
+        || current.getShowEditorInlineBlame() != previous.getShowEditorInlineBlame()
         || blamePresentationChanged;
   }
 }

@@ -23,11 +23,11 @@ class ConfigMigratorV1toV2 {
   }
 
   void migrate(GitToolBoxConfig2 v2) {
-    v2.presentationMode = v1.presentationMode;
-    v2.updateProjectActionId = v1.updateProjectActionId;
-    v2.showStatusWidget = v1.showStatusWidget;
-    v2.behindTracker = v1.behindTracker;
-    v2.showProjectViewStatus = v1.showProjectViewStatus;
+    v2.setPresentationMode(v1.presentationMode);
+    v2.setUpdateProjectActionId(v1.updateProjectActionId);
+    v2.setShowStatusWidget(v1.showStatusWidget);
+    v2.setBehindTracker(v1.behindTracker);
+    v2.setShowProjectViewStatus(v1.showProjectViewStatus);
 
     List<DecorationPartConfig> decorationParts = new ArrayList<>();
     decorationParts.add(new DecorationPartConfig(BRANCH));
@@ -49,6 +49,6 @@ class ConfigMigratorV1toV2 {
         decorationParts.add(0, location.build());
       }
     }
-    v2.decorationParts = decorationParts;
+    v2.setDecorationParts(decorationParts);
   }
 }

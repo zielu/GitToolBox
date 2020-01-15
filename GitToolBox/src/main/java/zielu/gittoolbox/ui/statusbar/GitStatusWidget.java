@@ -103,10 +103,10 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
       @Override
       public void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
         updateVisibleFromConfig();
-        if (current.showStatusWidget) {
+        if (current.getShowStatusWidget()) {
           runUpdateLater(myProject);
         }
-        if (current.isShowStatusWidgetChanged(previous.showStatusWidget)) {
+        if (current.getShowStatusWidget() != previous.getShowStatusWidget()) {
           repaintStatusBar();
         }
       }
@@ -187,7 +187,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private boolean isVisibleFromConfig() {
-    return GitToolBoxConfig2.getInstance().showStatusWidget;
+    return GitToolBoxConfig2.getInstance().getShowStatusWidget();
   }
 
   @Override
@@ -233,7 +233,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     icon = null;
     List<String> parts = new ArrayList<>();
     GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
-    if (config.showChangesInStatusBar) {
+    if (config.getShowChangesInStatusBar()) {
       parts.add(StatusText.format(extendedInfo));
       if (extendedInfo.hasChanged()) {
         if (extendedInfo.getChangedCount().getValue() > 0) {
@@ -244,7 +244,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
       }
     }
     toolTip.update(repository, null);
-    if (config.showStatusWidget) {
+    if (config.getShowStatusWidget()) {
       GitAheadBehindCount count = repoInfo.count();
       if (count == null) {
         parts.add(ResBundle.na());
