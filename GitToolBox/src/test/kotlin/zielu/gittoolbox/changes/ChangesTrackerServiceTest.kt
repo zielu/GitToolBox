@@ -9,6 +9,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -89,5 +90,74 @@ internal class ChangesTrackerServiceTest {
     // then
     assertThat(changesCount.value).isEqualTo(2)
     verify(exactly = 3) { gatewayMock.fireChangeCountsUpdated() }
+  }
+
+  @Test
+  fun `should split changes between repos if one changelist contains several repos`(
+    @MockK filePathMock1: FilePath,
+    @MockK filePathMock2: FilePath,
+    @MockK filePathMock21: FilePath,
+    @MockK repoMock1: GitRepository,
+    @MockK repoMock2: GitRepository
+  ) {
+    // given
+    every { gatewayMock.getRepoForPath(filePathMock1) } returns repoMock1
+    every { gatewayMock.getRepoForPath(filePathMock2) } returns repoMock2
+    every { gatewayMock.getRepoForPath(filePathMock21) } returns repoMock2
+    every { gatewayMock.fireChangeCountsUpdated() } just Runs
+
+    val changeListData = ChangeListData("list1", listOf(
+      ChangeData(filePathMock1),
+      ChangeData(filePathMock2),
+      ChangeData(filePathMock21)
+    ))
+
+    // when
+    changesTrackerService.changeListChanged(changeListData)
+    val changesForRepo1 = changesTrackerService.getChangesCount(repoMock1)
+    val changesForRepo2 = changesTrackerService.getChangesCount(repoMock2)
+
+    // then
+    assertSoftly { softly ->
+      softly.assertThat(changesForRepo1.value).isEqualTo(1)
+      softly.assertThat(changesForRepo2.value).isEqualTo(2)
+    }
+  }
+
+  @Test
+  fun `should update changes to one repo if one changelist contains several repos`(
+    @MockK filePathMock1: FilePath,
+    @MockK filePathMock2: FilePath,
+    @MockK filePathMock21: FilePath,
+    @MockK repoMock1: GitRepository,
+    @MockK repoMock2: GitRepository
+  ) {
+    // given
+    every { gatewayMock.getRepoForPath(filePathMock1) } returns repoMock1
+    every { gatewayMock.getRepoForPath(filePathMock2) } returns repoMock2
+    every { gatewayMock.getRepoForPath(filePathMock21) } returns repoMock2
+    every { gatewayMock.fireChangeCountsUpdated() } just Runs
+
+    val changeListData1 = ChangeListData("list1", listOf(
+      ChangeData(filePathMock1),
+      ChangeData(filePathMock2),
+      ChangeData(filePathMock21)
+    ))
+    val changeListData2 = ChangeListData("list1", listOf(
+      ChangeData(filePathMock2)
+    ))
+
+    // when
+    changesTrackerService.changeListChanged(changeListData1)
+    changesTrackerService.changeListChanged(changeListData2)
+    val changesForRepo1 = changesTrackerService.getChangesCount(repoMock1)
+    val changesForRepo2 = changesTrackerService.getChangesCount(repoMock2)
+
+    // then
+    assertSoftly { softly ->
+      softly.assertThat(changesForRepo1.value).isEqualTo(0)
+      softly.assertThat(changesForRepo2.value).isEqualTo(1)
+    }
+    verify(exactly = 2) { gatewayMock.fireChangeCountsUpdated() }
   }
 }

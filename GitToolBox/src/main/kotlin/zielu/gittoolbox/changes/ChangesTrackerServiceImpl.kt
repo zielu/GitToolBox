@@ -30,7 +30,18 @@ internal class ChangesTrackerServiceImpl
 
   private fun handleNonEmptyChangeList(changeListData: ChangeListData) {
     val newCounts = getCountsForChangeList(changeListData)
+
     var changed = false
+    // clean up committed changes
+    changeCounters.forEach { (repo, counters) ->
+      if (counters.hasId(changeListData.id) && !newCounts.containsKey(repo)) {
+        if (counters.remove(changeListData.id)) {
+          changed = true
+        }
+      }
+    }
+
+    // update counts
     newCounts.forEach { (repo, aggregator) ->
       val oldTotal = changeCounters[repo]?.total ?: 0
       val newCounters = changeCounters.merge(repo, aggregator.toCounters(), this::mergeCounters)
@@ -99,6 +110,12 @@ private class ChangeCounters(private val changeCounters: TObjectIntHashMap<Strin
       val removed = changeCounters.remove(id)
       totalCount -= removed
       return removed != 0
+    }
+  }
+
+  fun hasId(id: String): Boolean {
+    synchronized(changeCounters) {
+      return changeCounters.containsKey(id)
     }
   }
 
