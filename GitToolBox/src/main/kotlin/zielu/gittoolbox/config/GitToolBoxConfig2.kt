@@ -30,7 +30,7 @@ internal data class GitToolBoxConfig2(
   var absoluteDateTimeStyle: AbsoluteDateTimeStyle = AbsoluteDateTimeStyle.FROM_LOCALE,
   var showChangesInStatusBar: Boolean = true,
   var previousVersionMigrated: Boolean = false,
-  var decorationParts: List<DecorationPartConfig> = listOf(
+  var decorationParts: List<DecorationPartConfig> = arrayListOf(
     DecorationPartConfig.builder().withType(DecorationPartType.LOCATION)
       .withPrefix("- ")
       .build(),
