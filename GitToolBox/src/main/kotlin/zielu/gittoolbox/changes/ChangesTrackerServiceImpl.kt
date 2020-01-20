@@ -7,6 +7,7 @@ import git4idea.repo.GitRepository
 import gnu.trove.TObjectIntHashMap
 import zielu.gittoolbox.util.Count
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 
 internal class ChangesTrackerServiceImpl
   @NonInjectable
@@ -14,7 +15,7 @@ internal class ChangesTrackerServiceImpl
 
   constructor(project: Project) : this(ChangesTrackerServiceLocalGateway(project))
 
-  private val changeCounters = ConcurrentHashMap<GitRepository, ChangeCounters>()
+  private val changeCounters: ConcurrentMap<GitRepository, ChangeCounters> = ConcurrentHashMap()
 
   override fun changeListChanged(changeListData: ChangeListData) {
     if (changeListData.hasChanges) {
@@ -33,11 +34,14 @@ internal class ChangesTrackerServiceImpl
 
     var changed = false
     // clean up committed changes
-    changeCounters.forEach { (repo, counters) ->
-      if (counters.hasId(changeListData.id) && !newCounts.containsKey(repo)) {
+    val reposNotInChangeList: MutableSet<GitRepository> = HashSet(changeCounters.keys)
+    reposNotInChangeList.removeAll(newCounts.keys)
+    reposNotInChangeList.forEach { repoNotInList ->
+      changeCounters.computeIfPresent(repoNotInList) { _, counters ->
         if (counters.remove(changeListData.id)) {
           changed = true
         }
+        counters
       }
     }
 
