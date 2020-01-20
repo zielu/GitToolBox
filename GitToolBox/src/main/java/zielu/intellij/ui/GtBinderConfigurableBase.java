@@ -3,6 +3,7 @@ package zielu.intellij.ui;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class GtBinderConfigurableBase<F extends GtFormUi, C extends PersistentStateComponent> extends
     GtConfigurableBase<F, C> {
@@ -13,7 +14,7 @@ public abstract class GtBinderConfigurableBase<F extends GtFormUi, C extends Per
     bind(binder);
   }
 
-  protected abstract void bind(ConfigUiBinder<C, F> binder);
+  protected abstract void bind(@NotNull ConfigUiBinder<C, F> binder);
 
   @Override
   protected final void setFormState(F form, C config) {
@@ -36,7 +37,8 @@ public abstract class GtBinderConfigurableBase<F extends GtFormUi, C extends Per
     afterApply(previous, config);
   }
 
-  protected abstract C copy(C config);
+  @NotNull
+  protected abstract C copy(@NotNull C config);
 
-  protected abstract void afterApply(C previous, C current);
+  protected abstract void afterApply(@NotNull C previous, @NotNull C current);
 }
