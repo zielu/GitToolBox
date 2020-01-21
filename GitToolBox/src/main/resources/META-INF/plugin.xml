@@ -29,7 +29,7 @@
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig" />
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2" />
-    <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigOverride" />
+    <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigExtras" />
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigPrj" />
 
     <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
@@ -48,9 +48,11 @@
     <applicationService serviceInterface="zielu.gittoolbox.ui.StatusMessagesUi"
                         serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService" />
 
-    <applicationConfigurable instance="zielu.gittoolbox.ui.config.app.GtConfigurable" id="zielu.gittoolbox.app.config" />
+    <applicationConfigurable instance="zielu.gittoolbox.ui.config.app.GtConfigurable"
+                             id="zielu.gittoolbox.app.config" />
     <applicationConfigurable instance="zielu.gittoolbox.ui.config.override.GtOverrideConfigurable"
-                             id="zielu.gittoolbox.override.config" />
+                             id="zielu.gittoolbox.extras.config"
+                             parentId="zielu.gittoolbox.app.config" />
     <projectConfigurable instance="zielu.gittoolbox.ui.config.prj.GtProjectConfigurable" id="zielu.svntoolbox.prj.config" />
 
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator" />
@@ -146,8 +148,7 @@
 
 
   <applicationListeners>
-    <listener class="zielu.gittoolbox.changes.ChangeListSubscribeProjectListener"
-              topic="com.intellij.openapi.project.ProjectManagerListener" />
+
   </applicationListeners>
 
   <projectListeners>
@@ -163,6 +164,8 @@
     <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberConfigListener"
               topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
 
+    <listener class="zielu.gittoolbox.changes.ChangeListSubscribeProjectListener"
+              topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
     <listener class="zielu.gittoolbox.changes.ChangeListSubscriberConfigListener"
               topic="zielu.gittoolbox.config.AppConfigNotifier" />
 
@@ -177,6 +180,8 @@
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
     <listener class="zielu.gittoolbox.fetch.AutoFetchStateAllowedListener"
               topic="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedNotifier" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberProjectListener"
+              topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
 
     <listener class="zielu.gittoolbox.status.behindtracker.BehindTrackerSubscriberRepoCacheListener"
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />

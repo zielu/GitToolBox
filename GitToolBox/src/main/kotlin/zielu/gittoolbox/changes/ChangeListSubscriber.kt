@@ -11,7 +11,7 @@ import zielu.gittoolbox.util.AppUtil
 internal class ChangeListSubscriber(project: Project) {
   private val gateway = ChangeListSubscriberLocalGateway(project)
 
-  fun onProjectOpened() {
+  fun onProjectReady() {
     gateway.subscribe(object : ChangeListListener {
       override fun changeListRemoved(list: ChangeList) {
         if (list is LocalChangeList) {

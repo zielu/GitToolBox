@@ -6,9 +6,8 @@ import com.codahale.metrics.MetricSet
 import com.codahale.metrics.Timer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManager
-import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.util.Disposer
+import zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier
 import zielu.gittoolbox.metrics.Jmx.startReporting
 import zielu.gittoolbox.util.DisposeSafeRunnable
 
@@ -16,8 +15,9 @@ internal class ProjectMetricsImpl(project: Project) : ProjectMetrics {
   private val metrics = MetricsManager()
 
   init {
-    project.messageBus.connect(project).subscribe(ProjectManager.TOPIC, object : ProjectManagerListener {
-      override fun projectOpened(project: Project) {
+    // TODO: convert to declarative
+    project.messageBus.connect(project).subscribe(ProjectLifecycleNotifier.TOPIC, object : ProjectLifecycleNotifier {
+      override fun projectReady(project: Project) {
         ApplicationManager.getApplication()
           .executeOnPooledThread(DisposeSafeRunnable(project, Runnable { startReporter(project) }))
       }
@@ -26,6 +26,7 @@ internal class ProjectMetricsImpl(project: Project) : ProjectMetrics {
 
   private fun startReporter(project: Project) {
     val reporter = startReporting(project, metrics.getRegistry())
+    // TODO: local gateway
     Disposer.register(project, reporter)
   }
 

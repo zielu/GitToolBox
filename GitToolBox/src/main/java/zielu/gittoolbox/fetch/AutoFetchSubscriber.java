@@ -24,6 +24,10 @@ class AutoFetchSubscriber {
     return AppUtil.getServiceInstance(project, AutoFetchSubscriber.class);
   }
 
+  void onProjectReady() {
+    AutoFetch.getInstance(project).projectReady();
+  }
+
   void onRepoStateChanged(@NotNull RepoInfo previous,
                           @NotNull RepoInfo current,
                           @NotNull GitRepository repository) {

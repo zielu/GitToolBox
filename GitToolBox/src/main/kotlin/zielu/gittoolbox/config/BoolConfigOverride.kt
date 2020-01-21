@@ -1,6 +1,7 @@
-package zielu.gittoolbox.config.override
+package zielu.gittoolbox.config
 
 import com.intellij.openapi.project.Project
+import com.intellij.util.xmlb.annotations.Transient
 
 internal data class BoolConfigOverride(
   var enabled: Boolean = false,
@@ -8,6 +9,7 @@ internal data class BoolConfigOverride(
   var applied: MutableList<AppliedConfigOverride> = arrayListOf()
 ) {
 
+  @Transient
   fun copy(): BoolConfigOverride {
     return BoolConfigOverride(
       enabled,
@@ -17,14 +19,19 @@ internal data class BoolConfigOverride(
   }
 
   fun isNotApplied(project: Project): Boolean {
-      return project.projectFilePath?.let { path ->
-        applied.map { it.projectPath }.any { it == path }
+      return project.presentableUrl?.let { path ->
+        applied.map { it.projectPath }.none { it == path }
       } ?: false
   }
 
   fun applied(project: Project) {
-    project.projectFilePath?.run {
+    project.presentableUrl?.run {
       applied.add(AppliedConfigOverride(this))
     }
+  }
+
+  @Transient
+  fun getAppliedPaths(): List<String> {
+    return applied.map { it.projectPath }.toList()
   }
 }

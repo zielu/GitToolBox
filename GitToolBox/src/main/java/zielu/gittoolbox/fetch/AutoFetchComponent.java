@@ -12,6 +12,8 @@ public interface AutoFetchComponent {
 
   void stateChanged(AutoFetchState state);
 
+  void projectReady();
+
   long lastAutoFetch();
 
   @NotNull

@@ -47,10 +47,15 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C extends Persisten
   @Override
   public final JComponent createComponent() {
     initComponent();
+    F currentForm = fillFormFromConfig();
+    return currentForm.getContent();
+  }
+
+  private F fillFormFromConfig() {
     F currentForm = getForm();
     setFormState(currentForm, getConfig());
     currentForm.afterStateSet();
-    return currentForm.getContent();
+    return currentForm;
   }
 
   @Override
@@ -68,7 +73,7 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C extends Persisten
   @Override
   public final void reset() {
     initComponent();
-    setFormState(getForm(), getConfig());
+    fillFormFromConfig();
   }
 
   @Override

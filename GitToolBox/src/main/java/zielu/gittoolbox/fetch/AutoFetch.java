@@ -7,7 +7,9 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.util.AppUtil;
 
+//TODO: convert to service
 class AutoFetch implements ProjectComponent, AutoFetchComponent {
   private final Logger log = Logger.getInstance(getClass());
 
@@ -23,11 +25,6 @@ class AutoFetch implements ProjectComponent, AutoFetchComponent {
     this.schedule = schedule;
   }
 
-  @Override
-  public void initComponent() {
-    updateAutoFetchEnabled(getConfig());
-  }
-
   private GitToolBoxConfigPrj getConfig() {
     return GitToolBoxConfigPrj.getInstance(project());
   }
@@ -38,11 +35,12 @@ class AutoFetch implements ProjectComponent, AutoFetchComponent {
   }
 
   @NotNull
-  public static AutoFetch getInstance(@NotNull Project project) {
-    return project.getComponent(AutoFetch.class);
+  public static AutoFetchComponent getInstance(@NotNull Project project) {
+    return AppUtil.getComponentInstance(project, AutoFetchComponent.class);
   }
 
   private void initializeFirstTask() {
+    updateAutoFetchEnabled(getConfig());
     if (autoFetchEnabled.get()) {
       scheduleFirstTask();
     }
@@ -109,7 +107,7 @@ class AutoFetch implements ProjectComponent, AutoFetchComponent {
   }
 
   @Override
-  public void projectOpened() {
+  public void projectReady() {
     if (active.compareAndSet(false, true)) {
       initializeFirstTask();
     }

@@ -9,6 +9,7 @@ internal data class AutoFetchExclusionConfig(
 
   constructor(repositoryRootPath: String) : this(repositoryRootPath, ArrayList())
 
+  @Transient
   fun copy(): AutoFetchExclusionConfig {
     return AutoFetchExclusionConfig(repositoryRootPath,
         ArrayList(excludedRemotes.map { it.copy() }))
