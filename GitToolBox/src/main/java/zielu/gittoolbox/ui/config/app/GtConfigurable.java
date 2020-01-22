@@ -97,6 +97,34 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
         GitToolBoxConfig2::setShowChangesInStatusBar,
         GtForm::getShowChangesInStatusBar,
         GtForm::setShowChangesInStatusBar);
+
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchEnabledOverride().getEnabled(),
+        (config, value) -> config.getExtrasConfig().getAutoFetchEnabledOverride().setEnabled(value),
+        GtForm::getAutoFetchEnabledOverride,
+        GtForm::setAutoFetchEnabledOverride
+    );
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchEnabledOverride().getValue(),
+        (config, value) -> config.getExtrasConfig().getAutoFetchEnabledOverride().setValue(value),
+        GtForm::getAutoFetchEnabled,
+        GtForm::setAutoFetchEnabled
+    );
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchEnabledOverride().getAppliedPaths(),
+        GtForm::setAppliedAutoFetchEnabledPaths
+    );
+
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchOnBranchSwitchOverride().getEnabled(),
+        (config, value) -> config.getExtrasConfig().getAutoFetchOnBranchSwitchOverride().setEnabled(value),
+        GtForm::getAutoFetchOnBranchSwitchEnabledOverride,
+        GtForm::setAutoFetchOnBranchSwitchEnabledOverride
+    );
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchOnBranchSwitchOverride().getValue(),
+        (config, value) -> config.getExtrasConfig().getAutoFetchOnBranchSwitchOverride().setValue(value),
+        GtForm::getAutoFetchOnBranchSwitchEnabled,
+        GtForm::setAutoFetchOnBranchSwitchEnabled
+    );
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchOnBranchSwitchOverride().getAppliedPaths(),
+        GtForm::setAppliedAutoFetchOnBranchSwitchEnabledPaths
+    );
   }
 
   @Override

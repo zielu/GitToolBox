@@ -51,7 +51,7 @@ class AutoFetchSubscriber {
   }
 
   void onReposEvicted(@NotNull Collection<GitRepository> repositories) {
-    AutoFetchOnBranchSwitch.getExistingInstance(project)
-        .ifPresent(service -> service.onRepositoriesRemoved(repositories));
+    AutoFetchSchedule.getExistingServiceInstance(project)
+        .ifPresent(service -> service.repositoriesRemoved(repositories));
   }
 }

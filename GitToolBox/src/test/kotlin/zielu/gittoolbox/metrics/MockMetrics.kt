@@ -8,6 +8,10 @@ import com.codahale.metrics.Timer
 internal class MockMetrics : AppMetrics, ProjectMetrics {
   private val metrics = MetricsManager()
 
+  override fun startReporting() {
+    // do nothing
+  }
+
   override fun addAll(metricSet: MetricSet) = metrics.addAll(metricSet)
 
   override fun timer(simpleName: String): Timer = metrics.timer(simpleName)

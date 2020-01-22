@@ -3,8 +3,8 @@ package zielu.gittoolbox.startup;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.config.ExtrasConfig;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
-import zielu.gittoolbox.config.GitToolBoxConfigExtras;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 
 class ConfigMigrator {
@@ -16,7 +16,7 @@ class ConfigMigrator {
     boolean migrated = migrateAppV1toV2(v2);
     migrated = migrateAppV2(v2) || migrated;
     migrated = migrateProject(prjConfig) || migrated;
-    migrated = applyConfigOverrides(project, prjConfig) || migrated;
+    migrated = applyConfigOverrides(project, v2, prjConfig) || migrated;
 
     return migrated;
   }
@@ -50,13 +50,15 @@ class ConfigMigrator {
     return migrated;
   }
 
-  private boolean applyConfigOverrides(@NotNull Project project, @NotNull GitToolBoxConfigPrj config) {
+  private boolean applyConfigOverrides(@NotNull Project project,
+                                       @NotNull GitToolBoxConfig2 config,
+                                       @NotNull GitToolBoxConfigPrj prjConfig) {
     if (project.isDefault()) {
       return false;
     }
-    GitToolBoxConfigExtras override = GitToolBoxConfigExtras.getInstance();
+    ExtrasConfig override = config.getExtrasConfig();
     ConfigOverridesMigrator migrator = new ConfigOverridesMigrator(project, override);
-    boolean migrated = migrator.migrate(config);
+    boolean migrated = migrator.migrate(prjConfig);
     if (migrated) {
       log.info("Project overrides applied");
     }

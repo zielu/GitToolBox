@@ -16,6 +16,13 @@ internal class ConfigUiBinder<CONFIG, UI> {
   }
 
   fun <T> bind(
+    getFromConfig: Function<CONFIG, T>,
+    setInUi: BiConsumer<UI, T>
+  ) {
+    bindings.add(JavaToUiBinding(getFromConfig, setInUi))
+  }
+
+  fun <T> bind(
     getFromConfig: (CONFIG) -> T,
     setInConfig: (CONFIG, T) -> Unit,
     getFromUi: (UI) -> T,
@@ -66,6 +73,21 @@ private class JavaBinding<CONFIG, UI, T>(
 
   override fun populateConfig(config: CONFIG, ui: UI) {
     setConfig.accept(config, getUi.apply(ui))
+  }
+}
+
+private class JavaToUiBinding<CONFIG, UI, T>(
+  val fromConfig: Function<CONFIG, T>,
+  val toUi: BiConsumer<UI, T>
+) : Binding<CONFIG, UI, T> {
+  override fun populateUi(config: CONFIG, ui: UI) {
+    toUi.accept(ui, fromConfig.apply(config))
+  }
+
+  override fun checkModified(config: CONFIG, ui: UI): Boolean = false
+
+  override fun populateConfig(config: CONFIG, ui: UI) {
+    // do nothing
   }
 }
 

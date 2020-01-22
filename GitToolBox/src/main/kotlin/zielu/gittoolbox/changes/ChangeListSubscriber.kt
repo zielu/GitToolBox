@@ -23,6 +23,7 @@ internal class ChangeListSubscriber(project: Project) {
         onChangeListsUpdated()
       }
     })
+    onChangeListsUpdated()
   }
 
   fun onChangeListsUpdated() {

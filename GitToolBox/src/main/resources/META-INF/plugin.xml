@@ -29,7 +29,6 @@
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig" />
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2" />
-    <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigExtras" />
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigPrj" />
 
     <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
@@ -50,9 +49,6 @@
 
     <applicationConfigurable instance="zielu.gittoolbox.ui.config.app.GtConfigurable"
                              id="zielu.gittoolbox.app.config" />
-    <applicationConfigurable instance="zielu.gittoolbox.ui.config.override.GtOverrideConfigurable"
-                             id="zielu.gittoolbox.extras.config"
-                             parentId="zielu.gittoolbox.app.config" />
     <projectConfigurable instance="zielu.gittoolbox.ui.config.prj.GtProjectConfigurable" id="zielu.svntoolbox.prj.config" />
 
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator" />
@@ -107,6 +103,8 @@
     <projectService serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiSubscriber" />
     <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter" />
 
+    <projectService serviceInterface="zielu.gittoolbox.fetch.AutoFetchComponent"
+                    serviceImplementation="zielu.gittoolbox.fetch.AutoFetch" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchState" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSubscriber" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchGateway" />
@@ -135,10 +133,6 @@
 
   <project-components>
     <!-- Add your project components here -->
-    <component>
-      <interface-class>zielu.gittoolbox.fetch.AutoFetchComponent</interface-class>
-      <implementation-class>zielu.gittoolbox.fetch.AutoFetch</implementation-class>
-    </component>
     <!--
     <component>
       <implementation-class>zielu.gittoolbox.repo.GtRepositoryManager</implementation-class>
@@ -181,6 +175,9 @@
     <listener class="zielu.gittoolbox.fetch.AutoFetchStateAllowedListener"
               topic="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedNotifier" />
     <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberProjectListener"
+              topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
+
+    <listener class="zielu.gittoolbox.metrics.MetricsProjectListener"
               topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
 
     <listener class="zielu.gittoolbox.status.behindtracker.BehindTrackerSubscriberRepoCacheListener"

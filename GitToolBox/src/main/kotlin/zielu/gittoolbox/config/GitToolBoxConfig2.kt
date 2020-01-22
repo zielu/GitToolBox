@@ -43,7 +43,8 @@ internal data class GitToolBoxConfig2(
     DecorationPartConfig.builder().withType(DecorationPartType.CHANGED_COUNT)
       .withPrefix("/ ")
       .build()
-  )
+  ),
+  var extrasConfig: ExtrasConfig = ExtrasConfig()
 ) : PersistentStateComponent<GitToolBoxConfig2> {
 
   companion object {
@@ -71,7 +72,8 @@ internal data class GitToolBoxConfig2(
       absoluteDateTimeStyle,
       showChangesInStatusBar,
       previousVersionMigrated,
-      decorationParts.map { it.copy() }
+      decorationParts.map { it.copy() },
+      extrasConfig.copy()
     )
   }
 

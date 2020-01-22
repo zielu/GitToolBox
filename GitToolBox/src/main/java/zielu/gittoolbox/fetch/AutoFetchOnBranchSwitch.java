@@ -4,7 +4,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import java.time.Duration;
-import java.util.Collection;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.RepoInfo;
@@ -26,11 +25,6 @@ class AutoFetchOnBranchSwitch {
         AutoFetchExecutor.getInstance(project).scheduleTask(delay, repository);
       }
     }
-  }
-
-  //TODO: this seems misplaced
-  void onRepositoriesRemoved(@NotNull Collection<GitRepository> repositories) {
-    AutoFetchSchedule.getInstance(project).repositoriesRemoved(repositories);
   }
 
   @NotNull

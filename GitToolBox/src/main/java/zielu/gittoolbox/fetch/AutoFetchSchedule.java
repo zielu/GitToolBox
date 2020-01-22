@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -34,6 +35,11 @@ class AutoFetchSchedule implements Disposable {
     return AppUtil.getServiceInstance(project, AutoFetchSchedule.class);
   }
 
+  @NotNull
+  static Optional<AutoFetchSchedule> getExistingServiceInstance(@NotNull Project project) {
+    return AppUtil.getExistingServiceInstance(project, AutoFetchSchedule.class);
+  }
+
   @Override
   public void dispose() {
     lastFetchTimestamps.clear();
@@ -49,7 +55,7 @@ class AutoFetchSchedule implements Disposable {
   }
 
   private long getNowTimestamp() {
-    return AutoFetchGateway.getInstance(project).getClock().millis();
+    return AutoFetchGateway.getInstance(project).getNowMillis();
   }
 
   private AtomicLong getLastFetch(@NotNull GitRepository repository) {

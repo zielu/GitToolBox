@@ -9,7 +9,7 @@ import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import zielu.gittoolbox.config.GitToolBoxConfigExtras
+import zielu.gittoolbox.config.ExtrasConfig
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
 
 @ExtendWith(MockKExtension::class)
@@ -26,7 +26,7 @@ internal class ConfigOverridesMigratorTest {
   @Test
   fun `should override auto fetch enabled`() {
     // given
-    val overrides = GitToolBoxConfigExtras()
+    val overrides = ExtrasConfig()
     overrides.autoFetchEnabledOverride.enabled = true
     overrides.autoFetchEnabledOverride.value = false
 
@@ -49,7 +49,7 @@ internal class ConfigOverridesMigratorTest {
   @Test
   fun `should override auto fetch on branch switch enabled`() {
     // given
-    val overrides = GitToolBoxConfigExtras()
+    val overrides = ExtrasConfig()
     overrides.autoFetchOnBranchSwitchOverride.enabled = true
     overrides.autoFetchOnBranchSwitchOverride.value = false
 

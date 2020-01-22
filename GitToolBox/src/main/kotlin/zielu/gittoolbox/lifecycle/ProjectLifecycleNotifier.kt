@@ -12,7 +12,6 @@ internal interface ProjectLifecycleNotifier {
   }
 
   companion object {
-    @JvmField
     val TOPIC = Topic.create("Git ToolBox Project Lifecycle", ProjectLifecycleNotifier::class.java)
   }
 }

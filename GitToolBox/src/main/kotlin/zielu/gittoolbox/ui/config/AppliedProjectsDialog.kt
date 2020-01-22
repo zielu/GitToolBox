@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config.override
+package zielu.gittoolbox.ui.config
 
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.CollectionListModel
