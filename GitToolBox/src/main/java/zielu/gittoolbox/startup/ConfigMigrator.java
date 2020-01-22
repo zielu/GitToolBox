@@ -11,12 +11,11 @@ class ConfigMigrator {
   private final Logger log = Logger.getInstance(getClass());
 
   boolean migrate(@NotNull Project project) {
-    GitToolBoxConfig2 v2 = GitToolBoxConfig2.getInstance();
+    GitToolBoxConfig2 appConfig = GitToolBoxConfig2.getInstance();
     GitToolBoxConfigPrj prjConfig = GitToolBoxConfigPrj.getInstance(project);
-    boolean migrated = migrateAppV1toV2(v2);
-    migrated = migrateAppV2(v2) || migrated;
+    boolean migrated = migrateAppV1toV2(appConfig);
     migrated = migrateProject(prjConfig) || migrated;
-    migrated = applyConfigOverrides(project, v2, prjConfig) || migrated;
+    migrated = applyConfigOverrides(project, appConfig, prjConfig) || migrated;
 
     return migrated;
   }
@@ -32,15 +31,6 @@ class ConfigMigrator {
     return false;
   }
 
-  private boolean migrateAppV2(@NotNull GitToolBoxConfig2 v2) {
-    ConfigV2Migrator migrator = new ConfigV2Migrator(v2);
-    boolean migrated = migrator.migrate();
-    if (migrated) {
-      log.info("V2 config migrated");
-    }
-    return migrated;
-  }
-
   private boolean migrateProject(@NotNull GitToolBoxConfigPrj config) {
     ConfigForProjectMigrator migrator = new ConfigForProjectMigrator(config);
     boolean migrated = migrator.migrate();
@@ -51,12 +41,12 @@ class ConfigMigrator {
   }
 
   private boolean applyConfigOverrides(@NotNull Project project,
-                                       @NotNull GitToolBoxConfig2 config,
+                                       @NotNull GitToolBoxConfig2 appConfig,
                                        @NotNull GitToolBoxConfigPrj prjConfig) {
     if (project.isDefault()) {
       return false;
     }
-    ExtrasConfig override = config.getExtrasConfig();
+    ExtrasConfig override = appConfig.getExtrasConfig();
     ConfigOverridesMigrator migrator = new ConfigOverridesMigrator(project, override);
     boolean migrated = migrator.migrate(prjConfig);
     if (migrated) {
