@@ -11,7 +11,7 @@
 
   <change-notes><![CDATA[
       inlined during build from change-notes.html
-      ]]>
+      ]]>DynamicPluginListener
   </change-notes>
 
 
@@ -142,7 +142,8 @@
 
 
   <applicationListeners>
-
+    <listener class="zielu.gittoolbox.lifecycle.PluginLifecycleListener"
+              topic="com.intellij.ide.plugins.DynamicPluginListener" />
   </applicationListeners>
 
   <projectListeners>
@@ -228,10 +229,12 @@
   </actions>
 
   <extensionPoints>
-    <extensionPoint name="autoFetchAllowed" beanClass="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedEP">
+    <extensionPoint name="autoFetchAllowed" beanClass="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedEP"
+                    dynamic="false">
       <with attribute="provider" implements="zielu.gittoolbox.extension.autofetch.AutoFetchAllowed" />
     </extensionPoint>
-    <extensionPoint name="updateProjectAction" beanClass="zielu.gittoolbox.extension.update.UpdateProjectActionEP">
+    <extensionPoint name="updateProjectAction" beanClass="zielu.gittoolbox.extension.update.UpdateProjectActionEP"
+                    dynamic="false">
       <with attribute="provider" implements="zielu.gittoolbox.extension.update.UpdateProjectAction" />
     </extensionPoint>
   </extensionPoints>

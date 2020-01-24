@@ -34,7 +34,7 @@ internal class GitToolBoxStartup : StartupActivity {
     }
   }
 
-  companion object {
+  private companion object {
     private val log = Logger.getInstance(GitToolBoxStartup::class.java)
   }
 }
