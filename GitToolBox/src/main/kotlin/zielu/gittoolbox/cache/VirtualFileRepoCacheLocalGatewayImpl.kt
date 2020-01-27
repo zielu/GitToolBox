@@ -33,7 +33,7 @@ internal class VirtualFileRepoCacheLocalGatewayImpl(
     getMetrics().gauge("filepath-repo-roots-cache-size", size)
   }
 
-  override fun dirsCacheSizeGauge(size: () -> Int) {
+  override fun dirsCacheSizeGauge(size: () -> Long) {
     getMetrics().gauge("vfile-repo-dirs-cache-size", size)
   }
 

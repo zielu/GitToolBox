@@ -27,6 +27,7 @@ import zielu.gittoolbox.ResIcons;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.changes.ChangesTrackerService;
 import zielu.gittoolbox.config.AppConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
@@ -198,7 +199,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   @Override
   public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-    runUpdate(myProject);
+    runUpdate(myProject, file);
   }
 
   @Override
@@ -208,7 +209,12 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   @Override
   public void selectionChanged(@NotNull FileEditorManagerEvent event) {
-    runUpdate(myProject);
+    VirtualFile file = event.getNewFile();
+    if (file != null) {
+      runUpdate(myProject, file);
+    } else {
+      runUpdate(myProject);
+    }
   }
 
   private void updateStatusBar() {
@@ -258,12 +264,26 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
                .collect(Collectors.joining(" / "));
   }
 
+  private void runUpdate(@Nullable Project project, @NotNull VirtualFile file) {
+    Optional.ofNullable(project).ifPresent(prj -> performUpdate(prj, file));
+  }
+
   private void runUpdate(@Nullable Project project) {
     Optional.ofNullable(project).ifPresent(this::performUpdate);
   }
 
+  private void performUpdate(@NotNull Project project, @NotNull VirtualFile file) {
+    VirtualFileRepoCache fileCache = VirtualFileRepoCache.getInstance(project);
+    GitRepository repo = fileCache.getRepoForFile(file);
+    performUpdate(project, repo);
+  }
+
   private void performUpdate(@NotNull Project project) {
-    GitRepository repository = GtUtil.getCurrentRepositoryQuick(project);
+    GitRepository repo = GtUtil.getCurrentRepositoryQuick(project);
+    performUpdate(project, repo);
+  }
+
+  private void performUpdate(@NotNull Project project, @Nullable GitRepository repository) {
     RepoInfo repoInfo = RepoInfo.empty();
     if (repository != null) {
       repoInfo = PerRepoInfoCache.getInstance(project).getInfo(repository);

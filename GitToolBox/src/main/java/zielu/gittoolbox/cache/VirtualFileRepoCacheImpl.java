@@ -3,6 +3,8 @@ package zielu.gittoolbox.cache;
 import static java.util.function.Function.identity;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -21,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +34,10 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final ConcurrentMap<VirtualFile, GitRepository> rootsVFileCache = new ConcurrentHashMap<>();
   private final ConcurrentMap<FilePath, GitRepository> rootsFilePathCache = new ConcurrentHashMap<>();
-  private final ConcurrentMap<VirtualFile, CacheEntry> dirsCache = new ConcurrentHashMap<>();
+  private final Cache<VirtualFile, CacheEntry> dirsCache = CacheBuilder.newBuilder()
+      .maximumSize(50)
+      .weakKeys()
+      .build();
   private final VirtualFileRepoCacheLocalGateway gateway;
 
   VirtualFileRepoCacheImpl(@NotNull Project project) {
@@ -51,7 +57,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   public void dispose() {
     rootsVFileCache.clear();
     rootsFilePathCache.clear();
-    dirsCache.clear();
+    dirsCache.invalidateAll();
   }
 
   @Nullable
@@ -65,7 +71,12 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   @Override
   public GitRepository getRepoForDir(@NotNull VirtualFile dir) {
     Preconditions.checkArgument(dir.isDirectory(), "%s is not a dir", dir);
-    return dirsCache.computeIfAbsent(dir, this::computeRepoForDir).repository;
+    try {
+      return dirsCache.get(dir, () -> computeRepoForDir(dir)).repository;
+    } catch (ExecutionException e) {
+      log.warn("Cannot compute repo for dir: " + dir, e);
+      return null;
+    }
   }
 
   @Nullable
@@ -98,7 +109,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
     boolean movedUp = false;
     for (VirtualFile currentDir = dir; currentDir != null; currentDir = currentDir.getParent()) {
       if (movedUp) {
-        CacheEntry existingEntry = dirsCache.get(currentDir);
+        CacheEntry existingEntry = dirsCache.getIfPresent(currentDir);
         if (existingEntry != null) {
           return existingEntry;
         }
@@ -172,11 +183,11 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   }
 
   private void purgeDirsCache(RepoListUpdate update) {
-    Set<VirtualFile> dirsToPurge = new HashSet<>(dirsCache.keySet());
+    Set<VirtualFile> dirsToPurge = new HashSet<>(dirsCache.asMap().keySet());
     dirsToPurge.removeIf(update::isAncestorKept);
     dirsToPurge.stream()
         .peek(purged -> log.debug("Purge dir: ", purged))
-        .forEach(dirsCache::remove);
+        .forEach(dirsCache::invalidate);
   }
 
   private static final class RepoListUpdate {
