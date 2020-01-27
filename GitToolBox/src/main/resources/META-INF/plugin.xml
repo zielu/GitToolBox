@@ -112,6 +112,8 @@
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchOnBranchSwitch" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchExecutor" />
 
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchAllowedDumbMode" />
+
     <projectService serviceImplementation="zielu.gittoolbox.changes.ChangeListSubscriber" />
     <projectService serviceInterface="zielu.gittoolbox.changes.ChangesTrackerService"
                     serviceImplementation="zielu.gittoolbox.changes.ChangesTrackerServiceImpl" />
@@ -177,6 +179,8 @@
               topic="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedNotifier" />
     <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberProjectListener"
               topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeListener"
+              topic="com.intellij.openapi.project.DumbService$DumbModeListener" />
 
     <listener class="zielu.gittoolbox.metrics.MetricsProjectListener"
               topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
@@ -240,7 +244,7 @@
   </extensionPoints>
 
   <extensions defaultExtensionNs="zielu.gittoolbox">
-    <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbMode" />
+    <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeExt" />
     <updateProjectAction provider="zielu.gittoolbox.ui.update.DefaultUpdateProjectAction" />
   </extensions>
 </idea-plugin>

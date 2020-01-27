@@ -1,15 +1,14 @@
 package zielu.gittoolbox.extension.autofetch
 
+import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 
 internal interface AutoFetchAllowed {
-  fun initialize()
-
-  fun isAllowed(): Boolean
+  fun isAllowed(project: Project): Boolean
 }
 
 internal interface AutoFetchAllowedNotifier {
-  fun stateChanged(allowed: AutoFetchAllowed)
+  fun stateChanged()
 }
 
 internal val AUTO_FETCH_ALLOWED_TOPIC: Topic<AutoFetchAllowedNotifier> = Topic.create(

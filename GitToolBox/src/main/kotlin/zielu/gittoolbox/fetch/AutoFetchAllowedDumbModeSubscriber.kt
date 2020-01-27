@@ -24,7 +24,7 @@ internal class AutoFetchAllowedDumbModeSubscriber(private val project: Project) 
     }
   }
 
-  companion object {
+  private companion object {
     private val log = Logger.getInstance(AutoFetchAllowedDumbModeSubscriber::class.java)
   }
 }

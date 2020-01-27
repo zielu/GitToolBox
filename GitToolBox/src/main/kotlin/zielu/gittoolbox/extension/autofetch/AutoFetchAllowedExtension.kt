@@ -5,13 +5,12 @@ import com.intellij.openapi.project.Project
 
 internal class AutoFetchAllowedExtension(private val project: Project) {
   fun isFetchAllowed(): Boolean {
-    return extensions().all { ext -> ext.isAllowed() }
+    return extensions().all { ext -> ext.isAllowed(project) }
   }
 
   private fun extensions(): List<AutoFetchAllowed> {
     return EXTENSION_POINT_NAME.extensionList
-      .map { ext -> ext.instantiate(project) }
-      .onEach { ext -> ext.initialize() }
+      .map { ext -> ext.instantiate() }
   }
 }
 
