@@ -209,14 +209,16 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   @Nullable
   @Override
   public Consumer<MouseEvent> getClickConsumer() {
+    return this::clickHandler;
+  }
+
+  private void clickHandler(MouseEvent event) {
     if (visible.get()) {
-      return this::showPopup;
-    } else {
-      return null;
+      showPopup();
     }
   }
 
-  private void showPopup(MouseEvent event) {
+  private void showPopup() {
     VirtualFile selectedFile = getSelectedFile();
     Editor editor = getEditor();
     if (selectedFile != null && editor != null) {
