@@ -16,6 +16,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 import javax.swing.Action;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -47,12 +49,15 @@ import zielu.gittoolbox.extension.update.UpdateProjectAction;
 import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.config.AbsoluteDateTimeStyleRenderer;
+import zielu.gittoolbox.ui.config.AppliedProjectsDialog;
 import zielu.gittoolbox.ui.update.UpdateProjectActionService;
 import zielu.gittoolbox.ui.util.ListDataAnyChangeAdapter;
 import zielu.intellij.ui.GtFormUi;
 
 public class GtForm implements GtFormUi {
   private final Map<DecorationPartType, Component> decorationPartActions = new LinkedHashMap<>();
+  private List<String> appliedAutoFetchEnabledPaths = Collections.emptyList();
+  private List<String> appliedAutoFetchOnBranchSwitchEnabledPaths = Collections.emptyList();
   private final CollectionListModel<DecorationPartConfig> decorationPartsModel =
       new CollectionListModel<>(new ArrayList<>());
   private final JBList<DecorationPartConfig> decorationLayoutList = new JBList<>(decorationPartsModel);
@@ -80,6 +85,12 @@ public class GtForm implements GtFormUi {
   private ComboBox<AuthorNameType> blameStatusAuthorNameTypeCombo;
   private ComboBox<AbsoluteDateTimeStyle> absoluteDateTimeStyleCombo;
   private JCheckBox showChangesInStatusBarCheckBox;
+  private JCheckBox autoFetchEnabledOverride;
+  private JCheckBox autoFetchEnabled;
+  private JButton appliedAutoFetchEnabled;
+  private JCheckBox autoFetchOnBranchSwitchOverride;
+  private JCheckBox autoFetchOnBranchSwitch;
+  private JButton appliedAutoFetchOnBranchSwitchEnabled;
 
   @Override
   public void init() {
@@ -195,6 +206,11 @@ public class GtForm implements GtFormUi {
     blameDateTypeCombo.setModel(new DefaultComboBoxModel<>(DateType.values()));
     absoluteDateTimeStyleCombo.setRenderer(new AbsoluteDateTimeStyleRenderer());
     absoluteDateTimeStyleCombo.setModel(new DefaultComboBoxModel<>(AbsoluteDateTimeStyle.values()));
+
+    autoFetchEnabledOverride.addItemListener(e -> onAutoFetchEnabledOverride());
+    appliedAutoFetchEnabled.addActionListener(e -> showAppliedAutoFetchEnabled());
+    autoFetchOnBranchSwitchOverride.addItemListener(e -> onAutoFetchOnBranchSwitchEnabledOverride());
+    appliedAutoFetchOnBranchSwitchEnabled.addActionListener(e -> showAppliedAutoFetchEnabledOnBranchSwitch());
   }
 
   private ListCellRenderer<AuthorNameType> createAuthorNameTypeRenderer() {
@@ -267,10 +283,34 @@ public class GtForm implements GtFormUi {
       addDecorationLayoutPartPopup.add(decorationPartActions.get(type));
     });
     updateDecorationLayoutPreview();
+    onAutoFetchEnabledOverride();
+    onAutoFetchOnBranchSwitchEnabledOverride();
   }
 
   private boolean hasDecorationPart(DecorationPartType type) {
     return decorationPartsModel.getItems().stream().anyMatch(config -> type == config.type);
+  }
+
+  private void onAutoFetchEnabledOverride() {
+    autoFetchEnabled.setEnabled(autoFetchEnabledOverride.isSelected());
+  }
+
+  private void onAutoFetchOnBranchSwitchEnabledOverride() {
+    autoFetchOnBranchSwitch.setEnabled(autoFetchOnBranchSwitchOverride.isSelected());
+  }
+
+  private void showAppliedAutoFetchEnabled() {
+    showApplied(appliedAutoFetchEnabledPaths);
+  }
+
+  private void showAppliedAutoFetchEnabledOnBranchSwitch() {
+    showApplied(appliedAutoFetchOnBranchSwitchEnabledPaths);
+  }
+
+  private void showApplied(List<String> paths) {
+    AppliedProjectsDialog dialog = new AppliedProjectsDialog(content);
+    dialog.setAppliedPaths(paths);
+    dialog.show();
   }
 
   @Override
@@ -397,5 +437,45 @@ public class GtForm implements GtFormUi {
 
   void setShowChangesInStatusBar(boolean showChangesInStatusBar) {
     showChangesInStatusBarCheckBox.setSelected(showChangesInStatusBar);
+  }
+
+  boolean getAutoFetchEnabledOverride() {
+    return autoFetchEnabledOverride.isSelected();
+  }
+
+  void setAutoFetchEnabledOverride(boolean enabledOverride) {
+    autoFetchEnabledOverride.setSelected(enabledOverride);
+  }
+
+  boolean getAutoFetchEnabled() {
+    return autoFetchEnabled.isSelected();
+  }
+
+  void setAutoFetchEnabled(boolean enabled) {
+    autoFetchEnabled.setSelected(enabled);
+  }
+
+  boolean getAutoFetchOnBranchSwitchEnabledOverride() {
+    return autoFetchOnBranchSwitchOverride.isSelected();
+  }
+
+  void setAutoFetchOnBranchSwitchEnabledOverride(boolean enabledOverride) {
+    autoFetchOnBranchSwitchOverride.setSelected(enabledOverride);
+  }
+
+  boolean getAutoFetchOnBranchSwitchEnabled() {
+    return autoFetchOnBranchSwitch.isSelected();
+  }
+
+  void setAutoFetchOnBranchSwitchEnabled(boolean enabled) {
+    autoFetchOnBranchSwitch.setSelected(enabled);
+  }
+
+  public void setAppliedAutoFetchEnabledPaths(List<String> appliedAutoFetchEnabledPaths) {
+    this.appliedAutoFetchEnabledPaths = new ArrayList<>(appliedAutoFetchEnabledPaths);
+  }
+
+  public void setAppliedAutoFetchOnBranchSwitchEnabledPaths(List<String> appliedAutoFetchOnBranchSwitchEnabledPaths) {
+    this.appliedAutoFetchOnBranchSwitchEnabledPaths = new ArrayList<>(appliedAutoFetchOnBranchSwitchEnabledPaths);
   }
 }

@@ -9,7 +9,7 @@ internal class ExtendedRepoInfoService {
 
   fun getExtendedRepoInfo(repo: GitRepository): ExtendedRepoInfo {
     val config = GitToolBoxConfig2.getInstance()
-    return if (config.isChangesTrackingEnabled) {
+    return if (config.isChangesTrackingEnabled()) {
       val changesCount = getInstance(repo.project).getChangesCount(repo)
       ExtendedRepoInfo(changesCount)
     } else {

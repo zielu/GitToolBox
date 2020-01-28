@@ -22,7 +22,7 @@ public class NodeDecorationUi {
 
   public NodeDecorationUi(@NotNull GitToolBoxConfig2 config) {
     this.config = config;
-    config.decorationParts.forEach(part -> configuredParts.put(part.type, part));
+    config.getDecorationParts().forEach(part -> configuredParts.put(part.type, part));
   }
 
   public StatusPresenter getPresenter() {
@@ -38,7 +38,7 @@ public class NodeDecorationUi {
   }
 
   public boolean isLocationPartLast() {
-    List<DecorationPartConfig> parts = config.decorationParts;
+    List<DecorationPartConfig> parts = config.getDecorationParts();
     return !parts.isEmpty() && parts.get(parts.size() - 1).type == LOCATION;
   }
 

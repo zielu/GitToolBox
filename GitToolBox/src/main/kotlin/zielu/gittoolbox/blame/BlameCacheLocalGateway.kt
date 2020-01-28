@@ -1,6 +1,5 @@
 package zielu.gittoolbox.blame
 
-import com.codahale.metrics.Gauge
 import com.codahale.metrics.Timer
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
@@ -49,11 +48,11 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
     return getBlameLoader().getCurrentRevision(repository)
   }
 
-  fun registerSizeGauge(gauge: Gauge<Long>) {
+  fun registerSizeGauge(gauge: () -> Long) {
     getMetrics().gauge("blame-cache.size", gauge)
   }
 
-  fun registerQueuedGauge(gauge: Gauge<Int>) {
+  fun registerQueuedGauge(gauge: () -> Int) {
     getMetrics().gauge("blame-cache.queue-count", gauge)
   }
 

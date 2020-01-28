@@ -22,11 +22,15 @@ internal object AppUtil {
   }
 
   @JvmStatic
-  fun <T> getComponent(project: Project, componentType: Class<T>): T {
+  fun <T> getComponentInstance(project: Project, componentType: Class<T>): T {
     return project.getComponent(componentType)
   }
 
   fun <T> runReadAction(block: () -> T): T {
     return ApplicationManager.getApplication().runReadAction<T> { block.invoke() }
+  }
+
+  fun hasUi(): Boolean {
+    return !ApplicationManager.getApplication().isHeadlessEnvironment
   }
 }

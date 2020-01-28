@@ -11,7 +11,7 @@
 
   <change-notes><![CDATA[
       inlined during build from change-notes.html
-      ]]>
+      ]]>DynamicPluginListener
   </change-notes>
 
 
@@ -47,8 +47,10 @@
     <applicationService serviceInterface="zielu.gittoolbox.ui.StatusMessagesUi"
                         serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService" />
 
-    <applicationConfigurable instance="zielu.gittoolbox.ui.config.app.GtConfigurable" id="zielu.gittoolbox.app.config" />
+    <applicationConfigurable instance="zielu.gittoolbox.ui.config.app.GtConfigurable"
+                             id="zielu.gittoolbox.app.config" />
     <projectConfigurable instance="zielu.gittoolbox.ui.config.prj.GtProjectConfigurable" id="zielu.svntoolbox.prj.config" />
+
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator" />
 
     <projectService serviceInterface="zielu.gittoolbox.notification.GtNotifier"
@@ -84,6 +86,9 @@
                     serviceImplementation="zielu.gittoolbox.blame.BlameCacheImpl" />
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl" />
+    <projectService serviceImplementation="zielu.gittoolbox.blame.BlameSubscriber" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.cache.CacheSourcesSubscriber" />
     <projectService serviceInterface="zielu.gittoolbox.cache.VirtualFileRepoCache"
                     serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheImpl" />
     <projectService serviceImplementation="zielu.gittoolbox.cache.CacheTaskScheduler" />
@@ -95,17 +100,33 @@
                         serviceImplementation="zielu.gittoolbox.ui.blame.BlamePresenterImpl" />
     <projectService serviceInterface="zielu.gittoolbox.ui.blame.BlameUiService"
                     serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiServiceImpl" />
+    <projectService serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiSubscriber" />
     <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter" />
 
+    <projectService serviceInterface="zielu.gittoolbox.fetch.AutoFetchComponent"
+                    serviceImplementation="zielu.gittoolbox.fetch.AutoFetch" />
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchState" />
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSubscriber" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchGateway" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSchedule" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchOnBranchSwitch" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchExecutor" />
 
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchAllowedDumbMode" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.changes.ChangeListSubscriber" />
     <projectService serviceInterface="zielu.gittoolbox.changes.ChangesTrackerService"
                     serviceImplementation="zielu.gittoolbox.changes.ChangesTrackerServiceImpl" />
 
+    <projectService serviceImplementation="zielu.gittoolbox.ui.projectview.ProjectViewSubscriber" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.status.behindtracker.BehindTrackerSubscriber" />
+    <projectService serviceImplementation="zielu.gittoolbox.status.behindtracker.BehindTracker" />
+
     <webHelpProvider implementation="zielu.gittoolbox.help.GithubWikiHelpProvider" />
+
+    <statusBarWidgetProvider implementation="zielu.gittoolbox.ui.statusbar.GitStatStatusBarWidgetProvider" />
+    <statusBarWidgetProvider implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetProvider" />
   </extensions>
 
   <application-components>
@@ -114,49 +135,77 @@
 
   <project-components>
     <!-- Add your project components here -->
-    <component>
-      <implementation-class>zielu.gittoolbox.cache.CacheSourcesSubscriber</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.fetch.AutoFetchSubscriber</implementation-class>
-    </component>
-    <component>
-      <interface-class>zielu.gittoolbox.fetch.AutoFetchComponent</interface-class>
-      <implementation-class>zielu.gittoolbox.fetch.AutoFetch</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.fetch.AutoFetchState</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTracker</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.status.behindtracker.BehindTrackerController</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.completion.CompletionSubscriber</implementation-class>
-    </component>
-    <component>
-        <implementation-class>zielu.gittoolbox.blame.BlameSubscriber</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.ui.blame.BlameUiSubscriber</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.ui.projectview.ProjectViewSubscriber</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.ui.statusbar.StatusBarManager</implementation-class>
-    </component>
-    <component>
-      <implementation-class>zielu.gittoolbox.changes.ChangeListSubscriber</implementation-class>
-    </component>
     <!--
     <component>
       <implementation-class>zielu.gittoolbox.repo.GtRepositoryManager</implementation-class>
     </component>
     -->
   </project-components>
+
+
+  <applicationListeners>
+    <listener class="zielu.gittoolbox.lifecycle.PluginLifecycleListener"
+              topic="com.intellij.ide.plugins.DynamicPluginListener" />
+  </applicationListeners>
+
+  <projectListeners>
+    <listener class="zielu.gittoolbox.blame.BlameSubscriberInfoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+    <listener class="zielu.gittoolbox.blame.BlameSubscriberCacheListener"
+              topic="zielu.gittoolbox.blame.BlameCacheListener" />
+
+    <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberGitRepositoryListener"
+              topic="git4idea.repo.GitRepositoryChangeListener" />
+    <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberMappingListener"
+              topic="com.intellij.dvcs.repo.VcsRepositoryMappingListener" />
+    <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberConfigListener"
+              topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
+
+    <listener class="zielu.gittoolbox.changes.ChangeListSubscribeProjectListener"
+              topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
+    <listener class="zielu.gittoolbox.changes.ChangeListSubscriberConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
+
+    <listener class="zielu.gittoolbox.completion.CompletionConfigListener"
+              topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
+
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberConfigListener"
+              topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberFetchStateListener"
+              topic="zielu.gittoolbox.fetch.AutoFetchNotifier" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberInfoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchStateAllowedListener"
+              topic="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedNotifier" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberProjectListener"
+              topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeListener"
+              topic="com.intellij.openapi.project.DumbService$DumbModeListener" />
+
+    <listener class="zielu.gittoolbox.metrics.MetricsProjectListener"
+              topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
+
+    <listener class="zielu.gittoolbox.status.behindtracker.BehindTrackerSubscriberRepoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+
+    <listener class="zielu.gittoolbox.ui.blame.BlameUiSubscriberConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
+    <listener class="zielu.gittoolbox.ui.blame.BlameUiSubscriberBlameListener"
+              topic="zielu.gittoolbox.blame.BlameListener" />
+    <listener class="zielu.gittoolbox.ui.blame.BlameUiSubscriberColorSchemeListener"
+              topic="com.intellij.openapi.editor.colors.EditorColorsListener" />
+    <listener class="zielu.gittoolbox.ui.blame.BlameUiSubscriberEditorListener"
+              topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" />
+
+    <listener class="zielu.gittoolbox.ui.projectview.ProjectViewSubscriberChangesTrackerListener"
+              topic="zielu.gittoolbox.changes.ChangesTrackerListener" />
+    <listener class="zielu.gittoolbox.ui.projectview.ProjectViewSubscriberConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
+    <listener class="zielu.gittoolbox.ui.projectview.ProjectViewSubscriberInfoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+    <listener class="zielu.gittoolbox.ui.projectview.ProjectViewSubscriberVfCacheListener"
+              topic="zielu.gittoolbox.cache.VirtualFileRepoCacheListener" />
+  </projectListeners>
 
   <actions>
     <action class="zielu.gittoolbox.ui.actions.BlameDetailsAction" id="GitToolBox.BlameDetails"
@@ -184,16 +233,18 @@
   </actions>
 
   <extensionPoints>
-    <extensionPoint name="autoFetchAllowed" beanClass="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedEP">
+    <extensionPoint name="autoFetchAllowed" beanClass="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedEP"
+                    dynamic="false">
       <with attribute="provider" implements="zielu.gittoolbox.extension.autofetch.AutoFetchAllowed" />
     </extensionPoint>
-    <extensionPoint name="updateProjectAction" beanClass="zielu.gittoolbox.extension.update.UpdateProjectActionEP">
+    <extensionPoint name="updateProjectAction" beanClass="zielu.gittoolbox.extension.update.UpdateProjectActionEP"
+                    dynamic="false">
       <with attribute="provider" implements="zielu.gittoolbox.extension.update.UpdateProjectAction" />
     </extensionPoint>
   </extensionPoints>
 
   <extensions defaultExtensionNs="zielu.gittoolbox">
-    <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbMode" />
+    <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeExt" />
     <updateProjectAction provider="zielu.gittoolbox.ui.update.DefaultUpdateProjectAction" />
   </extensions>
 </idea-plugin>

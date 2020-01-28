@@ -24,7 +24,7 @@ public class BlameDetailsAction extends AnAction {
 
   private boolean isEnabled(@NotNull AnActionEvent e) {
     GitToolBoxConfig2 toolBoxConfig2 = GitToolBoxConfig2.getInstance();
-    if (!toolBoxConfig2.showBlameWidget && !toolBoxConfig2.showEditorInlineBlame) {
+    if (!toolBoxConfig2.getShowBlameWidget() && !toolBoxConfig2.getShowEditorInlineBlame()) {
       return false;
     }
     Project project = e.getData(CommonDataKeys.PROJECT);

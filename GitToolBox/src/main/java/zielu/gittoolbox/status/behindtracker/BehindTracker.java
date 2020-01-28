@@ -1,15 +1,15 @@
 package zielu.gittoolbox.status.behindtracker;
 
 import com.google.common.collect.ImmutableMap;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import jodd.util.StringBand;
@@ -20,24 +20,29 @@ import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.repo.GtRepository;
 import zielu.gittoolbox.status.BehindStatus;
 import zielu.gittoolbox.status.GitAheadBehindCount;
-import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi;
 import zielu.gittoolbox.util.AppUtil;
 import zielu.gittoolbox.util.Html;
 
-class BehindTracker implements ProjectComponent {
+class BehindTracker implements Disposable {
   private final Logger log = Logger.getInstance(getClass());
-  private final AtomicBoolean active = new AtomicBoolean();
   private final Map<GitRepository, RepoInfo> state = new HashMap<>();
   private final Map<GitRepository, PendingChange> pendingChanges = new HashMap<>();
-  private final BehindTrackerUi ui;
 
-  BehindTracker(@NotNull BehindTrackerUi ui) {
-    this.ui = ui;
+  private final BehindTrackerLocalGateway gateway;
+
+  BehindTracker(@NotNull Project project) {
+    this(new BehindTrackerLocalGateway(project));
+  }
+
+  @NonInjectable
+  BehindTracker(BehindTrackerLocalGateway gateway) {
+    this.gateway = gateway;
+    gateway.disposeWithProject(this);
   }
 
   @NotNull
   static BehindTracker getInstance(@NotNull Project project) {
-    return AppUtil.getComponent(project, BehindTracker.class);
+    return AppUtil.getServiceInstance(project, BehindTracker.class);
   }
 
   private Optional<BehindMessage> prepareMessage(
@@ -80,7 +85,7 @@ class BehindTracker implements ProjectComponent {
   private BehindMessage createBehindMessage(Map<GitRepository, BehindStatus> statuses) {
     boolean manyReposInProject = hasManyReposInProject();
     boolean manyReposInStatuses = statuses.size() > 1;
-    return new BehindMessage(ui.getStatusMessages().prepareBehindMessage(statuses, manyReposInProject),
+    return new BehindMessage(gateway.prepareBehindMessage(statuses, manyReposInProject),
         manyReposInStatuses);
   }
 
@@ -90,14 +95,14 @@ class BehindTracker implements ProjectComponent {
 
   private void showNotification(@NotNull ImmutableMap<GitRepository, PendingChange> changes) {
     Optional<BehindMessage> messageOption = prepareMessage(changes);
-    if (messageOption.isPresent() && active.get()) {
+    if (messageOption.isPresent()) {
       showNotification(messageOption.get(), ChangeType.FETCHED);
     }
   }
 
   private void showNotification(@NotNull BehindMessage message, @NotNull ChangeType changeType) {
     StringBand finalMessage = formatMessage(message, changeType);
-    ui.displaySuccessNotification(finalMessage.toString());
+    gateway.displaySuccessNotification(finalMessage.toString());
   }
 
   @NotNull
@@ -116,7 +121,7 @@ class BehindTracker implements ProjectComponent {
   private void onStateChangeUnsafe(@NotNull GitRepository repository, @NotNull RepoInfo info) {
     RepoInfo previousInfo = state.put(repository, info);
     if (log.isDebugEnabled()) {
-      GtRepository repo = ui.getGtRepository(repository);
+      GtRepository repo = gateway.getGtRepository(repository);
       log.debug("Info update [", repo.getName(), "]: ", previousInfo, " > ", info);
     }
     ChangeType changeType = detectChangeType(previousInfo, info);
@@ -190,7 +195,7 @@ class BehindTracker implements ProjectComponent {
   }
 
   void showChangeNotification() {
-    if (ui.isNotificationEnabled()) {
+    if (gateway.isNotificationEnabled()) {
       ImmutableMap<GitRepository, PendingChange> changes = drainChanges();
       log.debug("Show notification for ", changes.size(), " repositories");
       showNotification(changes);
@@ -204,12 +209,7 @@ class BehindTracker implements ProjectComponent {
   }
 
   @Override
-  public void projectOpened() {
-    active.compareAndSet(false, true);
-  }
-
-  @Override
-  public void disposeComponent() {
+  public void dispose() {
     synchronized (this) {
       disposeUnsafe();
     }
@@ -218,11 +218,6 @@ class BehindTracker implements ProjectComponent {
   private void disposeUnsafe() {
     state.clear();
     pendingChanges.clear();
-  }
-
-  @Override
-  public void projectClosed() {
-    active.compareAndSet(true, false);
   }
 
   private enum ChangeType {

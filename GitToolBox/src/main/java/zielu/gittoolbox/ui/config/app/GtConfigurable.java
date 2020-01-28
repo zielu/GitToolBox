@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.config.app;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.SearchableConfigurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -8,12 +7,11 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.help.HelpKey;
-import zielu.gittoolbox.ui.update.UpdateProjectActionService;
-import zielu.intellij.ui.GtConfigurableBase;
+import zielu.intellij.ui.ConfigUiBinder;
+import zielu.intellij.ui.GtBinderConfigurableBase;
 
-public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2>
+public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxConfig2>
     implements SearchableConfigurable {
-  private final Logger log = Logger.getInstance(getClass());
 
   @Nls
   @Override
@@ -38,73 +36,108 @@ public class GtConfigurable extends GtConfigurableBase<GtForm, GitToolBoxConfig2
   }
 
   @Override
-  protected void setFormState(GtForm form, GitToolBoxConfig2 config) {
-    log.debug("Set form state");
-    form.setPresenter(config.getPresenter());
-    form.setShowGitStatus(config.showStatusWidget);
-    form.setShowProjectViewStatus(config.showProjectViewStatus);
-    form.setBehindTrackerEnabled(config.behindTracker);
-    form.setUpdateProjectAction(UpdateProjectActionService.getInstance().getById(config.getUpdateProjectActionId()));
-    form.setDecorationParts(config.decorationParts);
-    form.setShowStatusBlame(config.showBlameWidget);
-    form.setShowEditorInlineBlame(config.showEditorInlineBlame);
-    form.setCommitDialogCompletionMode(config.commitDialogCompletionMode);
-    form.setBlameInlineAuthorNameType(config.blameInlineAuthorNameType);
-    form.setBlameDateType(config.blameInlineDateType);
-    form.setBlameShowSubject(config.blameInlineShowSubject);
-    form.setBlameStatusAuthorNameType(config.blameStatusAuthorNameType);
-    form.setAbsoluteDateTimeStyle(config.absoluteDateTimeStyle);
-    form.setShowChangesInStatusBar(config.showChangesInStatusBar);
+  protected void bind(ConfigUiBinder<GitToolBoxConfig2, GtForm> binder) {
+    binder.bind(GitToolBoxConfig2::getPresenter,
+        GitToolBoxConfig2::setPresenter,
+        GtForm::getPresenter,
+        GtForm::setPresenter);
+    binder.bind(GitToolBoxConfig2::getShowStatusWidget,
+        GitToolBoxConfig2::setShowStatusWidget,
+        GtForm::getShowGitStatus,
+        GtForm::setShowGitStatus);
+    binder.bind(GitToolBoxConfig2::getShowProjectViewStatus,
+        GitToolBoxConfig2::setShowProjectViewStatus,
+        GtForm::getShowProjectViewStatus,
+        GtForm::setShowProjectViewStatus);
+    binder.bind(GitToolBoxConfig2::getBehindTracker,
+        GitToolBoxConfig2::setBehindTracker,
+        GtForm::getBehindTrackerEnabled,
+        GtForm::setBehindTrackerEnabled);
+    binder.bind(GitToolBoxConfig2::getUpdateProjectAction,
+        GitToolBoxConfig2::setUpdateProjectAction,
+        GtForm::getUpdateProjectAction,
+        GtForm::setUpdateProjectAction);
+    binder.bind(GitToolBoxConfig2::getDecorationParts,
+        GitToolBoxConfig2::setDecorationParts,
+        GtForm::getDecorationParts,
+        GtForm::setDecorationParts);
+    binder.bind(GitToolBoxConfig2::getShowBlameWidget,
+        GitToolBoxConfig2::setShowBlameWidget,
+        GtForm::getShowStatusBlame,
+        GtForm::setShowStatusBlame);
+    binder.bind(GitToolBoxConfig2::getShowEditorInlineBlame,
+        GitToolBoxConfig2::setShowEditorInlineBlame,
+        GtForm::getShowEditorInlineBlame,
+        GtForm::setShowEditorInlineBlame);
+    binder.bind(GitToolBoxConfig2::getCommitDialogCompletionMode,
+        GitToolBoxConfig2::setCommitDialogCompletionMode,
+        GtForm::getCommitDialogCompletionMode,
+        GtForm::setCommitDialogCompletionMode);
+    binder.bind(GitToolBoxConfig2::getBlameInlineAuthorNameType,
+        GitToolBoxConfig2::setBlameInlineAuthorNameType,
+        GtForm::getBlameInlineAuthorNameType,
+        GtForm::setBlameInlineAuthorNameType);
+    binder.bind(GitToolBoxConfig2::getBlameInlineDateType,
+        GitToolBoxConfig2::setBlameInlineDateType,
+        GtForm::getBlameDateType,
+        GtForm::setBlameDateType);
+    binder.bind(GitToolBoxConfig2::getBlameInlineShowSubject,
+        GitToolBoxConfig2::setBlameInlineShowSubject,
+        GtForm::getBlameShowSubject,
+        GtForm::setBlameShowSubject);
+    binder.bind(GitToolBoxConfig2::getBlameStatusAuthorNameType,
+        GitToolBoxConfig2::setBlameStatusAuthorNameType,
+        GtForm::getBlameStatusAuthorNameType,
+        GtForm::setBlameStatusAuthorNameType);
+    binder.bind(GitToolBoxConfig2::getAbsoluteDateTimeStyle,
+        GitToolBoxConfig2::setAbsoluteDateTimeStyle,
+        GtForm::getAbsoluteDateTimeStyle,
+        GtForm::setAbsoluteDateTimeStyle);
+    binder.bind(GitToolBoxConfig2::getShowChangesInStatusBar,
+        GitToolBoxConfig2::setShowChangesInStatusBar,
+        GtForm::getShowChangesInStatusBar,
+        GtForm::setShowChangesInStatusBar);
+
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchEnabledOverride().getEnabled(),
+        (config, value) -> config.getExtrasConfig().getAutoFetchEnabledOverride().setEnabled(value),
+        GtForm::getAutoFetchEnabledOverride,
+        GtForm::setAutoFetchEnabledOverride
+    );
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchEnabledOverride().getValue(),
+        (config, value) -> config.getExtrasConfig().getAutoFetchEnabledOverride().setValue(value),
+        GtForm::getAutoFetchEnabled,
+        GtForm::setAutoFetchEnabled
+    );
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchEnabledOverride().getAppliedPaths(),
+        GtForm::setAppliedAutoFetchEnabledPaths
+    );
+
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchOnBranchSwitchOverride().getEnabled(),
+        (config, value) -> config.getExtrasConfig().getAutoFetchOnBranchSwitchOverride().setEnabled(value),
+        GtForm::getAutoFetchOnBranchSwitchEnabledOverride,
+        GtForm::setAutoFetchOnBranchSwitchEnabledOverride
+    );
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchOnBranchSwitchOverride().getValue(),
+        (config, value) -> config.getExtrasConfig().getAutoFetchOnBranchSwitchOverride().setValue(value),
+        GtForm::getAutoFetchOnBranchSwitchEnabled,
+        GtForm::setAutoFetchOnBranchSwitchEnabled
+    );
+    binder.bind(config -> config.getExtrasConfig().getAutoFetchOnBranchSwitchOverride().getAppliedPaths(),
+        GtForm::setAppliedAutoFetchOnBranchSwitchEnabledPaths
+    );
   }
 
   @Override
-  protected boolean checkModified(GtForm form, GitToolBoxConfig2 config) {
-    boolean modified = config.isPresenterChanged(form.getPresenter());
-    modified = modified || config.isShowStatusWidgetChanged(form.getShowGitStatus());
-    modified = modified || config.isShowProjectViewStatusChanged(form.getShowProjectViewStatus());
-    modified = modified || config.isBehindTrackerChanged(form.getBehindTrackerEnabled());
-    modified = modified || config.isUpdateProjectActionId(form.getUpdateProjectAction().getId());
-    modified = modified || config.isDecorationPartsChanged(form.getDecorationParts());
-    modified = modified || config.isShowBlameWidgetChanged(form.getShowStatusBlame());
-    modified = modified || config.isShowEditorInlineBlameChanged(form.getShowEditorInlineBlame());
-    modified = modified || config.isCommitDialogCompletionModeChanged(form.getCommitDialogCompletionMode());
-    modified = modified || config.isBlameInlineAuthorNameTypeChanged(form.getBlameInlineAuthorNameType());
-    modified = modified || config.isBlameInlineDateTypeChanged(form.getBlameDateType());
-    modified = modified || config.isBlameInlineShowSubjectChanged(form.getBlameShowSubject());
-    modified = modified || config.isBlameStatusAuthorNameTypeChanged(form.getBlameStatusAuthorNameType());
-    modified = modified || config.isAbsoluteDateTimeStyleChanged(form.getAbsoluteDateTimeStyle());
-    modified = modified || config.isShowChangesInStatusBarChanged(form.getShowChangesInStatusBar());
-    log.debug("Modified: ", modified);
-    return modified;
+  protected GitToolBoxConfig2 copy(GitToolBoxConfig2 config) {
+    return config.copy();
   }
 
   @Override
-  protected void doApply(GtForm form, GitToolBoxConfig2 config) {
-    final GitToolBoxConfig2 previousConfig = config.copy();
-
-    config.setPresenter(form.getPresenter());
-    config.showStatusWidget = form.getShowGitStatus();
-    config.showProjectViewStatus = form.getShowProjectViewStatus();
-    config.decorationParts = form.getDecorationParts();
-    config.behindTracker = form.getBehindTrackerEnabled();
-    config.updateProjectActionId = form.getUpdateProjectAction().getId();
-    config.decorationParts = form.getDecorationParts();
-    config.showBlameWidget = form.getShowStatusBlame();
-    config.showEditorInlineBlame = form.getShowEditorInlineBlame();
-    config.commitDialogCompletionMode = form.getCommitDialogCompletionMode();
-    config.blameInlineAuthorNameType = form.getBlameInlineAuthorNameType();
-    config.blameInlineDateType = form.getBlameDateType();
-    config.blameInlineShowSubject = form.getBlameShowSubject();
-    config.blameStatusAuthorNameType = form.getBlameStatusAuthorNameType();
-    config.absoluteDateTimeStyle = form.getAbsoluteDateTimeStyle();
-    config.showChangesInStatusBar = form.getShowChangesInStatusBar();
-
-    //Mark migrated here to handle case when config is modified without opening a project
-    //Example: from launch dialog
-    config.previousVersionMigrated = true;
-
-    config.fireChanged(previousConfig);
-    log.debug("Applied");
+  protected void afterApply(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
+    //Mark migrated here to handle case when config gets modified without opening a project
+    //Example: changing default settings from launch dialog
+    current.setPreviousVersionMigrated(true);
+    current.fireChanged(previous);
   }
 
   @NotNull

@@ -84,7 +84,7 @@ class CurrentBranchCompletionProvider extends CompletionProvider<CompletionParam
   private boolean shouldComplete(@NotNull CompletionParameters parameters) {
     GitToolBoxConfigPrj projectConfig = getConfig(parameters);
     if (projectConfig.getCommitDialogCompletion()) {
-      CommitCompletionMode mode = GitToolBoxConfig2.getInstance().commitDialogCompletionMode;
+      CommitCompletionMode mode = GitToolBoxConfig2.getInstance().getCommitDialogCompletionMode();
       BooleanFunction<CompletionParameters> modeHandler = MODE_HANDLERS.getOrDefault(mode, params -> true);
       return modeHandler.fun(parameters);
     }

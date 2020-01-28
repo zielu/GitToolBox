@@ -7,6 +7,7 @@ import git4idea.repo.GitRepository
 import gnu.trove.TObjectIntHashMap
 import zielu.gittoolbox.util.Count
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 
 internal class ChangesTrackerServiceImpl
   @NonInjectable
@@ -14,7 +15,7 @@ internal class ChangesTrackerServiceImpl
 
   constructor(project: Project) : this(ChangesTrackerServiceLocalGateway(project))
 
-  private val changeCounters = ConcurrentHashMap<GitRepository, ChangeCounters>()
+  private val changeCounters: ConcurrentMap<GitRepository, ChangeCounters> = ConcurrentHashMap()
 
   override fun changeListChanged(changeListData: ChangeListData) {
     if (changeListData.hasChanges) {
@@ -30,7 +31,21 @@ internal class ChangesTrackerServiceImpl
 
   private fun handleNonEmptyChangeList(changeListData: ChangeListData) {
     val newCounts = getCountsForChangeList(changeListData)
+
     var changed = false
+    // clean up committed changes
+    val reposNotInChangeList: MutableSet<GitRepository> = HashSet(changeCounters.keys)
+    reposNotInChangeList.removeAll(newCounts.keys)
+    reposNotInChangeList.forEach { repoNotInList ->
+      changeCounters.computeIfPresent(repoNotInList) { _, counters ->
+        if (counters.remove(changeListData.id)) {
+          changed = true
+        }
+        counters
+      }
+    }
+
+    // update counts
     newCounts.forEach { (repo, aggregator) ->
       val oldTotal = changeCounters[repo]?.total ?: 0
       val newCounters = changeCounters.merge(repo, aggregator.toCounters(), this::mergeCounters)
@@ -99,6 +114,12 @@ private class ChangeCounters(private val changeCounters: TObjectIntHashMap<Strin
       val removed = changeCounters.remove(id)
       totalCount -= removed
       return removed != 0
+    }
+  }
+
+  fun hasId(id: String): Boolean {
+    synchronized(changeCounters) {
+      return changeCounters.containsKey(id)
     }
   }
 

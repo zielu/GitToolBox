@@ -10,14 +10,14 @@ public class InlineBlameToggleAction extends ToggleAction {
 
   @Override
   public boolean isSelected(@NotNull AnActionEvent e) {
-    return GitToolBoxConfig2.getInstance().showEditorInlineBlame;
+    return GitToolBoxConfig2.getInstance().getShowEditorInlineBlame();
   }
 
   @Override
   public void setSelected(@NotNull AnActionEvent e, boolean state) {
     GitToolBoxConfig2 current = GitToolBoxConfig2.getInstance();
-    if (current.isShowEditorInlineBlameChanged(state)) {
-      ConfigUtil.saveAppSettings(config -> config.showEditorInlineBlame = state);
+    if (current.getShowEditorInlineBlame() != state) {
+      ConfigUtil.saveAppSettings(config -> config.setShowEditorInlineBlame(state));
     }
   }
 }

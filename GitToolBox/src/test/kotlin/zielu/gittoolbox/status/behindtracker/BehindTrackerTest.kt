@@ -22,9 +22,6 @@ import zielu.gittoolbox.cache.RepoStatus
 import zielu.gittoolbox.cache.RepoStatusRemote
 import zielu.gittoolbox.repo.GtRepository
 import zielu.gittoolbox.status.GitAheadBehindCount
-import zielu.gittoolbox.ui.StatusMessagesService
-import zielu.gittoolbox.ui.StatusMessagesServiceLocalGateway
-import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi
 
 @ExtendWith(MockKExtension::class)
 internal class BehindTrackerTest {
@@ -47,9 +44,7 @@ internal class BehindTrackerTest {
   private val BEHIND_STATUS_VALUE = "behind state"
 
   @MockK
-  private lateinit var behindTrackerUiMock: BehindTrackerUi
-  @MockK
-  private lateinit var gatewayMock: StatusMessagesServiceLocalGateway
+  private lateinit var gatewayMock: BehindTrackerLocalGateway
   @MockK
   private lateinit var repositoryMock: GitRepository
   @MockK
@@ -58,25 +53,24 @@ internal class BehindTrackerTest {
 
   @BeforeEach
   fun beforeEach() {
-    every { behindTrackerUiMock.isNotificationEnabled } returns true
-    every { behindTrackerUiMock.getGtRepository(repositoryMock) } returns gtRepositoryMock
+    every { gatewayMock.isNotificationEnabled() } returns true
+    every { gatewayMock.getGtRepository(repositoryMock) } returns gtRepositoryMock
+    every { gatewayMock.disposeWithProject(any()) } returns Unit
     every { gtRepositoryMock.getName() } returns ""
-    behindTracker = BehindTracker(behindTrackerUiMock)
-    behindTracker.projectOpened()
+    behindTracker = BehindTracker(gatewayMock)
   }
 
   @AfterEach
   fun afterEach() {
-    behindTracker.projectClosed()
+    behindTracker.dispose()
   }
 
   @Test
   fun displayDeltaNotificationIfStateChanged() {
     // given
-    every { gatewayMock.behindStatus(any()) } returns BEHIND_STATUS_VALUE
-    every { behindTrackerUiMock.statusMessages } returns StatusMessagesService(gatewayMock)
+    every { gatewayMock.prepareBehindMessage(any(), any()) } returns BEHIND_STATUS_VALUE
     val notificationSlot = slot<String>()
-    every { behindTrackerUiMock.displaySuccessNotification(capture(notificationSlot)) } returns Unit
+    every { gatewayMock.displaySuccessNotification(capture(notificationSlot)) } returns Unit
 
     // when
     behindTracker.onStateChange(repositoryMock, REPO_INFO_1)
@@ -95,6 +89,6 @@ internal class BehindTrackerTest {
     behindTracker.onStateChange(repositoryMock, REPO_INFO_1)
     behindTracker.showChangeNotification()
 
-    verify(exactly = 0) { behindTrackerUiMock.displaySuccessNotification(any()) }
+    verify(exactly = 0) { gatewayMock.displaySuccessNotification(any()) }
   }
 }

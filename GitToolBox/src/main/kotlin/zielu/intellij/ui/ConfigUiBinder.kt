@@ -12,7 +12,30 @@ internal class ConfigUiBinder<CONFIG, UI> {
     getUi: Function<UI, T>,
     setUi: BiConsumer<UI, T>
   ) {
-    bindings.add(Binding(getConfig, setConfig, getUi, setUi))
+    bindings.add(JavaBinding(getConfig, setConfig, getUi, setUi))
+  }
+
+  fun <T> bind(
+    getFromConfig: Function<CONFIG, T>,
+    setInUi: BiConsumer<UI, T>
+  ) {
+    bindings.add(JavaToUiBinding(getFromConfig, setInUi))
+  }
+
+  fun <T> bind(
+    getFromConfig: (CONFIG) -> T,
+    setInConfig: (CONFIG, T) -> Unit,
+    getFromUi: (UI) -> T,
+    setInUi: (UI, T) -> Unit
+  ) {
+    bindings.add(KtBinding(getFromConfig, setInConfig, getFromUi, setInUi))
+  }
+
+  fun <T> bind(
+    getFromConfig: (CONFIG) -> T,
+    setInUi: (UI, T) -> Unit
+  ) {
+    bindings.add(KtToUiBinding(getFromConfig, setInUi))
   }
 
   fun populateUi(config: CONFIG, ui: UI) {
@@ -28,22 +51,76 @@ internal class ConfigUiBinder<CONFIG, UI> {
   }
 }
 
-private class Binding<CONFIG, UI, T>(
+private interface Binding<CONFIG, UI, T> {
+  fun populateUi(config: CONFIG, ui: UI)
+  fun checkModified(config: CONFIG, ui: UI): Boolean
+  fun populateConfig(config: CONFIG, ui: UI)
+}
+
+private class JavaBinding<CONFIG, UI, T>(
   val getConfig: Function<CONFIG, T>,
   val setConfig: BiConsumer<CONFIG, T>,
   val getUi: Function<UI, T>,
   val setUi: BiConsumer<UI, T>
-) {
-
-  fun populateUi(config: CONFIG, ui: UI) {
+) : Binding<CONFIG, UI, T> {
+  override fun populateUi(config: CONFIG, ui: UI) {
     setUi.accept(ui, getConfig.apply(config))
   }
 
-  fun checkModified(config: CONFIG, ui: UI): Boolean {
+  override fun checkModified(config: CONFIG, ui: UI): Boolean {
     return getUi.apply(ui) != getConfig.apply(config)
   }
 
-  fun populateConfig(config: CONFIG, ui: UI) {
+  override fun populateConfig(config: CONFIG, ui: UI) {
     setConfig.accept(config, getUi.apply(ui))
+  }
+}
+
+private class JavaToUiBinding<CONFIG, UI, T>(
+  val fromConfig: Function<CONFIG, T>,
+  val toUi: BiConsumer<UI, T>
+) : Binding<CONFIG, UI, T> {
+  override fun populateUi(config: CONFIG, ui: UI) {
+    toUi.accept(ui, fromConfig.apply(config))
+  }
+
+  override fun checkModified(config: CONFIG, ui: UI): Boolean = false
+
+  override fun populateConfig(config: CONFIG, ui: UI) {
+    // do nothing
+  }
+}
+
+private class KtBinding<CONFIG, UI, T>(
+  val fromConfig: (CONFIG) -> T,
+  val toConfig: (CONFIG, T) -> Unit,
+  val fromUi: (UI) -> T,
+  val toUi: (UI, T) -> Unit
+) : Binding<CONFIG, UI, T> {
+  override fun populateUi(config: CONFIG, ui: UI) {
+    toUi.invoke(ui, fromConfig.invoke(config))
+  }
+
+  override fun checkModified(config: CONFIG, ui: UI): Boolean {
+    return fromUi.invoke(ui) != fromConfig.invoke(config)
+  }
+
+  override fun populateConfig(config: CONFIG, ui: UI) {
+    toConfig.invoke(config, fromUi.invoke(ui))
+  }
+}
+
+private class KtToUiBinding<CONFIG, UI, T>(
+  val fromConfig: (CONFIG) -> T,
+  val toUi: (UI, T) -> Unit
+) : Binding<CONFIG, UI, T> {
+  override fun populateUi(config: CONFIG, ui: UI) {
+    toUi.invoke(ui, fromConfig.invoke(config))
+  }
+
+  override fun checkModified(config: CONFIG, ui: UI): Boolean = false
+
+  override fun populateConfig(config: CONFIG, ui: UI) {
+    // do nothing
   }
 }

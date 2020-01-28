@@ -12,10 +12,12 @@ public interface AutoFetchComponent {
 
   void stateChanged(AutoFetchState state);
 
+  void projectReady();
+
   long lastAutoFetch();
 
   @NotNull
   static AutoFetchComponent getInstance(@NotNull Project project) {
-    return AppUtil.getComponent(project, AutoFetchComponent.class);
+    return AppUtil.getComponentInstance(project, AutoFetchComponent.class);
   }
 }

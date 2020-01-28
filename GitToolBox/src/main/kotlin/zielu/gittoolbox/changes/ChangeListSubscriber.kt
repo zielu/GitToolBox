@@ -1,52 +1,56 @@
 package zielu.gittoolbox.changes
 
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.ChangeList
 import com.intellij.openapi.vcs.changes.ChangeListListener
 import com.intellij.openapi.vcs.changes.LocalChangeList
-import zielu.gittoolbox.config.ConfigNotifier
 import zielu.gittoolbox.config.GitToolBoxConfig2
+import zielu.gittoolbox.util.AppUtil
 
-internal class ChangeListSubscriber(project: Project) : ProjectComponent {
+internal class ChangeListSubscriber(project: Project) {
   private val gateway = ChangeListSubscriberLocalGateway(project)
 
-  override fun projectOpened() {
+  fun onProjectReady() {
     gateway.subscribe(object : ChangeListListener {
       override fun changeListRemoved(list: ChangeList) {
         if (list is LocalChangeList) {
-          handleChangeListRemoved(list.id)
+          onChangeListRemoved(list.id)
         }
       }
 
       override fun changeListUpdateDone() {
-        handleChangeListsChanged()
+        onChangeListsUpdated()
       }
     })
-
-    gateway.subscribe(object : ConfigNotifier {
-      override fun configChanged(previous: GitToolBoxConfig2, current: GitToolBoxConfig2) {
-        handleChangeListsChanged()
-      }
-    })
+    onChangeListsUpdated()
   }
 
-  fun handleChangeListRemoved(id: String) {
-    log.debug("Change list removed", id)
-    if (gateway.getTrackingEnabled()) {
-      gateway.changeListRemoved(id)
-    }
-  }
-
-  fun handleChangeListsChanged() {
+  fun onChangeListsUpdated() {
     log.debug("Change lists changed")
     if (gateway.getTrackingEnabled()) {
       gateway.changeListsChanged(gateway.getAllChangeListsData())
     }
   }
 
-  private companion object {
+  fun onChangeListRemoved(id: String) {
+    log.debug("Change list removed", id)
+    if (gateway.getTrackingEnabled()) {
+      gateway.changeListRemoved(id)
+    }
+  }
+
+  fun onConfigChanged(current: GitToolBoxConfig2) {
+    if (current.isChangesTrackingEnabled()) {
+      onChangeListsUpdated()
+    }
+  }
+
+  companion object {
     private val log = Logger.getInstance(ChangeListSubscriber::class.java)
+
+    fun getInstance(project: Project): ChangeListSubscriber {
+      return AppUtil.getServiceInstance(project, ChangeListSubscriber::class.java)
+    }
   }
 }

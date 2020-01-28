@@ -15,7 +15,7 @@ internal interface VirtualFileRepoCacheLocalGateway {
 
   fun rootsFilePathCacheSizeGauge(size: () -> Int)
 
-  fun dirsCacheSizeGauge(size: () -> Int)
+  fun dirsCacheSizeGauge(size: () -> Long)
 
   fun <T> repoForDirCacheTimer(supplier: Supplier<T>): T
 

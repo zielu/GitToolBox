@@ -53,7 +53,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
 
   private boolean shouldDecorate(ProjectViewNode projectViewNode) {
     Project project = projectViewNode.getProject();
-    return project != null && GitToolBoxConfig2.getInstance().showProjectViewStatus;
+    return project != null && GitToolBoxConfig2.getInstance().getShowProjectViewStatus();
   }
 
   private void applyDecoration(Project project, GitRepository repo, ProjectViewNode projectViewNode,

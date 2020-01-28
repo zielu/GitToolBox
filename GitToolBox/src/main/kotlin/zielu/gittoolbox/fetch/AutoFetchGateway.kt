@@ -12,10 +12,14 @@ import java.util.concurrent.TimeUnit
 import java.util.function.BiFunction
 
 internal class AutoFetchGateway(private val prj: Project) : GatewayBase(prj) {
-  val clock: Clock = Clock.systemDefaultZone()
+  private val clock: Clock by lazy {
+    Clock.systemDefaultZone()
+  }
   private val autoFetchExecutor by lazy {
     AppExecutorUtil.createBoundedScheduledExecutorService("GtAutoFetch", 1)
   }
+
+  fun getNowMillis(): Long = clock.millis()
 
   fun scheduleAutoFetch(
     delay: Duration,

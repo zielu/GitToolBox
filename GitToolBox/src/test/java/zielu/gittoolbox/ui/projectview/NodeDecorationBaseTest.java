@@ -72,9 +72,15 @@ abstract class NodeDecorationBaseTest {
 
   private List<DecorationPartConfig> statusBeforeLocationParts() {
     return Lists.newArrayList(
-        DecorationPartConfig.builder().withType(DecorationPartType.BRANCH).build(),
-        DecorationPartConfig.builder().withType(DecorationPartType.STATUS).build(),
-        DecorationPartConfig.builder().withType(DecorationPartType.LOCATION).build()
+        DecorationPartConfig.builder()
+            .withType(DecorationPartType.BRANCH)
+            .build(),
+        DecorationPartConfig.builder()
+            .withType(DecorationPartType.STATUS)
+            .build(),
+        DecorationPartConfig.builder()
+            .withType(DecorationPartType.LOCATION)
+            .build()
     );
   }
 
@@ -98,46 +104,56 @@ abstract class NodeDecorationBaseTest {
 
     DecorationData decorationData = getDecorationData(presentationData);
     assertSoftly(softly -> {
-      softly.assertThat(decorationData.text).matches(decorationPattern(BRANCH_NAME, AHEAD_BEHIND));
-      softly.assertThat(decorationData.locationString).isNull();
+      softly.assertThat(decorationData.text)
+          .matches(decorationPattern(BRANCH_NAME, AHEAD_BEHIND));
+      softly.assertThat(decorationData.locationString)
+          .isNull();
     });
   }
 
   @Test
   @DisplayName("Status is shown before location")
   void statusBeforeLocation() {
-    config.decorationParts = statusBeforeLocationParts();
+    config.setDecorationParts(statusBeforeLocationParts());
 
     PresentationData presentationData = apply(presentationData(true));
 
     DecorationData decorationData = getDecorationData(presentationData);
     assertSoftly(softly -> {
-      softly.assertThat(decorationData.text).matches(decorationPattern(BRANCH_NAME, AHEAD_BEHIND));
-      softly.assertThat(decorationData.locationString).matches(decorationPattern(LOCATION_PATH));
+      softly.assertThat(decorationData.text)
+          .matches(decorationPattern(BRANCH_NAME, AHEAD_BEHIND));
+      softly.assertThat(decorationData.locationString)
+          .matches(decorationPattern(LOCATION_PATH));
     });
   }
 
   @Test
   @DisplayName("Status is shown when status before location and location is null")
   void statusBeforeLocationNullLocation() {
-    config.decorationParts = statusBeforeLocationParts();
+    config.setDecorationParts(statusBeforeLocationParts());
 
     PresentationData presentationData = apply(presentationData(false));
 
     DecorationData decorationData = getDecorationData(presentationData);
     assertSoftly(softly -> {
-      softly.assertThat(decorationData.text).matches(decorationPattern(BRANCH_NAME, AHEAD_BEHIND));
-      softly.assertThat(decorationData.locationString).isNull();
+      softly.assertThat(decorationData.text)
+          .matches(decorationPattern(BRANCH_NAME, AHEAD_BEHIND));
+      softly.assertThat(decorationData.locationString)
+          .isNull();
     });
   }
 
   @Test
   @DisplayName("Status is shown when location is hidden")
   void statusWhenLocationBeforeStatusAndLocationNotShown() {
-    config.decorationParts = Lists.newArrayList(
-        DecorationPartConfig.builder().withType(DecorationPartType.BRANCH).build(),
-        DecorationPartConfig.builder().withType(DecorationPartType.STATUS).build()
-    );
+    config.setDecorationParts(Lists.newArrayList(
+        DecorationPartConfig.builder()
+            .withType(DecorationPartType.BRANCH)
+            .build(),
+        DecorationPartConfig.builder()
+            .withType(DecorationPartType.STATUS)
+            .build()
+    ));
 
     PresentationData presentationData = apply(presentationData(true));
 
