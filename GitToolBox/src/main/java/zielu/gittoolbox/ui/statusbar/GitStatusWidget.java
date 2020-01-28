@@ -148,7 +148,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Nullable
   @Override
   public ListPopup getPopupStep() {
-    if (rootActions.update()) {
+    if (visible.get() && rootActions.update()) {
       String title = ResBundle.message("statusBar.status.menu.title");
       return new StatusActionGroupPopup(title, rootActions, myProject, Conditions.alwaysTrue());
     } else {
