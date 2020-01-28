@@ -8,7 +8,6 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
-import zielu.gittoolbox.util.AppUtil;
 
 class AutoFetch implements AutoFetchComponent, Disposable {
   private final Logger log = Logger.getInstance(getClass());
@@ -33,11 +32,6 @@ class AutoFetch implements AutoFetchComponent, Disposable {
 
   private AutoFetchExecutor executor() {
     return AutoFetchExecutor.getInstance(project);
-  }
-
-  @NotNull
-  public static AutoFetchComponent getInstance(@NotNull Project project) {
-    return AppUtil.getServiceInstance(project, AutoFetchComponent.class);
   }
 
   private void initializeFirstTask() {

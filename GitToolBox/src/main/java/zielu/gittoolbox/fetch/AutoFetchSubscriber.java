@@ -25,7 +25,7 @@ class AutoFetchSubscriber {
   }
 
   void onProjectReady() {
-    AutoFetch.getInstance(project).projectReady();
+    AutoFetchComponent.getInstance(project).projectReady();
   }
 
   void onRepoStateChanged(@NotNull RepoInfo previous,
