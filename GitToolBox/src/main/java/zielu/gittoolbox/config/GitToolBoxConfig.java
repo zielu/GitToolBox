@@ -4,6 +4,7 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.Transient;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.update.DefaultUpdateProjectAction;
@@ -28,6 +29,13 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
   public boolean showProjectViewHeadTags = true;
   public String updateProjectActionId = DefaultUpdateProjectAction.ID;
 
+  private boolean vanilla;
+
+  @Transient
+  public boolean isVanilla() {
+    return vanilla;
+  }
+
   public static GitToolBoxConfig getInstance() {
     return AppUtil.getServiceInstance(GitToolBoxConfig.class);
   }
@@ -41,5 +49,10 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
   @Override
   public void loadState(GitToolBoxConfig state) {
     XmlSerializerUtil.copyBean(state, this);
+  }
+
+  @Override
+  public void noStateLoaded() {
+    vanilla = true;
   }
 }

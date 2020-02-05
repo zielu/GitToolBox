@@ -23,6 +23,10 @@ class ConfigMigratorV1toV2 {
   }
 
   void migrate(GitToolBoxConfig2 v2) {
+    if (v1.isVanilla()) {
+      return;
+    }
+
     v2.setPresentationMode(v1.presentationMode);
     v2.setUpdateProjectActionId(v1.updateProjectActionId);
     v2.setShowStatusWidget(v1.showStatusWidget);
