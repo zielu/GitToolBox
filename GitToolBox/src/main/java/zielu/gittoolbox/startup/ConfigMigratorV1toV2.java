@@ -5,6 +5,7 @@ import static zielu.gittoolbox.config.DecorationPartType.LOCATION;
 import static zielu.gittoolbox.config.DecorationPartType.STATUS;
 import static zielu.gittoolbox.config.DecorationPartType.TAGS_ON_HEAD;
 
+import com.intellij.openapi.diagnostic.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import zielu.gittoolbox.config.DecorationPartConfig;
@@ -12,6 +13,8 @@ import zielu.gittoolbox.config.GitToolBoxConfig;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 
 class ConfigMigratorV1toV2 {
+  private final Logger log = Logger.getInstance(getClass());
+
   private final GitToolBoxConfig v1;
 
   ConfigMigratorV1toV2() {
@@ -24,6 +27,7 @@ class ConfigMigratorV1toV2 {
 
   void migrate(GitToolBoxConfig2 v2) {
     if (v1.isVanilla()) {
+      log.info("V1 config is vanilla, no migration needed");
       return;
     }
 
