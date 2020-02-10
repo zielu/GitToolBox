@@ -6,6 +6,8 @@ import git4idea.repo.GitRepository
 import git4idea.repo.GitRepositoryChangeListener
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
 import zielu.gittoolbox.config.ProjectConfigNotifier
+import zielu.gittoolbox.util.MessageBusListener
+import zielu.gittoolbox.util.ProjectMessageBusListener
 
 internal class CacheSourcesSubscriberConfigListener(private val project: Project) : ProjectConfigNotifier {
   override fun configChanged(previous: GitToolBoxConfigPrj, current: GitToolBoxConfigPrj) {
@@ -13,14 +15,20 @@ internal class CacheSourcesSubscriberConfigListener(private val project: Project
   }
 }
 
-internal class CacheSourcesSubscriberGitRepositoryListener : GitRepositoryChangeListener {
+internal class CacheSourcesSubscriberGitRepositoryListener : MessageBusListener(), GitRepositoryChangeListener {
   override fun repositoryChanged(repository: GitRepository) {
-    CacheSourcesSubscriber.getInstance(repository.project).onRepoChanged(repository)
+    handleEvent(repository.project) { project ->
+      CacheSourcesSubscriber.getInstance(project).onRepoChanged(repository)
+    }
   }
 }
 
-internal class CacheSourcesSubscriberMappingListener(private val project: Project) : VcsRepositoryMappingListener {
+internal class CacheSourcesSubscriberMappingListener(
+  project: Project
+) : ProjectMessageBusListener(project), VcsRepositoryMappingListener {
   override fun mappingChanged() {
-    CacheSourcesSubscriber.getInstance(project).onDirMappingChanged()
+    handleEvent { project ->
+      CacheSourcesSubscriber.getInstance(project).onDirMappingChanged()
+    }
   }
 }

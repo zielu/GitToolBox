@@ -3,8 +3,9 @@ package zielu.gittoolbox.cache;
 import static java.util.function.Function.identity;
 
 import com.google.common.base.Preconditions;
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -34,10 +35,10 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final ConcurrentMap<VirtualFile, GitRepository> rootsVFileCache = new ConcurrentHashMap<>();
   private final ConcurrentMap<FilePath, GitRepository> rootsFilePathCache = new ConcurrentHashMap<>();
-  private final Cache<VirtualFile, CacheEntry> dirsCache = CacheBuilder.newBuilder()
+  private final LoadingCache<VirtualFile, CacheEntry> dirsCache = CacheBuilder.newBuilder()
       .maximumSize(50)
       .weakKeys()
-      .build();
+      .build(CacheLoader.from(this::computeRepoForDir));
   private final VirtualFileRepoCacheLocalGateway gateway;
 
   VirtualFileRepoCacheImpl(@NotNull Project project) {
@@ -72,7 +73,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   public GitRepository getRepoForDir(@NotNull VirtualFile dir) {
     Preconditions.checkArgument(dir.isDirectory(), "%s is not a dir", dir);
     try {
-      return dirsCache.get(dir, () -> computeRepoForDir(dir)).repository;
+      return dirsCache.get(dir).repository;
     } catch (ExecutionException e) {
       log.warn("Cannot compute repo for dir: " + dir, e);
       return null;
