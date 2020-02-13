@@ -1,0 +1,189 @@
+alembic:
+  - experiment
+  - poc
+alien:
+  - updat
+  - extern
+  - chang
+ambulance:
+  - critical
+  - hotfix
+apple:
+  - fix
+  - macos
+arrow_down:
+  - downgrad
+  - dependenc
+arrow_up:
+  - upgrad
+  - dependenc
+art:
+  - improv
+  - structur
+  - format
+beers:
+  - drunk
+bento:
+  - add
+  - updat
+  - asset
+bookmark:
+  - releas
+  - version
+  - tag
+boom:
+  - introduc
+  - break
+  - chang
+bug:
+  - fix
+  - bug
+building_construction:
+  - architectur
+  - chang
+bulb:
+  - document
+  - source
+  - code
+busts_in_silhouette:
+  - contribut
+camera_flash:
+  - snapshot
+card_file_box:
+  - database
+  - chang
+chart_with_upwards_trend:
+  - analytic
+  - track
+checkered_flag:
+  - fix
+  - windows
+children_crossing:
+  - improv
+  - user
+  - experienc
+  - usability
+clown_face:
+  - mock
+construction:
+  - work
+  - progress
+construction_worker:
+  - ci
+  - build
+egg:
+  - easter
+  - egg
+fire:
+  - remov
+globe_with_meridians:
+  - internationalization
+  - localization
+green_apple:
+  - fix
+  - ios
+green_heart:
+  - fix
+  - ci
+  - build
+hankey:
+  - bad
+  - code
+  - improv
+heavy_minus_sign:
+  - remov
+  - dependenc
+heavy_plus_sign:
+  - add
+  - dependenc
+iphone:
+  - responsive
+  - design
+label:
+  - type
+  - Flow
+  - TypeScript
+lipstick:
+  - ui
+  - style
+lock:
+  - fix
+  - security
+  - issue
+loud_sound:
+  - logs
+mag:
+  - seo
+memo:
+  - docs
+mute:
+  - logs
+ok_hand:
+  - code
+  - review
+  - chang
+package:
+  - compil
+page_facing_up:
+  - license
+pencil2:
+  - fix
+  - typo
+penguin:
+  - fix
+  - linux
+pushpin:
+  - pin
+  - dependenc
+  - specific
+  - version
+recycle:
+  - refactor
+  - code
+rewind:
+  - revert
+  - chang
+robot:
+  - fix
+  - android
+rocket:
+  - deploy
+  - stuff
+rotating_light:
+  - remov
+  - linter
+  - warning
+see_no_evil:
+  - .gitignore
+sparkles:
+  - introduc
+  - new
+  - feature
+speech_balloon:
+  - text
+  - literals
+tada:
+  - initial
+  - commit
+truck:
+  - mov
+  - renam
+  - file
+twisted_rightwards_arrows:
+  - merg
+  - branch
+whale:
+  - docker
+wheelchair:
+  - accessibility
+wheel_of_dharma:
+  - kubernetes
+  - k8s
+white_check_mark:
+  - tests
+wrench:
+  - configuration
+  - file
+zap:
+  - improv
+  - performance
