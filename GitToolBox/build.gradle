@@ -216,6 +216,8 @@ dependencies {
     implementation("org.jodd:jodd-core:${joddVersion}")
     implementation("com.google.guava:guava:${guavaVersion}")
     implementation("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation("org.yaml:snakeyaml:${snakeYamlVersion}")
+
     implementation("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
