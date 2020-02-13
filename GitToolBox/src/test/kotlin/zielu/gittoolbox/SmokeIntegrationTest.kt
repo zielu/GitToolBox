@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import zielu.IntegrationTest
 import zielu.gittoolbox.blame.BlameCache
 import zielu.gittoolbox.changes.ChangesTrackerService
+import zielu.gittoolbox.fetch.AutoFetchComponent
 import zielu.gittoolbox.fetch.AutoFetchState
 import zielu.gittoolbox.metrics.AppMetrics
 import zielu.gittoolbox.metrics.ProjectMetrics
@@ -59,6 +60,11 @@ internal class SmokeIntegrationTest {
   @Test
   fun `should return AutoFetchState`(project: Project) {
     assertThat(AutoFetchState.getInstance(project)).isNotNull
+  }
+
+  @Test
+  fun `should return AutoFetchComponent`(project: Project) {
+    assertThat(AutoFetchComponent.getInstance(project)).isNotNull
   }
 
   @Test
