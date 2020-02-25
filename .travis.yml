@@ -21,7 +21,6 @@ before_cache:
   - rm -f  $HOME/.gradle/caches/*/md-rule/md-rule.lock
   - rm -f  $HOME/.gradle/caches/*/md-supplier/md-supplier.lock
   - rm -f  $HOME/.gradle/caches/*/executionHistory/executionHistory.lock
-  - rm -f  $HOME/.gradle/caches/*/executionHistory/executionHistory.lock
 cache:
   directories:
   - $HOME/.gradle/caches/
