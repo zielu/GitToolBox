@@ -10,7 +10,7 @@ import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.util.AppUtil;
 
-interface CompletionService {
+public interface CompletionService {
 
   void setScopeProvider(@NotNull CompletionScopeProvider scopeProvider);
 

@@ -1,10 +1,13 @@
 package zielu.gittoolbox.ui.statusbar;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.CaretEvent;
 import com.intellij.openapi.editor.event.CaretListener;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -30,6 +33,7 @@ import zielu.gittoolbox.ui.util.AppUiUtil;
 class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, StatusBarWidget.TextPresentation {
   public static final String ID = BlameStatusWidget.class.getName();
 
+  private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean visible = new AtomicBoolean();
   private final AtomicBoolean connected = new AtomicBoolean();
   private final CaretListener caretListener = new CaretListener() {
@@ -157,6 +161,22 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
       if (BlameUi.isValidLineIndex(lineIndex)) {
         updateStatus(file, lineIndex);
       }
+    }
+  }
+
+  @Override
+  public void selectionChanged(@NotNull FileEditorManagerEvent event) {
+    VirtualFile newFile = event.getNewFile();
+    if (newFile != null) {
+      log.debug("Selection changed: ", newFile);
+      updateBlame(newFile);
+    }
+  }
+
+  @Override
+  public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+    if (getSelectedFile() == null) {
+      updatePresentation(null);
     }
   }
 

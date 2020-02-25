@@ -68,7 +68,7 @@ public class GitPushTagsAction extends GitRepositoryAction {
       vcsNotifier.notifySuccess(ResBundle.message("message.tags.pushed"));
     } else {
       errorResultHandlers.getOrDefault(pushResult.getType(), (notifier, result) -> { /*do nothing*/ })
-        .accept(vcsNotifier, pushResult);
+          .accept(vcsNotifier, pushResult);
     }
   }
 }
