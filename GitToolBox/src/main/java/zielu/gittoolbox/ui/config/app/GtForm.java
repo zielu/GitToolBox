@@ -91,6 +91,7 @@ public class GtForm implements GtFormUi {
   private JCheckBox autoFetchOnBranchSwitchOverride;
   private JCheckBox autoFetchOnBranchSwitch;
   private JButton appliedAutoFetchOnBranchSwitchEnabled;
+  private JCheckBox commitDialogGitmojiCompletionCheckBox;
 
   @Override
   public void init() {
@@ -477,5 +478,13 @@ public class GtForm implements GtFormUi {
 
   public void setAppliedAutoFetchOnBranchSwitchEnabledPaths(List<String> appliedAutoFetchOnBranchSwitchEnabledPaths) {
     this.appliedAutoFetchOnBranchSwitchEnabledPaths = new ArrayList<>(appliedAutoFetchOnBranchSwitchEnabledPaths);
+  }
+
+  public void setCommitDialogGitmojiCompletionEnabled(boolean enabled) {
+    commitDialogGitmojiCompletionCheckBox.setSelected(enabled);
+  }
+
+  public boolean getCommitDialogGitmojiCompletionEnabled() {
+    return commitDialogGitmojiCompletionCheckBox.isSelected();
   }
 }

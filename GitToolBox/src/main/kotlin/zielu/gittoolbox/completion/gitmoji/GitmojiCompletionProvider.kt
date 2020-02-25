@@ -10,21 +10,26 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.util.TextRange
 import zielu.gittoolbox.completion.CompletionProviderBase
 import zielu.gittoolbox.completion.CompletionService
+import zielu.gittoolbox.config.GitToolBoxConfig2
 
 internal class GitmojiCompletionProvider : CompletionProviderBase() {
 
   override fun setupCompletions(project: Project, result: CompletionResultSet) {
-    val completionService = CompletionService.getInstance(project)
-    if (completionService.affected.isNotEmpty()) {
-      addCompletions(result)
+    if (isEnabled()) {
+      val completionService = CompletionService.getInstance(project)
+      if (completionService.affected.isNotEmpty()) {
+        addCompletions(result)
+      }
     }
   }
+
+  private fun isEnabled(): Boolean = GitToolBoxConfig2.getInstance().commitDialogGitmojiCompletion
 
   private fun addCompletions(result: CompletionResultSet) {
     val insertHandler = PrefixCompletionInsertHandler()
     GitmojiResBundle.keySet().forEach { gitmoji ->
       val description = GitmojiResBundle.message(gitmoji)
-      val icon = IconLoader.getIcon("/zielu/gittoolbox/gitmoji/$gitmoji.png")
+      val icon = IconLoader.findIcon("/zielu/gittoolbox/gitmoji/$gitmoji.png", false)
       var builder = LookupElementBuilder.create(":$gitmoji:")
         .withTypeText(description)
         .withIcon(icon)
