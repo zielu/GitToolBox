@@ -18,12 +18,14 @@ import zielu.gittoolbox.config.DecorationColors;
 public class DecorationColorsPage implements ColorSettingsPage {
   private static final String LOCAL_BRANCH_DEMO_TEXT = new StringBand()
       .append("<localBranch>Local_Branch</localBranch>")
+      .append("<localMaster>master (local)</localMaster>")
       .append(" <headTags>1.0.0, 1.1.0</headTags>")
       .append(" <changedCount>3 changes</changedCount>")
       .toString();
 
   private static final String REMOTE_BRANCH_DEMO_TEXT = new StringBand()
       .append("<remoteBranch>Remote_Branch</remoteBranch>")
+      .append(" <masterWithRemote>master (with remote)</masterWithRemote>")
       .append(" <status>1 // 2</status>")
       .append(" <headTags>1.0.0, 1.1.0</headTags>")
       .append(" <changedCount>5 changes</changedCount>")
@@ -50,6 +52,8 @@ public class DecorationColorsPage implements ColorSettingsPage {
       .put("localBranch", DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
       .put("changedCount", DecorationColors.CHANGED_COUNT_ATTRIBUTES)
       .put("editorInlineBlame", DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES)
+      .put("masterWithRemote", DecorationColors.MASTER_WITH_REMOTE_ATTRIBUTES)
+      .put("localMaster", DecorationColors.MASTER_LOCAL_ATTRIBUTES)
       .build();
 
   @NotNull
@@ -58,6 +62,10 @@ public class DecorationColorsPage implements ColorSettingsPage {
     return new AttributesDescriptor[] {
       new AttributesDescriptor(ResBundle.message("colors.projectView.remote.branch.decoration.label"),
           DecorationColors.REMOTE_BRANCH_ATTRIBUTES),
+      new AttributesDescriptor(ResBundle.message("colors.projectView.master.with.remote.decoration.label"),
+          DecorationColors.MASTER_WITH_REMOTE_ATTRIBUTES),
+      new AttributesDescriptor(ResBundle.message("colors.projectView.master.local.decoration.label"),
+          DecorationColors.MASTER_LOCAL_ATTRIBUTES),
       new AttributesDescriptor(ResBundle.message("colors.projectView.status.decoration.label"),
             DecorationColors.STATUS_ATTRIBUTES),
       new AttributesDescriptor(ResBundle.message("colors.projectView.head.tags.decoration.label"),

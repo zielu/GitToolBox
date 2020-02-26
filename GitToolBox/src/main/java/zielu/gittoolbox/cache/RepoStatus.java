@@ -85,6 +85,13 @@ public final class RepoStatus {
     return !remote.isParentSameAsTracking();
   }
 
+  public boolean isNameMaster() {
+    if (localBranch != null) {
+      return "master".equals(localBranch.getName());
+    }
+    return false;
+  }
+
   public boolean sameHashes(GitAheadBehindCount aheadBehind) {
     return Objects.equals(localHash, aheadBehind.ahead.top())
                && Objects.equals(remote.parentHash(), aheadBehind.behind.top());

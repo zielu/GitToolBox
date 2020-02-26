@@ -100,4 +100,8 @@ public abstract class NodeDecorationBase implements NodeDecoration {
   protected final boolean isTrackingBranch() {
     return repoInfo.status().isTrackingRemote();
   }
+
+  protected final boolean isMaster() {
+    return repoInfo.status().isNameMaster();
+  }
 }
