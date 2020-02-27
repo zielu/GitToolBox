@@ -18,14 +18,12 @@ import zielu.gittoolbox.config.DecorationColors;
 public class DecorationColorsPage implements ColorSettingsPage {
   private static final String LOCAL_BRANCH_DEMO_TEXT = new StringBand()
       .append("<localBranch>Local_Branch</localBranch>")
-      .append("<localMaster>master (local)</localMaster>")
       .append(" <headTags>1.0.0, 1.1.0</headTags>")
       .append(" <changedCount>3 changes</changedCount>")
       .toString();
 
   private static final String REMOTE_BRANCH_DEMO_TEXT = new StringBand()
       .append("<remoteBranch>Remote_Branch</remoteBranch>")
-      .append(" <masterWithRemote>master (with remote)</masterWithRemote>")
       .append(" <status>1 // 2</status>")
       .append(" <headTags>1.0.0, 1.1.0</headTags>")
       .append(" <changedCount>5 changes</changedCount>")
@@ -36,10 +34,19 @@ public class DecorationColorsPage implements ColorSettingsPage {
       .append(" <editorInlineBlame>Blame: Kilroy 15.07.1410</editorInlineBlame>")
       .toString();
 
+  private static final String MASTER_DEMO_TEXT = new StringBand()
+      .append("<localMaster>master (local)</localMaster>")
+      .append("\n")
+      .append("<masterWithRemote>master (with remote)</masterWithRemote>")
+      .append("\n")
+      .toString();
+
   private static final String DEMO_TEXT = new StringBand()
       .append(LOCAL_BRANCH_DEMO_TEXT)
       .append("\n")
       .append(REMOTE_BRANCH_DEMO_TEXT)
+      .append("\n")
+      .append(MASTER_DEMO_TEXT)
       .append("\n")
       .append(INLINE_BLAME_DEMO_TEXT)
       .toString();
