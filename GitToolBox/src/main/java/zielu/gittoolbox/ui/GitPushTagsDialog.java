@@ -34,6 +34,7 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.tag.GitTagCalculator;
 import zielu.gittoolbox.tag.TagsPushSpec;
 import zielu.gittoolbox.tag.TagsPushSpec.Builder;
@@ -192,7 +193,8 @@ public class GitPushTagsDialog extends DialogWrapper {
   }
 
   private GitRepository getRepository() {
-    return Preconditions.checkNotNull(GitUtil.getRepositoryManager(project).getRepositoryForRoot(getGitRoot()));
+    VirtualFileRepoCache fileCache = VirtualFileRepoCache.getInstance(project);
+    return Preconditions.checkNotNull(fileCache.getRepoForRoot(getGitRoot()));
   }
 
   private Optional<GitBranchTrackInfo> remoteForCurrentBranch() {
