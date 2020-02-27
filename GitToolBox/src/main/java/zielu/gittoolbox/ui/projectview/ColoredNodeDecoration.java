@@ -76,9 +76,17 @@ public class ColoredNodeDecoration extends NodeDecorationBase {
 
   private SimpleTextAttributes getBranchAttributes() {
     if (isTrackingBranch()) {
-      return coloredUi.getRemoteBranchAttributes();
+      if (isMaster()) {
+        return coloredUi.getMasterWithRemoteAttributes();
+      } else {
+        return coloredUi.getRemoteBranchAttributes();
+      }
     } else {
-      return coloredUi.getLocalBranchAttributes();
+      if (isMaster()) {
+        return coloredUi.getMasterLocalAttributes();
+      } else {
+        return coloredUi.getLocalBranchAttributes();
+      }
     }
   }
 

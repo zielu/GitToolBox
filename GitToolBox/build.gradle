@@ -16,7 +16,7 @@ plugins {
     id 'org.jetbrains.intellij' version '0.4.16'
     id 'com.palantir.git-version' version '0.12.2'
     id 'ch.netzwerg.release' version '1.2.5'
-    id 'org.jlleitschuh.gradle.ktlint' version '9.1.1'
+    id 'org.jlleitschuh.gradle.ktlint' version '9.2.1'
 }
 
 repositories {
@@ -216,6 +216,8 @@ dependencies {
     implementation("org.jodd:jodd-core:${joddVersion}")
     implementation("com.google.guava:guava:${guavaVersion}")
     implementation("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation("org.yaml:snakeyaml:${snakeYamlVersion}")
+
     implementation("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }

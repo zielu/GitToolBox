@@ -73,6 +73,10 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
         GitToolBoxConfig2::setCommitDialogCompletionMode,
         GtForm::getCommitDialogCompletionMode,
         GtForm::setCommitDialogCompletionMode);
+    binder.bind(GitToolBoxConfig2::getCommitDialogGitmojiCompletion,
+        GitToolBoxConfig2::setCommitDialogGitmojiCompletion,
+        GtForm::getCommitDialogGitmojiCompletionEnabled,
+        GtForm::setCommitDialogGitmojiCompletionEnabled);
     binder.bind(GitToolBoxConfig2::getBlameInlineAuthorNameType,
         GitToolBoxConfig2::setBlameInlineAuthorNameType,
         GtForm::getBlameInlineAuthorNameType,

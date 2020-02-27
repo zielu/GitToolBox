@@ -3,6 +3,8 @@ package zielu.gittoolbox.ui.projectview;
 import static zielu.gittoolbox.config.DecorationColors.CHANGED_COUNT_ATTRIBUTES;
 import static zielu.gittoolbox.config.DecorationColors.HEAD_TAGS_ATTRIBUTES;
 import static zielu.gittoolbox.config.DecorationColors.LOCAL_BRANCH_ATTRIBUTES;
+import static zielu.gittoolbox.config.DecorationColors.MASTER_LOCAL_ATTRIBUTES;
+import static zielu.gittoolbox.config.DecorationColors.MASTER_WITH_REMOTE_ATTRIBUTES;
 import static zielu.gittoolbox.config.DecorationColors.REMOTE_BRANCH_ATTRIBUTES;
 import static zielu.gittoolbox.config.DecorationColors.STATUS_ATTRIBUTES;
 
@@ -24,6 +26,14 @@ class ColoredNodeDecorationUi extends NodeDecorationUi {
 
   SimpleTextAttributes getLocalBranchAttributes() {
     return attributesUi.getTextAttributes(LOCAL_BRANCH_ATTRIBUTES);
+  }
+
+  SimpleTextAttributes getMasterLocalAttributes() {
+    return attributesUi.getTextAttributes(MASTER_LOCAL_ATTRIBUTES);
+  }
+
+  SimpleTextAttributes getMasterWithRemoteAttributes() {
+    return attributesUi.getTextAttributes(MASTER_WITH_REMOTE_ATTRIBUTES);
   }
 
   SimpleTextAttributes getHeadTagsAttributes() {

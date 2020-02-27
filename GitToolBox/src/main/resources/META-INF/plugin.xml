@@ -59,9 +59,13 @@
     <projectService serviceInterface="zielu.gittoolbox.completion.CompletionService"
                     serviceImplementation="zielu.gittoolbox.completion.CompletionServiceImpl" />
     <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.completion.CompletionCheckinHandlerFactory" />
+
     <completion.contributor language="TEXT"
                             order="first, before commitCompletion"
                             implementationClass="zielu.gittoolbox.completion.CurrentBranchCompletionContributor" />
+    <completion.contributor language="TEXT"
+                            order="first, before commitCompletion"
+                            implementationClass="zielu.gittoolbox.completion.gitmoji.GitmojiCompletionContributor" />
 
     <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.commit.CommitMessageValidationCheckinHandlerFactory" />
 

@@ -8,7 +8,19 @@ install: "./gradlew assemble --console plain"
 script: "./gradlew check integrationTest --console plain"
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -f  $HOME/.gradle/caches/journal-1/file-access.bin
+  - rm -f  $HOME/.gradle/caches/journal-1/journal-1.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -f  $HOME/.gradle/caches/*/file-changes/last-build.bin
+  - rm -f  $HOME/.gradle/caches/*/fileContent/fileContent.lock
+  - rm -f  $HOME/.gradle/caches/*/fileHashes/fileHashes.bin
+  - rm -f  $HOME/.gradle/caches/*/fileHashes/fileHashes.lock
+  - rm -f  $HOME/.gradle/caches/*/fileHashes/resourceHashesCache.bin
+  - rm -f  $HOME/.gradle/caches/*/javaCompile/jarAnalysis.bin
+  - rm -f  $HOME/.gradle/caches/*/javaCompile/javaCompile.lock
+  - rm -f  $HOME/.gradle/caches/*/md-rule/md-rule.lock
+  - rm -f  $HOME/.gradle/caches/*/md-supplier/md-supplier.lock
+  - rm -f  $HOME/.gradle/caches/*/executionHistory/executionHistory.lock
 cache:
   directories:
   - $HOME/.gradle/caches/

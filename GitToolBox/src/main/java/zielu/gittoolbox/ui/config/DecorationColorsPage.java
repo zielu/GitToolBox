@@ -34,10 +34,19 @@ public class DecorationColorsPage implements ColorSettingsPage {
       .append(" <editorInlineBlame>Blame: Kilroy 15.07.1410</editorInlineBlame>")
       .toString();
 
+  private static final String MASTER_DEMO_TEXT = new StringBand()
+      .append("<localMaster>master (local)</localMaster>")
+      .append("\n")
+      .append("<masterWithRemote>master (with remote)</masterWithRemote>")
+      .append("\n")
+      .toString();
+
   private static final String DEMO_TEXT = new StringBand()
       .append(LOCAL_BRANCH_DEMO_TEXT)
       .append("\n")
       .append(REMOTE_BRANCH_DEMO_TEXT)
+      .append("\n")
+      .append(MASTER_DEMO_TEXT)
       .append("\n")
       .append(INLINE_BLAME_DEMO_TEXT)
       .toString();
@@ -50,6 +59,8 @@ public class DecorationColorsPage implements ColorSettingsPage {
       .put("localBranch", DecorationColors.LOCAL_BRANCH_ATTRIBUTES)
       .put("changedCount", DecorationColors.CHANGED_COUNT_ATTRIBUTES)
       .put("editorInlineBlame", DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES)
+      .put("masterWithRemote", DecorationColors.MASTER_WITH_REMOTE_ATTRIBUTES)
+      .put("localMaster", DecorationColors.MASTER_LOCAL_ATTRIBUTES)
       .build();
 
   @NotNull
@@ -58,6 +69,10 @@ public class DecorationColorsPage implements ColorSettingsPage {
     return new AttributesDescriptor[] {
       new AttributesDescriptor(ResBundle.message("colors.projectView.remote.branch.decoration.label"),
           DecorationColors.REMOTE_BRANCH_ATTRIBUTES),
+      new AttributesDescriptor(ResBundle.message("colors.projectView.master.with.remote.decoration.label"),
+          DecorationColors.MASTER_WITH_REMOTE_ATTRIBUTES),
+      new AttributesDescriptor(ResBundle.message("colors.projectView.master.local.decoration.label"),
+          DecorationColors.MASTER_LOCAL_ATTRIBUTES),
       new AttributesDescriptor(ResBundle.message("colors.projectView.status.decoration.label"),
             DecorationColors.STATUS_ATTRIBUTES),
       new AttributesDescriptor(ResBundle.message("colors.projectView.head.tags.decoration.label"),
