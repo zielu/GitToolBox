@@ -13,6 +13,12 @@ internal object DecorationColors {
   val LOCAL_BRANCH_ATTRIBUTES = TextAttributesKey
     .createTextAttributesKey("GIT_TOOLBOX.LOCAL_BRANCH_ATTRIBUTES")
   @JvmField
+  val MASTER_WITH_REMOTE_ATTRIBUTES = TextAttributesKey
+    .createTextAttributesKey("GIT_TOOLBOX.MASTER_WITH_REMOTE_ATTRIBUTES")
+  @JvmField
+  val MASTER_LOCAL_ATTRIBUTES = TextAttributesKey
+    .createTextAttributesKey("GIT_TOOLBOX.MASTER_LOCAL_ATTRIBUTES")
+  @JvmField
   val STATUS_ATTRIBUTES = TextAttributesKey
     .createTextAttributesKey("GIT_TOOLBOX.STATUS_ATTRIBUTES")
   @JvmField
