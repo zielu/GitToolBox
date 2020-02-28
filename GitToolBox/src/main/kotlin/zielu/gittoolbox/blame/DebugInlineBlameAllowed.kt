@@ -11,7 +11,7 @@ internal class DebugInlineBlameAllowed(private val project: Project) {
     val debuggerManager = XDebuggerManager.getInstance(project)
     val debugInProgress = debuggerManager.currentSession != null
     log.debug("Debug session in progress: ", debugInProgress)
-    return debugInProgress
+    return !debugInProgress
   }
 
   companion object {
