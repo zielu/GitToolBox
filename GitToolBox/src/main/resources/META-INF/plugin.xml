@@ -83,6 +83,7 @@
     <projectService serviceInterface="zielu.gittoolbox.revision.RevisionService"
                     serviceImplementation="zielu.gittoolbox.revision.RevisionServiceImpl" />
 
+    <projectService serviceImplementation="zielu.gittoolbox.blame.DebugInlineBlameAllowed" />
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"
                     serviceImplementation="zielu.gittoolbox.blame.BlameLoaderImpl" />
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameCacheExecutor" />
@@ -91,6 +92,8 @@
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl" />
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameSubscriber" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.extension.blame.InlineBlameAllowedExtension" />
 
     <projectService serviceImplementation="zielu.gittoolbox.cache.CacheSourcesSubscriber" />
     <projectService serviceInterface="zielu.gittoolbox.cache.VirtualFileRepoCache"
@@ -245,10 +248,15 @@
                     dynamic="false">
       <with attribute="provider" implements="zielu.gittoolbox.extension.update.UpdateProjectAction" />
     </extensionPoint>
+    <extensionPoint name="inlineBlameAllowed" beanClass="zielu.gittoolbox.extension.blame.InlineBlameAllowedEP"
+                    dynamic="false">
+      <with attribute="provider" implements="zielu.gittoolbox.extension.blame.InlineBlameAllowed" />
+    </extensionPoint>
   </extensionPoints>
 
   <extensions defaultExtensionNs="zielu.gittoolbox">
     <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeExt" />
     <updateProjectAction provider="zielu.gittoolbox.ui.update.DefaultUpdateProjectAction" />
+    <inlineBlameAllowed provider="zielu.gittoolbox.blame.DebugInlineBlameAllowedExt" />
   </extensions>
 </idea-plugin>
