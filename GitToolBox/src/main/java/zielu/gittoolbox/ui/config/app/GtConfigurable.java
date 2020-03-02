@@ -93,6 +93,9 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
         GitToolBoxConfig2::setBlameStatusAuthorNameType,
         GtForm::getBlameStatusAuthorNameType,
         GtForm::setBlameStatusAuthorNameType);
+    binder.bind(GitToolBoxConfig2::getHideInlineBlameWhileDebugging,
+        GitToolBoxConfig2::setHideInlineBlameWhileDebugging,
+        GtForm::hideBlameWhileDebugging);
     binder.bind(GitToolBoxConfig2::getAbsoluteDateTimeStyle,
         GitToolBoxConfig2::setAbsoluteDateTimeStyle,
         GtForm::getAbsoluteDateTimeStyle,
@@ -131,13 +134,14 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
     );
   }
 
+  @NotNull
   @Override
-  protected GitToolBoxConfig2 copy(GitToolBoxConfig2 config) {
+  protected GitToolBoxConfig2 copy(@NotNull GitToolBoxConfig2 config) {
     return config.copy();
   }
 
   @Override
-  protected void afterApply(GitToolBoxConfig2 previous, GitToolBoxConfig2 current) {
+  protected void afterApply(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
     //Mark migrated here to handle case when config gets modified without opening a project
     //Example: changing default settings from launch dialog
     current.setPreviousVersionMigrated(true);

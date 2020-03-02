@@ -3,15 +3,19 @@ package zielu.gittoolbox.blame
 import com.intellij.openapi.project.Project
 import com.intellij.xdebugger.XDebuggerManager
 import org.slf4j.LoggerFactory
+import zielu.gittoolbox.config.GitToolBoxConfig2
 import zielu.gittoolbox.util.AppUtil
 
 internal class DebugInlineBlameAllowed(private val project: Project) {
 
   fun isAllowed(): Boolean {
-    val debuggerManager = XDebuggerManager.getInstance(project)
-    val debugInProgress = debuggerManager.currentSession != null
-    log.debug("Debug session in progress: ", debugInProgress)
-    return !debugInProgress
+    if (GitToolBoxConfig2.getInstance().hideInlineBlameWhileDebugging) {
+      val debuggerManager = XDebuggerManager.getInstance(project)
+      val debugInProgress = debuggerManager.currentSession != null
+      log.debug("Debug session active: ", debugInProgress)
+      return !debugInProgress
+    }
+    return true
   }
 
   companion object {

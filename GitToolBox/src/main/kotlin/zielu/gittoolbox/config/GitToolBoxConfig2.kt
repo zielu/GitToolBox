@@ -45,7 +45,8 @@ internal data class GitToolBoxConfig2(
       .build()
   ),
   var extrasConfig: ExtrasConfig = ExtrasConfig(),
-  var commitDialogGitmojiCompletion: Boolean = false
+  var commitDialogGitmojiCompletion: Boolean = false,
+  var hideInlineBlameWhileDebugging: Boolean = true
 ) : PersistentStateComponent<GitToolBoxConfig2> {
 
   companion object {
@@ -75,7 +76,8 @@ internal data class GitToolBoxConfig2(
       previousVersionMigrated,
       decorationParts.map { it.copy() },
       extrasConfig.copy(),
-      commitDialogGitmojiCompletion
+      commitDialogGitmojiCompletion,
+      hideInlineBlameWhileDebugging
     )
   }
 
