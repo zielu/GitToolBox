@@ -3,7 +3,7 @@ package zielu.gittoolbox.store
 import com.intellij.util.xmlb.annotations.Transient
 
 internal data class RecentBranchesForRepo(
-  var repositoryRootUrl: String,
+  var repositoryRootUrl: String = "",
   var branches: MutableList<RecentBranch> = arrayListOf()
 ) {
   @Transient

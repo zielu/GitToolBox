@@ -42,7 +42,7 @@ internal object AppUtil {
   fun saveAppSettings() {
     val application = ApplicationManager.getApplication()
     if (!application.isUnitTestMode) {
-      log.info("Saving settings")
+      log.info("Saving app settings")
       try {
         WriteAction.runAndWait(ThrowableRunnable<Exception> { application.saveSettings() })
       } catch (exception: Exception) {

@@ -63,7 +63,7 @@ internal class RecentBranchesService {
     synchronized(this) {
       val store = WorkspaceStore.getInstance(repository.project)
       store.recentBranches.storeForRepositoryRootUrl(recentBranches, getRepoUrl(repository))
-      AppUtil.saveAppSettings()
+      // AppUtil.saveProjectSettings(repository.project)
     }
   }
 
@@ -74,6 +74,7 @@ internal class RecentBranchesService {
       val deletedBranches = recentBranches
         .filter { branchesCollection.findLocalBranch(it.branchName) == null }
       recentBranches.removeAll(deletedBranches)
+      recentBranches.removeIf { it.branchName == latestBranch.branchName }
       recentBranches.add(latestBranch)
       recentBranches
         .sortByDescending { it.lastUsedInstant }
