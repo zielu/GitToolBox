@@ -1,11 +1,16 @@
 package zielu.gittoolbox.util
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import com.intellij.util.ThrowableRunnable
 import java.util.Optional
 
 internal object AppUtil {
+  private val log = Logger.getInstance(AppUtil::class.java)
+
   @JvmStatic
   fun <T> getExistingServiceInstance(project: Project, serviceType: Class<T>): Optional<T> {
     return Optional.ofNullable(ServiceManager.getServiceIfCreated(project, serviceType))
@@ -32,5 +37,17 @@ internal object AppUtil {
 
   fun hasUi(): Boolean {
     return !ApplicationManager.getApplication().isHeadlessEnvironment
+  }
+
+  fun saveAppSettings() {
+    val application = ApplicationManager.getApplication()
+    if (!application.isUnitTestMode) {
+      log.info("Saving settings")
+      try {
+        WriteAction.runAndWait(ThrowableRunnable<Exception> { application.saveSettings() })
+      } catch (exception: Exception) {
+        log.error("Failed to save settings", exception)
+      }
+    }
   }
 }

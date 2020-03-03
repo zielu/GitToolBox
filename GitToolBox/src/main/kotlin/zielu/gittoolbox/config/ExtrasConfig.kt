@@ -1,12 +1,13 @@
 package zielu.gittoolbox.config
 
-internal data class ExtrasConfig
+import com.intellij.util.xmlb.annotations.Transient
 
-constructor(
+internal data class ExtrasConfig(
   var autoFetchEnabledOverride: BoolConfigOverride = BoolConfigOverride(),
   var autoFetchOnBranchSwitchOverride: BoolConfigOverride = BoolConfigOverride()
 ) {
 
+  @Transient
   fun copy(): ExtrasConfig {
     return ExtrasConfig(
       autoFetchEnabledOverride.copy(),

@@ -1,11 +1,7 @@
 package zielu.gittoolbox.startup
 
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.WriteAction
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
-import com.intellij.util.ThrowableRunnable
 import zielu.gittoolbox.metrics.ProjectMetrics
 
 internal class GitToolBoxStartup : StartupActivity {
@@ -18,23 +14,7 @@ internal class GitToolBoxStartup : StartupActivity {
 
   private fun migrate(project: Project) {
     if (ConfigMigrator().migrate(project)) {
-      saveAppSettings()
+      GitToolBoxStartupGateway(project).saveSettings()
     }
-  }
-
-  private fun saveAppSettings() {
-    val application = ApplicationManager.getApplication()
-    if (!application.isUnitTestMode) {
-      log.info("Saving settings")
-      try {
-        WriteAction.runAndWait(ThrowableRunnable<Exception> { application.saveSettings() })
-      } catch (exception: Exception) {
-        log.error("Failed to save settings", exception)
-      }
-    }
-  }
-
-  private companion object {
-    private val log = Logger.getInstance(GitToolBoxStartup::class.java)
   }
 }

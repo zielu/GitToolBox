@@ -3,6 +3,7 @@ package zielu.gittoolbox.branch
 import com.intellij.openapi.project.Project
 import git4idea.GitBranch
 import git4idea.repo.GitRepository
+import zielu.gittoolbox.repo.GtRepository
 import zielu.gittoolbox.store.RecentBranch
 import zielu.gittoolbox.store.WorkspaceStore
 import zielu.gittoolbox.util.AppUtil
@@ -11,7 +12,7 @@ import java.time.Instant
 internal class RecentBranchesService {
   private val historyLimit = 5
 
-  fun branchSwitch(previousBranch: GitBranch, currentBranch: GitBranch, repository: GitRepository) {
+  fun branchSwitch(previousBranch: GitBranch, currentBranch: GitBranch, repository: GtRepository) {
     val now = Instant.now()
     val recentBranches = getRecentBranchesFromStore(repository)
     if (recentBranches.isEmpty()) {
@@ -23,7 +24,7 @@ internal class RecentBranchesService {
     }
   }
 
-  fun branchSwitchFromOther(currentBranch: GitBranch, repository: GitRepository) {
+  fun switchToBranchFromOther(currentBranch: GitBranch, repository: GtRepository) {
     val current = createRecentBranch(currentBranch, Instant.now())
     val recentBranches = getRecentBranchesFromStore(repository)
     if (recentBranches.isEmpty()) {
@@ -33,7 +34,7 @@ internal class RecentBranchesService {
     }
   }
 
-  fun branchSwitchToOther(previousBranch: GitBranch, repository: GitRepository) {
+  fun switchFromBranchToOther(previousBranch: GitBranch, repository: GtRepository) {
     val previous = createRecentBranch(previousBranch, Instant.now())
     val recentBranches = getRecentBranchesFromStore(repository)
     if (recentBranches.isEmpty()) {
@@ -51,21 +52,22 @@ internal class RecentBranchesService {
     return repository.root.url
   }
 
-  private fun getRecentBranchesFromStore(repository: GitRepository): List<RecentBranch> {
+  private fun getRecentBranchesFromStore(repository: GtRepository): List<RecentBranch> {
     synchronized(this) {
       val store = WorkspaceStore.getInstance(repository.project)
       return store.recentBranches.findForRepositoryRootUrl(getRepoUrl(repository))
     }
   }
 
-  private fun storeRecentBranches(recentBranches: List<RecentBranch>, repository: GitRepository) {
+  private fun storeRecentBranches(recentBranches: List<RecentBranch>, repository: GtRepository) {
     synchronized(this) {
       val store = WorkspaceStore.getInstance(repository.project)
       store.recentBranches.storeForRepositoryRootUrl(recentBranches, getRepoUrl(repository))
+      AppUtil.saveAppSettings()
     }
   }
 
-  private fun updateRecentBranches(latestBranch: RecentBranch, repository: GitRepository) {
+  private fun updateRecentBranches(latestBranch: RecentBranch, repository: GtRepository) {
     synchronized(this) {
       val recentBranches = getRecentBranchesFromStore(repository).toMutableList()
       val branchesCollection = repository.branches
@@ -80,7 +82,7 @@ internal class RecentBranchesService {
     }
   }
 
-  fun getRecentBranches(repository: GitRepository): List<GitBranch> {
+  fun getRecentBranches(repository: GtRepository): List<GitBranch> {
     val recentBranches = getRecentBranchesFromStore(repository)
     val branchesCollection = repository.branches
     return recentBranches

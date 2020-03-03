@@ -23,13 +23,14 @@
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="193" until-build="193.*" />
+  <idea-version since-build="193.3519.25" until-build="193.*" />
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig" />
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2" />
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigPrj" />
+    <projectService serviceImplementation="zielu.gittoolbox.store.WorkspaceStore" />
 
     <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
                         serviceImplementation="zielu.gittoolbox.metrics.AppMetricsImpl" />
@@ -240,6 +241,7 @@
     </action>
     <action class="zielu.gittoolbox.ui.actions.SwitchRecentBranchesPopupAction" id="GitToolBox.SwitchRecentBranches"
             text="Switch Recent Git Branches">
+      <keyboard-shortcut first-keystroke="meta shift R" keymap="$default" />
     </action>
 
     <group id="GitToolBoxMenu" text="GitToolBox" popup="true">
