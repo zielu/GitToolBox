@@ -23,13 +23,14 @@
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="193" until-build="193.*" />
+  <idea-version since-build="193.3519.25" until-build="193.*" />
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig" />
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2" />
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigPrj" />
+    <projectService serviceImplementation="zielu.gittoolbox.store.WorkspaceStore" />
 
     <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
                         serviceImplementation="zielu.gittoolbox.metrics.AppMetricsImpl" />
@@ -94,6 +95,10 @@
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameSubscriber" />
 
     <projectService serviceImplementation="zielu.gittoolbox.extension.blame.InlineBlameAllowedExtension" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.branch.BranchSubscriber" />
+    <projectService serviceImplementation="zielu.gittoolbox.branch.RecentBranchesService" />
+    <projectService serviceImplementation="zielu.gittoolbox.ui.branch.BranchUiService" />
 
     <projectService serviceImplementation="zielu.gittoolbox.cache.CacheSourcesSubscriber" />
     <projectService serviceInterface="zielu.gittoolbox.cache.VirtualFileRepoCache"
@@ -160,6 +165,11 @@
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
     <listener class="zielu.gittoolbox.blame.BlameSubscriberCacheListener"
               topic="zielu.gittoolbox.blame.BlameCacheListener" />
+    <listener class="zielu.gittoolbox.blame.DebugInlineBlameAllowedListener"
+              topic="com.intellij.xdebugger.XDebuggerManagerListener" />
+
+    <listener class="zielu.gittoolbox.branch.BranchSubscriberInfoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
 
     <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberGitRepositoryListener"
               topic="git4idea.repo.GitRepositoryChangeListener" />
@@ -231,9 +241,14 @@
     <action class="zielu.gittoolbox.ui.actions.RefreshBlameAction" id="GitToolBox.RefreshBlame"
             text="Refresh Blame">
     </action>
+    <action class="zielu.gittoolbox.ui.actions.SwitchRecentBranchesPopupAction" id="GitToolBox.SwitchRecentBranches"
+            text="Switch Recent Git Branches">
+      <keyboard-shortcut first-keystroke="shift meta R" keymap="$default" />
+    </action>
 
     <group id="GitToolBoxMenu" text="GitToolBox" popup="true">
       <reference id="GitToolBox.PushTags"/>
+      <reference id="GitToolBox.SwitchRecentBranches"/>
       <reference id="GitToolBox.RefreshBlame"/>
       <add-to-group group-id="VcsGlobalGroup" anchor="after" relative-to-action="Git.Menu"/>
     </group>

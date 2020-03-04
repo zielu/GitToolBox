@@ -1,17 +1,16 @@
 package zielu.intellij.ui
 
-import zielu.intellij.util.ZBoolProperty
 import zielu.intellij.util.ZProperty
 
 internal class ConfigWithPrjOverrideUiController<T> {
-  private lateinit var overrideConfig: ZBoolProperty
-  private lateinit var overrideUi: ZBoolProperty
+  private lateinit var overrideConfig: ZProperty<Boolean>
+  private lateinit var overrideUi: ZProperty<Boolean>
   private lateinit var configValue: ZProperty<T>
   private lateinit var prjConfigValue: ZProperty<T>
   private lateinit var prjUi: ZProperty<T>
-  private lateinit var prjUiEnabled: ZBoolProperty
+  private lateinit var prjUiEnabled: ZProperty<Boolean>
 
-  fun bindOverrideEnabled(config: ZBoolProperty, ui: ZBoolProperty) {
+  fun bindOverrideEnabled(config: ZProperty<Boolean>, ui: ZProperty<Boolean>) {
     overrideConfig = config
     overrideUi = ui
   }
@@ -20,7 +19,7 @@ internal class ConfigWithPrjOverrideUiController<T> {
     configValue: ZProperty<T>,
     prjConfigValue: ZProperty<T>,
     prjUi: ZProperty<T>,
-    prjUiEnabled: ZBoolProperty
+    prjUiEnabled: ZProperty<Boolean>
   ) {
     this.configValue = configValue
     this.prjConfigValue = prjConfigValue

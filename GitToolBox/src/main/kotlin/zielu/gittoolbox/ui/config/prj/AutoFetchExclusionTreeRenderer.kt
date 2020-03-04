@@ -9,7 +9,7 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig
-import zielu.gittoolbox.repo.GtRepositoryImpl
+import zielu.gittoolbox.repo.createGtRepository
 import zielu.gittoolbox.util.GtUtil
 import java.util.Optional
 import javax.swing.JTree
@@ -63,7 +63,7 @@ internal class AutoFetchExclusionTreeRenderer(private val project: Project) : Co
   private fun render(remote: RemoteConfig, repository: Optional<GitRepository>) {
     append(remote.name)
     if (repository.isPresent) {
-      GtRepositoryImpl(repository.get()).findRemote(remote.name)?.firstUrl?.let { url ->
+      createGtRepository(repository.get()).findRemote(remote.name)?.firstUrl?.let { url ->
         append(" ($url)", GRAYED_ATTRIBUTES)
       }
     }

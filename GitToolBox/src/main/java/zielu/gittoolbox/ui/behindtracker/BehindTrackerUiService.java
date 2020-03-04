@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.repo.GtRepository;
-import zielu.gittoolbox.repo.GtRepositoryImpl;
+import zielu.gittoolbox.repo.RepoKt;
 import zielu.gittoolbox.ui.StatusMessagesService;
 import zielu.gittoolbox.ui.UpdateProject;
 
@@ -45,6 +45,6 @@ class BehindTrackerUiService implements BehindTrackerUi {
 
   @Override
   public GtRepository getGtRepository(GitRepository repository) {
-    return new GtRepositoryImpl(repository);
+    return RepoKt.createGtRepository(repository);
   }
 }

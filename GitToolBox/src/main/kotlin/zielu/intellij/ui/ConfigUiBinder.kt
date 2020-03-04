@@ -1,5 +1,6 @@
 package zielu.intellij.ui
 
+import zielu.intellij.util.ZProperty
 import java.util.function.BiConsumer
 import java.util.function.Function
 
@@ -13,6 +14,14 @@ internal class ConfigUiBinder<CONFIG, UI> {
     setUi: BiConsumer<UI, T>
   ) {
     bindings.add(JavaBinding(getConfig, setConfig, getUi, setUi))
+  }
+
+  fun <T> bind(
+    getConfig: Function<CONFIG, T>,
+    setConfig: BiConsumer<CONFIG, T>,
+    uiAccessor: Function<UI, ZProperty<T>>
+  ) {
+    bindings.add(JavaUiPropertyBinding(getConfig, setConfig, uiAccessor))
   }
 
   fun <T> bind(
@@ -73,6 +82,24 @@ private class JavaBinding<CONFIG, UI, T>(
 
   override fun populateConfig(config: CONFIG, ui: UI) {
     setConfig.accept(config, getUi.apply(ui))
+  }
+}
+
+private class JavaUiPropertyBinding<CONFIG, UI, T>(
+  val getConfig: Function<CONFIG, T>,
+  val setConfig: BiConsumer<CONFIG, T>,
+  val uiAccessor: Function<UI, ZProperty<T>>
+) : Binding<CONFIG, UI, T> {
+  override fun populateUi(config: CONFIG, ui: UI) {
+    uiAccessor.apply(ui).set(getConfig.apply(config))
+  }
+
+  override fun checkModified(config: CONFIG, ui: UI): Boolean {
+    return uiAccessor.apply(ui).get() != getConfig.apply(config)
+  }
+
+  override fun populateConfig(config: CONFIG, ui: UI) {
+    setConfig.accept(config, uiAccessor.apply(ui).get())
   }
 }
 
