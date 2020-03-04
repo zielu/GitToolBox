@@ -77,7 +77,7 @@ internal class RecentBranchesServiceTest {
   }
 
   @Test
-  fun `discards non existing local branches`(@MockK repositoryMock: GtRepository) {
+  fun `recent branches do not return non existing local branches`(@MockK repositoryMock: GtRepository) {
     // given
     val now = Instant.now()
     val recentBranch1 = RecentBranch("branch1", now.minusSeconds(1).epochSecond)
