@@ -165,6 +165,8 @@
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
     <listener class="zielu.gittoolbox.blame.BlameSubscriberCacheListener"
               topic="zielu.gittoolbox.blame.BlameCacheListener" />
+    <listener class="zielu.gittoolbox.blame.DebugInlineBlameAllowedListener"
+              topic="com.intellij.xdebugger.XDebuggerManagerListener" />
 
     <listener class="zielu.gittoolbox.branch.BranchSubscriberInfoCacheListener"
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
