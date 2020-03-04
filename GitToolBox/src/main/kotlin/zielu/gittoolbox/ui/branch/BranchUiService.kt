@@ -2,6 +2,7 @@ package zielu.gittoolbox.ui.branch
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.branch.RecentBranchesService
 import zielu.gittoolbox.repo.GtRepository
 import zielu.gittoolbox.util.AppUtil
@@ -39,7 +40,7 @@ internal class BranchUiService(private val project: Project) {
   private fun showPopup(items: List<RecentBranchItem>) {
     if (items.isNotEmpty()) {
       val popup = JBPopupFactory.getInstance()
-        .createListPopup(RecentBranchesListPopupStep("Recent Git branches", items))
+        .createListPopup(RecentBranchesListPopupStep(ResBundle.message("branch.recent.popup.title"), items))
       popup.showInFocusCenter()
     }
   }

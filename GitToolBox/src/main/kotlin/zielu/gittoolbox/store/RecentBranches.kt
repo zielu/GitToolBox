@@ -7,20 +7,26 @@ internal data class RecentBranches(
 ) {
 
   fun findForRepositoryRootUrl(repositoryRootUrl: String): List<RecentBranch> {
-    return branchesForRepo
-      .filter { it.repositoryRootUrl == repositoryRootUrl }
-      .flatMap { it.branches }
+    synchronized(this) {
+      return branchesForRepo
+        .filter { it.repositoryRootUrl == repositoryRootUrl }
+        .flatMap { it.branches }
+    }
   }
 
   fun storeForRepositoryRootUrl(recentBranches: List<RecentBranch>, repositoryRootUrl: String) {
-    branchesForRepo.removeIf { it.repositoryRootUrl == repositoryRootUrl }
-    branchesForRepo.add(RecentBranchesForRepo(repositoryRootUrl, recentBranches.toMutableList()))
+    synchronized(this) {
+      branchesForRepo.removeIf { it.repositoryRootUrl == repositoryRootUrl }
+      branchesForRepo.add(RecentBranchesForRepo(repositoryRootUrl, recentBranches.toMutableList()))
+    }
   }
 
   @Transient
   fun copy(): RecentBranches {
-    return RecentBranches(
-      branchesForRepo.map { it.copy() }.toMutableList()
-    )
+    synchronized(this) {
+      return RecentBranches(
+        branchesForRepo.map { it.copy() }.toMutableList()
+      )
+    }
   }
 }
