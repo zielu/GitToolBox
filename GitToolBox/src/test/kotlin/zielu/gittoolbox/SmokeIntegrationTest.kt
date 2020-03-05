@@ -6,16 +6,19 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import zielu.IntegrationTest
 import zielu.gittoolbox.blame.BlameCache
+import zielu.gittoolbox.branch.RecentBranchesService
 import zielu.gittoolbox.changes.ChangesTrackerService
 import zielu.gittoolbox.fetch.AutoFetchComponent
 import zielu.gittoolbox.fetch.AutoFetchState
 import zielu.gittoolbox.metrics.AppMetrics
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.revision.RevisionService
+import zielu.gittoolbox.store.WorkspaceStore
 import zielu.gittoolbox.ui.DatePresenter
 import zielu.gittoolbox.ui.StatusMessagesService
 import zielu.gittoolbox.ui.StatusMessagesUi
 import zielu.gittoolbox.ui.blame.BlamePresenter
+import zielu.gittoolbox.ui.branch.BranchUiService
 import zielu.gittoolbox.ui.update.UpdateProjectActionService
 import zielu.junit5.intellij.extension.platform.BasePlatformTestCaseExtension
 
@@ -80,5 +83,20 @@ internal class SmokeIntegrationTest {
   @Test
   fun `should return ProjectMetrics`(project: Project) {
     assertThat(ProjectMetrics.getInstance(project)).isNotNull
+  }
+
+  @Test
+  fun `should return WorkspaceStore`(project: Project) {
+    assertThat(WorkspaceStore.getInstance(project)).isNotNull
+  }
+
+  @Test
+  fun `should return RecentBranchesService`(project: Project) {
+    assertThat(RecentBranchesService.getInstance(project)).isNotNull
+  }
+
+  @Test
+  fun `should return BranchUiService`(project: Project) {
+    assertThat(BranchUiService.getInstance(project)).isNotNull
   }
 }

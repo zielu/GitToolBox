@@ -53,6 +53,8 @@ import zielu.gittoolbox.ui.config.AppliedProjectsDialog;
 import zielu.gittoolbox.ui.update.UpdateProjectActionService;
 import zielu.gittoolbox.ui.util.ListDataAnyChangeAdapter;
 import zielu.intellij.ui.GtFormUi;
+import zielu.intellij.ui.ZUiProperties;
+import zielu.intellij.util.ZProperty;
 
 public class GtForm implements GtFormUi {
   private final Map<DecorationPartType, Component> decorationPartActions = new LinkedHashMap<>();
@@ -92,6 +94,9 @@ public class GtForm implements GtFormUi {
   private JCheckBox autoFetchOnBranchSwitch;
   private JButton appliedAutoFetchOnBranchSwitchEnabled;
   private JCheckBox commitDialogGitmojiCompletionCheckBox;
+  private JCheckBox hideBlameWhileDebuggingCheckBox;
+
+  private ZProperty<Boolean> hideBlameWhileDebugging;
 
   @Override
   public void init() {
@@ -212,6 +217,8 @@ public class GtForm implements GtFormUi {
     appliedAutoFetchEnabled.addActionListener(e -> showAppliedAutoFetchEnabled());
     autoFetchOnBranchSwitchOverride.addItemListener(e -> onAutoFetchOnBranchSwitchEnabledOverride());
     appliedAutoFetchOnBranchSwitchEnabled.addActionListener(e -> showAppliedAutoFetchEnabledOnBranchSwitch());
+
+    hideBlameWhileDebugging = ZUiProperties.createSelectedProperty(hideBlameWhileDebuggingCheckBox);
   }
 
   private ListCellRenderer<AuthorNameType> createAuthorNameTypeRenderer() {
@@ -486,5 +493,9 @@ public class GtForm implements GtFormUi {
 
   public boolean getCommitDialogGitmojiCompletionEnabled() {
     return commitDialogGitmojiCompletionCheckBox.isSelected();
+  }
+
+  public ZProperty<Boolean> hideBlameWhileDebugging() {
+    return hideBlameWhileDebugging;
   }
 }

@@ -36,6 +36,7 @@ public class RepoInfo {
     return EMPTY;
   }
 
+  @NotNull
   public RepoStatus status() {
     return status;
   }

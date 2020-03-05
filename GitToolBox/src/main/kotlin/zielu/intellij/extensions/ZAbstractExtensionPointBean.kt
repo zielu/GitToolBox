@@ -6,10 +6,10 @@ import com.intellij.openapi.project.Project
 
 internal abstract class ZAbstractExtensionPointBean : AbstractExtensionPointBean() {
   protected fun <T> createInstance(className: String): T {
-    return instantiate<T>(findClass(className), ApplicationManager.getApplication().picoContainer)
+    return instantiateClass<T>(className, ApplicationManager.getApplication().picoContainer)
   }
 
   protected fun <T> createInstance(className: String, project: Project): T {
-    return instantiate<T>(findClass(className), project.picoContainer)
+    return instantiateClass<T>(className, project.picoContainer)
   }
 }

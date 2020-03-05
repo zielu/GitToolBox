@@ -30,6 +30,7 @@
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig" />
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2" />
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigPrj" />
+    <projectService serviceImplementation="zielu.gittoolbox.store.WorkspaceStore" />
 
     <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
                         serviceImplementation="zielu.gittoolbox.metrics.AppMetricsImpl" />
@@ -83,6 +84,7 @@
     <projectService serviceInterface="zielu.gittoolbox.revision.RevisionService"
                     serviceImplementation="zielu.gittoolbox.revision.RevisionServiceImpl" />
 
+    <projectService serviceImplementation="zielu.gittoolbox.blame.DebugInlineBlameAllowed" />
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"
                     serviceImplementation="zielu.gittoolbox.blame.BlameLoaderImpl" />
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameCacheExecutor" />
@@ -91,6 +93,12 @@
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl" />
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameSubscriber" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.extension.blame.InlineBlameAllowedExtension" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.branch.BranchSubscriber" />
+    <projectService serviceImplementation="zielu.gittoolbox.branch.RecentBranchesService" />
+    <projectService serviceImplementation="zielu.gittoolbox.ui.branch.BranchUiService" />
 
     <projectService serviceImplementation="zielu.gittoolbox.cache.CacheSourcesSubscriber" />
     <projectService serviceInterface="zielu.gittoolbox.cache.VirtualFileRepoCache"
@@ -157,6 +165,11 @@
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
     <listener class="zielu.gittoolbox.blame.BlameSubscriberCacheListener"
               topic="zielu.gittoolbox.blame.BlameCacheListener" />
+    <listener class="zielu.gittoolbox.blame.DebugInlineBlameAllowedListener"
+              topic="com.intellij.xdebugger.XDebuggerManagerListener" />
+
+    <listener class="zielu.gittoolbox.branch.BranchSubscriberInfoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
 
     <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberGitRepositoryListener"
               topic="git4idea.repo.GitRepositoryChangeListener" />
@@ -228,9 +241,14 @@
     <action class="zielu.gittoolbox.ui.actions.RefreshBlameAction" id="GitToolBox.RefreshBlame"
             text="Refresh Blame">
     </action>
+    <action class="zielu.gittoolbox.ui.actions.SwitchRecentBranchesPopupAction" id="GitToolBox.SwitchRecentBranches"
+            text="Switch Recent Git Branches">
+      <keyboard-shortcut first-keystroke="shift meta R" keymap="$default" />
+    </action>
 
     <group id="GitToolBoxMenu" text="GitToolBox" popup="true">
       <reference id="GitToolBox.PushTags"/>
+      <reference id="GitToolBox.SwitchRecentBranches"/>
       <reference id="GitToolBox.RefreshBlame"/>
       <add-to-group group-id="VcsGlobalGroup" anchor="after" relative-to-action="Git.Menu"/>
     </group>
@@ -245,10 +263,15 @@
                     dynamic="false">
       <with attribute="provider" implements="zielu.gittoolbox.extension.update.UpdateProjectAction" />
     </extensionPoint>
+    <extensionPoint name="inlineBlameAllowed" beanClass="zielu.gittoolbox.extension.blame.InlineBlameAllowedEP"
+                    dynamic="false">
+      <with attribute="provider" implements="zielu.gittoolbox.extension.blame.InlineBlameAllowed" />
+    </extensionPoint>
   </extensionPoints>
 
   <extensions defaultExtensionNs="zielu.gittoolbox">
     <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeExt" />
     <updateProjectAction provider="zielu.gittoolbox.ui.update.DefaultUpdateProjectAction" />
+    <inlineBlameAllowed provider="zielu.gittoolbox.blame.DebugInlineBlameAllowedExt" />
   </extensions>
 </idea-plugin>
