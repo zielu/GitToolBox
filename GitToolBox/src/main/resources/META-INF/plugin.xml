@@ -242,13 +242,13 @@
             text="Refresh Blame">
     </action>
     <action class="zielu.gittoolbox.ui.actions.SwitchRecentBranchesPopupAction" id="GitToolBox.SwitchRecentBranches"
-            text="Switch Recent Git Branches">
+            text="Switch Recent Git Branches"
+            popup="true">
       <keyboard-shortcut first-keystroke="shift meta R" keymap="$default" />
     </action>
 
     <group id="GitToolBoxMenu" text="GitToolBox" popup="true">
       <reference id="GitToolBox.PushTags"/>
-      <reference id="GitToolBox.SwitchRecentBranches"/>
       <reference id="GitToolBox.RefreshBlame"/>
       <add-to-group group-id="VcsGlobalGroup" anchor="after" relative-to-action="Git.Menu"/>
     </group>
