@@ -18,7 +18,7 @@ internal class MetricsManager : Metrics {
   }
 
   override fun <T> gauge(simpleName: String, value: () -> T): Gauge<*> {
-    return registry.gauge(name(simpleName)) { Gauge { value } }
+    return registry.gauge(name(simpleName)) { Gauge { value.invoke() } }
   }
 
   override fun addAll(metricSet: MetricSet) {
