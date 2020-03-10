@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import git4idea.GitVcs
 import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.VirtualFileRepoCache
+import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.revision.RevisionService
 import zielu.gittoolbox.util.GtUtil
 
@@ -30,7 +31,8 @@ internal class BlameLoaderLocalGateway(private val project: Project) {
   }
 
   fun getCurrentRevisionNumber(vFile: VirtualFile): VcsRevisionNumber {
-    return GtUtil.getCurrentRevision(project, vFile)
+    val timer = ProjectMetrics.getInstance(project).timer("blame-loader.current-version")
+    return timer.timeSupplier { GtUtil.getCurrentRevision(project, vFile) }
   }
 
   companion object {

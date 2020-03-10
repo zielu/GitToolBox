@@ -32,22 +32,30 @@ public class IncrementalBlameCalculator implements BlameCalculator {
                                        @NotNull VirtualFile file,
                                        @NotNull VcsRevisionNumber revision) {
     if (revision != VcsRevisionNumber.NULL) {
-      GitLineHandler handler = prepareLineHandler(repository, file, revision);
-      IncrementalBlameBuilder builder = new IncrementalBlameBuilder();
-      handler.addLineListener(builder);
+      return gateway.annotateTimer().timeSupplier(() -> annotateImpl(repository, file, revision));
+    }
+    return null;
+  }
 
-      log.debug("Will run blame: ", handler);
+  @Nullable
+  private RevisionDataProvider annotateImpl(@NotNull GitRepository repository,
+                                            @NotNull VirtualFile file,
+                                            @NotNull VcsRevisionNumber revision) {
+    GitLineHandler handler = prepareLineHandler(repository, file, revision);
+    IncrementalBlameBuilder builder = new IncrementalBlameBuilder();
+    handler.addLineListener(builder);
 
-      GitCommandResult result = gateway.runCommand(handler);
-      if (result.success()) {
-        List<CommitInfo> lineInfos = builder.buildLineInfos();
-        if (log.isTraceEnabled()) {
-          log.trace("Blame for " + file + " is:\n" + dumpBlame(lineInfos));
-        }
-        return new BlameRevisionDataProvider(lineInfos, file, revision);
-      } else if (!result.cancelled()) {
-        log.warn("Blame failed:\n" + result.getErrorOutputAsJoinedString());
+    log.debug("Will run blame: ", handler);
+
+    GitCommandResult result = gateway.runCommand(handler);
+    if (result.success()) {
+      List<CommitInfo> lineInfos = builder.buildLineInfos();
+      if (log.isTraceEnabled()) {
+        log.trace("Blame for " + file + " is:\n" + dumpBlame(lineInfos));
       }
+      return new BlameRevisionDataProvider(lineInfos, file, revision);
+    } else if (!result.cancelled()) {
+      log.warn("Blame failed:\n" + result.getErrorOutputAsJoinedString());
     }
     return null;
   }
