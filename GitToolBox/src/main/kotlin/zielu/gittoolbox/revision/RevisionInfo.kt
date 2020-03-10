@@ -22,6 +22,9 @@ internal interface RevisionInfo {
       override fun getSubject(): String? = null
       override fun isEmpty() = true
       override fun isNotEmpty() = false
+      override fun toString(): String {
+        return "RevisionInfo=[NULL]"
+      }
     }
   }
 }

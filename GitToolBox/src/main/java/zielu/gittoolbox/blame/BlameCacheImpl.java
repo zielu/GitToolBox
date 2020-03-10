@@ -25,7 +25,6 @@ import zielu.gittoolbox.util.CachedFactory;
 import zielu.gittoolbox.util.ExecutableTask;
 
 class BlameCacheImpl implements BlameCache, Disposable {
-  private static final Blamed EMPTY_BLAMED = new Blamed(BlameAnnotation.EMPTY);
   private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
   private final BlameCacheLocalGateway gateway;
   private final Cache<VirtualFile, Cached<Blamed>> annotations = CacheBuilder.newBuilder()
@@ -81,7 +80,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
       return annotations.get(file, CachedFactory::loading);
     } catch (ExecutionException e) {
       LOG.warn("Failed to get cached " + file, e);
-      return CachedFactory.loaded(EMPTY_BLAMED);
+      return CachedFactory.loaded(new Blamed(BlameAnnotation.EMPTY));
     }
   }
 
@@ -93,7 +92,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private void tryTaskSubmission(@NotNull VirtualFile file) {
     if (queued.add(file)) {
       LOG.debug("Add annotation task for ", file);
-      annotations.put(file, CachedFactory.loading(EMPTY_BLAMED));
+      annotations.put(file, CachedFactory.loading(new Blamed(BlameAnnotation.EMPTY)));
       AnnotationLoader loaderTask = new AnnotationLoader(file, gateway, this::annotationLoaded);
       gateway.execute(loaderTask);
     } else {
@@ -159,7 +158,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
     private final BlameAnnotation annotation;
     private final AtomicBoolean dirty = new AtomicBoolean();
 
-    private Blamed(BlameAnnotation annotation) {
+    private  Blamed(BlameAnnotation annotation) {
       this.annotation = annotation;
     }
 

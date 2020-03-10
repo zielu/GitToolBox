@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import zielu.intellij.test.MockVfsUtil
 
 @ExtendWith(MockKExtension::class)
-internal class BlameCalculatorTest {
+internal class IncrementalBlameCalculatorTest {
   private val vFileMock: VirtualFile = MockVfsUtil.createFile("/path/to/file.txt")
 
   @Test
@@ -25,11 +25,10 @@ internal class BlameCalculatorTest {
     @MockK gatewayMock: BlameCalculatorLocalGateway
   ) {
     // given
-    every { gatewayMock.getCurrentRevisionNumber(vFileMock) } returns VcsRevisionNumber.NULL
-    val calculator = BlameCalculator(gatewayMock)
+    val calculator = IncrementalBlameCalculator(gatewayMock)
 
     // when
-    val dataProvider = calculator.annotate(repoMock, vFileMock)
+    val dataProvider = calculator.annotate(repoMock, vFileMock, VcsRevisionNumber.NULL)
 
     // then
     assertThat(dataProvider).isNull()
@@ -42,17 +41,18 @@ internal class BlameCalculatorTest {
     @RelaxedMockK gitLineHandlerMock: GitLineHandler
   ) {
     // given
-    every { gatewayMock.getCurrentRevisionNumber(vFileMock) } returns GitRevisionNumber("abc")
     every { gatewayMock.createLineHandler(repoMock) } returns gitLineHandlerMock
     val commandResult = GitCommandResult(false, 0, listOf(), listOf())
     every { gatewayMock.runCommand(gitLineHandlerMock) } returns commandResult
-    val calculator = BlameCalculator(gatewayMock)
+    val calculator = IncrementalBlameCalculator(gatewayMock)
+    val fileRevision = GitRevisionNumber("abc")
 
     // when
-    val dataProvider = calculator.annotate(repoMock, vFileMock)
+    val dataProvider = calculator.annotate(repoMock, vFileMock, fileRevision)
 
     // then
     assertThat(dataProvider).isNotNull
+    assertThat(dataProvider!!.baseRevision).isEqualTo(fileRevision)
   }
 
   @Test
@@ -62,14 +62,13 @@ internal class BlameCalculatorTest {
     @RelaxedMockK gitLineHandlerMock: GitLineHandler
   ) {
     // given
-    every { gatewayMock.getCurrentRevisionNumber(vFileMock) } returns GitRevisionNumber("abc")
     every { gatewayMock.createLineHandler(repoMock) } returns gitLineHandlerMock
     val commandResult = GitCommandResult(false, 1, listOf("Blame failure for test"), listOf())
     every { gatewayMock.runCommand(gitLineHandlerMock) } returns commandResult
-    val calculator = BlameCalculator(gatewayMock)
+    val calculator = IncrementalBlameCalculator(gatewayMock)
 
     // when
-    val dataProvider = calculator.annotate(repoMock, vFileMock)
+    val dataProvider = calculator.annotate(repoMock, vFileMock, GitRevisionNumber("abc"))
 
     // then
     assertThat(dataProvider).isNull()

@@ -22,7 +22,7 @@ public interface RevisionDataProvider {
   VcsRevisionNumber getRevisionNumber(int lineIndex);
 
   @Nullable
-  VcsRevisionNumber getCurrentRevisionNumber();
+  VcsRevisionNumber getBaseRevision();
 
   @Nullable
   VirtualFile getFile();

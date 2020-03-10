@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.LocalFilePath;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.vcs.log.Hash;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.CalledInAwt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -88,5 +90,12 @@ public final class GtUtil {
   public static boolean hasGitVcs(@NotNull Project project) {
     ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
     return vcsManager.findVcsByName(GitVcs.NAME) != null;
+  }
+
+  @NotNull
+  public static VcsRevisionNumber getCurrentRevision(@NotNull Project project, @NotNull VirtualFile file) {
+    GitVcs vcs = GitVcs.getInstance(project);
+    VcsRevisionNumber currentRevision = vcs.getDiffProvider().getCurrentRevision(file);
+    return ObjectUtils.defaultIfNull(currentRevision, VcsRevisionNumber.NULL);
   }
 }
