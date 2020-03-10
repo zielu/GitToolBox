@@ -29,7 +29,7 @@ internal class DatePresenterTest {
   }
 
   @Test
-  fun formatShouldReturnExpectedValueForHidden() {
+  fun `format should return expected value if hidden`() {
     // when
     val formatted = datePresenter.format(DateType.HIDDEN, ZonedDateTime.now())
 
@@ -38,7 +38,7 @@ internal class DatePresenterTest {
   }
 
   @TestFactory
-  fun formatShouldReturnNotEmptyValue(): List<DynamicNode> {
+  fun `format should return not empty value`(): List<DynamicNode> {
     val types = DateType.values().toMutableList()
     types.remove(DateType.HIDDEN)
 

@@ -16,14 +16,14 @@ internal class StatusPresenterTest {
 
   @ParameterizedTest
   @MethodSource("expectedZeroBehindStatusArgs")
-  fun expectedZeroBehindStatus(presenter: StatusPresenter, expectedValue: String) {
+  fun `expect empty behind status`(presenter: StatusPresenter, expectedValue: String) {
     val status = presenter.behindStatus(BehindStatus.empty())
     assertThat(status).isEqualTo(expectedValue)
   }
 
   @ParameterizedTest
   @MethodSource("expectedBehindStatusWithDeltaArgs")
-  fun expectedBehindStatusWithDelta(presenter: StatusPresenter, count: Int, delta: Int, expectedValue: String) {
+  fun `expect behind status with delta`(presenter: StatusPresenter, count: Int, delta: Int, expectedValue: String) {
     val status = presenter.behindStatus(BehindStatus.create(RevListCount.success(count, hash), delta))
     assertThat(status).isEqualTo(expectedValue)
   }

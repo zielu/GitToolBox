@@ -9,7 +9,7 @@ import zielu.gittoolbox.config.GitToolBoxConfig2
 
 internal class ConfigMigratorV1toV2Test {
   @Test
-  fun shouldMigrateLocationBeforeStatus() {
+  fun `should migrate location before status`() {
     // given
     val v1 = GitToolBoxConfig()
 
@@ -27,7 +27,7 @@ internal class ConfigMigratorV1toV2Test {
   }
 
   @Test
-  fun shouldMigrateStatusBeforeLocation() {
+  fun `should migrate status before location`() {
     // given
     val v1 = GitToolBoxConfig()
     v1.showProjectViewStatusBeforeLocation = true
@@ -46,7 +46,7 @@ internal class ConfigMigratorV1toV2Test {
   }
 
   @Test
-  fun shouldMigrateShowTagsOnHeadDisabled() {
+  fun `should migrate show tags on head disabled`() {
     // given
     val v1 = GitToolBoxConfig()
     v1.showProjectViewHeadTags = false
@@ -64,7 +64,7 @@ internal class ConfigMigratorV1toV2Test {
   }
 
   @Test
-  fun shouldMigrateShowLocationPathDisabled() {
+  fun `should migrate show location path disabled`() {
     // given
     val v1 = GitToolBoxConfig()
     v1.showProjectViewLocationPath = false

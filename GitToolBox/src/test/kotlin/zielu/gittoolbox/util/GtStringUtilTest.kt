@@ -13,7 +13,7 @@ internal class GtStringUtilTest {
     "'abc  \ncba','abc  '",
     "'',''",
     ",")
-  fun firstLine(value: String?, expected: String?) {
+  fun `firstLine should return expected value`(value: String?, expected: String?) {
     assertThat(firstLine(value)).isEqualTo(expected)
   }
 
@@ -23,7 +23,7 @@ internal class GtStringUtilTest {
     "'  旺票运营平台\ncba','  旺票运营平台'",
     "'旺票运营平台  \ncba','旺票运营平台  '"
   )
-  fun firstLineUnicode(value: String, expected: String) {
+  fun `firstLine should handle unicode`(value: String, expected: String) {
     assertThat(firstLine(value)).isEqualTo(expected)
   }
 }

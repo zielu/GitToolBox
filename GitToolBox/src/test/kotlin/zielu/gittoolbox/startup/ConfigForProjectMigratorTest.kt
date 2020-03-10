@@ -10,7 +10,7 @@ import kotlin.test.assertFalse
 internal class ConfigForProjectMigratorTest {
 
   @Test
-  internal fun shouldReturnFalseIfNoAutofetchExclusionsToMigrate() {
+  fun `should return false if no autofetch exclusions to migrate`() {
     // given
     val config = GitToolBoxConfigPrj()
     val migrator = ConfigForProjectMigrator(config)
@@ -23,7 +23,7 @@ internal class ConfigForProjectMigratorTest {
   }
 
   @Test
-  internal fun shouldMigrateAutofetchExclusionsToConfigs() {
+  fun `should migrate autofetch exclusions to configs`() {
     // given
     val config = GitToolBoxConfigPrj()
     config.autoFetchExclusions = listOf("root1", "root2")
@@ -40,7 +40,7 @@ internal class ConfigForProjectMigratorTest {
   }
 
   @Test
-  internal fun shouldMigrateAutofetchExclusionsToConfigsIfDuplicatesPresent() {
+  fun `should migrate autofetch exclusions to configs if duplicates are present`() {
     // given
     val config = GitToolBoxConfigPrj()
     config.autoFetchExclusions = listOf("root1", "root2")
@@ -58,7 +58,7 @@ internal class ConfigForProjectMigratorTest {
   }
 
   @Test
-  internal fun shouldMigrateAutofetchExclusionsToConfigsAndKeepMoreSpecificOnesIfDuplicatesPresent() {
+  fun `should migrate autofetch exclusions to configs and keep more specific ones if duplicates are present`() {
     // given
     val config = GitToolBoxConfigPrj()
     config.autoFetchExclusions = listOf("root1", "root2")
@@ -80,7 +80,7 @@ internal class ConfigForProjectMigratorTest {
   }
 
   @Test
-  internal fun shouldMigrateAutofetchExclusionsToConfigsAndKeepExistingOnesWithoutMigration() {
+  fun `should migrate autofetch exclusions to configs and keep existing ones without migration`() {
     // given
     val config = GitToolBoxConfigPrj()
     config.autoFetchExclusions = listOf("root1", "root2")

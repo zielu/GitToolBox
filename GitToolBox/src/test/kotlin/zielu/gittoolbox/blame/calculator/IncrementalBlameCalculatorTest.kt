@@ -21,7 +21,7 @@ internal class IncrementalBlameCalculatorTest {
   private val vFileMock: VirtualFile = MockVfsUtil.createFile("/path/to/file.txt")
 
   @Test
-  fun annotateReturnsNullIfNoCurrentRevisionNumber(
+  fun `annotate returns null if no current revision number`(
     @MockK repoMock: GitRepository,
     @MockK gatewayMock: BlameCalculatorLocalGateway
   ) {
@@ -36,7 +36,7 @@ internal class IncrementalBlameCalculatorTest {
   }
 
   @Test
-  fun annotateReturnsResultIfCurrentRevisionNumberPresentAndCommandSuccess(
+  fun `annotate returns result if current revision number is present and command succeeds`(
     @MockK repoMock: GitRepository,
     @MockK gatewayMock: BlameCalculatorLocalGateway,
     @RelaxedMockK gitLineHandlerMock: GitLineHandler
@@ -59,7 +59,7 @@ internal class IncrementalBlameCalculatorTest {
   }
 
   @Test
-  fun annotateReturnsNullIfCurrentRevisionNumberPresentAndCommandFailed(
+  fun `annotate returns null if current revision number is present and command fails`(
     @MockK repoMock: GitRepository,
     @MockK gatewayMock: BlameCalculatorLocalGateway,
     @RelaxedMockK gitLineHandlerMock: GitLineHandler

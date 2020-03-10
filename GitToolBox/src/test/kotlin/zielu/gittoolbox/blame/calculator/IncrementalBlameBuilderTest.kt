@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
 @ExtendWith(ResourcesExtension::class)
 internal class IncrementalBlameBuilderTest {
   @Test
-  fun parsedBlameOutputHasCorrectLineCount(
+  fun `parsed blame output has correct line count`(
     @ResourcePath("/blame-incremental.txt") resource: TextResource
   ) {
     val annotationLines: MutableList<String> = resource.lines
