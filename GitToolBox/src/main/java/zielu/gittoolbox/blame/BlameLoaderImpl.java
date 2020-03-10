@@ -37,4 +37,9 @@ class BlameLoaderImpl implements BlameLoader {
   public VcsRevisionNumber getCurrentRevision(@NotNull GitRepository repository) {
     return gateway.getCurrentRevisionNumber(repository);
   }
+
+  @Override
+  public void invalidateForRoot(@NotNull VirtualFile root) {
+    calculator.invalidateForRoot(root);
+  }
 }

@@ -59,4 +59,8 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
   fun submitDiscarded() {
     discardedCounter.inc()
   }
+
+  fun invalidateForRoot(root: VirtualFile) {
+    BlameLoader.getExistingInstance(project).ifPresent { it.invalidateForRoot(root) }
+  }
 }

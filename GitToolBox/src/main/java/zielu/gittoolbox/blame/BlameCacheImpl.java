@@ -142,6 +142,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   @Override
   public void invalidateForRoot(@NotNull VirtualFile root) {
     LOG.debug("Invalidate for root: ", root);
+    gateway.invalidateForRoot(root);
     Set<VirtualFile> files = new HashSet<>(annotations.asMap().keySet());
     files.stream()
         .filter(file -> VfsUtilCore.isAncestor(root, file, false))

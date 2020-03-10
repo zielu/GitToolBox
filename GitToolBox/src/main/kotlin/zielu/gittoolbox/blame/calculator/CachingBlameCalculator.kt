@@ -40,6 +40,17 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator {
     }
   }
 
+  override fun invalidateForRoot(root: VirtualFile) {
+    val keys = dataProviders.asMap().keys.toMutableSet()
+    val rootUrl = root.url
+    val keysToInvalidate = keys.filter {
+      it.url.startsWith(rootUrl)
+    }
+    log.debug("Invalidate ", keysToInvalidate)
+    dataProviders.invalidateAll(keysToInvalidate)
+    calculator.invalidateForRoot(root)
+  }
+
   private companion object {
     private val log = Logger.getInstance(CachingBlameCalculator::class.java)
   }

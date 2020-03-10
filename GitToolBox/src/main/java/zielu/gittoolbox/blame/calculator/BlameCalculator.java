@@ -12,4 +12,7 @@ public interface BlameCalculator {
   RevisionDataProvider annotate(@NotNull GitRepository repository,
                                 @NotNull VirtualFile file,
                                 @NotNull VcsRevisionNumber revision);
+
+  default void invalidateForRoot(@NotNull VirtualFile root) {
+  }
 }
