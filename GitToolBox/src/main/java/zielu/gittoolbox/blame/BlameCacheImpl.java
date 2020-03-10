@@ -102,7 +102,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   }
 
   private boolean isChanged(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-    VcsRevisionNumber currentRevision = currentCurrentRevision(file);
+    VcsRevisionNumber currentRevision = currentRepoRevision(file);
     return annotation.isChanged(currentRevision);
   }
 
@@ -114,7 +114,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   }
 
   @NotNull
-  private VcsRevisionNumber currentCurrentRevision(@NotNull VirtualFile file) {
+  private VcsRevisionNumber currentRepoRevision(@NotNull VirtualFile file) {
     GitRepository repo = gateway.getRepoForFile(file);
     if (repo != null) {
       return gateway.getCurrentRevision(repo);
