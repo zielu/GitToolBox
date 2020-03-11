@@ -48,12 +48,8 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
     return getBlameLoader().getCurrentRevision(repository)
   }
 
-  fun registerSizeGauge(gauge: () -> Long) {
-    getMetrics().gauge("blame-cache.size", gauge)
-  }
-
   fun registerQueuedGauge(gauge: () -> Int) {
-    getMetrics().gauge("blame-cache.queue-count", gauge)
+    getMetrics().gauge("blame-cache.queue-size", gauge)
   }
 
   fun submitDiscarded() {

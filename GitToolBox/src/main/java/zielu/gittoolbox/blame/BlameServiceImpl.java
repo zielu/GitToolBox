@@ -18,10 +18,12 @@ class BlameServiceImpl implements BlameService, Disposable {
   private final BlameServiceLocalGateway gateway;
   private final Cache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
       .weakKeys()
+      .recordStats()
       .build();
 
   BlameServiceImpl(@NotNull Project project) {
     gateway = new BlameServiceLocalGateway(project);
+    gateway.exposeCacheMetrics(lineNumberProviderCache, "blame-service-cache");
     gateway.disposeWithProject(this);
   }
 

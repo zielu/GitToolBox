@@ -11,10 +11,15 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.revision.RevisionDataProvider
 
 internal class CachingBlameCalculator(project: Project) : BlameCalculator {
-  private val calculator = IncrementalBlameCalculator(project)
+  private val gateway = CachingBlameCalculatorLocalGateway(project)
   private val dataProviders: Cache<Key, RevisionDataProvider> = CacheBuilder.newBuilder()
     .maximumSize(50)
+    .recordStats()
     .build()
+
+  init {
+    gateway.exposeCacheMetrics(dataProviders)
+  }
 
   override fun annotate(
     repository: GitRepository,
@@ -26,7 +31,7 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator {
       var dataProvider = dataProviders.getIfPresent(key)
       return if (dataProvider == null) {
         log.debug("Missing cached blame provider for ", key)
-        dataProvider = calculator.annotate(repository, file, revision)
+        dataProvider = gateway.calculator().annotate(repository, file, revision)
         if (dataProvider != null) {
           dataProviders.put(key, dataProvider)
         }
@@ -36,7 +41,7 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator {
         dataProvider
       }
     } else {
-      return calculator.annotate(repository, file, revision)
+      return gateway.calculator().annotate(repository, file, revision)
     }
   }
 
@@ -48,7 +53,7 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator {
     }
     log.debug("Invalidate ", keysToInvalidate)
     dataProviders.invalidateAll(keysToInvalidate)
-    calculator.invalidateForRoot(root)
+    gateway.calculator().invalidateForRoot(root)
   }
 
   private companion object {

@@ -30,12 +30,13 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private final Cache<VirtualFile, Cached<Blamed>> annotations = CacheBuilder.newBuilder()
       .maximumSize(75)
       .expireAfterAccess(Duration.ofMinutes(45))
+      .recordStats()
       .build();
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
 
   BlameCacheImpl(@NotNull Project project) {
     gateway = new BlameCacheLocalGateway(project);
-    gateway.registerSizeGauge(annotations::size);
+    gateway.exposeCacheMetrics(annotations, "blame-cache");
     gateway.registerQueuedGauge(queued::size);
     gateway.disposeWithProject(this);
   }
