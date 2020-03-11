@@ -1,5 +1,6 @@
 package zielu.gittoolbox.cache
 
+import com.google.common.cache.Cache
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.vfs.VirtualFile
 import java.util.function.Supplier
@@ -15,7 +16,7 @@ internal interface VirtualFileRepoCacheLocalGateway {
 
   fun rootsFilePathCacheSizeGauge(size: () -> Int)
 
-  fun dirsCacheSizeGauge(size: () -> Long)
+  fun exposeDirsCacheMetrics(cache: Cache<*, *>)
 
   fun <T> repoForDirCacheTimer(supplier: Supplier<T>): T
 

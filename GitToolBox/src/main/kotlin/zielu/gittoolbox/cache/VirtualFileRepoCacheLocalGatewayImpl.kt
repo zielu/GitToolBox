@@ -1,5 +1,6 @@
 package zielu.gittoolbox.cache
 
+import com.google.common.cache.Cache
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import zielu.gittoolbox.cache.VirtualFileRepoCache.CACHE_CHANGE
@@ -33,8 +34,8 @@ internal class VirtualFileRepoCacheLocalGatewayImpl(
     getMetrics().gauge("filepath-repo-roots-cache-size", size)
   }
 
-  override fun dirsCacheSizeGauge(size: () -> Long) {
-    getMetrics().gauge("vfile-repo-dirs-cache-size", size)
+  override fun exposeDirsCacheMetrics(cache: Cache<*, *>) {
+    exposeCacheMetrics(cache, "vfile-repo-dirs-cache")
   }
 
   override fun <T> repoForDirCacheTimer(supplier: Supplier<T>): T {

@@ -38,6 +38,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   private final LoadingCache<VirtualFile, CacheEntry> dirsCache = CacheBuilder.newBuilder()
       .maximumSize(50)
       .weakKeys()
+      .recordStats()
       .build(CacheLoader.from(this::computeRepoForDir));
   private final VirtualFileRepoCacheLocalGateway gateway;
 
@@ -50,7 +51,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
     this.gateway = gateway;
     gateway.rootsVFileCacheSizeGauge(rootsVFileCache::size);
     gateway.rootsFilePathCacheSizeGauge(rootsFilePathCache::size);
-    gateway.dirsCacheSizeGauge(dirsCache::size);
+    gateway.exposeDirsCacheMetrics(dirsCache);
     gateway.disposeWithProject(this);
   }
 

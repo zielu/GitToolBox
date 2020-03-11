@@ -2,7 +2,7 @@ package zielu.gittoolbox.blame;
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
-import gnu.trove.THashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -23,7 +23,7 @@ class BlameAnnotationImpl implements BlameAnnotation {
     this.provider = provider;
     this.revisionService = revisionService;
     lineRevisions = new VcsRevisionNumber[provider.getLineCount()];
-    revisions = new THashMap<>(provider.getLineCount());
+    revisions = new HashMap<>(provider.getLineCount());
   }
 
   @NotNull
@@ -67,7 +67,7 @@ class BlameAnnotationImpl implements BlameAnnotation {
 
   @Override
   public boolean isChanged(@NotNull VcsRevisionNumber revision) {
-    return !Objects.equals(provider.getCurrentRevisionNumber(), revision);
+    return !Objects.equals(provider.getBaseRevision(), revision);
   }
 
   @Nullable
@@ -89,7 +89,7 @@ class BlameAnnotationImpl implements BlameAnnotation {
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
         .append("file", getVirtualFile())
-        .append("currentRevision", provider.getCurrentRevisionNumber())
+        .append("baseRevision", provider.getBaseRevision())
         .toString();
   }
 }

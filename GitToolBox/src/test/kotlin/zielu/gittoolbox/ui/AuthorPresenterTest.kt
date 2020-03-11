@@ -15,7 +15,7 @@ internal class AuthorPresenterTest {
     "FULL,Jon Snow,jon.snow@the.wall,Jon Snow",
     "HIDDEN,Jon Snow,jon.snow@the.wall,''"
   )
-  fun shouldReturnExpectedValueWhenSpaceInside(
+  fun `should return expected value if space inside`(
     type: AuthorNameType,
     author: String,
     email: String,
@@ -37,7 +37,7 @@ internal class AuthorPresenterTest {
     "EMAIL_USER,JonSnow,jon.snow.at.the.wall,jon.snow.at.the.wall",
     "HIDDEN,JonSnow,jon.snow@the.wall,''"
   )
-  fun shouldReturnExpectedValueWhenNoSpaceInside(
+  fun `should return expected value if no space inside`(
     type: AuthorNameType,
     author: String,
     email: String?,
