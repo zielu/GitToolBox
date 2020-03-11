@@ -1,14 +1,14 @@
 package zielu.gittoolbox.blame;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.revision.RevisionInfo;
@@ -16,10 +16,10 @@ import zielu.gittoolbox.revision.RevisionInfo;
 class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final BlameServiceLocalGateway gateway;
-  private final Cache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
+  private final LoadingCache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
       .weakKeys()
       .recordStats()
-      .build();
+      .build(CacheLoader.from(this::loadLineProvider));
 
   BlameServiceImpl(@NotNull Project project) {
     gateway = new BlameServiceLocalGateway(project);
@@ -60,12 +60,7 @@ class BlameServiceImpl implements BlameService, Disposable {
 
   @Nullable
   private CachedLineProvider getLineProvider(@NotNull Document document) {
-    try {
-      return lineNumberProviderCache.get(document, () -> loadLineProvider(document));
-    } catch (ExecutionException e) {
-      log.warn("Failed to get line number provider for " + document, e);
-      return null;
-    }
+    return lineNumberProviderCache.getUnchecked(document);
   }
 
   private CachedLineProvider loadLineProvider(@NotNull Document document) {

@@ -1,8 +1,10 @@
 package zielu.gittoolbox.blame;
 
 import com.codahale.metrics.Timer;
-import com.google.common.cache.Cache;
+import com.google.common.base.Supplier;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -15,7 +17,6 @@ import git4idea.repo.GitRepository;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
@@ -27,11 +28,11 @@ import zielu.gittoolbox.util.ExecutableTask;
 class BlameCacheImpl implements BlameCache, Disposable {
   private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
   private final BlameCacheLocalGateway gateway;
-  private final Cache<VirtualFile, Cached<Blamed>> annotations = CacheBuilder.newBuilder()
+  private final LoadingCache<VirtualFile, Cached<Blamed>> annotations = CacheBuilder.newBuilder()
       .maximumSize(75)
       .expireAfterAccess(Duration.ofMinutes(45))
       .recordStats()
-      .build();
+      .build(CacheLoader.from((Supplier<Cached<Blamed>>) CachedFactory::loading));
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
 
   BlameCacheImpl(@NotNull Project project) {
@@ -77,12 +78,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   }
 
   private Cached<Blamed> getCached(@NotNull VirtualFile file) {
-    try {
-      return annotations.get(file, CachedFactory::loading);
-    } catch (ExecutionException e) {
-      LOG.warn("Failed to get cached " + file, e);
-      return CachedFactory.loaded(new Blamed(BlameAnnotation.EMPTY));
-    }
+    return annotations.getUnchecked(file);
   }
 
   private BlameAnnotation triggerReload(@NotNull VirtualFile file) {
@@ -126,7 +122,8 @@ class BlameCacheImpl implements BlameCache, Disposable {
   @Override
   public void refreshForRoot(@NotNull VirtualFile root) {
     LOG.debug("Refresh for root: ", root);
-    Set<VirtualFile> files = new HashSet<>(annotations.asMap().keySet());
+    Set<VirtualFile> files = new HashSet<>(annotations.asMap()
+                                               .keySet());
     files.stream()
         .filter(file -> VfsUtilCore.isAncestor(root, file, false))
         .forEach(this::markDirty);
@@ -136,7 +133,8 @@ class BlameCacheImpl implements BlameCache, Disposable {
     Cached<Blamed> cached = annotations.getIfPresent(file);
     if (cached != null && !cached.isLoading() && !cached.isEmpty()) {
       LOG.debug("Mark dirty ", file);
-      cached.value().markDirty();
+      cached.value()
+          .markDirty();
     }
   }
 
@@ -144,7 +142,8 @@ class BlameCacheImpl implements BlameCache, Disposable {
   public void invalidateForRoot(@NotNull VirtualFile root) {
     LOG.debug("Invalidate for root: ", root);
     gateway.invalidateForRoot(root);
-    Set<VirtualFile> files = new HashSet<>(annotations.asMap().keySet());
+    Set<VirtualFile> files = new HashSet<>(annotations.asMap()
+                                               .keySet());
     files.stream()
         .filter(file -> VfsUtilCore.isAncestor(root, file, false))
         .forEach(this::invalidate);
@@ -160,7 +159,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
     private final BlameAnnotation annotation;
     private final AtomicBoolean dirty = new AtomicBoolean();
 
-    private  Blamed(BlameAnnotation annotation) {
+    private Blamed(BlameAnnotation annotation) {
       this.annotation = annotation;
     }
 

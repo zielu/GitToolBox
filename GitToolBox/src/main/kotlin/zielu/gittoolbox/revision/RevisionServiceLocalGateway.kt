@@ -11,7 +11,7 @@ import zielu.gittoolbox.util.LocalGateway
 
 internal class RevisionServiceLocalGateway(private val project: Project) : LocalGateway(project) {
   fun loadCommitMessage(vFile: VirtualFile, revisionNumber: VcsRevisionNumber): String {
-    val timer = getMetrics().timer("commitMessageCache.load")
+    val timer = getMetrics().timer("commit-message-cache.load")
     return timer.timeSupplier(loadCommitMessageImpl(vFile, revisionNumber))
   }
 
