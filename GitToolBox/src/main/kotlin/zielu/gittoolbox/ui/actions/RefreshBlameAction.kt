@@ -12,7 +12,7 @@ internal class RefreshBlameAction : DumbAwareAction(ResBundle.message("refresh.b
   override fun actionPerformed(event: AnActionEvent) {
     val project = AnAction.getEventProject(event)
     project?.let { GitToolBoxConfig2.getInstance() }?.let { isBlameEnabled(it) }?.also {
-      BlameUiService.getInstance(project).refreshBlame()
+      BlameUiService.getExistingInstance(project).ifPresent { it.refreshBlame() }
     }
   }
 

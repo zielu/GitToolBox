@@ -17,6 +17,7 @@ class RevisionServiceImpl implements RevisionService, Disposable {
   private final Cache<VcsRevisionNumber, String> commitMessageCache = CacheBuilder.newBuilder()
       .maximumSize(50)
       .expireAfterAccess(Duration.ofMinutes(30))
+      .recordStats()
       .build();
   private final RevisionServiceLocalGateway gateway;
   private final Project project;
@@ -24,7 +25,7 @@ class RevisionServiceImpl implements RevisionService, Disposable {
   RevisionServiceImpl(@NotNull Project project) {
     this.project = project;
     gateway = new RevisionServiceLocalGateway(project);
-    gateway.registerMessagesSizeGauge(commitMessageCache::size);
+    gateway.exposeCommitMessageCacheMetrics(commitMessageCache);
     gateway.disposeWithProject(this);
   }
 

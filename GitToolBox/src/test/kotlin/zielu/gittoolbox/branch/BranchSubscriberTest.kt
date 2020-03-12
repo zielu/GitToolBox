@@ -28,7 +28,7 @@ internal class BranchSubscriberTest {
   }
 
   @Test
-  fun shouldDetectSwitchBetweenBranches(
+  fun `should detect switching between branches`(
     @MockK repositoryMock: GitRepository
   ) {
     // given
@@ -56,7 +56,7 @@ internal class BranchSubscriberTest {
   }
 
   @Test
-  fun shouldDetectSwitchBetweenDetachedAndBranch(
+  fun `should detect switching from detached to branch`(
     @MockK repositoryMock: GitRepository,
     @MockK oldHash: Hash
   ) {
@@ -85,7 +85,7 @@ internal class BranchSubscriberTest {
   }
 
   @Test
-  fun shouldDetectSwitchBranchAndDetached(
+  fun `should detect switching from branch to detached`(
     @MockK repositoryMock: GitRepository,
     @MockK newHash: Hash
   ) {

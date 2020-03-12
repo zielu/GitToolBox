@@ -37,8 +37,8 @@ class AutoFetchExecutor implements Disposable {
   AutoFetchExecutor(@NotNull Project project) {
     this.project = project;
     Metrics metrics = ProjectMetrics.getInstance(project);
-    metrics.gauge("auto-fetch.cyclic-tasks-size", scheduledCyclicTasksCount::get);
-    metrics.gauge("auto-fetch.repo-tasks-size", scheduledRepoTasksCount::get);
+    metrics.gauge("auto-fetch.cyclic-tasks.size", scheduledCyclicTasksCount::get);
+    metrics.gauge("auto-fetch.repo-tasks.size", scheduledRepoTasksCount::get);
     Disposer.register(project, this);
   }
 

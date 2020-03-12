@@ -15,7 +15,7 @@ internal class RegExpFormatterTest {
     "aaa, abc, abc",
     ", abc, abc"
   )
-  internal fun formatShouldReturnExpectedResult(pattern: String?, input: String, expected: String) {
+  internal fun `format should return expected result`(pattern: String?, input: String, expected: String) {
     val formatter = RegExpFormatter.create(pattern)
     assertThat(formatter.format(input).text).isEqualTo(expected)
   }
@@ -23,7 +23,7 @@ internal class RegExpFormatterTest {
   @DisplayName("Formatting with empty")
   @ParameterizedTest(name = "Input formatted with ''{0}'' should return input")
   @ValueSource(strings = ["   ", ""])
-  internal fun formatShouldReturnInputIfPatternEmpty(pattern: String?) {
+  internal fun `format should return input if pattern is empty`(pattern: String?) {
     val input = "abc"
     assertThat(RegExpFormatter.create(pattern).format(input).text).isEqualTo(input)
   }

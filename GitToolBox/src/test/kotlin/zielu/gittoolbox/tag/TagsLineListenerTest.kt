@@ -14,7 +14,7 @@ internal class TagsLineListenerTest {
   @DisplayName("Extract")
   @ParameterizedTest(name = "tags={1} from ''{0}''")
   @MethodSource("linesAndExpectedTags")
-  fun shouldExtractExpectedTags(line: String?, expectedTags: Collection<String>) {
+  fun `should extract expected tags`(line: String?, expectedTags: Collection<String>) {
     listener.onLineAvailable(line, ProcessOutputTypes.STDOUT)
     Assertions.assertThat(listener.tags).containsOnlyElementsOf(expectedTags)
   }

@@ -15,7 +15,7 @@ import zielu.intellij.test.createRemote
 internal class RemoteFilteredRepositoryTest {
 
   @Test
-  fun sameDelegatesAreEqual(@MockK delegate: GitRepository) {
+  fun `same delegates are equal`(@MockK delegate: GitRepository) {
     // given
     val config = AutoFetchExclusionConfig("")
     val wrapper1 = RemoteFilteredRepository(delegate, config)
@@ -26,7 +26,7 @@ internal class RemoteFilteredRepositoryTest {
   }
 
   @Test
-  fun getRemotesAppliesFiltering(@MockK delegate: GitRepository) {
+  fun `should apply filtering if getRemotes is called`(@MockK delegate: GitRepository) {
     // given
     val keptRemote = createRemote("origin")
     val filteredOutRemoteName = "upstream"

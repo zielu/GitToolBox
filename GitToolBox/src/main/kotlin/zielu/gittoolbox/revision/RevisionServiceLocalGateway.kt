@@ -1,5 +1,6 @@
 package zielu.gittoolbox.revision
 
+import com.google.common.cache.Cache
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
@@ -10,7 +11,7 @@ import zielu.gittoolbox.util.LocalGateway
 
 internal class RevisionServiceLocalGateway(private val project: Project) : LocalGateway(project) {
   fun loadCommitMessage(vFile: VirtualFile, revisionNumber: VcsRevisionNumber): String {
-    val timer = getMetrics().timer("commitMessageCache.load")
+    val timer = getMetrics().timer("commit-message-cache.load")
     return timer.timeSupplier(loadCommitMessageImpl(vFile, revisionNumber))
   }
 
@@ -44,7 +45,7 @@ internal class RevisionServiceLocalGateway(private val project: Project) : Local
     return null
   }
 
-  fun registerMessagesSizeGauge(gauge: () -> Long) {
-    getMetrics().gauge("commitMessageCache.size", gauge)
+  fun exposeCommitMessageCacheMetrics(cache: Cache<*, *>) {
+    exposeCacheMetrics(cache, "commit-message-cache")
   }
 }

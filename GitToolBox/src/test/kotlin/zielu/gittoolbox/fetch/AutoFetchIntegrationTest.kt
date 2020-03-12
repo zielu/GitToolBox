@@ -11,17 +11,17 @@ import zielu.junit5.intellij.extension.platform.BasePlatformTestCaseExtension
 @ExtendWith(BasePlatformTestCaseExtension::class)
 internal class AutoFetchIntegrationTest {
   @Test
-  fun shouldReturnAutoFetchGateway(project: Project) {
+  fun `should return AutoFetchGateway`(project: Project) {
     assertThat(AutoFetchGateway.getInstance(project)).isNotNull
   }
 
   @Test
-  fun shouldReturnAutoFetchState(project: Project) {
+  fun `should return AutoFetchState`(project: Project) {
     assertThat(AutoFetchState.getInstance(project)).isNotNull
   }
 
   @Test
-  fun shouldAllowFetch(project: Project) {
+  fun `should allow fetch`(project: Project) {
     // given
     val state = AutoFetchState.getInstance(project)
 

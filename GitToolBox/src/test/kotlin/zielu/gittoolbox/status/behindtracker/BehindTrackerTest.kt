@@ -66,7 +66,7 @@ internal class BehindTrackerTest {
   }
 
   @Test
-  fun displayDeltaNotificationIfStateChanged() {
+  fun `should display delta notification if state changed`() {
     // given
     every { gatewayMock.prepareBehindMessage(any(), any()) } returns BEHIND_STATUS_VALUE
     val notificationSlot = slot<String>()
@@ -83,7 +83,7 @@ internal class BehindTrackerTest {
   }
 
   @Test
-  fun dontDisplayDeltaNotificationIfStateNotChanged() {
+  fun `should not display delta notification if state is not changed`() {
     behindTracker.onStateChange(repositoryMock, REPO_INFO_1)
     behindTracker.showChangeNotification()
     behindTracker.onStateChange(repositoryMock, REPO_INFO_1)

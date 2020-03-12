@@ -28,7 +28,7 @@ internal class AutoFetchExclusionsTest {
   }
 
   @Test
-  fun repoWithoutSpecifiedRemotesIsExcluded() {
+  fun `should exclude repo if it is configured and has no remotes`() {
     // given
     val exclusionsMap: Map<String, AutoFetchExclusionConfig> = mapOf(
       repoRoot.url to AutoFetchExclusionConfig(repoRoot.url)
@@ -43,7 +43,7 @@ internal class AutoFetchExclusionsTest {
   }
 
   @Test
-  fun notConfiguredRepoIsNotExcluded() {
+  fun `should not exclude repo if it is not configured`() {
     // given
     val exclusions = AutoFetchExclusions(Supplier { mapOf<String, AutoFetchExclusionConfig>() })
 
@@ -55,7 +55,7 @@ internal class AutoFetchExclusionsTest {
   }
 
   @Test
-  fun repoWithSpecifiedRemoteExcludesItFromRemotes() {
+  fun `should exclude remote if it is configured`() {
     // given
     val upstream = createRemote("upstream")
     val origin = createRemote("origin")

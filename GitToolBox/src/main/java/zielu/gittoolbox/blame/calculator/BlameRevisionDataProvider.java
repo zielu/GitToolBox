@@ -13,7 +13,8 @@ class BlameRevisionDataProvider implements RevisionDataProvider {
   private final VirtualFile file;
   private final VcsRevisionNumber baseRevision;
 
-  BlameRevisionDataProvider(@NotNull List<CommitInfo> lineInfos, @Nullable VirtualFile file,
+  BlameRevisionDataProvider(@NotNull List<CommitInfo> lineInfos,
+                            @Nullable VirtualFile file,
                             @Nullable VcsRevisionNumber baseRevision) {
     this.lineInfos = lineInfos;
     this.file = file;
@@ -56,7 +57,7 @@ class BlameRevisionDataProvider implements RevisionDataProvider {
 
   @Nullable
   @Override
-  public VcsRevisionNumber getCurrentRevisionNumber() {
+  public VcsRevisionNumber getBaseRevision() {
     return baseRevision;
   }
 

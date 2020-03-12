@@ -244,7 +244,6 @@
     <action class="zielu.gittoolbox.ui.actions.SwitchRecentBranchesPopupAction" id="GitToolBox.SwitchRecentBranches"
             text="Switch Recent Git Branches"
             popup="true">
-      <keyboard-shortcut first-keystroke="shift meta R" keymap="$default" />
     </action>
 
     <group id="GitToolBoxMenu" text="GitToolBox" popup="true">

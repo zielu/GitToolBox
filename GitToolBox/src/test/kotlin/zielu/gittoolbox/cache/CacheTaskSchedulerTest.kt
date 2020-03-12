@@ -32,7 +32,7 @@ internal class CacheTaskSchedulerTest {
 
   @Test
   @Throws(InterruptedException::class)
-  fun scheduleOptionalShouldDiscardSecondTask(@MockK repository: GitRepository) {
+  fun `scheduleOptional should discard second task`(@MockK repository: GitRepository) {
     // given
     val executedCount = CountDownLatch(1)
     val discardedCount = CountDownLatch(1)
@@ -50,7 +50,7 @@ internal class CacheTaskSchedulerTest {
 
   @Test
   @Throws(InterruptedException::class)
-  fun scheduleMandatoryShouldExecuteTwoTasks(@MockK repository: GitRepository) {
+  fun `scheduleMandatory should execute two tasks`(@MockK repository: GitRepository) {
     // given
     val executedCount = CountDownLatch(2)
 
@@ -63,7 +63,7 @@ internal class CacheTaskSchedulerTest {
   }
 
   @Test
-  fun canRemoveRepositoryIfNeverScheduled(@MockK repository: GitRepository) {
+  fun `should remove repository if tasks were never scheduled`(@MockK repository: GitRepository) {
     scheduler.removeRepository(repository)
   }
 

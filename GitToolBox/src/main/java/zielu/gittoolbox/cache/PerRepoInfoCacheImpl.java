@@ -43,7 +43,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   private ConcurrentMap<GitRepository, RepoInfo> createBehindStatuses() {
     ConcurrentMap<GitRepository, RepoInfo> storage = Maps.newConcurrentMap();
-    ProjectMetrics.getInstance(project).gauge("info-cache-size", storage::size);
+    ProjectMetrics.getInstance(project).gauge("info-cache.size", storage::size);
     return storage;
   }
 

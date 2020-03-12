@@ -20,35 +20,35 @@ internal class ZDateFormatUtilTest {
   private val nowMinusTwoDaysFormatted = dateFormat.format(Date.from(now.minus(Duration.ofDays(2)).toInstant()))
 
   @Test
-  fun formatMomentsAgo() {
+  fun `format moments ago`() {
     val date = now.minus(1, ChronoUnit.MILLIS)
     val text = ZDateFormatUtil.formatPrettyDateTime(date, now, dateFormat)
     assertThat(text).isEqualTo("Moments ago")
   }
 
   @Test
-  fun handleDateAfterNow() {
+  fun `handle date after now`() {
     val date = now.plusNanos(1)
     val text = ZDateFormatUtil.formatPrettyDateTime(date, now, dateFormat)
     assertThat(text).isEqualTo("N/A")
   }
 
   @Test
-  fun formatNowMinusTwoDays() {
+  fun `format now minus two days`() {
     val date = now.minus(Duration.ofDays(2))
     val text = ZDateFormatUtil.formatPrettyDateTime(date, now, dateFormat)
     assertThat(text).isEqualTo(nowMinusTwoDaysFormatted)
   }
 
   @Test
-  fun formatAsAbsoluteDateTime() {
+  fun `format as absolute date-time`() {
     val date = now.minus(Duration.parse("P2DT1H"))
     val text = ZDateFormatUtil.formatPrettyDateTime(date, now, dateFormat)
     assertThat(text).isEqualTo(dateFormat.format(Date.from(date.toInstant())))
   }
 
   @Test
-  fun formatReturnsCorrectTimeForPstZoneTime() {
+  fun `format returns correct time if PST zone`() {
     val pstZone = ZoneId.of("America/Los_Angeles")
     val now = ZonedDateTime.ofInstant(Instant.parse("2007-12-03T02:15:30.00Z"), pstZone)
     val date = now.minus(Duration.parse("PT2H50M"))
@@ -62,7 +62,7 @@ internal class ZDateFormatUtilTest {
     "PT2M,2 minutes ago",
     "PT60M,1 hour ago"
   )
-  fun formatMinutesAgo(diffFromNow: Duration, expectedText: String) {
+  fun `format minutes ago`(diffFromNow: Duration, expectedText: String) {
     val date = now.minus(diffFromNow)
     val text = ZDateFormatUtil.formatPrettyDateTime(date, now, dateFormat)
     assertThat(text).isEqualTo(expectedText)
@@ -73,7 +73,7 @@ internal class ZDateFormatUtilTest {
     "PT60M,1 hour ago",
     "PT61M,Today"
   )
-  fun formatHoursAgo(diffFromNow: Duration, expectedText: String) {
+  fun `format hours ago`(diffFromNow: Duration, expectedText: String) {
     val date = now.minus(diffFromNow)
     val text = ZDateFormatUtil.formatPrettyDateTime(date, now, dateFormat)
     assertThat(text).isEqualTo(expectedText)
@@ -88,7 +88,7 @@ internal class ZDateFormatUtilTest {
     "PT24H,Yesterday",
     "PT24H1M,Yesterday"
   )
-  fun formatToday(diffFromNow: Duration, expectedText: String) {
+  fun `format today`(diffFromNow: Duration, expectedText: String) {
     val date = now.minus(diffFromNow)
     val text = ZDateFormatUtil.formatPrettyDateTime(date, now, dateFormat)
     assertThat(text).isEqualTo(expectedText)
@@ -100,7 +100,7 @@ internal class ZDateFormatUtilTest {
     "P1DT1M,Yesterday",
     "P1DT1H,Yesterday"
   )
-  fun formatYesterday(diffFromNow: Duration, expectedText: String) {
+  fun `format yesterday`(diffFromNow: Duration, expectedText: String) {
     val date = now.minus(diffFromNow)
     val text = ZDateFormatUtil.formatPrettyDateTime(date, now, dateFormat)
     assertThat(text).isEqualTo(expectedText)
