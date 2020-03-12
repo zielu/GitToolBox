@@ -17,7 +17,7 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
   fun getQueueWaitTimer(): Timer = getMetrics().timer("blame-cache.queue-wait")
 
   private val discardedCounter by lazy {
-    getMetrics().counter("blame-cache.discarded-count")
+    getMetrics().counter("blame-cache.discarded.count")
   }
 
   private val messageBus by lazy {
@@ -49,7 +49,7 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
   }
 
   fun registerQueuedGauge(gauge: () -> Int) {
-    getMetrics().gauge("blame-cache.queue-size", gauge)
+    getMetrics().gauge("blame-cache.queue.size", gauge)
   }
 
   fun submitDiscarded() {
