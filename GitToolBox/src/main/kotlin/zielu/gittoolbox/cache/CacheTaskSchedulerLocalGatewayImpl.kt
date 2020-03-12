@@ -16,10 +16,10 @@ internal class CacheTaskSchedulerLocalGatewayImpl(
   }
 
   private fun getQueueSizeCounter(): Counter {
-    return getMetrics().counter("info-cache-queue-size")
+    return getMetrics().counter("info-cache.queue.size")
   }
 
   override fun discardedTasksCounterInc() {
-    return getMetrics().counter("info-cache-discarded-updates").inc()
+    return getMetrics().counter("info-cache.discarded-updates.count").inc()
   }
 }

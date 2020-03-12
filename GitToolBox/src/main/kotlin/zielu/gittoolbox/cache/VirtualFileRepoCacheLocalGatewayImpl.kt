@@ -27,11 +27,11 @@ internal class VirtualFileRepoCacheLocalGatewayImpl(
   }
 
   override fun rootsVFileCacheSizeGauge(size: () -> Int) {
-    getMetrics().gauge("vfile-repo-roots-cache-size", size)
+    getMetrics().gauge("vfile-repo-roots-cache.size", size)
   }
 
   override fun rootsFilePathCacheSizeGauge(size: () -> Int) {
-    getMetrics().gauge("filepath-repo-roots-cache-size", size)
+    getMetrics().gauge("filepath-repo-roots-cache.size", size)
   }
 
   override fun exposeDirsCacheMetrics(cache: Cache<*, *>) {
@@ -39,6 +39,6 @@ internal class VirtualFileRepoCacheLocalGatewayImpl(
   }
 
   override fun <T> repoForDirCacheTimer(supplier: Supplier<T>): T {
-    return getMetrics().timer("repo-for-dir-cache").timeSupplier(supplier)
+    return getMetrics().timer("repo-for-dir-cache.load").timeSupplier(supplier)
   }
 }
