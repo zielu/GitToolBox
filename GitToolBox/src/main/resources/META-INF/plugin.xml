@@ -23,7 +23,7 @@
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="201" until-build="201.*" />
+  <idea-version since-build="201.5985" until-build="201.*" />
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
@@ -137,8 +137,8 @@
 
     <webHelpProvider implementation="zielu.gittoolbox.help.GithubWikiHelpProvider" />
 
-    <statusBarWidgetProvider implementation="zielu.gittoolbox.ui.statusbar.GitStatStatusBarWidgetProvider" />
-    <statusBarWidgetProvider implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetProvider" />
+    <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.GitStatStatusBarWidgetFactory" />
+    <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
   </extensions>
 
   <application-components>
@@ -213,6 +213,9 @@
               topic="com.intellij.openapi.editor.colors.EditorColorsListener" />
     <listener class="zielu.gittoolbox.ui.blame.BlameUiSubscriberEditorListener"
               topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" />
+
+    <listener class="zielu.gittoolbox.ui.statusbar.StatusBarConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
 
     <listener class="zielu.gittoolbox.ui.projectview.ProjectViewSubscriberChangesTrackerListener"
               topic="zielu.gittoolbox.changes.ChangesTrackerListener" />

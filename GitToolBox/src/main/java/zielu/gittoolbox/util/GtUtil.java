@@ -98,4 +98,8 @@ public final class GtUtil {
     VcsRevisionNumber currentRevision = vcs.getDiffProvider().getCurrentRevision(file);
     return ObjectUtils.defaultIfNull(currentRevision, VcsRevisionNumber.NULL);
   }
+
+  public static boolean hasRepositories(@NotNull Project project) {
+    return GitUtil.hasGitRepositories(project);
+  }
 }

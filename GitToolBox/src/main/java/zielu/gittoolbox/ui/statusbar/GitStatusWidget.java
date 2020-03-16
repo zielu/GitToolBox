@@ -22,6 +22,7 @@ import javax.swing.Icon;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.GitToolBox;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.ResIcons;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
@@ -42,7 +43,7 @@ import zielu.gittoolbox.util.GtUtil;
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     StatusBarWidget.Multiframe, StatusBarWidget.MultipleTextValuesPresentation {
 
-  public static final String ID = GitStatusWidget.class.getName();
+  public static final String ID = GitToolBox.PLUGIN_ID + "." + GitStatusWidget.class.getName();
   private final AtomicBoolean connected = new AtomicBoolean();
   private final AtomicBoolean visible = new AtomicBoolean();
   private final StatusToolTip toolTip;

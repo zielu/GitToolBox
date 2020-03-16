@@ -1,7 +1,7 @@
 package zielu.gittoolbox.tag
 
 import com.intellij.execution.process.ProcessOutputTypes
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -16,7 +16,7 @@ internal class TagsLineListenerTest {
   @MethodSource("linesAndExpectedTags")
   fun `should extract expected tags`(line: String?, expectedTags: Collection<String>) {
     listener.onLineAvailable(line, ProcessOutputTypes.STDOUT)
-    Assertions.assertThat(listener.tags).containsOnlyElementsOf(expectedTags)
+    assertThat(listener.tags).containsExactlyInAnyOrderElementsOf(expectedTags)
   }
 
   companion object {

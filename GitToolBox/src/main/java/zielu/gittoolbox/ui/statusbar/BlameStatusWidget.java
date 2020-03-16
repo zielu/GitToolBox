@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.GitToolBox;
 import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.config.AppConfigNotifier;
@@ -31,7 +32,7 @@ import zielu.gittoolbox.ui.blame.BlameUiService;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 
 class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, StatusBarWidget.TextPresentation {
-  public static final String ID = BlameStatusWidget.class.getName();
+  public static final String ID = GitToolBox.PLUGIN_ID + "." + BlameStatusWidget.class.getName();
 
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean visible = new AtomicBoolean();
