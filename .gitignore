@@ -6,3 +6,4 @@ GitToolBox.jar
 testRun/
 .gradle/
 ignore-revs.txt
+gradle/
