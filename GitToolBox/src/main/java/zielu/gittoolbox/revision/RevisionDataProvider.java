@@ -18,13 +18,10 @@ public interface RevisionDataProvider {
   @Nullable
   String getSubject(int lineIndex);
 
-  @Nullable
   VcsRevisionNumber getRevisionNumber(int lineIndex);
 
-  @Nullable
   VcsRevisionNumber getBaseRevision();
 
-  @Nullable
   VirtualFile getFile();
 
   int getLineCount();

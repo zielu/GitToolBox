@@ -49,9 +49,6 @@ class BlameAnnotationImpl implements BlameAnnotation {
     VcsRevisionNumber revisionNumber = lineRevisions[lineIndex];
     if (revisionNumber == null) {
       VcsRevisionNumber lineRevisionNumber = provider.getRevisionNumber(lineIndex);
-      if (lineRevisionNumber == null) {
-        lineRevisionNumber = VcsRevisionNumber.NULL;
-      }
       lineRevisions[lineIndex] = lineRevisionNumber;
       revisionNumber = lineRevisionNumber;
     }
