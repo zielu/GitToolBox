@@ -1,5 +1,6 @@
 package zielu.gittoolbox.startup
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.config.BoolConfigOverride
 import zielu.gittoolbox.config.ExtrasConfig
@@ -18,6 +19,7 @@ internal class ConfigOverridesMigrator(
     migrated = apply(override.autoFetchOnBranchSwitchOverride, prjConfig::autoFetchOnBranchSwitch) { v ->
       prjConfig.autoFetchOnBranchSwitch = v
     } || migrated
+    log.debug("Project overrides migration status ", migrated, " for ", project)
     return migrated
   }
 
@@ -30,5 +32,9 @@ internal class ConfigOverridesMigrator(
       }
     }
     return false
+  }
+
+  private companion object {
+    private val log: Logger = Logger.getInstance(ConfigOverridesMigrator::class.java)
   }
 }

@@ -37,11 +37,15 @@ class AutoFetch implements AutoFetchComponent, Disposable {
   private void initializeFirstTask() {
     updateAutoFetchEnabled(getConfig());
     if (autoFetchEnabled.get()) {
+      log.debug("Auto-fetch on project ready for ", project);
       scheduleFirstTask();
+    } else {
+      log.debug("Auto-fetch on project ready disabled for ", project);
     }
   }
 
   private void scheduleFirstTask() {
+    log.debug("Schedule first auto-fetch for ", project);
     executor().scheduleTask(schedule().getInitTaskDelay());
   }
 
@@ -93,6 +97,7 @@ class AutoFetch implements AutoFetchComponent, Disposable {
   }
 
   private void scheduleTaskOnStateChange() {
+    log.debug("Schedule auto-fetch on state change for ", project);
     executor().scheduleTask(schedule().calculateTaskDelayOnStateChange());
   }
 

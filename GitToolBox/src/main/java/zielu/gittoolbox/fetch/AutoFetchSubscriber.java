@@ -37,8 +37,10 @@ class AutoFetchSubscriber {
           AutoFetchOnBranchSwitch.getInstance(project).onBranchSwitch(current, repository);
         }
       } else {
-        log.info("Branch switch not eligible for auto-fetch: previous=" + previous + ", current=" + current);
+        log.debug("Branch switch not eligible for auto-fetch: previous=", previous, ", current=", current);
       }
+    } else {
+      log.debug("Auto-fetch on branch switch disabled for project: ", project);
     }
   }
 
