@@ -3,6 +3,7 @@ package zielu.gittoolbox.startup
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.Test
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
+import zielu.gittoolbox.config.ConfigForProjectMigrator
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
 import zielu.gittoolbox.config.RemoteConfig
 import kotlin.test.assertFalse

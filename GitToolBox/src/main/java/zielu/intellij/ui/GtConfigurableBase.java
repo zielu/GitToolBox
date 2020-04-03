@@ -18,6 +18,10 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C extends Persisten
 
   protected abstract void setFormState(F form, C config);
 
+  protected C prepareConfigBeforeFormFill(C config) {
+    return config;
+  }
+
   protected abstract boolean checkModified(F form, C config);
 
   protected abstract void doApply(F form, C config) throws ConfigurationException;
@@ -53,7 +57,8 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C extends Persisten
 
   private F fillFormFromConfig() {
     F currentForm = getForm();
-    setFormState(currentForm, getConfig());
+    C config = prepareConfigBeforeFormFill(getConfig());
+    setFormState(currentForm, config);
     currentForm.afterStateSet();
     return currentForm;
   }

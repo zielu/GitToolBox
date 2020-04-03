@@ -1,7 +1,4 @@
-package zielu.gittoolbox.startup
-
-import zielu.gittoolbox.config.AutoFetchExclusionConfig
-import zielu.gittoolbox.config.GitToolBoxConfigPrj
+package zielu.gittoolbox.config
 
 internal class ConfigForProjectMigrator(private val config: GitToolBoxConfigPrj) {
   fun migrate(): Boolean {

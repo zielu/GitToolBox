@@ -94,9 +94,9 @@ public class GtForm implements GtFormUi {
   private JCheckBox autoFetchOnBranchSwitch;
   private JButton appliedAutoFetchOnBranchSwitchEnabled;
   private JCheckBox commitDialogGitmojiCompletionCheckBox;
-  private JCheckBox hideBlameWhileDebuggingCheckBox;
+  private JCheckBox alwaysShowInlineBlameWhileDebuggingCheckBox;
 
-  private ZProperty<Boolean> hideBlameWhileDebugging;
+  private ZProperty<Boolean> alwaysShowInlineBlameWhileDebugging;
 
   @Override
   public void init() {
@@ -218,7 +218,8 @@ public class GtForm implements GtFormUi {
     autoFetchOnBranchSwitchOverride.addItemListener(e -> onAutoFetchOnBranchSwitchEnabledOverride());
     appliedAutoFetchOnBranchSwitchEnabled.addActionListener(e -> showAppliedAutoFetchEnabledOnBranchSwitch());
 
-    hideBlameWhileDebugging = ZUiProperties.createSelectedProperty(hideBlameWhileDebuggingCheckBox);
+    alwaysShowInlineBlameWhileDebugging = ZUiProperties.createSelectedProperty(
+        alwaysShowInlineBlameWhileDebuggingCheckBox);
   }
 
   private ListCellRenderer<AuthorNameType> createAuthorNameTypeRenderer() {
@@ -495,7 +496,7 @@ public class GtForm implements GtFormUi {
     return commitDialogGitmojiCompletionCheckBox.isSelected();
   }
 
-  public ZProperty<Boolean> hideBlameWhileDebugging() {
-    return hideBlameWhileDebugging;
+  public ZProperty<Boolean> alwaysShowInlineBlameWhileDebugging() {
+    return alwaysShowInlineBlameWhileDebugging;
   }
 }

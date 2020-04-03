@@ -3,6 +3,8 @@ package zielu.gittoolbox.startup;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.config.ConfigForProjectMigrator;
+import zielu.gittoolbox.config.ConfigOverridesMigrator;
 import zielu.gittoolbox.config.ExtrasConfig;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
@@ -14,6 +16,7 @@ class ConfigMigrator {
     GitToolBoxConfig2 appConfig = GitToolBoxConfig2.getInstance();
     GitToolBoxConfigPrj prjConfig = GitToolBoxConfigPrj.getInstance(project);
     boolean migrated = migrateAppV1toV2(appConfig);
+    migrated = migrateV2(appConfig) || migrated;
     migrated = migrateProject(prjConfig) || migrated;
     migrated = applyConfigOverrides(project, appConfig, prjConfig) || migrated;
 
@@ -26,6 +29,17 @@ class ConfigMigrator {
       migrator.migrate(v2);
       v2.setPreviousVersionMigrated(true);
       log.info("V1 config migrated to V2");
+      return true;
+    }
+    return false;
+  }
+
+  private boolean migrateV2(@NotNull GitToolBoxConfig2 config) {
+    if (config.getVersion() == 1) {
+      if (!config.getHideInlineBlameWhileDebugging()) {
+        config.setAlwaysShowInlineBlameWhileDebugging(true);
+      }
+      config.setVersion(2);
       return true;
     }
     return false;

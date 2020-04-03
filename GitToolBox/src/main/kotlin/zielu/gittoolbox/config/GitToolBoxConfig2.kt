@@ -30,6 +30,7 @@ internal data class GitToolBoxConfig2(
   var absoluteDateTimeStyle: AbsoluteDateTimeStyle = AbsoluteDateTimeStyle.FROM_LOCALE,
   var showChangesInStatusBar: Boolean = true,
   var previousVersionMigrated: Boolean = false,
+  var version: Int = 1,
   var decorationParts: List<DecorationPartConfig> = arrayListOf(
     DecorationPartConfig.builder().withType(DecorationPartType.LOCATION)
       .withPrefix("- ")
@@ -46,7 +47,8 @@ internal data class GitToolBoxConfig2(
   ),
   var extrasConfig: ExtrasConfig = ExtrasConfig(),
   var commitDialogGitmojiCompletion: Boolean = false,
-  var hideInlineBlameWhileDebugging: Boolean = true
+  var hideInlineBlameWhileDebugging: Boolean = true,
+  var alwaysShowInlineBlameWhileDebugging: Boolean = false
 ) : PersistentStateComponent<GitToolBoxConfig2> {
 
   companion object {
@@ -74,10 +76,12 @@ internal data class GitToolBoxConfig2(
       absoluteDateTimeStyle,
       showChangesInStatusBar,
       previousVersionMigrated,
+      version,
       decorationParts.map { it.copy() },
       extrasConfig.copy(),
       commitDialogGitmojiCompletion,
-      hideInlineBlameWhileDebugging
+      hideInlineBlameWhileDebugging,
+      alwaysShowInlineBlameWhileDebugging
     )
   }
 

@@ -9,6 +9,7 @@ import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import zielu.gittoolbox.config.ConfigOverridesMigrator
 import zielu.gittoolbox.config.ExtrasConfig
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
 

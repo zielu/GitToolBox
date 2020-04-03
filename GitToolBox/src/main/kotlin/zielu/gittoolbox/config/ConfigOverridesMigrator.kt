@@ -1,10 +1,7 @@
-package zielu.gittoolbox.startup
+package zielu.gittoolbox.config
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import zielu.gittoolbox.config.BoolConfigOverride
-import zielu.gittoolbox.config.ExtrasConfig
-import zielu.gittoolbox.config.GitToolBoxConfigPrj
 
 internal class ConfigOverridesMigrator(
   private val project: Project,
