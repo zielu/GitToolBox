@@ -38,6 +38,7 @@ class ConfigMigrator {
         config.setAlwaysShowInlineBlameWhileDebugging(true);
       }
       config.setVersion(2);
+      log.info("V2 config migrated to version 2");
       return true;
     }
     return false;
