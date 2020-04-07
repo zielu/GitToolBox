@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
+import zielu.gittoolbox.config.AppConfig;
 import zielu.gittoolbox.config.AppConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.revision.RevisionInfo;
@@ -217,7 +218,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   }
 
   private void updateVisibleFromConfig() {
-    setVisible(GitToolBoxConfig2.getInstance().getShowBlameWidget());
+    setVisible(AppConfig.get().getShowBlameWidget());
   }
 
   @Override

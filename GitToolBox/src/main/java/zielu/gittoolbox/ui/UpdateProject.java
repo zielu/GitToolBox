@@ -10,7 +10,7 @@ import java.awt.event.InputEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.concurrency.Promise;
-import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.config.AppConfig;
 import zielu.gittoolbox.ui.update.UpdateProjectActionService;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 
@@ -47,7 +47,7 @@ public class UpdateProject {
   }
 
   private AnAction getAction() {
-    String actionId = GitToolBoxConfig2.getInstance().getUpdateProjectActionId();
+    String actionId = AppConfig.get().getUpdateProjectActionId();
     return UpdateProjectActionService.getInstance().getById(actionId).getAction();
   }
 

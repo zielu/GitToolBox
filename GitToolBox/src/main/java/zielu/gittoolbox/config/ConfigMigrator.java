@@ -1,25 +1,23 @@
-package zielu.gittoolbox.startup;
+package zielu.gittoolbox.config;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.ConfigForProjectMigrator;
-import zielu.gittoolbox.config.ConfigOverridesMigrator;
-import zielu.gittoolbox.config.ExtrasConfig;
-import zielu.gittoolbox.config.GitToolBoxConfig2;
-import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 
 class ConfigMigrator {
   private final Logger log = Logger.getInstance(getClass());
 
-  boolean migrate(@NotNull Project project) {
-    GitToolBoxConfig2 appConfig = GitToolBoxConfig2.getInstance();
-    GitToolBoxConfigPrj prjConfig = GitToolBoxConfigPrj.getInstance(project);
+  boolean migrate(GitToolBoxConfig2 appConfig) {
     boolean migrated = migrateAppV1toV2(appConfig);
     migrated = migrateV2(appConfig) || migrated;
-    migrated = migrateProject(prjConfig) || migrated;
-    migrated = applyConfigOverrides(project, appConfig, prjConfig) || migrated;
+    return migrated;
+  }
 
+  boolean migrate(@NotNull Project project,
+                  @NotNull GitToolBoxConfigPrj prjConfig,
+                  @NotNull GitToolBoxConfig2 appConfig) {
+    boolean migrated = migrateProject(prjConfig);
+    migrated = applyConfigOverrides(project, appConfig, prjConfig) || migrated;
     return migrated;
   }
 

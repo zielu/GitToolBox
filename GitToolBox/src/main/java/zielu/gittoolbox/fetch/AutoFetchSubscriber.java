@@ -7,6 +7,7 @@ import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.config.ProjectConfig;
 import zielu.gittoolbox.util.AppUtil;
 
 class AutoFetchSubscriber {
@@ -31,7 +32,7 @@ class AutoFetchSubscriber {
   void onRepoStateChanged(@NotNull RepoInfo previous,
                           @NotNull RepoInfo current,
                           @NotNull GitRepository repository) {
-    if (GitToolBoxConfigPrj.getInstance(project).getAutoFetchOnBranchSwitch()) {
+    if (ProjectConfig.get(project).getAutoFetchOnBranchSwitch()) {
       if (!previous.isEmpty() && !current.isEmpty() && !previous.status().sameLocalBranch(current.status())) {
         if (exclusions.isAllowed(repository)) {
           AutoFetchOnBranchSwitch.getInstance(project).onBranchSwitch(current, repository);

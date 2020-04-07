@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.config.ProjectConfig;
 
 class AutoFetch implements AutoFetchComponent, Disposable {
   private final Logger log = Logger.getInstance(getClass());
@@ -22,7 +23,7 @@ class AutoFetch implements AutoFetchComponent, Disposable {
   }
 
   private GitToolBoxConfigPrj getConfig() {
-    return GitToolBoxConfigPrj.getInstance(project());
+    return ProjectConfig.get(project());
   }
 
   private void updateAutoFetchEnabled(GitToolBoxConfigPrj config) {

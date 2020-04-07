@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.config.ProjectConfig;
 import zielu.gittoolbox.util.AppUtil;
 
 class AutoFetchSchedule implements Disposable {
@@ -87,7 +88,7 @@ class AutoFetchSchedule implements Disposable {
     if (currentIntervalMinutes == null) {
       synchronized (this) {
         if (currentIntervalMinutes == null) {
-          GitToolBoxConfigPrj config = GitToolBoxConfigPrj.getInstance(project);
+          GitToolBoxConfigPrj config = ProjectConfig.get(project);
           if (config.getAutoFetch()) {
             currentIntervalMinutes = config.getAutoFetchIntervalMinutes();
           } else {

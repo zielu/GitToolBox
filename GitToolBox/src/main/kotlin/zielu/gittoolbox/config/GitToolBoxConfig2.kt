@@ -11,7 +11,6 @@ import zielu.gittoolbox.ui.StatusPresenter
 import zielu.gittoolbox.ui.StatusPresenters
 import zielu.gittoolbox.ui.update.DefaultUpdateProjectAction
 import zielu.gittoolbox.ui.update.UpdateProjectActionService
-import zielu.gittoolbox.util.AppUtil
 
 @State(name = "GitToolBoxAppSettings2", storages = [Storage("git_toolbox_2.xml")])
 internal data class GitToolBoxConfig2(
@@ -50,13 +49,6 @@ internal data class GitToolBoxConfig2(
   var hideInlineBlameWhileDebugging: Boolean = true,
   var alwaysShowInlineBlameWhileDebugging: Boolean = false
 ) : PersistentStateComponent<GitToolBoxConfig2> {
-
-  companion object {
-    @JvmStatic
-    fun getInstance(): GitToolBoxConfig2 {
-      return AppUtil.getServiceInstance(GitToolBoxConfig2::class.java)
-    }
-  }
 
   @Transient
   fun copy(): GitToolBoxConfig2 {

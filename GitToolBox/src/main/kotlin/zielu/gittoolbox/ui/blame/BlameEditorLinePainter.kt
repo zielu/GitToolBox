@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.LineExtensionInfo
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import zielu.gittoolbox.config.GitToolBoxConfig2
+import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.extension.blame.InlineBlameAllowedExtension
 
 internal class BlameEditorLinePainter : EditorLinePainter() {
@@ -20,7 +20,7 @@ internal class BlameEditorLinePainter : EditorLinePainter() {
   }
 
   private fun shouldShow(project: Project): Boolean {
-    return GitToolBoxConfig2.getInstance().showEditorInlineBlame &&
+    return AppConfig.get().showEditorInlineBlame &&
       !DumbService.isDumb(project) &&
       InlineBlameAllowedExtension.isBlameAllowed(project)
   }

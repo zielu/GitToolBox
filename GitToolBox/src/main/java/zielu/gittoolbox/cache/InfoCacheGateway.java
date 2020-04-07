@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.config.ProjectConfig;
 import zielu.gittoolbox.config.ReferencePointForStatusType;
 import zielu.gittoolbox.util.AppUtil;
 
@@ -45,7 +46,7 @@ class InfoCacheGateway {
   }
 
   private RepoStatusRemote createRemoteStatus(@NotNull GitRepository repository, @NotNull GitLocalBranch localBranch) {
-    GitToolBoxConfigPrj config = GitToolBoxConfigPrj.getInstance(project);
+    GitToolBoxConfigPrj config = ProjectConfig.get(project);
     GitRemoteBranch trackedBranch = localBranch.findTrackedBranch(repository);
     GitRemoteBranch parentBranch = null;
     GitRepoInfo repoInfo = repository.getInfo();

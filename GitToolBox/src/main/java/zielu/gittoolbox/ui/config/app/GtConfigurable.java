@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.config.AppConfig;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.help.HelpKey;
 import zielu.intellij.ui.ConfigUiBinder;
@@ -32,7 +33,7 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
 
   @Override
   protected GitToolBoxConfig2 getConfig() {
-    return GitToolBoxConfig2.getInstance();
+    return AppConfig.get();
   }
 
   @Override
@@ -138,16 +139,6 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
   @Override
   protected GitToolBoxConfig2 copy(@NotNull GitToolBoxConfig2 config) {
     return config.copy();
-  }
-
-  @Override
-  protected GitToolBoxConfig2 prepareConfigBeforeFormFill(GitToolBoxConfig2 config) {
-    //Mark migrated here to handle case when config gets modified without opening a project
-    //This has downside of loosing settings because normal migration is not performed.
-    //Example: changing default settings from launch dialog
-    config.setPreviousVersionMigrated(true);
-    config.setVersion(2);
-    return config;
   }
 
   @Override

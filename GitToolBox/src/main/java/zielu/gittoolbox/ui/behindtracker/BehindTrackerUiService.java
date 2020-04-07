@@ -7,7 +7,7 @@ import git4idea.repo.GitRepository;
 import javax.swing.event.HyperlinkEvent;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.compat.Notifier;
-import zielu.gittoolbox.config.GitToolBoxConfig2;
+import zielu.gittoolbox.config.AppConfig;
 import zielu.gittoolbox.repo.GtRepository;
 import zielu.gittoolbox.repo.RepoKt;
 import zielu.gittoolbox.ui.StatusMessagesService;
@@ -35,7 +35,7 @@ class BehindTrackerUiService implements BehindTrackerUi {
 
   @Override
   public boolean isNotificationEnabled() {
-    return GitToolBoxConfig2.getInstance().getBehindTracker();
+    return AppConfig.get().getBehindTracker();
   }
 
   @Override

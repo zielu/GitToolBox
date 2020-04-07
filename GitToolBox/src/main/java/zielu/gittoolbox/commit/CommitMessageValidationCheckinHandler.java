@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.compat.GitCompatUtil;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.config.ProjectConfig;
 import zielu.intellij.ui.YesNoDialog;
 
 public class CommitMessageValidationCheckinHandler extends CheckinHandler {
@@ -29,7 +30,7 @@ public class CommitMessageValidationCheckinHandler extends CheckinHandler {
   }
 
   private GitToolBoxConfigPrj getConfig() {
-    return GitToolBoxConfigPrj.getInstance(panel.getProject());
+    return ProjectConfig.get(panel.getProject());
   }
 
   @Override

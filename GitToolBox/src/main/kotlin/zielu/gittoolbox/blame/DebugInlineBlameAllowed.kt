@@ -32,7 +32,7 @@ internal class DebugInlineBlameAllowed(project: Project) {
   }
 
   fun isAllowed(): Boolean {
-    return if (debugInProgress.get())  {
+    return if (debugInProgress.get()) {
       !debugShowsInlineValues()
     } else {
       true

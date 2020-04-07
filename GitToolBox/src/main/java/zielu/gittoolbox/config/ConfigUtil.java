@@ -19,7 +19,7 @@ public final class ConfigUtil {
       LOG.info("Saving settings");
       try {
         WriteAction.runAndWait(() -> {
-          GitToolBoxConfig2 current = GitToolBoxConfig2.getInstance();
+          GitToolBoxConfig2 current = AppConfig.get();
           GitToolBoxConfig2 before = current.copy();
           modify.consume(current);
           application.saveSettings();

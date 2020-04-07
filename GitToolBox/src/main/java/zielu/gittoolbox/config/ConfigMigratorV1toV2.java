@@ -1,4 +1,4 @@
-package zielu.gittoolbox.startup;
+package zielu.gittoolbox.config;
 
 import static zielu.gittoolbox.config.DecorationPartType.BRANCH;
 import static zielu.gittoolbox.config.DecorationPartType.LOCATION;
@@ -8,9 +8,6 @@ import static zielu.gittoolbox.config.DecorationPartType.TAGS_ON_HEAD;
 import com.intellij.openapi.diagnostic.Logger;
 import java.util.ArrayList;
 import java.util.List;
-import zielu.gittoolbox.config.DecorationPartConfig;
-import zielu.gittoolbox.config.GitToolBoxConfig;
-import zielu.gittoolbox.config.GitToolBoxConfig2;
 
 class ConfigMigratorV1toV2 {
   private final Logger log = Logger.getInstance(getClass());

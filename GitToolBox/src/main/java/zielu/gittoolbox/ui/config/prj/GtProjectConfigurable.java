@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.config.ProjectConfig;
 import zielu.gittoolbox.help.HelpKey;
 import zielu.intellij.ui.ConfigUiBinder;
 import zielu.intellij.ui.GtBinderConfigurableBase;
@@ -84,7 +85,7 @@ public class GtProjectConfigurable extends GtBinderConfigurableBase<GtPrjForm, G
 
   @Override
   protected GitToolBoxConfigPrj getConfig() {
-    return GitToolBoxConfigPrj.getInstance(project);
+    return ProjectConfig.get(project);
   }
 
   @Override

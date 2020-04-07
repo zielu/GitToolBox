@@ -6,9 +6,10 @@ import com.intellij.codeInsight.completion.CompletionProvider
 import com.intellij.codeInsight.completion.CompletionResultSet
 import com.intellij.openapi.project.Project
 import com.intellij.util.ProcessingContext
+import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.config.CommitCompletionMode
-import zielu.gittoolbox.config.GitToolBoxConfig2.Companion.getInstance
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
+import zielu.gittoolbox.config.ProjectConfig
 
 internal abstract class CompletionProviderBase : CompletionProvider<CompletionParameters>() {
   private val modeHandlers: Map<CommitCompletionMode, (parameters: CompletionParameters) -> Boolean> = ImmutableMap
@@ -32,15 +33,15 @@ internal abstract class CompletionProviderBase : CompletionProvider<CompletionPa
   private fun shouldComplete(parameters: CompletionParameters): Boolean {
     val config = getConfig(getProject(parameters))
     if (config.commitDialogCompletion) {
-      val mode = getInstance().commitDialogCompletionMode
-      val modeHandler = modeHandlers.getOrDefault(mode) { params: CompletionParameters -> true }
+      val mode = AppConfig.get().commitDialogCompletionMode
+      val modeHandler = modeHandlers.getOrDefault(mode) { _: CompletionParameters -> true }
       return modeHandler.invoke(parameters)
     }
     return false
   }
 
   private fun getConfig(project: Project): GitToolBoxConfigPrj {
-    return GitToolBoxConfigPrj.getInstance(project)
+    return ProjectConfig.get(project)
   }
 
   private fun getProject(parameters: CompletionParameters): Project {
