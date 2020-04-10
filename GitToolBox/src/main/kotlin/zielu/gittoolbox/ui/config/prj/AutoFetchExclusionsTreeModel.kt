@@ -15,14 +15,17 @@ internal class AutoFetchExclusionsTreeModel : DefaultTreeModel(DefaultMutableTre
     this.configs.addAll(configs)
 
     val rootNode = DefaultMutableTreeNode()
-    this.configs.map { configNode(it) }.forEach { rootNode.add(it) }
+    this.configs.asSequence()
+      .map { configNode(it) }
+      .forEach { rootNode.add(it) }
 
     setRoot(rootNode)
   }
 
   private fun configNode(config: AutoFetchExclusionConfig): MutableTreeNode {
     val node = DefaultMutableTreeNode(config, true)
-    config.excludedRemotes.map { DefaultMutableTreeNode(it, false) }
+    config.excludedRemotes.asSequence()
+      .map { DefaultMutableTreeNode(it, false) }
       .forEach { node.add(it) }
     return node
   }

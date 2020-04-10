@@ -80,7 +80,10 @@ internal class ChangesTrackerServiceImpl
   }
 
   private fun handleChangeListRemoved(id: String) {
-    val modified = changeCounters.values.map { it.remove(id) }.filter { it }.count()
+    val modified = changeCounters.values.asSequence()
+      .map { it.remove(id) }
+      .filter { it }
+      .count()
     if (modified > 0) {
       gateway.fireChangeCountsUpdated()
     }

@@ -4,11 +4,14 @@
     </extensions>
 
     <!-- why is this not working ? -->
-    <!--<applicationListeners>
+    <!-- java.lang.ClassNotFoundException: zielu.gittoolbox.fetch.AutoFetchAllowedBuildListener -->
+    <!--
+    <applicationListeners>
       <listener class="zielu.gittoolbox.fetch.AutoFetchAllowedBuildListener"
                 topic="com.intellij.compiler.server.BuildManagerListener" />
     </applicationListeners>
--->
+    -->
+
     <application-components>
       <component>
         <implementation-class>zielu.gittoolbox.fetch.AutoFetchAllowedBuildSubscriber</implementation-class>

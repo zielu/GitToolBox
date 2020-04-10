@@ -20,7 +20,9 @@ internal data class BoolConfigOverride(
 
   fun isNotApplied(project: Project): Boolean {
       return project.presentableUrl?.let { path ->
-        applied.map { it.projectPath }.none { it == path }
+        applied.asSequence()
+          .map { it.projectPath }
+          .none { it == path }
       } ?: false
   }
 
@@ -32,6 +34,8 @@ internal data class BoolConfigOverride(
 
   @Transient
   fun getAppliedPaths(): List<String> {
-    return applied.map { it.projectPath }.toList()
+    return applied.asSequence()
+      .map { it.projectPath }
+      .toList()
   }
 }

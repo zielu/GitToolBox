@@ -22,6 +22,7 @@
   <depends>Git4Idea</depends>
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
+  <depends optional="true" config-file="android-features.xml">org.jetbrains.android</depends>
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
   <idea-version since-build="193.5233.12" until-build="193.*" />
 
@@ -267,11 +268,20 @@
                     dynamic="false">
       <with attribute="provider" implements="zielu.gittoolbox.extension.blame.InlineBlameAllowed" />
     </extensionPoint>
+    <extensionPoint name="viewModuleNodeParent" beanClass="zielu.gittoolbox.extension.projectview.ViewModuleNodeParentEP"
+                    dynamic="false">
+      <with attribute="moduleNodeClass" implements="com.intellij.ide.projectView.impl.nodes.AbstractModuleNode" />
+    </extensionPoint>
+    <extensionPoint name="viewPsiDirectoryNode" beanClass="zielu.gittoolbox.extension.projectview.ViewPsiDirectoryNodeEP"
+                    dynamic="false">
+      <with attribute="finder" implements="zielu.gittoolbox.extension.projectview.PsiDirectoryNodeRepoFinder" />
+    </extensionPoint>
   </extensionPoints>
 
   <extensions defaultExtensionNs="zielu.gittoolbox">
     <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeExt" />
     <updateProjectAction provider="zielu.gittoolbox.ui.update.DefaultUpdateProjectAction" />
     <inlineBlameAllowed provider="zielu.gittoolbox.blame.DebugInlineBlameAllowedExt" />
+    <viewModuleNodeParent moduleNodeClass="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
   </extensions>
 </idea-plugin>

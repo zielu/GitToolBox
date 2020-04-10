@@ -17,9 +17,10 @@ internal class SwitchRecentBranchesPopupAction : GitRepositoryAction() {
         BranchUiService.getInstance(project).showRecentBranchesSwitcher(createGtRepository(repo))
       }
     } else {
-      val repositories = gitRoots
+      val repositories = gitRoots.asSequence()
         .mapNotNull { virtualFileRepoCache.getRepoForRoot(it) }
         .map { createGtRepository(it) }
+        .toList()
       if (repositories.isNotEmpty()) {
         BranchUiService.getInstance(project).showRecentBranchesSwitcher(repositories)
       }

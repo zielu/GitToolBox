@@ -55,7 +55,10 @@ internal class BlameUiServiceLocalGateway(
 
   fun getAllEditors(vFile: VirtualFile): Collection<Editor> {
     val fileEditors = FileEditorManager.getInstance(project).getAllEditors(vFile).toList()
-    return fileEditors.filterIsInstance<TextEditor>().map { textEditor -> textEditor.editor }
+    return fileEditors.asSequence()
+      .filterIsInstance<TextEditor>()
+      .map { textEditor -> textEditor.editor }
+      .toList()
   }
 
   fun getCurrentLineIndex(editor: Editor): Int {

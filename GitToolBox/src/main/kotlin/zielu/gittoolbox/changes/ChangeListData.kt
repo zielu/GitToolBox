@@ -16,6 +16,7 @@ internal data class ChangeListData(
   private companion object {
     private fun createChangeData(changes: Collection<Change>): Collection<ChangeData> {
       return changes
+        .asSequence()
         .mapNotNull { getFilePath(it) }
         .map { ChangeData(it) }
         .toList()

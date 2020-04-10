@@ -11,6 +11,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import git4idea.repo.GitRepository;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.config.AppConfig;
+import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
 public class ProjectViewDecorator implements ProjectViewNodeDecorator {
@@ -22,7 +23,8 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   @Override
   public void decorate(ProjectViewNode node, PresentationData presentation) {
     if (shouldDecorate(node)) {
-      decorateLatency(node).time(() -> doDecorate(node, presentation));
+      Metrics metrics = ProjectMetrics.getInstance(node.getProject());
+      metrics.timer("decorate").time(() -> doDecorate(node, presentation, metrics));
     }
   }
 
@@ -32,31 +34,26 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
     log.debug("Decorate package dependencies");
   }
 
-  private Timer decorateLatency(ProjectViewNode node) {
-    return ProjectMetrics.getInstance(node.getProject()).timer("decorate");
-  }
-
-  private Timer repoForLatency(ProjectViewNode node) {
-    return ProjectMetrics.getInstance(node.getProject()).timer("decorate-repo-for");
-  }
-
-  private Timer decorateApplyLatency(ProjectViewNode node) {
-    return ProjectMetrics.getInstance(node.getProject()).timer("decorate-apply");
-  }
-
-  private void doDecorate(ProjectViewNode node, PresentationData presentation) {
-    GitRepository repo = repoForLatency(node).timeSupplier(() -> repoFinder.getRepoFor(node));
+  private void doDecorate(ProjectViewNode<?> node, PresentationData presentation, Metrics metrics) {
+    Timer repoForLatency = metrics.timer("decorate-repo-for");
+    GitRepository repo = repoForLatency.timeSupplier(() -> repoFinder.getRepoFor(node));
     if (repo != null) {
-      decorateApplyLatency(node).time(() -> applyDecoration(node.getProject(), repo, node, presentation));
+      Timer applyLatency = metrics.timer("decorate-apply");
+      applyLatency.time(() -> applyDecoration(node.getProject(), repo, node, presentation));
     }
   }
 
-  private boolean shouldDecorate(ProjectViewNode projectViewNode) {
+  private boolean shouldDecorate(ProjectViewNode<?> projectViewNode) {
     Project project = projectViewNode.getProject();
-    return project != null && AppConfig.get().getShowProjectViewStatus();
+    boolean result = project != null && AppConfig.get().getShowProjectViewStatus();
+    if (!result && log.isDebugEnabled()) {
+      log.debug("No project for node ", projectViewNode.getClass().getSimpleName(),
+          " title=", projectViewNode.getTitle());
+    }
+    return result;
   }
 
-  private void applyDecoration(Project project, GitRepository repo, ProjectViewNode projectViewNode,
+  private void applyDecoration(Project project, GitRepository repo, ProjectViewNode<?> projectViewNode,
                                PresentationData presentation) {
     PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
     NodeDecoration decoration = decorationFactory.decorationFor(repo, cache.getInfo(repo));

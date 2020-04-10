@@ -9,8 +9,9 @@ internal class InlineBlameAllowedExtension(private val project: Project) {
     return extensions().all { ext -> ext.isAllowed(project) }
   }
 
-  private fun extensions(): List<InlineBlameAllowed> {
+  private fun extensions(): Sequence<InlineBlameAllowed> {
     return EXTENSION_POINT_NAME.extensionList
+      .asSequence()
       .map { ext -> ext.instantiate() }
   }
 

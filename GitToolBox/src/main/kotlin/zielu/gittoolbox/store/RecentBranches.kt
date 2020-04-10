@@ -8,9 +8,10 @@ internal data class RecentBranches(
 
   fun findForRepositoryRootUrl(repositoryRootUrl: String): List<RecentBranch> {
     synchronized(this) {
-      return branchesForRepo
+      return branchesForRepo.asSequence()
         .filter { it.repositoryRootUrl == repositoryRootUrl }
-        .flatMap { it.branches }
+        .flatMap { it.branches.asSequence() }
+        .toList()
     }
   }
 
