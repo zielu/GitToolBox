@@ -3,6 +3,8 @@ package zielu.gittoolbox.changes
 import com.intellij.openapi.vcs.FilePath
 import com.intellij.openapi.vcs.changes.Change
 import com.intellij.openapi.vcs.changes.LocalChangeList
+import zielu.intellij.java.mapNotNull
+import kotlin.streams.toList
 
 internal data class ChangeListData(
   val id: String,
@@ -16,7 +18,7 @@ internal data class ChangeListData(
   private companion object {
     private fun createChangeData(changes: Collection<Change>): Collection<ChangeData> {
       return changes
-        .asSequence()
+        .stream()
         .mapNotNull { getFilePath(it) }
         .map { ChangeData(it) }
         .toList()

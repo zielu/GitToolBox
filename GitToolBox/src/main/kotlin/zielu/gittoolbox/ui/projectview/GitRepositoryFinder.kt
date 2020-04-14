@@ -12,6 +12,7 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.extension.projectview.ViewModuleNodeParentExtension
 import zielu.gittoolbox.extension.projectview.ViewPsiDirectoryNodeExtension
+import zielu.intellij.java.singleOrNull
 import java.util.function.BiFunction
 
 internal class GitRepositoryFinder {
@@ -88,7 +89,7 @@ internal class GitRepositoryFinder {
   private fun findForChildOfViewModuleNode(node: ProjectViewNode<*>): GitRepository? {
     val parentModuleNode = node.parent as AbstractModuleNode
     val cache = VirtualFileRepoCache.getInstance(node.project!!)
-    return parentModuleNode.roots.asSequence().map { cache.getRepoForDir(it) }.distinct().singleOrNull()
+    return parentModuleNode.roots.stream().map { cache.getRepoForDir(it) }.distinct().singleOrNull()
   }
 
   private companion object {

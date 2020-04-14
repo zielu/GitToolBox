@@ -80,7 +80,7 @@ internal class ChangesTrackerServiceImpl
   }
 
   private fun handleChangeListRemoved(id: String) {
-    val modified = changeCounters.values.asSequence()
+    val modified = changeCounters.values.stream()
       .map { it.remove(id) }
       .filter { it }
       .count()

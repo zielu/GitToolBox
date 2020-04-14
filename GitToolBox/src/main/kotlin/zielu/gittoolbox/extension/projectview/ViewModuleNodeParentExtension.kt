@@ -2,10 +2,11 @@ package zielu.gittoolbox.extension.projectview
 
 import com.intellij.ide.projectView.impl.nodes.AbstractModuleNode
 import com.intellij.openapi.extensions.ExtensionPointName
+import zielu.intellij.java.toSet
 
 internal class ViewModuleNodeParentExtension {
   fun getModuleNodeClasses(): Set<Class<in AbstractModuleNode>> {
-    return EXTENSION_POINT_NAME.extensionList.asSequence()
+    return EXTENSION_POINT_NAME.extensionList.stream()
       .map { it.getModuleNodeClass() }
       .toSet()
   }

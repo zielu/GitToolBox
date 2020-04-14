@@ -4,6 +4,8 @@ import com.intellij.ide.projectView.ProjectViewNode
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode
 import com.intellij.openapi.extensions.ExtensionPointName
 import git4idea.repo.GitRepository
+import zielu.intellij.java.firstOrNull
+import java.util.stream.Stream
 
 internal class ViewPsiDirectoryNodeExtension {
   fun findForDirectory(node: ProjectViewNode<*>): GitRepository? {
@@ -11,8 +13,8 @@ internal class ViewPsiDirectoryNodeExtension {
     return finders().firstOrNull { it.isForMe(directoryNode) }?.getRepoFor(directoryNode)
   }
 
-  private fun finders(): Sequence<PsiDirectoryNodeRepoFinder> {
-    return EXTENSION_POINT_NAME.extensionList.asSequence().map { it.instantiate() }
+  private fun finders(): Stream<PsiDirectoryNodeRepoFinder> {
+    return EXTENSION_POINT_NAME.extensionList.stream().map { it.instantiate() }
   }
 }
 

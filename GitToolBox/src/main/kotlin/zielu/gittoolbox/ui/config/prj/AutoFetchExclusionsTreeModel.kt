@@ -15,7 +15,7 @@ internal class AutoFetchExclusionsTreeModel : DefaultTreeModel(DefaultMutableTre
     this.configs.addAll(configs)
 
     val rootNode = DefaultMutableTreeNode()
-    this.configs.asSequence()
+    this.configs.stream()
       .map { configNode(it) }
       .forEach { rootNode.add(it) }
 
@@ -24,7 +24,7 @@ internal class AutoFetchExclusionsTreeModel : DefaultTreeModel(DefaultMutableTre
 
   private fun configNode(config: AutoFetchExclusionConfig): MutableTreeNode {
     val node = DefaultMutableTreeNode(config, true)
-    config.excludedRemotes.asSequence()
+    config.excludedRemotes.stream()
       .map { DefaultMutableTreeNode(it, false) }
       .forEach { node.add(it) }
     return node

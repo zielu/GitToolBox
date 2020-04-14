@@ -7,6 +7,8 @@ import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.repo.createGtRepository
 import zielu.gittoolbox.ui.branch.BranchUiService
+import zielu.intellij.java.mapNotNull
+import kotlin.streams.toList
 
 internal class SwitchRecentBranchesPopupAction : GitRepositoryAction() {
   override fun perform(project: Project, gitRoots: MutableList<VirtualFile>, defaultRoot: VirtualFile) {
@@ -17,7 +19,7 @@ internal class SwitchRecentBranchesPopupAction : GitRepositoryAction() {
         BranchUiService.getInstance(project).showRecentBranchesSwitcher(createGtRepository(repo))
       }
     } else {
-      val repositories = gitRoots.asSequence()
+      val repositories = gitRoots.stream()
         .mapNotNull { virtualFileRepoCache.getRepoForRoot(it) }
         .map { createGtRepository(it) }
         .toList()

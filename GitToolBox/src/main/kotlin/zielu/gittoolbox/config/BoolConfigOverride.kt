@@ -2,6 +2,7 @@ package zielu.gittoolbox.config
 
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Transient
+import kotlin.streams.toList
 
 internal data class BoolConfigOverride(
   var enabled: Boolean = false,
@@ -20,9 +21,9 @@ internal data class BoolConfigOverride(
 
   fun isNotApplied(project: Project): Boolean {
       return project.presentableUrl?.let { path ->
-        applied.asSequence()
+        applied.stream()
           .map { it.projectPath }
-          .none { it == path }
+          .noneMatch { it == path }
       } ?: false
   }
 
@@ -34,7 +35,7 @@ internal data class BoolConfigOverride(
 
   @Transient
   fun getAppliedPaths(): List<String> {
-    return applied.asSequence()
+    return applied.stream()
       .map { it.projectPath }
       .toList()
   }

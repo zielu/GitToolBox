@@ -4,7 +4,7 @@ import com.google.common.cache.LoadingCache
 import com.intellij.openapi.diagnostic.Logger
 import java.util.concurrent.ExecutionException
 
-fun <K, V> LoadingCache<K, V>.getSafe(key: K, errorValue: V): V {
+internal fun <K, V> LoadingCache<K, V>.getSafe(key: K, errorValue: V): V {
   return try {
     this.get(key)
   } catch (e: ExecutionException) {
