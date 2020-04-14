@@ -6,7 +6,8 @@ import java.util.stream.Stream
 import kotlin.streams.toList
 
 internal fun <T, R> Stream<T>.mapNotNull(mapper: (T) -> R?): Stream<R> {
-  return this.filter(Objects::nonNull).map(mapper)
+  @Suppress("UNCHECKED_CAST")
+  return this.map(mapper).filter(Objects::nonNull) as Stream<R>
 }
 
 internal fun <T> Stream<T>.toSet(): Set<T> = collect(Collectors.toSet<T>())

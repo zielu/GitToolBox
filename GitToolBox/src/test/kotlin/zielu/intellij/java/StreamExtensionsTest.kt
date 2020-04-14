@@ -11,15 +11,21 @@ import java.util.stream.Stream
 internal class StreamExtensionsTest {
 
   @Test
-  fun `mapNotNull should map non-null stream items`() {
+  fun `mapNotNull should return mapped items if not null`() {
     // given
     val stream = Stream.of(null, 1, null, 2, null, null, 3, null)
 
     // when
-    val mappedStream = stream.mapNotNull { it.toString() }
+    val mappedStream = stream.mapNotNull {
+      if (it != null && it % 2 == 0) {
+        it.toString()
+      } else {
+        null
+      }
+    }
 
     // then
-    assertThat(mappedStream).containsExactly("1", "2", "3")
+    assertThat(mappedStream).containsExactly("2")
   }
 
   @Test
@@ -41,7 +47,7 @@ internal class StreamExtensionsTest {
   @MethodSource("firstOrNullCases")
   fun `firstOrNull should return expected item`(stream: Stream<Int>, expectedItem: Int?) {
     // when
-    val item = stream.firstOrNull { it / 2 == 1 }
+    val item = stream.firstOrNull { it % 2 == 0 }
 
     // then
     assertThat(item).isEqualTo(expectedItem)
@@ -61,18 +67,18 @@ internal class StreamExtensionsTest {
     @JvmStatic
     fun firstOrNullCases(): Stream<Arguments> {
       return Stream.of(
-        Arguments { arrayOf(Stream.of(1, 2, 4), 2) },
-        Arguments { arrayOf(Stream.of<Int>(), null) },
-        Arguments { arrayOf(Stream.of(1), null) }
+        Arguments.of(Stream.of(1, 2, 4), 2),
+        Arguments.of(Stream.of<Int>(), null),
+        Arguments.of(Stream.of(1), null)
       )
     }
 
     @JvmStatic
     fun singleOrNullCases(): Stream<Arguments> {
       return Stream.of(
-        Arguments { arrayOf(Stream.of(1, 2), null) },
-        Arguments { arrayOf(Stream.of<Int>(), null) },
-        Arguments { arrayOf(Stream.of(1), 1) }
+        Arguments.of(Stream.of(1, 2), null),
+        Arguments.of(Stream.of<Int>(), null),
+        Arguments.of(Stream.of(1), 1)
       )
     }
   }
