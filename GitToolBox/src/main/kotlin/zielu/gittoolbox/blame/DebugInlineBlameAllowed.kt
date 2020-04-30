@@ -7,7 +7,7 @@ import com.intellij.xdebugger.settings.XDebuggerSettingsManager
 import zielu.gittoolbox.util.AppUtil
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class DebugInlineBlameAllowed(project: Project) {
+internal class DebugInlineBlameAllowed(val project: Project) {
   private val debugInProgress = AtomicBoolean()
 
   init {
@@ -33,7 +33,7 @@ internal class DebugInlineBlameAllowed(project: Project) {
 
   fun isAllowed(): Boolean {
     return if (debugInProgress.get()) {
-      !debugShowsInlineValues()
+      !debugShowsInlineValues() || !debugIsSuspended()
     } else {
       true
     }
@@ -41,6 +41,10 @@ internal class DebugInlineBlameAllowed(project: Project) {
 
   private fun debugShowsInlineValues(): Boolean {
     return XDebuggerSettingsManager.getInstance().dataViewSettings.isShowValuesInline
+  }
+
+  private fun debugIsSuspended(): Boolean {
+    return XDebuggerManager.getInstance(project).currentSession?.isSuspended ?: false
   }
 
   companion object {
