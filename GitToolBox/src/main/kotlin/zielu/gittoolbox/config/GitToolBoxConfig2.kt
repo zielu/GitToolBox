@@ -46,7 +46,7 @@ internal data class GitToolBoxConfig2(
   ),
   var extrasConfig: ExtrasConfig = ExtrasConfig(),
   var commitDialogGitmojiCompletion: Boolean = false,
-  var hideInlineBlameWhileDebugging: Boolean = true,
+  @Deprecated("Since 193.8.1") var hideInlineBlameWhileDebugging: Boolean = true,
   var alwaysShowInlineBlameWhileDebugging: Boolean = false
 ) : PersistentStateComponent<GitToolBoxConfig2> {
 
