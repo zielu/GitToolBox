@@ -14,7 +14,7 @@ buildscript {
 
 plugins {
     id 'org.jetbrains.intellij' version '0.4.18'
-    id 'com.palantir.git-version' version '0.12.2'
+    id 'com.palantir.git-version' version '0.12.3'
     id 'ch.netzwerg.release' version '1.2.5'
     id 'org.jlleitschuh.gradle.ktlint' version '9.2.1'
 }
@@ -30,8 +30,9 @@ apply plugin: "java"
 apply plugin: "kotlin"
 
 def javaVersion = JavaVersion.VERSION_1_8
-def kotlinJvmTarget = "1.8"
+def kotlinJvmTarget = '1.8'
 def encoding = 'UTF-8'
+def branchNameProperty = 'branch.name'
 
 java {
     sourceCompatibility = javaVersion
@@ -49,7 +50,12 @@ configurations {
 
 def ideaCacheDir = Paths.get(System.getProperty('user.home')).resolve('intellij-gradle-cache').toAbsolutePath().toString()
 println("Idea cache dir: $ideaCacheDir")
-println("Build type: " + buildType(ci))
+
+def details = versionDetails()
+def branchName = details.branchName
+def gitHash = details.gitHash
+
+println("Build type: " + buildType(branchName, ci))
 println("CI build: $ci")
 
 intellij {
@@ -87,7 +93,7 @@ patchPluginXml {
     changeNotes "${file('change-notes.html').getText(encoding)}"
     pluginDescription "${file('description.html').getText(encoding)}"
             .replace("RELEASE_DATETIME", buildTime())
-            .replace("RELEASE_TYPE", buildType(ci))
+            .replace("RELEASE_TYPE", buildType(branchName, ci))
 }
 
 if (publish) {
@@ -101,7 +107,7 @@ if (publish) {
         token = getPublishToken(ci, project)
         username = getPublishUsername(ci, project)
         password = getPublishPassword(ci, project)
-        channels = publishChannels(ci)
+        channels = publishChannels(branchName, ci)
     }
 }
 
@@ -126,15 +132,10 @@ jar {
                 'Specification-Version': project.version,
                 'Implementation-Title': project.name,
                 'Implementation-Vendor': 'Lukasz Zielinski (zieluuuu@gmail.com)',
-                'Implementation-Version': versionDetails().gitHash,
+                'Implementation-Version': gitHash,
                 'Build-Date': buildTime()
         )
     }
-}
-
-release {
-    tagPrefix = ''
-    dependsOn buildPlugin
 }
 
 apply plugin: 'jacoco'
@@ -188,7 +189,7 @@ checkstyle {
 }
 
 ktlint {
-    additionalEditorconfigFile = project(':').file("config/ktlint/.editorconfig")
+    additionalEditorconfigFile = project(':').file('config/ktlint/.editorconfig')
     coloredOutput = false
     reporters {
         reporter "checkstyle"
@@ -207,6 +208,33 @@ task buildFast {
 task codeCoverage {
     dependsOn check, integrationTest, jacocoTestReport
     tasks.findByName('integrationTest').mustRunAfter 'check'
+}
+
+task captureReleaseBranch {
+    def props = loadVersionProps()
+    if (branchName != null) {
+        props[branchNameProperty] = branchName
+    } else {
+        props.remove(branchNameProperty)
+    }
+    storeVersionProps(props)
+    exec {
+        executable 'git'
+        args 'add', 'version.properties'
+    }
+    exec {
+        executable 'git'
+        args 'commit', 'version.properties', '-m', 'Git info of release'
+    }
+}
+
+task prepareRelease {
+    dependsOn clean, buildAll, captureReleaseBranch
+}
+
+release {
+    tagPrefix = ''
+    dependsOn prepareRelease
 }
 
 dependencies {
@@ -252,24 +280,51 @@ dependencies {
 
 
 def static buildTime() {
-    def df = new SimpleDateFormat("yyyyMMdd.HHmmss")
-    df.setTimeZone(TimeZone.getTimeZone("UTC"))
+    def df = new SimpleDateFormat('yyyyMMdd.HHmmss')
+    df.setTimeZone(TimeZone.getTimeZone('UTC'))
     return df.format(new Date())
 }
 
-def isStableBuild(ci) {
+def static isStableBranch(branchName) {
+    return branchName ==~ /(master|\d+-release)/
+}
+
+def isStableBuild(branchName, ci) {
     if (ci) {
-        return Boolean.valueOf(System.getenv("stable"))
+        if (branchName != null) {
+            return isStableBranch(branchName)
+        } else {
+            def props = loadVersionProps()
+            branchName = props[branchNameProperty]
+            println("Branch name loaded from props $branchName")
+            if (branchName != null) {
+                return isStableBranch(branchName)
+            }
+            return false
+        }
     } else {
-        def details = versionDetails()
-        return details.branchName ==~ /(master|\d+-release)/
+        return isStableBranch(branchName)
     }
 }
 
-def buildType(ci) {
-    return isStableBuild(ci) ? "Stable" : "EAP"
+def buildType(branchName, ci) {
+    return isStableBuild(branchName, ci) ? 'Stable' : 'EAP'
 }
 
-def publishChannels(ci) {
-    return isStableBuild(ci) ? ['default', 'eap'] : ['eap']
+def publishChannels(branchName, ci) {
+    return isStableBuild(branchName, ci) ? ['default', 'eap'] : ['eap']
+}
+
+def loadVersionProps() {
+    def props = new Properties()
+    def propsFile = file 'version.properties'
+    if (propsFile.exists()) {
+        props.load(propsFile.newReader('UTF-8'))
+    }
+    return props
+}
+
+def storeVersionProps(Properties props) {
+    def propsFile = file 'version.properties'
+    props.store(propsFile.newWriter('UTF-8'), null)
 }
