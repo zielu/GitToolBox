@@ -211,20 +211,22 @@ task codeCoverage {
 }
 
 task captureReleaseBranch {
-    def props = loadVersionProps()
-    if (branchName != null) {
-        props[branchNameProperty] = branchName
-    } else {
-        props.remove(branchNameProperty)
-    }
-    storeVersionProps(props)
-    exec {
-        executable 'git'
-        args 'add', 'version.properties'
-    }
-    exec {
-        executable 'git'
-        args 'commit', 'version.properties', '-m', 'Git info of release'
+    doLast {
+        def props = loadVersionProps()
+        if (branchName != null) {
+            props[branchNameProperty] = branchName
+        } else {
+            props.remove(branchNameProperty)
+        }
+        storeVersionProps(props)
+        exec {
+            executable 'git'
+            args 'add', 'version.properties'
+        }
+        exec {
+            executable 'git'
+            args 'commit', 'version.properties', '-m', 'Git info of release'
+        }
     }
 }
 
