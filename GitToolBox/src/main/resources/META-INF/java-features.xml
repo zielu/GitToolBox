@@ -1,6 +1,8 @@
 <idea-plugin url="https://github.com/zielu/GitToolBox">
     <extensions defaultExtensionNs="zielu.gittoolbox">
       <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedBuildExt"/>
+      <viewModuleNodeChild nodeClass="com.intellij.ide.projectView.impl.nodes.PackageElementNode"/>
+      <viewModuleNodeParent moduleNodeClass="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
     </extensions>
 
     <!-- why is this not working ? -->

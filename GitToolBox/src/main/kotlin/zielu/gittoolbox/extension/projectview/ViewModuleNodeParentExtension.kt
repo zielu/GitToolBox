@@ -5,7 +5,12 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import zielu.intellij.java.toSet
 
 internal class ViewModuleNodeParentExtension {
-  fun getModuleNodeClasses(): Set<Class<in AbstractModuleNode>> {
+  fun hasParentOfType(nodeType: Class<in AbstractModuleNode>): Boolean {
+    val moduleNodeClasses = getModuleNodeClasses()
+    return moduleNodeClasses.contains(nodeType)
+  }
+
+  private fun getModuleNodeClasses(): Set<Class<in AbstractModuleNode>> {
     return EXTENSION_POINT_NAME.extensionList.stream()
       .map { it.getModuleNodeClass() }
       .toSet()

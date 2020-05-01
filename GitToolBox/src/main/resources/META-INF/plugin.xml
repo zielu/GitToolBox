@@ -272,6 +272,10 @@
                     dynamic="false">
       <with attribute="moduleNodeClass" implements="com.intellij.ide.projectView.impl.nodes.AbstractModuleNode" />
     </extensionPoint>
+    <extensionPoint name="viewModuleNodeChild" beanClass="zielu.gittoolbox.extension.projectview.ViewModuleNodeChildEP"
+                    dynamic="false">
+      <with attribute="nodeClass" implements="com.intellij.ide.projectView.ProjectViewNode" />
+    </extensionPoint>
     <extensionPoint name="viewPsiDirectoryNode" beanClass="zielu.gittoolbox.extension.projectview.ViewPsiDirectoryNodeEP"
                     dynamic="false">
       <with attribute="finder" implements="zielu.gittoolbox.extension.projectview.PsiDirectoryNodeRepoFinder" />
@@ -282,6 +286,5 @@
     <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeExt" />
     <updateProjectAction provider="zielu.gittoolbox.ui.update.DefaultUpdateProjectAction" />
     <inlineBlameAllowed provider="zielu.gittoolbox.blame.DebugInlineBlameAllowedExt" />
-    <viewModuleNodeParent moduleNodeClass="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
   </extensions>
 </idea-plugin>

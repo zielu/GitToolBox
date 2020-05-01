@@ -3,13 +3,13 @@ package zielu.gittoolbox.ui.projectview
 import com.intellij.ide.projectView.ProjectViewNode
 import com.intellij.ide.projectView.impl.ProjectRootsUtil
 import com.intellij.ide.projectView.impl.nodes.AbstractModuleNode
-import com.intellij.ide.projectView.impl.nodes.PackageElementNode
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.VirtualFileRepoCache
+import zielu.gittoolbox.extension.projectview.ViewModuleNodeChildExtension
 import zielu.gittoolbox.extension.projectview.ViewModuleNodeParentExtension
 import zielu.gittoolbox.extension.projectview.ViewPsiDirectoryNodeExtension
 import zielu.intellij.java.singleOrNull
@@ -17,6 +17,7 @@ import java.util.function.BiFunction
 
 internal class GitRepositoryFinder {
   private val viewModuleParentExtension = ViewModuleNodeParentExtension()
+  private val viewModuleChildExtension = ViewModuleNodeChildExtension()
   private val viewPsiDirectoryNodeExtensions = ViewPsiDirectoryNodeExtension()
 
   fun getRepoFor(node: ProjectViewNode<*>): GitRepository? {
@@ -81,8 +82,8 @@ internal class GitRepositoryFinder {
   }
 
   private fun isChildOfViewModuleNode(node: ProjectViewNode<*>): Boolean {
-    return node is PackageElementNode && node.parent?.let {
-      viewModuleParentExtension.getModuleNodeClasses().contains(it.javaClass)
+    return viewModuleChildExtension.hasChildOfType(node.javaClass) && node.parent?.let {
+      viewModuleParentExtension.hasParentOfType(it.javaClass)
     } ?: false
   }
 
