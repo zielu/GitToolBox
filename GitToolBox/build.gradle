@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.intellij' version '0.4.16'
+    id 'org.jetbrains.intellij' version '0.4.18'
     id 'com.palantir.git-version' version '0.12.3'
     id 'ch.netzwerg.release' version '1.2.5'
     id 'org.jlleitschuh.gradle.ktlint' version '9.2.1'
@@ -29,10 +29,13 @@ apply plugin: 'idea'
 apply plugin: "java"
 apply plugin: "kotlin"
 
+project.ext {
+    branchNameProperty = 'branch.name'
+}
+
 def javaVersion = JavaVersion.VERSION_1_8
 def kotlinJvmTarget = '1.8'
 def encoding = 'UTF-8'
-def branchNameProperty = 'branch.name'
 
 java {
     sourceCompatibility = javaVersion
@@ -214,9 +217,9 @@ task captureReleaseBranch {
     doLast {
         def props = loadVersionProps()
         if (branchName != null) {
-            props[branchNameProperty] = branchName
+            props[project.branchNameProperty] = branchName
         } else {
-            props.remove(branchNameProperty)
+            props.remove(project.branchNameProperty)
         }
         storeVersionProps(props)
         exec {
@@ -297,7 +300,7 @@ def isStableBuild(branchName, ci) {
             return isStableBranch(branchName)
         } else {
             def props = loadVersionProps()
-            branchName = props[branchNameProperty]
+            branchName = props[project.branchNameProperty]
             println("Branch name loaded from props $branchName")
             if (branchName != null) {
                 return isStableBranch(branchName)
