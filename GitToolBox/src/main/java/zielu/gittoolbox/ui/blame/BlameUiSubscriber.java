@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.blame.BlameService;
+import zielu.gittoolbox.config.AppConfig;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.AppUtil;
@@ -32,7 +33,7 @@ class BlameUiSubscriber {
 
   void onBlameUpdate(@NotNull VirtualFile file) {
     log.debug("Blame updated: ", file);
-    GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
+    GitToolBoxConfig2 config = AppConfig.get();
     if (config.getShowEditorInlineBlame()) {
       BlameUiService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file));
       AppUiUtil.invokeLaterIfNeeded(project, () -> handleBlameUpdate(file));

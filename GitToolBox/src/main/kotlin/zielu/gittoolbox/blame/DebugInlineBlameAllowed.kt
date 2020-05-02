@@ -3,10 +3,11 @@ package zielu.gittoolbox.blame
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.xdebugger.XDebuggerManager
+import com.intellij.xdebugger.settings.XDebuggerSettingsManager
 import zielu.gittoolbox.util.AppUtil
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class DebugInlineBlameAllowed(project: Project) {
+internal class DebugInlineBlameAllowed(val project: Project) {
   private val debugInProgress = AtomicBoolean()
 
   init {
@@ -31,7 +32,19 @@ internal class DebugInlineBlameAllowed(project: Project) {
   }
 
   fun isAllowed(): Boolean {
-    return !debugInProgress.get()
+    return if (debugInProgress.get()) {
+      !debugShowsInlineValues() || !debugIsSuspended()
+    } else {
+      true
+    }
+  }
+
+  private fun debugShowsInlineValues(): Boolean {
+    return XDebuggerSettingsManager.getInstance().dataViewSettings.isShowValuesInline
+  }
+
+  private fun debugIsSuspended(): Boolean {
+    return XDebuggerManager.getInstance(project).currentSession?.isSuspended ?: false
   }
 
   companion object {

@@ -8,7 +8,6 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 import com.intellij.util.xmlb.annotations.Transient
 import zielu.gittoolbox.fetch.AutoFetchParams
 import zielu.gittoolbox.formatter.Formatter
-import zielu.gittoolbox.util.AppUtil
 
 @State(name = "GitToolBoxProjectSettings", storages = [Storage("git_toolbox_prj.xml")])
 internal data class GitToolBoxConfigPrj(
@@ -23,13 +22,6 @@ internal data class GitToolBoxConfigPrj(
   var commitMessageValidation: Boolean = false,
   var commitMessageValidationRegex: String = "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+"
 ) : PersistentStateComponent<GitToolBoxConfigPrj> {
-
-  companion object {
-    @JvmStatic
-    fun getInstance(project: Project): GitToolBoxConfigPrj {
-      return AppUtil.getServiceInstance(project, GitToolBoxConfigPrj::class.java)
-    }
-  }
 
   @Transient
   fun copy(): GitToolBoxConfigPrj {

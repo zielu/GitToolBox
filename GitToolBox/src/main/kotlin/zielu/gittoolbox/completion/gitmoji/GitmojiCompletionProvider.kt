@@ -10,7 +10,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.util.TextRange
 import zielu.gittoolbox.completion.CompletionProviderBase
 import zielu.gittoolbox.completion.CompletionService
-import zielu.gittoolbox.config.GitToolBoxConfig2
+import zielu.gittoolbox.config.AppConfig
 
 internal class GitmojiCompletionProvider : CompletionProviderBase() {
 
@@ -23,7 +23,7 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
     }
   }
 
-  private fun isEnabled(): Boolean = GitToolBoxConfig2.getInstance().commitDialogGitmojiCompletion
+  private fun isEnabled(): Boolean = AppConfig.get().commitDialogGitmojiCompletion
 
   private fun addCompletions(result: CompletionResultSet) {
     val insertHandler = PrefixCompletionInsertHandler()

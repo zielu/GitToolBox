@@ -11,7 +11,6 @@ import zielu.gittoolbox.ui.StatusPresenter
 import zielu.gittoolbox.ui.StatusPresenters
 import zielu.gittoolbox.ui.update.DefaultUpdateProjectAction
 import zielu.gittoolbox.ui.update.UpdateProjectActionService
-import zielu.gittoolbox.util.AppUtil
 
 @State(name = "GitToolBoxAppSettings2", storages = [Storage("git_toolbox_2.xml")])
 internal data class GitToolBoxConfig2(
@@ -30,6 +29,7 @@ internal data class GitToolBoxConfig2(
   var absoluteDateTimeStyle: AbsoluteDateTimeStyle = AbsoluteDateTimeStyle.FROM_LOCALE,
   var showChangesInStatusBar: Boolean = true,
   var previousVersionMigrated: Boolean = false,
+  var version: Int = 1,
   var decorationParts: List<DecorationPartConfig> = arrayListOf(
     DecorationPartConfig.builder().withType(DecorationPartType.LOCATION)
       .withPrefix("- ")
@@ -46,15 +46,9 @@ internal data class GitToolBoxConfig2(
   ),
   var extrasConfig: ExtrasConfig = ExtrasConfig(),
   var commitDialogGitmojiCompletion: Boolean = false,
-  var hideInlineBlameWhileDebugging: Boolean = true
+  @Deprecated("Since 193.8.1") var hideInlineBlameWhileDebugging: Boolean = true,
+  var alwaysShowInlineBlameWhileDebugging: Boolean = false
 ) : PersistentStateComponent<GitToolBoxConfig2> {
-
-  companion object {
-    @JvmStatic
-    fun getInstance(): GitToolBoxConfig2 {
-      return AppUtil.getServiceInstance(GitToolBoxConfig2::class.java)
-    }
-  }
 
   @Transient
   fun copy(): GitToolBoxConfig2 {
@@ -74,10 +68,12 @@ internal data class GitToolBoxConfig2(
       absoluteDateTimeStyle,
       showChangesInStatusBar,
       previousVersionMigrated,
+      version,
       decorationParts.map { it.copy() },
       extrasConfig.copy(),
       commitDialogGitmojiCompletion,
-      hideInlineBlameWhileDebugging
+      hideInlineBlameWhileDebugging,
+      alwaysShowInlineBlameWhileDebugging
     )
   }
 

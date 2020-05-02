@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.blame.BlameService;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
+import zielu.gittoolbox.config.AppConfig;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.ui.blame.BlameUi;
@@ -23,8 +24,8 @@ public class BlameDetailsAction extends AnAction {
   }
 
   private boolean isEnabled(@NotNull AnActionEvent e) {
-    GitToolBoxConfig2 toolBoxConfig2 = GitToolBoxConfig2.getInstance();
-    if (!toolBoxConfig2.getShowBlameWidget() && !toolBoxConfig2.getShowEditorInlineBlame()) {
+    GitToolBoxConfig2 config = AppConfig.get();
+    if (!config.getShowBlameWidget() && !config.getShowEditorInlineBlame()) {
       return false;
     }
     Project project = e.getData(CommonDataKeys.PROJECT);

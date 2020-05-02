@@ -22,6 +22,7 @@
   <depends>Git4Idea</depends>
   <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
+  <depends optional="true" config-file="android-features.xml">org.jetbrains.android</depends>
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
   <idea-version since-build="201.5985" until-build="201.*" />
 
@@ -31,6 +32,7 @@
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2" />
     <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigPrj" />
     <projectService serviceImplementation="zielu.gittoolbox.store.WorkspaceStore" />
+    <projectService serviceImplementation="zielu.gittoolbox.config.ProjectConfig" />
 
     <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
                         serviceImplementation="zielu.gittoolbox.metrics.AppMetricsImpl" />
@@ -268,6 +270,18 @@
     <extensionPoint name="inlineBlameAllowed" beanClass="zielu.gittoolbox.extension.blame.InlineBlameAllowedEP"
                     dynamic="false">
       <with attribute="provider" implements="zielu.gittoolbox.extension.blame.InlineBlameAllowed" />
+    </extensionPoint>
+    <extensionPoint name="viewModuleNodeParent" beanClass="zielu.gittoolbox.extension.projectview.ViewModuleNodeParentEP"
+                    dynamic="false">
+      <with attribute="moduleNodeClass" implements="com.intellij.ide.projectView.impl.nodes.AbstractModuleNode" />
+    </extensionPoint>
+    <extensionPoint name="viewModuleNodeChild" beanClass="zielu.gittoolbox.extension.projectview.ViewModuleNodeChildEP"
+                    dynamic="false">
+      <with attribute="nodeClass" implements="com.intellij.ide.projectView.ProjectViewNode" />
+    </extensionPoint>
+    <extensionPoint name="viewPsiDirectoryNode" beanClass="zielu.gittoolbox.extension.projectview.ViewPsiDirectoryNodeEP"
+                    dynamic="false">
+      <with attribute="finder" implements="zielu.gittoolbox.extension.projectview.PsiDirectoryNodeRepoFinder" />
     </extensionPoint>
   </extensionPoints>
 

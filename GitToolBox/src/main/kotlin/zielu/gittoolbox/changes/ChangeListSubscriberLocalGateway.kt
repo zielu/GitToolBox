@@ -3,7 +3,7 @@ package zielu.gittoolbox.changes
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.ChangeListListener
 import com.intellij.openapi.vcs.changes.ChangeListManager
-import zielu.gittoolbox.config.GitToolBoxConfig2
+import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.util.AppUtil
 import zielu.gittoolbox.util.LocalGateway
 
@@ -34,5 +34,5 @@ internal class ChangeListSubscriberLocalGateway(private val project: Project) : 
     return changeLists.map { ChangeListData(it) }
   }
 
-  fun getTrackingEnabled() = GitToolBoxConfig2.getInstance().isChangesTrackingEnabled()
+  fun getTrackingEnabled() = AppConfig.get().isChangesTrackingEnabled()
 }

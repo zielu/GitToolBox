@@ -18,6 +18,7 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.config.ProjectConfig;
 import zielu.gittoolbox.fetch.AutoFetchComponent;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
@@ -97,7 +98,7 @@ public class StatusToolTip {
   }
 
   private StringBand prepareInfoToolTipPart() {
-    GitToolBoxConfigPrj config = GitToolBoxConfigPrj.getInstance(project);
+    GitToolBoxConfigPrj config = ProjectConfig.get(project);
     StringBand result = new StringBand();
     if (config.getAutoFetch()) {
       result.append(GitUIUtil.bold(ResBundle.message("message.autoFetch"))).append(": ");

@@ -1,11 +1,7 @@
-package zielu.gittoolbox.startup
+package zielu.gittoolbox.config
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import zielu.gittoolbox.config.DecorationPartConfig
-import zielu.gittoolbox.config.DecorationPartType
-import zielu.gittoolbox.config.GitToolBoxConfig
-import zielu.gittoolbox.config.GitToolBoxConfig2
 
 internal class ConfigMigratorV1toV2Test {
   @Test

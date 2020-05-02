@@ -30,6 +30,7 @@ import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.changes.ChangesTrackerService;
+import zielu.gittoolbox.config.AppConfig;
 import zielu.gittoolbox.config.AppConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.status.GitAheadBehindCount;
@@ -189,7 +190,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private boolean isVisibleFromConfig() {
-    return GitToolBoxConfig2.getInstance().getShowStatusWidget();
+    return AppConfig.get().getShowStatusWidget();
   }
 
   @Override
@@ -239,7 +240,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private void updateData(@NotNull GitRepository repository, RepoInfo repoInfo, ExtendedRepoInfo extendedInfo) {
     icon = null;
     List<String> parts = new ArrayList<>();
-    GitToolBoxConfig2 config = GitToolBoxConfig2.getInstance();
+    GitToolBoxConfig2 config = AppConfig.get();
     if (config.getShowChangesInStatusBar()) {
       parts.add(StatusText.format(extendedInfo));
       if (extendedInfo.hasChanged()) {

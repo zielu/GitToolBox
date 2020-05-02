@@ -1,6 +1,7 @@
 package zielu.gittoolbox.store
 
 import com.intellij.util.xmlb.annotations.Transient
+import kotlin.streams.toList
 
 internal data class RecentBranches(
   var branchesForRepo: MutableList<RecentBranchesForRepo> = ArrayList()
@@ -8,9 +9,10 @@ internal data class RecentBranches(
 
   fun findForRepositoryRootUrl(repositoryRootUrl: String): List<RecentBranch> {
     synchronized(this) {
-      return branchesForRepo
+      return branchesForRepo.stream()
         .filter { it.repositoryRootUrl == repositoryRootUrl }
-        .flatMap { it.branches }
+        .flatMap { it.branches.stream() }
+        .toList()
     }
   }
 

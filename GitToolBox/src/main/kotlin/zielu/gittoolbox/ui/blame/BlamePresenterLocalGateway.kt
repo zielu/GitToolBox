@@ -1,8 +1,8 @@
 package zielu.gittoolbox.ui.blame
 
+import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.config.AuthorNameType
 import zielu.gittoolbox.config.DateType
-import zielu.gittoolbox.config.GitToolBoxConfig2
 import zielu.gittoolbox.ui.DatePresenter
 import java.time.ZonedDateTime
 
@@ -11,14 +11,14 @@ internal class BlamePresenterLocalGateway {
     DatePresenter.getInstance()
   }
 
-  fun getShowInlineSubject() = GitToolBoxConfig2.getInstance().blameInlineShowSubject
+  fun getShowInlineSubject() = AppConfig.get().blameInlineShowSubject
 
-  fun getInlineAuthorNameType(): AuthorNameType = GitToolBoxConfig2.getInstance().blameInlineAuthorNameType
+  fun getInlineAuthorNameType(): AuthorNameType = AppConfig.get().blameInlineAuthorNameType
 
-  fun getStatusAuthorNameTYpe(): AuthorNameType = GitToolBoxConfig2.getInstance().blameStatusAuthorNameType
+  fun getStatusAuthorNameTYpe(): AuthorNameType = AppConfig.get().blameStatusAuthorNameType
 
   fun formatInlineDateTime(dateTime: ZonedDateTime): String {
-    return datePresenter.format(GitToolBoxConfig2.getInstance().blameInlineDateType, dateTime)
+    return datePresenter.format(AppConfig.get().blameInlineDateType, dateTime)
   }
 
   fun formatDateTime(dateType: DateType, dateTime: ZonedDateTime) = datePresenter.format(dateType, dateTime)

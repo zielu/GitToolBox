@@ -1,22 +1,23 @@
-package zielu.gittoolbox.startup;
+package zielu.gittoolbox.config;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.ExtrasConfig;
-import zielu.gittoolbox.config.GitToolBoxConfig2;
-import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 
 class ConfigMigrator {
   private final Logger log = Logger.getInstance(getClass());
 
-  boolean migrate(@NotNull Project project) {
-    GitToolBoxConfig2 appConfig = GitToolBoxConfig2.getInstance();
-    GitToolBoxConfigPrj prjConfig = GitToolBoxConfigPrj.getInstance(project);
+  boolean migrate(GitToolBoxConfig2 appConfig) {
     boolean migrated = migrateAppV1toV2(appConfig);
-    migrated = migrateProject(prjConfig) || migrated;
-    migrated = applyConfigOverrides(project, appConfig, prjConfig) || migrated;
+    migrated = migrateV2(appConfig) || migrated;
+    return migrated;
+  }
 
+  boolean migrate(@NotNull Project project,
+                  @NotNull GitToolBoxConfigPrj prjConfig,
+                  @NotNull GitToolBoxConfig2 appConfig) {
+    boolean migrated = migrateProject(prjConfig);
+    migrated = applyConfigOverrides(project, appConfig, prjConfig) || migrated;
     return migrated;
   }
 
@@ -26,6 +27,18 @@ class ConfigMigrator {
       migrator.migrate(v2);
       v2.setPreviousVersionMigrated(true);
       log.info("V1 config migrated to V2");
+      return true;
+    }
+    return false;
+  }
+
+  private boolean migrateV2(@NotNull GitToolBoxConfig2 config) {
+    if (config.getVersion() == 1) {
+      if (!config.getHideInlineBlameWhileDebugging()) {
+        config.setAlwaysShowInlineBlameWhileDebugging(true);
+      }
+      config.setVersion(2);
+      log.info("V2 config migrated to version 2");
       return true;
     }
     return false;

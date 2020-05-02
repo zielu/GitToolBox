@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.config.AppConfig;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.help.HelpKey;
 import zielu.intellij.ui.ConfigUiBinder;
@@ -32,7 +33,7 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
 
   @Override
   protected GitToolBoxConfig2 getConfig() {
-    return GitToolBoxConfig2.getInstance();
+    return AppConfig.get();
   }
 
   @Override
@@ -93,9 +94,9 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
         GitToolBoxConfig2::setBlameStatusAuthorNameType,
         GtForm::getBlameStatusAuthorNameType,
         GtForm::setBlameStatusAuthorNameType);
-    binder.bind(GitToolBoxConfig2::getHideInlineBlameWhileDebugging,
-        GitToolBoxConfig2::setHideInlineBlameWhileDebugging,
-        GtForm::hideBlameWhileDebugging);
+    binder.bind(GitToolBoxConfig2::getAlwaysShowInlineBlameWhileDebugging,
+        GitToolBoxConfig2::setAlwaysShowInlineBlameWhileDebugging,
+        GtForm::alwaysShowInlineBlameWhileDebugging);
     binder.bind(GitToolBoxConfig2::getAbsoluteDateTimeStyle,
         GitToolBoxConfig2::setAbsoluteDateTimeStyle,
         GtForm::getAbsoluteDateTimeStyle,
@@ -142,9 +143,6 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
 
   @Override
   protected void afterApply(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
-    //Mark migrated here to handle case when config gets modified without opening a project
-    //Example: changing default settings from launch dialog
-    current.setPreviousVersionMigrated(true);
     current.fireChanged(previous);
   }
 

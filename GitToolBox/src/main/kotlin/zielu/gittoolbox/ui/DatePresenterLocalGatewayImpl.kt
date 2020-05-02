@@ -1,11 +1,11 @@
 package zielu.gittoolbox.ui
 
 import com.intellij.util.text.SyncDateFormat
-import zielu.gittoolbox.config.GitToolBoxConfig2
+import zielu.gittoolbox.config.AppConfig
 import java.time.Clock
 
 internal class DatePresenterLocalGatewayImpl : DatePresenterLocalGateway {
-  override fun getAbsoluteDateTimeFormat(): SyncDateFormat = GitToolBoxConfig2.getInstance()
+  override fun getAbsoluteDateTimeFormat(): SyncDateFormat = AppConfig.get()
     .absoluteDateTimeStyle.format
 
   override fun getClock(): Clock = Clock.systemDefaultZone()

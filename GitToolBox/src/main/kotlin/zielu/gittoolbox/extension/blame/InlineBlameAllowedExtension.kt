@@ -3,14 +3,16 @@ package zielu.gittoolbox.extension.blame
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.util.AppUtil
+import java.util.stream.Stream
 
 internal class InlineBlameAllowedExtension(private val project: Project) {
   fun isBlameAllowed(): Boolean {
-    return extensions().all { ext -> ext.isAllowed(project) }
+    return extensions().allMatch { ext -> ext.isAllowed(project) }
   }
 
-  private fun extensions(): List<InlineBlameAllowed> {
+  private fun extensions(): Stream<InlineBlameAllowed> {
     return EXTENSION_POINT_NAME.extensionList
+      .stream()
       .map { ext -> ext.instantiate() }
   }
 
