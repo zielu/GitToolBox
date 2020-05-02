@@ -31,11 +31,13 @@ apply plugin: "kotlin"
 
 project.ext {
     branchNameProperty = 'branch.name'
+    versionPropertiesFilePath = 'version.properties'
 }
 
 def javaVersion = JavaVersion.VERSION_1_8
 def kotlinJvmTarget = '1.8'
 def encoding = 'UTF-8'
+def vendor = 'Lukasz Zielinski'
 
 java {
     sourceCompatibility = javaVersion
@@ -131,10 +133,10 @@ jar {
         attributes(
                 'Name': project.name,
                 'Specification-Title': project.name,
-                'Specification-Vendor': 'Lukasz Zielinski (zieluuuu@gmail.com)',
+                'Specification-Vendor': vendor,
                 'Specification-Version': project.version,
                 'Implementation-Title': project.name,
-                'Implementation-Vendor': 'Lukasz Zielinski (zieluuuu@gmail.com)',
+                'Implementation-Vendor': vendor,
                 'Implementation-Version': gitHash,
                 'Build-Date': buildTime()
         )
@@ -216,19 +218,22 @@ task codeCoverage {
 task captureReleaseBranch {
     doLast {
         def props = loadVersionProps()
-        if (branchName != null) {
-            props[project.branchNameProperty] = branchName
-        } else {
-            props.remove(project.branchNameProperty)
-        }
-        storeVersionProps(props)
-        exec {
-            executable 'git'
-            args 'add', 'version.properties'
-        }
-        exec {
-            executable 'git'
-            args 'commit', 'version.properties', '-m', 'Git info of release'
+        def oldBranchName = props[project.branchNameProperty]
+        if (branchName != oldBranchName) {
+            if (branchName != null) {
+                props[project.branchNameProperty] = branchName
+            } else {
+                props.remove(project.branchNameProperty)
+            }
+            storeVersionProps(props)
+            exec {
+                executable 'git'
+                args 'add', project.versionPropertiesFilePath
+            }
+            exec {
+                executable 'git'
+                args 'commit', project.versionPropertiesFilePath, '-m', 'Update version info'
+            }
         }
     }
 }
@@ -326,7 +331,7 @@ def publishChannels(branchName, ci) {
 
 def loadVersionProps() {
     def props = new Properties()
-    def propsFile = file 'version.properties'
+    def propsFile = file project.versionPropertiesFilePath
     if (propsFile.exists()) {
         props.load(propsFile.newReader('UTF-8'))
     }
@@ -334,6 +339,6 @@ def loadVersionProps() {
 }
 
 def storeVersionProps(Properties props) {
-    def propsFile = file 'version.properties'
+    def propsFile = file project.versionPropertiesFilePath
     props.store(propsFile.newWriter('UTF-8'), null)
 }
