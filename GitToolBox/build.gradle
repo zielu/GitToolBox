@@ -300,11 +300,11 @@ def static isStableBranch(branchName) {
 }
 
 def isStableBuild(branchName, ci) {
+    def envProp = System.getenv("stable")
+    if (envProp != null) {
+        return Boolean.valueOf(envProp)
+    }
     if (ci) {
-        def envProp = System.getenv("stable")
-        if (envProp != null) {
-            return Boolean.valueOf(envProp)
-        }
         if (branchName != null) {
             return isStableBranch(branchName)
         } else {
