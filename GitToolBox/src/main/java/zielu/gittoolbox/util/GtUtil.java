@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.LocalFilePath;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
+import com.intellij.openapi.vcs.diff.DiffProvider;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -59,8 +60,8 @@ public final class GtUtil {
   @CalledInAwt
   public static GitRepository getCurrentRepositoryQuick(@NotNull Project project) {
     GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
-    return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, GitVcsSettings.getInstance(project)
-        .getRecentRootPath());
+    String recentRootPath = GitVcsSettings.getInstance(project).getRecentRootPath();
+    return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, recentRootPath);
   }
 
   @NotNull
@@ -80,8 +81,8 @@ public final class GtUtil {
   }
 
   @Nullable
-  private static GitRepository getRepoForRoot(@NotNull Project project, @Nullable VirtualFile vFile) {
-    return GitRepositoryManager.getInstance(project).getRepositoryForRoot(vFile);
+  private static GitRepository getRepoForRoot(@NotNull Project project, @Nullable VirtualFile file) {
+    return GitRepositoryManager.getInstance(project).getRepositoryForRoot(file);
   }
 
   public static Optional<GitRepository> getRepositoryForRoot(@NotNull Project project,
@@ -103,8 +104,8 @@ public final class GtUtil {
 
   @NotNull
   public static VcsRevisionNumber getCurrentRevision(@NotNull Project project, @NotNull VirtualFile file) {
-    GitVcs vcs = GitVcs.getInstance(project);
-    VcsRevisionNumber currentRevision = vcs.getDiffProvider().getCurrentRevision(file);
+    DiffProvider diffProvider = GitVcs.getInstance(project).getDiffProvider();
+    VcsRevisionNumber currentRevision = diffProvider.getCurrentRevision(file);
     return ObjectUtils.defaultIfNull(currentRevision, VcsRevisionNumber.NULL);
   }
 }
