@@ -66,20 +66,29 @@ public final class GtUtil {
   @NotNull
   public static List<GitRepository> getRepositoriesForRoots(@NotNull Project project,
                                                             @NotNull Collection<String> roots) {
-    GitRepositoryManager manager = GitRepositoryManager.getInstance(project);
-    VirtualFileManager vfManager = VirtualFileManager.getInstance();
     return roots.stream()
-        .map(vfManager::findFileByUrl)
+        .map(GtUtil::findFileByUrl)
         .filter(Objects::nonNull)
-        .map(manager::getRepositoryForRoot)
+        .map(vFile -> getRepoForRoot(project, vFile))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
 
-  public static Optional<GitRepository> getRepositoryForRoot(@NotNull Project project, String root) {
-    GitRepositoryManager manager = GitRepositoryManager.getInstance(project);
-    VirtualFileManager vfManager = VirtualFileManager.getInstance();
-    return Optional.ofNullable(root).map(vfManager::findFileByUrl).map(manager::getRepositoryForRoot);
+  @Nullable
+  private static VirtualFile findFileByUrl(String url) {
+    return VirtualFileManager.getInstance().findFileByUrl(url);
+  }
+
+  @Nullable
+  private static GitRepository getRepoForRoot(@NotNull Project project, @Nullable VirtualFile vFile) {
+    return GitRepositoryManager.getInstance(project).getRepositoryForRoot(vFile);
+  }
+
+  public static Optional<GitRepository> getRepositoryForRoot(@NotNull Project project,
+                                                             @Nullable String root) {
+    return Optional.ofNullable(root)
+               .map(GtUtil::findFileByUrl)
+               .map(vFile -> getRepoForRoot(project, vFile));
   }
 
   @NotNull
@@ -97,9 +106,5 @@ public final class GtUtil {
     GitVcs vcs = GitVcs.getInstance(project);
     VcsRevisionNumber currentRevision = vcs.getDiffProvider().getCurrentRevision(file);
     return ObjectUtils.defaultIfNull(currentRevision, VcsRevisionNumber.NULL);
-  }
-
-  public static boolean hasRepositories(@NotNull Project project) {
-    return GitUtil.hasGitRepositories(project);
   }
 }
