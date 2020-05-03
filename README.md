@@ -26,22 +26,22 @@ Decisions are stored [here](https://github.com/zielu/GitToolBox/wiki/arch).
 
 #### Release current `-SNAPSHOT`
 ```
-gradle clean buildAll release
+gradle clean release
 ```
 #### Upgrade to next minor version
 ```
-gradle clean buildAll releaseMinorVersion
+gradle clean releaseMinorVersion
 ```
 #### Upgrade to next major version
 ```
-gradle clean buildAll releaseMajorVersion
+gradle clean releaseMajorVersion
 ```
 
 #### Release and publish
 Append ```-Ppublish=true``` and include ```publishPlugin``` task.
 For example
 ```
-gradle clean buildAll release publishPlugin -Ppublish=true
+gradle clean release publishPlugin -Ppublish=true
 ```
 
 ### Useful build commands
