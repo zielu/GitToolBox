@@ -2,15 +2,15 @@ package zielu.gittoolbox.ui.statusbar
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.StatusBarWidget
-import zielu.gittoolbox.config.GitToolBoxConfig2
+import zielu.gittoolbox.config.AppConfig
 
 internal class GitStatStatusBarWidgetFactory : GitEditorBasedWidgetFactory() {
   override fun isVisible(project: Project): Boolean {
-    return GitToolBoxConfig2.getInstance().showStatusWidget
+    return AppConfig.get().showStatusWidget
   }
 
   override fun isEnabledByDefault(): Boolean {
-    return GitToolBoxConfig2.getInstance().showStatusWidget
+    return AppConfig.get().showStatusWidget
   }
 
   override fun getId(): String = GitStatusWidget.ID
