@@ -2,7 +2,7 @@ package zielu.gittoolbox.compat;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import java.io.File;
@@ -40,7 +40,7 @@ public final class GitCompatUtil {
 
     private GitRepoInfo(GitRepository repo) {
       this.repo = repo;
-      rootFile = VfsUtil.virtualToIoFile(this.repo.getRoot());
+      rootFile = VfsUtilCore.virtualToIoFile(this.repo.getRoot());
     }
 
     boolean isFileInRepo(File file) {

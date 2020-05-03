@@ -31,6 +31,11 @@ internal object AppUtil {
     return project.getComponent(componentType)
   }
 
+  @JvmStatic
+  fun <T> getComponentInstance(componentType: Class<T>): T {
+    return ApplicationManager.getApplication().getComponent(componentType)
+  }
+
   fun <T> runReadAction(block: () -> T): T {
     return ApplicationManager.getApplication().runReadAction<T> { block.invoke() }
   }
