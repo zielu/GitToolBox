@@ -3,28 +3,12 @@ package zielu.gittoolbox.changes
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.ChangeList
-import com.intellij.openapi.vcs.changes.ChangeListListener
 import com.intellij.openapi.vcs.changes.LocalChangeList
 import zielu.gittoolbox.config.GitToolBoxConfig2
 import zielu.gittoolbox.util.AppUtil
 
 internal class ChangeListSubscriber(project: Project) {
   private val gateway = ChangeListSubscriberLocalGateway(project)
-
-  fun onProjectReady() {
-    gateway.subscribe(object : ChangeListListener {
-      override fun changeListRemoved(list: ChangeList) {
-        if (list is LocalChangeList) {
-          onChangeListRemoved(list.id)
-        }
-      }
-
-      override fun changeListUpdateDone() {
-        onChangeListsUpdated()
-      }
-    })
-    onChangeListsUpdated()
-  }
 
   fun onChangeListsUpdated() {
     log.debug("Change lists changed")
@@ -33,7 +17,13 @@ internal class ChangeListSubscriber(project: Project) {
     }
   }
 
-  fun onChangeListRemoved(id: String) {
+  fun onChangeListRemoved(changeList: ChangeList) {
+    if (changeList is LocalChangeList) {
+      onChangeListRemoved(changeList.id)
+    }
+  }
+
+  private fun onChangeListRemoved(id: String) {
     log.debug("Change list removed", id)
     if (gateway.getTrackingEnabled()) {
       gateway.changeListRemoved(id)

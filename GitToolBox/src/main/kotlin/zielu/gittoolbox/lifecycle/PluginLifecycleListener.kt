@@ -10,15 +10,13 @@ internal class PluginLifecycleListener : DynamicPluginListener {
   override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
     if (GitToolBox.isItMe(pluginDescriptor)) {
       log.info("Plugin loaded")
-      // TODO will the platform run any startup activities ?
+      ApplicationManager.getApplication().messageBus.syncPublisher(PluginLifecycleNotifier.TOPIC).pluginLoaded()
     }
   }
 
   override fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
     if (GitToolBox.isItMe(pluginDescriptor)) {
       log.info("Plugin unloading")
-      // TODO places to handle
-      // zielu.gittoolbox.changes.ChangeListSubscriberLocalGateway.subscribe
       ApplicationManager.getApplication().messageBus.syncPublisher(PluginLifecycleNotifier.TOPIC).beforePluginUnload()
     }
   }

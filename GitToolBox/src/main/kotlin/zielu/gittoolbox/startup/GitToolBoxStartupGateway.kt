@@ -6,8 +6,6 @@ import zielu.gittoolbox.util.LocalGateway
 
 internal class GitToolBoxStartupGateway(private val project: Project) : LocalGateway(project) {
   fun fireProjectReady() {
-    runInBackground {
-      project.messageBus.syncPublisher(ProjectLifecycleNotifier.TOPIC).projectReady(project)
-    }
+    publishSync { it.syncPublisher(ProjectLifecycleNotifier.TOPIC).projectReady(project) }
   }
 }

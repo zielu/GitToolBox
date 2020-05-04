@@ -180,8 +180,8 @@
     <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberConfigListener"
               topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
 
-    <listener class="zielu.gittoolbox.changes.ChangeListSubscribeProjectListener"
-              topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
+    <listener class="zielu.gittoolbox.changes.ChangeListSubscriberChangeListListener"
+              topic="com.intellij.openapi.vcs.changes.ChangeListListener" />
     <listener class="zielu.gittoolbox.changes.ChangeListSubscriberConfigListener"
               topic="zielu.gittoolbox.config.AppConfigNotifier" />
 

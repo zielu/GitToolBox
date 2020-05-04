@@ -3,6 +3,7 @@ package zielu.gittoolbox.lifecycle
 import com.intellij.util.messages.Topic
 
 internal interface PluginLifecycleNotifier {
+  fun pluginLoaded()
   fun beforePluginUnload()
 
   companion object {

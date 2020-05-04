@@ -20,16 +20,12 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
     getMetrics().counter("blame-cache.discarded.count")
   }
 
-  private val messageBus by lazy {
-    project.messageBus
-  }
-
   fun fireBlameUpdated(vFile: VirtualFile, annotation: BlameAnnotation) {
-    runInBackground { messageBus.syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(vFile, annotation) }
+    publishAsync { it.syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(vFile, annotation) }
   }
 
   fun fireBlameInvalidated(vFile: VirtualFile) {
-    runInBackground { messageBus.syncPublisher(BlameCache.CACHE_UPDATES).invalidated(vFile) }
+    publishAsync { it.syncPublisher(BlameCache.CACHE_UPDATES).invalidated(vFile) }
   }
 
   fun getRepoForFile(vFile: VirtualFile): GitRepository? {
