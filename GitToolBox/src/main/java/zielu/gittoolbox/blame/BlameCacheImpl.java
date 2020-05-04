@@ -172,16 +172,6 @@ class BlameCacheImpl implements BlameCache, Disposable {
     }
   }
 
-  private static class LoaderTimers {
-    final Timer load;
-    final Timer queueWait;
-
-    private LoaderTimers(Timer load, Timer queueWait) {
-      this.load = load;
-      this.queueWait = queueWait;
-    }
-  }
-
   private static class AnnotationLoader implements ExecutableTask {
     private final VirtualFile file;
     private final BlameLoader loader;
