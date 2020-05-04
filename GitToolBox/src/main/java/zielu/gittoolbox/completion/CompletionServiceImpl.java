@@ -17,7 +17,7 @@ class CompletionServiceImpl implements CompletionService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final CompletionLocalGateway gateway;
   private WeakReference<CompletionScopeProvider> scopeProviderRef;
-  private volatile List<Formatter> formatters;
+  private volatile ImmutableList<Formatter> formatters;
 
   CompletionServiceImpl(@NotNull Project project) {
     gateway = new CompletionLocalGateway(project);
