@@ -143,20 +143,6 @@
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
   </extensions>
 
-  <application-components>
-    <!-- Add your application components here -->
-  </application-components>
-
-  <project-components>
-    <!-- Add your project components here -->
-    <!--
-    <component>
-      <implementation-class>zielu.gittoolbox.repo.GtRepositoryManager</implementation-class>
-    </component>
-    -->
-  </project-components>
-
-
   <applicationListeners>
     <listener class="zielu.gittoolbox.lifecycle.PluginLifecycleListener"
               topic="com.intellij.ide.plugins.DynamicPluginListener" />
@@ -260,27 +246,27 @@
 
   <extensionPoints>
     <extensionPoint name="autoFetchAllowed" beanClass="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedEP"
-                    dynamic="false">
+                    dynamic="true">
       <with attribute="provider" implements="zielu.gittoolbox.extension.autofetch.AutoFetchAllowed" />
     </extensionPoint>
     <extensionPoint name="updateProjectAction" beanClass="zielu.gittoolbox.extension.update.UpdateProjectActionEP"
-                    dynamic="false">
+                    dynamic="true">
       <with attribute="provider" implements="zielu.gittoolbox.extension.update.UpdateProjectAction" />
     </extensionPoint>
     <extensionPoint name="inlineBlameAllowed" beanClass="zielu.gittoolbox.extension.blame.InlineBlameAllowedEP"
-                    dynamic="false">
+                    dynamic="true">
       <with attribute="provider" implements="zielu.gittoolbox.extension.blame.InlineBlameAllowed" />
     </extensionPoint>
     <extensionPoint name="viewModuleNodeParent" beanClass="zielu.gittoolbox.extension.projectview.ViewModuleNodeParentEP"
-                    dynamic="false">
+                    dynamic="true">
       <with attribute="moduleNodeClass" implements="com.intellij.ide.projectView.impl.nodes.AbstractModuleNode" />
     </extensionPoint>
     <extensionPoint name="viewModuleNodeChild" beanClass="zielu.gittoolbox.extension.projectview.ViewModuleNodeChildEP"
-                    dynamic="false">
+                    dynamic="true">
       <with attribute="nodeClass" implements="com.intellij.ide.projectView.ProjectViewNode" />
     </extensionPoint>
     <extensionPoint name="viewPsiDirectoryNode" beanClass="zielu.gittoolbox.extension.projectview.ViewPsiDirectoryNodeEP"
-                    dynamic="false">
+                    dynamic="true">
       <with attribute="finder" implements="zielu.gittoolbox.extension.projectview.PsiDirectoryNodeRepoFinder" />
     </extensionPoint>
   </extensionPoints>

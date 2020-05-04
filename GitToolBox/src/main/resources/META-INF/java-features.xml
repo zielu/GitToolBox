@@ -14,13 +14,11 @@
     </applicationListeners>
     -->
 
-    <application-components>
-      <component>
-        <implementation-class>zielu.gittoolbox.fetch.AutoFetchAllowedBuildSubscriber</implementation-class>
-      </component>
-    </application-components>
-
     <extensions defaultExtensionNs="com.intellij">
       <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchAllowedBuild" />
+
+      <!-- workaround for applicationListener not working -->
+      <postStartupActivity implementation="zielu.gittoolbox.fetch.AutoFetchAllowedBuildAppListener" />
+      <applicationService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchAllowedBuildSubscriber" />
     </extensions>
 </idea-plugin>
