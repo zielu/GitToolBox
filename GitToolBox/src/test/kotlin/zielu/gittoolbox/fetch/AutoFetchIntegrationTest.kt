@@ -5,10 +5,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import zielu.IntegrationTest
-import zielu.junit5.intellij.extension.platform.BasePlatformTestCaseExtension
+import zielu.junit5.intellij.extension.platform.LightPlatformTestCaseExtension
 
 @IntegrationTest
-@ExtendWith(BasePlatformTestCaseExtension::class)
+@ExtendWith(LightPlatformTestCaseExtension::class)
 internal class AutoFetchIntegrationTest {
   @Test
   fun `should return AutoFetchGateway`(project: Project) {

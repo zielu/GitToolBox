@@ -93,10 +93,6 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
     }
   }
 
-  private void scheduleRefresh(@NotNull GitRepository repository) {
-    CacheTaskScheduler.getInstance(project).scheduleOptional(repository, new RefreshTask());
-  }
-
   private void scheduleMandatoryRefresh(@NotNull GitRepository repository) {
     CacheTaskScheduler.getInstance(project).scheduleMandatory(repository, new RefreshTask());
   }
@@ -132,10 +128,6 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
     behindStatuses.get().remove(repository);
   }
 
-  private void refreshRepo(GitRepository repository) {
-    update(repository);
-  }
-
   @Override
   public void refreshAll() {
     log.debug("Refreshing all repository statuses");
@@ -145,13 +137,13 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   @Override
   public void refresh(Iterable<GitRepository> repositories) {
     log.debug("Refreshing repositories statuses: ", repositories);
-    repositories.forEach(this::scheduleRefresh);
+    repositories.forEach(this::scheduleUpdate);
   }
 
   private class RefreshTask implements CacheTaskScheduler.Task {
     @Override
     public void run(@NotNull GitRepository repository) {
-      refreshRepo(repository);
+      update(repository);
     }
 
     @Override

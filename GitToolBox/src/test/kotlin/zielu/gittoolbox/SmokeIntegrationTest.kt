@@ -21,11 +21,10 @@ import zielu.gittoolbox.ui.StatusMessagesUi
 import zielu.gittoolbox.ui.blame.BlamePresenter
 import zielu.gittoolbox.ui.branch.BranchUiService
 import zielu.gittoolbox.ui.update.UpdateProjectActionService
-import zielu.gittoolbox.util.AppUtil
-import zielu.junit5.intellij.extension.platform.BasePlatformTestCaseExtension
+import zielu.junit5.intellij.extension.platform.LightPlatformTestCaseExtension
 
 @IntegrationTest
-@ExtendWith(BasePlatformTestCaseExtension::class)
+@ExtendWith(LightPlatformTestCaseExtension::class)
 internal class SmokeIntegrationTest {
   @Test
   fun `should return StatusMessagesService`() {
@@ -104,6 +103,6 @@ internal class SmokeIntegrationTest {
 
   @Test
   fun `should return AutoFetchAllowedBuildSubscriber`() {
-    assertThat(AppUtil.getComponentInstance(AutoFetchAllowedBuildSubscriber::class.java)).isNotNull
+    assertThat(AutoFetchAllowedBuildSubscriber.getInstance()).isNotNull
   }
 }
