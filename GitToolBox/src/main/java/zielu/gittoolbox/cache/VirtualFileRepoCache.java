@@ -6,9 +6,15 @@ import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.util.AppUtil;
+import zielu.gittoolbox.util.GtUtil;
 
 public interface VirtualFileRepoCache extends DirMappingAware {
   Topic<VirtualFileRepoCacheListener> CACHE_CHANGE = Topic.create("File cache change",
@@ -27,6 +33,21 @@ public interface VirtualFileRepoCache extends DirMappingAware {
 
   @Nullable
   GitRepository getRepoForPath(@NotNull FilePath path);
+
+  default Optional<GitRepository> findRepoForRoot(@NotNull String rootPath) {
+    return Optional.of(rootPath)
+            .map(GtUtil::findFileByUrl)
+            .map(this::getRepoForRoot);
+  }
+
+  default List<GitRepository> findReposForRoots(@NotNull Collection<String> rootPaths) {
+    return rootPaths.stream()
+            .map(GtUtil::findFileByUrl)
+            .filter(Objects::nonNull)
+            .map(this::getRepoForRoot)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+  }
 
   @Nullable
   default GitRepository getRepoForFile(@NotNull VirtualFile file) {

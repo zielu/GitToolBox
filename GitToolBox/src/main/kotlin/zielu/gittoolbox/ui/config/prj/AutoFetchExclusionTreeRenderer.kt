@@ -7,6 +7,7 @@ import com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES
 import com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES
 import git4idea.repo.GitRepository
 import zielu.gittoolbox.ResBundle
+import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig
 import zielu.gittoolbox.repo.createGtRepository
@@ -45,7 +46,7 @@ internal class AutoFetchExclusionTreeRenderer(private val project: Project) : Co
   private fun findRepository(node: DefaultMutableTreeNode): Optional<GitRepository> {
     val userObject = node.userObject
     if (userObject is AutoFetchExclusionConfig) {
-      return GtUtil.getRepositoryForRoot(project, userObject.repositoryRootPath)
+      return VirtualFileRepoCache.getInstance(project).findRepoForRoot(userObject.repositoryRootPath)
     }
     return Optional.empty()
   }

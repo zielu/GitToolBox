@@ -19,9 +19,6 @@ import git4idea.repo.GitRepositoryManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.CalledInAwt;
 import org.jetbrains.annotations.NotNull;
@@ -64,32 +61,9 @@ public final class GtUtil {
     return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, recentRootPath);
   }
 
-  @NotNull
-  public static List<GitRepository> getRepositoriesForRoots(@NotNull Project project,
-                                                            @NotNull Collection<String> roots) {
-    return roots.stream()
-        .map(GtUtil::findFileByUrl)
-        .filter(Objects::nonNull)
-        .map(vFile -> getRepoForRoot(project, vFile))
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-  }
-
   @Nullable
-  private static VirtualFile findFileByUrl(String url) {
+  public static VirtualFile findFileByUrl(String url) {
     return VirtualFileManager.getInstance().findFileByUrl(url);
-  }
-
-  @Nullable
-  private static GitRepository getRepoForRoot(@NotNull Project project, @Nullable VirtualFile file) {
-    return GitRepositoryManager.getInstance(project).getRepositoryForRoot(file);
-  }
-
-  public static Optional<GitRepository> getRepositoryForRoot(@NotNull Project project,
-                                                             @Nullable String root) {
-    return Optional.ofNullable(root)
-               .map(GtUtil::findFileByUrl)
-               .map(vFile -> getRepoForRoot(project, vFile));
   }
 
   @NotNull

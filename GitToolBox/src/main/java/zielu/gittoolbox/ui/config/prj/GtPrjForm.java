@@ -41,6 +41,7 @@ import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.IconHandle;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.config.AutoFetchExclusionConfig;
 import zielu.gittoolbox.config.CommitCompletionConfig;
 import zielu.gittoolbox.config.CommitCompletionType;
@@ -249,7 +250,8 @@ public class GtPrjForm implements GtFormUi {
   }
 
   private boolean addAutoFetchExclusionRemote(AutoFetchExclusionConfig config) {
-    Optional<GitRepository> maybeRepository = GtUtil.getRepositoryForRoot(project, config.getRepositoryRootPath());
+    Optional<GitRepository> maybeRepository = VirtualFileRepoCache.getInstance(project)
+            .findRepoForRoot(config.getRepositoryRootPath());
     if (maybeRepository.isPresent()) {
       GtRemoteChooser chooser = new GtRemoteChooser(project, content);
       GitRepository repository = maybeRepository.get();
@@ -271,7 +273,7 @@ public class GtPrjForm implements GtFormUi {
     List<String> roots = exclusions.stream()
         .map(AutoFetchExclusionConfig::getRepositoryRootPath)
         .collect(Collectors.toList());
-    return GtUtil.getRepositoriesForRoots(project, roots);
+    return VirtualFileRepoCache.getInstance(project).findReposForRoots(roots);
   }
 
   private void onRemoveAutoFetchExclusion() {
