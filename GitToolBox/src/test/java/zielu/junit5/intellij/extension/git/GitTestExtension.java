@@ -53,15 +53,18 @@ public class GitTestExtension implements BeforeAllCallback, ParameterResolver {
       Path rootPath = setup.getRootPath();
       File rootDir = rootPath.toFile();
       if (FileUtil.isExistingFolder(rootDir)) {
+        log.info("Deleting existing git root dir {}", rootPath);
         FileUtil.deleteDir(rootDir);
       }
-      log.info("Initializing git repository in {}", rootPath);
-      Git git = Git.init().setDirectory(rootDir).setBare(false).call();
-      StoredConfig config = git.getRepository().getConfig();
-      config.load();
-      config.setString("user", null, "name", "Jon Snow");
-      config.setString("user", null, "email", "JonSnow@email.com");
-      config.save();
+      log.info("Initializing git [bare={}] repository in {}", setup.isBare(), rootPath);
+      Git git = Git.init().setDirectory(rootDir).setBare(setup.isBare()).call();
+      if (!setup.isBare()) {
+        StoredConfig config = git.getRepository().getConfig();
+        config.load();
+        config.setString("user", null, "name", "Jon Snow");
+        config.setString("user", null, "email", "JonSnow@email.com");
+        config.save();
+      }
       log.info("Setup initial git repository state in {}", rootPath);
       setup.setup(git);
       git.close();

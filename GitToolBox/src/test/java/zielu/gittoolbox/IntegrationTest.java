@@ -1,8 +1,8 @@
 package zielu.gittoolbox;
 
-import static com.intellij.testFramework.UsefulTestCase.refreshRecursively;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static com.intellij.testFramework.UsefulTestCase.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.SoftAssertions.*;
 
 import com.google.common.base.Charsets;
 import com.intellij.openapi.editor.Document;
@@ -63,13 +63,14 @@ class IntegrationTest {
 
   private static void initGit(GitTest gitTest, Path rootPath) {
     gitTest.prepare(new GitTestSetup() {
+      @NotNull
       @Override
       public Path getRootPath() {
         return rootPath;
       }
 
       @Override
-      public void setup(Git git) throws Exception {
+      public void setup(@NotNull Git git) throws Exception {
         Files.write(rootPath.resolve(FILE_NAME), Collections.singleton("abc"), Charsets.UTF_8);
         git.add().addFilepattern(FILE_NAME).call();
         git.commit().setMessage("Initial commit").call();
