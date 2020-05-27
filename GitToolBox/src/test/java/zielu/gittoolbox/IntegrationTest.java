@@ -1,8 +1,8 @@
 package zielu.gittoolbox;
 
-import static com.intellij.testFramework.UsefulTestCase.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.SoftAssertions.*;
+import static com.intellij.testFramework.UsefulTestCase.refreshRecursively;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import com.google.common.base.Charsets;
 import com.intellij.openapi.editor.Document;
@@ -45,9 +45,11 @@ import zielu.junit5.intellij.extension.resources.ExternalPath;
 import zielu.junit5.intellij.extension.resources.ResourcesExtension;
 
 @zielu.IntegrationTest
-@ExtendWith(HeavyPlatformTestCaseExtension.class)
-@ExtendWith(GitTestExtension.class)
-@ExtendWith(ResourcesExtension.class)
+@ExtendWith({
+    HeavyPlatformTestCaseExtension.class,
+    GitTestExtension.class,
+    ResourcesExtension.class
+})
 class IntegrationTest {
   private static final String FILE_NAME = "file.txt";
   private static final String TAG = "1.0.0";
@@ -55,8 +57,7 @@ class IntegrationTest {
 
   @BeforeAll
   static void beforeAll(GitTest gitTest,
-                        @ExternalPath({".", "testDataDynamic", "it", "IntegrationTest"}) Path testDataPath)
-      throws Exception {
+                        @ExternalPath({".", "testDataDynamic", "it", "IntegrationTest"}) Path testDataPath) {
     myTestDataPath = testDataPath;
     initGit(gitTest, myTestDataPath);
   }

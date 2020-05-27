@@ -21,8 +21,10 @@ internal class GitStatusCalculatorIntegrationTest {
 
     @BeforeAll
     @Throws(Exception::class)
-    fun beforeAll(gitTest: GitTest,
-                  @ExternalPath(".", "testDataDynamic", "it", "GitStatusIT") testDataPath: Path) {
+    fun beforeAll(
+      gitTest: GitTest,
+      @ExternalPath(".", "testDataDynamic", "it", "GitStatusIT") testDataPath: Path
+    ) {
         myTestDataPath = testDataPath
         initGit(gitTest, myTestDataPath)
     }
