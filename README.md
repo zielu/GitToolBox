@@ -5,7 +5,7 @@ GitToolBox - plugin for Jetbrains IDEs
 Plugin for family of Jetbrains IDEs that expands build-in `Git Integration`.
 
 ## Features
-For list of features see [description](./GitToolBox/description.html)
+For list of features see [the manual](https://github.com/zielu/GitToolBox/wiki/Manual)
 
 ## Change notes
 For list of change notes see [changenotes](./GitToolBox/change-notes.html)
@@ -18,7 +18,7 @@ Add https://plugins.jetbrains.com/plugins/eap/7499 in **Settings > Plugins > Bro
 repositories...** to receive early access builds.
 
 ## Architecture decisions record
-Decisions are stored [here](https://github.com/zielu/GitToolBox/wiki/arch).
+Record of decisions is [here](https://github.com/zielu/GitToolBox/wiki/ADR).
 
 ## Building & running
 
