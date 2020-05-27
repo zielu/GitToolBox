@@ -25,50 +25,54 @@ Decisions are stored [here](https://github.com/zielu/GitToolBox/wiki/arch).
 ### Releases
 
 #### Release current `-SNAPSHOT`
-```
+```shell script
 gradle clean release
 ```
 #### Upgrade to next minor version
-```
+```shell script
 gradle clean releaseMinorVersion
 ```
 #### Upgrade to next major version
-```
+```shell script
 gradle clean releaseMajorVersion
 ```
 
 #### Release and publish
 Append ```-Ppublish=true``` and include ```publishPlugin``` task.
 For example
-```
+```shell script
 gradle clean release publishPlugin -Ppublish=true
 ```
 
 ### Useful build commands
 Full verification of build
-```
+```shell script
 gradle clean check integrationTest
 ```
 Quick verification of build
-```
+```shell script
 gradle clean check
 ```
 Generate code coverage report
-```
+```shell script
 gradle clean codeCoverage
 ```
 Update gradlew version
-```
+```shell script
 gradle wrapper --gradle-version 5.6.4 --distribution-type ALL
+```
+Build to install with Install from disk
+```shell script
+gradle buildPlugin
 ```
 
 ### Useful run commands
 Run with previous sandbox contents
-```
+```shell script
 gradle runIde
 ```
 Run with fresh sandbox
-```
+```shell script
 gradle clean runIde
 ```
 
