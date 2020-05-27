@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>201.0.0-dev</version>
+  <version>202.0.0-dev</version>
   <vendor url="https://github.com/zielu">Lukasz Zielinski</vendor>
 
   <description><![CDATA[
@@ -24,7 +24,7 @@
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <depends optional="true" config-file="android-features.xml">org.jetbrains.android</depends>
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="201.5985" until-build="201.*" />
+  <idea-version since-build="202.4357" until-build="202.*" />
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
