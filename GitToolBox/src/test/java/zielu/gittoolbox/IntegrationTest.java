@@ -1,22 +1,13 @@
 package zielu.gittoolbox;
 
-import static com.intellij.testFramework.UsefulTestCase.refreshRecursively;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import com.google.common.base.Charsets;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.VcsDirectoryMapping;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.testFramework.PsiTestUtil;
 import git4idea.GitUtil;
-import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,11 +27,12 @@ import zielu.gittoolbox.cache.RepoInfo;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.status.Status;
 import zielu.intellij.test.Awaiter;
+import zielu.junit5.intellij.extension.git.GitProject;
 import zielu.junit5.intellij.extension.git.GitTest;
 import zielu.junit5.intellij.extension.git.GitTestExtension;
 import zielu.junit5.intellij.extension.git.GitTestSetup;
+import zielu.junit5.intellij.extension.platform.HeavyPlatformTest;
 import zielu.junit5.intellij.extension.platform.HeavyPlatformTestCaseExtension;
-import zielu.junit5.intellij.extension.platform.PlatformTest;
 import zielu.junit5.intellij.extension.resources.ExternalPath;
 import zielu.junit5.intellij.extension.resources.ResourcesExtension;
 
@@ -81,26 +73,13 @@ class IntegrationTest {
   }
 
   @BeforeEach
-  void populateTestData(Project project, Module module) throws Exception {
-    VirtualFile root = getRoot(module);
-    FileUtil.copyDir(myTestDataPath.toFile(), VfsUtil.virtualToIoFile(root));
-    refreshRecursively(root);
-    ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
-    String rootPath = root.getPath();
-    vcsManager.setDirectoryMappings(Collections.singletonList(new VcsDirectoryMapping(rootPath, GitVcs.NAME)));
-    assertThat(LocalFileSystem.getInstance().findFileByPath(rootPath)).isNotNull();
-    GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
-    assertThat(repository).isNotNull();
-    PsiTestUtil.addContentRoot(module, root);
-  }
-
-  private VirtualFile getRoot(Module module) {
-    return module.getModuleFile().getParent();
+  void populateTestData(Project project, Module module) {
+    GitProject.setup(project, module, myTestDataPath);
   }
 
   @Test
-  void perRepoInfoCacheLoadsDataIfCalled(Project project, Module module, PlatformTest test) {
-    VirtualFile root = getRoot(module);
+  void perRepoInfoCacheLoadsDataIfCalled(Project project, Module module, HeavyPlatformTest test) {
+    VirtualFile root = GitProject.rootFor(module);
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
     Awaiter awaitInfoUpdate = new Awaiter();
     test.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
@@ -122,8 +101,8 @@ class IntegrationTest {
   }
 
   @Test
-  void lineBlameReturnsDataIfCalled(Project project, Module module, PlatformTest test) {
-    VirtualFile file = getRoot(module).findChild(FILE_NAME);
+  void lineBlameReturnsDataIfCalled(Project project, Module module, HeavyPlatformTest test) {
+    VirtualFile file = GitProject.rootFor(module).findChild(FILE_NAME);
     Document document = test.getDocument(file);
 
     Awaiter awaitBlameUpdate = new Awaiter();
@@ -143,8 +122,8 @@ class IntegrationTest {
   }
 
   @Test
-  void lineBlameReturnsSameRevisionIfRepoRefreshedButNotChanged(Project project, Module module, PlatformTest test) {
-    VirtualFile root = getRoot(module);
+  void lineBlameReturnsSameRevisionIfRepoRefreshedButNotChanged(Project project, Module module, HeavyPlatformTest test) {
+    VirtualFile root = GitProject.rootFor(module);
     VirtualFile file = root.findChild(FILE_NAME);
     Document document = test.getDocument(file);
 

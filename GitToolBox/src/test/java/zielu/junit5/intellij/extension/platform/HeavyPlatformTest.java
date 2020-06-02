@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
 import org.jetbrains.annotations.NotNull;
 
-public interface PlatformTest {
+public interface HeavyPlatformTest {
   void execute(@NotNull Runnable test);
 
   <T> T executeInEdt(@NotNull Computable<T> test);

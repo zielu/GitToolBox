@@ -1,10 +1,14 @@
 package zielu.junit5.intellij.extension.git;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import jodd.io.FileUtil;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -15,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import zielu.junit5.intellij.parameters.ExtensionContextParamResolver;
 import zielu.junit5.intellij.parameters.ParameterHolder;
 
-public class GitTestExtension implements BeforeAllCallback, ParameterResolver {
+public class GitTestExtension implements BeforeAllCallback, AfterAllCallback, ParameterResolver {
   private static final ExtensionContext.Namespace NS = ExtensionContext.Namespace.create(GitTestExtension.class);
   private static final ParameterResolver RESOLVER = new ExtensionContextParamResolver(NS);
 
@@ -23,6 +27,11 @@ public class GitTestExtension implements BeforeAllCallback, ParameterResolver {
   public void beforeAll(ExtensionContext context) {
     ParameterHolder holder = ParameterHolder.getHolder(context.getStore(NS));
     holder.register(GitTest.class, GitTestImpl::new);
+  }
+
+  @Override
+  public void afterAll(ExtensionContext context) {
+    ParameterHolder.removeHolder(context.getStore(NS));
   }
 
   @Override
@@ -57,18 +66,35 @@ public class GitTestExtension implements BeforeAllCallback, ParameterResolver {
         FileUtil.deleteDir(rootDir);
       }
       log.info("Initializing git [bare={}] repository in {}", setup.isBare(), rootPath);
-      Git git = Git.init().setDirectory(rootDir).setBare(setup.isBare()).call();
-      if (!setup.isBare()) {
-        StoredConfig config = git.getRepository().getConfig();
-        config.load();
-        config.setString("user", null, "name", "Jon Snow");
-        config.setString("user", null, "email", "JonSnow@email.com");
-        config.save();
+      try (Git git = Git.init().setDirectory(rootDir).setBare(setup.isBare()).call()) {
+        if (!setup.isBare()) {
+          StoredConfig config = git.getRepository().getConfig();
+          config.load();
+          config.setString("user", null, "name", "Jon Snow");
+          config.setString("user", null, "email", "JonSnow@email.com");
+          config.save();
+        }
+        log.info("Setup initial git repository state in {}", rootPath);
+        setup.setup(git);
+        git.close();
+        log.info("Git repository ready in {}", rootPath);
       }
-      log.info("Setup initial git repository state in {}", rootPath);
-      setup.setup(git);
-      git.close();
-      log.info("Git repository ready in {}", rootPath);
+    }
+
+    @Override
+    public void ops(GitOps ops) {
+      try {
+        opsImpl(ops);
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to call git", e);
+      }
+    }
+
+    private void opsImpl(GitOps ops) throws IOException {
+      Path rootPath = ops.getRootPath();
+      try (Git git = Git.open(rootPath.toFile())) {
+        ops.invoke(git);
+      }
     }
   }
 }

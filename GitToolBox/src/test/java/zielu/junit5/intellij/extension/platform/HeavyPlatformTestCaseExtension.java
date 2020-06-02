@@ -10,13 +10,13 @@ import com.intellij.openapi.util.EmptyRunnable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.EdtTestUtil;
 import com.intellij.testFramework.EdtTestUtilKt;
-import com.intellij.testFramework.PlatformTestCase;
+import com.intellij.testFramework.HeavyPlatformTestCase;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -67,7 +67,7 @@ public class HeavyPlatformTestCaseExtension implements BeforeEachCallback, After
     return RESOLVER.resolveParameter(parameterContext, extensionContext);
   }
 
-  private static class HeavyPlatformTestCaseJUnit5 extends PlatformTestCase implements JUnit5Adapted {
+  private static class HeavyPlatformTestCaseJUnit5 extends HeavyPlatformTestCase implements JUnit5Adapted {
     private final TestCaseJUnit5Adapter adapter;
 
     public HeavyPlatformTestCaseJUnit5() {
@@ -80,7 +80,7 @@ public class HeavyPlatformTestCaseExtension implements BeforeEachCallback, After
       ParameterHolder holder = ParameterHolder.getHolder(getStore(context));
       holder.register(Project.class, this::getProject);
       holder.register(Module.class, this::getModule);
-      holder.register(PlatformTest.class, () -> getPlatformTest(context));
+      holder.register(HeavyPlatformTest.class, () -> getPlatformTest(context));
     }
 
     private Store getStore(ExtensionContext context) {
@@ -125,8 +125,8 @@ public class HeavyPlatformTestCaseExtension implements BeforeEachCallback, After
                  .orElseGet(this::getName);
     }
 
-    private PlatformTest getPlatformTest(ExtensionContext extensionContext) {
-      return new PlatformTest() {
+    private HeavyPlatformTest getPlatformTest(ExtensionContext extensionContext) {
+      return new HeavyPlatformTest() {
         @Override
         public void execute(@NotNull Runnable test) {
           try {
@@ -156,8 +156,7 @@ public class HeavyPlatformTestCaseExtension implements BeforeEachCallback, After
           Project project = testCase.getProject();
           Store store = getStore(extensionContext);
           return store.getOrComputeIfAbsent(MessageBusConnection.class,
-              type -> project.getMessageBus()
-                          .connect(project), MessageBusConnection.class);
+              type -> project.getMessageBus().connect(), MessageBusConnection.class);
         }
       };
     }
