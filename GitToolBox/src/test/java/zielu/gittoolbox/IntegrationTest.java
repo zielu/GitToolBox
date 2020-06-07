@@ -122,7 +122,9 @@ class IntegrationTest {
   }
 
   @Test
-  void lineBlameReturnsSameRevisionIfRepoRefreshedButNotChanged(Project project, Module module, HeavyPlatformTest test) {
+  void lineBlameReturnsSameRevisionIfRepoRefreshedButNotChanged(Project project,
+                                                                Module module,
+                                                                HeavyPlatformTest test) {
     VirtualFile root = GitProject.rootFor(module);
     VirtualFile file = root.findChild(FILE_NAME);
     Document document = test.getDocument(file);

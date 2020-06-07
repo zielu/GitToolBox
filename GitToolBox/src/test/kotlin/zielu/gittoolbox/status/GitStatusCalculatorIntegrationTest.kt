@@ -7,12 +7,14 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.URIish
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import zielu.IntegrationTest
-import zielu.junit5.intellij.extension.git.*
 import zielu.junit5.intellij.extension.git.GitOps
 import zielu.junit5.intellij.extension.git.GitProject
+import zielu.junit5.intellij.extension.git.GitTest
+import zielu.junit5.intellij.extension.git.GitTestExtension
 import zielu.junit5.intellij.extension.git.GitTestSetup
 import zielu.junit5.intellij.extension.platform.HeavyPlatformTestCaseExtension
 import zielu.junit5.intellij.extension.resources.ExternalPath
@@ -20,7 +22,7 @@ import zielu.junit5.intellij.extension.resources.ResourcesExtension
 import java.nio.file.Files
 import java.nio.file.Path
 
-@Ignore
+@Disabled
 @IntegrationTest
 @ExtendWith(HeavyPlatformTestCaseExtension::class, GitTestExtension::class, ResourcesExtension::class)
 internal class GitStatusCalculatorIntegrationTest {
@@ -88,7 +90,7 @@ internal class GitStatusCalculatorIntegrationTest {
                     git.add().addFilepattern(fileName).call()
                     git.commit().setMessage("Initial commit").call()
 
-                    git.push().setRemote("origin").call();
+                    git.push().setRemote("origin").call()
                 }
             })
             repoPath = rootPath.resolve("repo")

@@ -1,189 +1,323 @@
-alembic:
-  - experiment
-  - poc
-alien:
-  - updat
-  - extern
-  - chang
-ambulance:
-  - critical
-  - hotfix
-apple:
-  - fix
-  - macos
-arrow_down:
-  - downgrad
-  - dependenc
-arrow_up:
-  - upgrad
-  - dependenc
-art:
-  - improv
-  - structur
-  - format
-beers:
-  - drunk
-bento:
-  - add
-  - updat
-  - asset
-bookmark:
-  - releas
-  - version
-  - tag
-boom:
-  - introduc
-  - break
-  - chang
-bug:
-  - fix
-  - bug
-building_construction:
-  - architectur
-  - chang
-bulb:
-  - document
-  - source
-  - code
-busts_in_silhouette:
-  - contribut
-camera_flash:
-  - snapshot
-card_file_box:
-  - database
-  - chang
-chart_with_upwards_trend:
-  - analytic
-  - track
-checkered_flag:
-  - fix
-  - windows
-children_crossing:
-  - improv
-  - user
-  - experienc
-  - usability
-clown_face:
-  - mock
-construction:
-  - work
-  - progress
-construction_worker:
-  - ci
-  - build
-egg:
-  - easter
-  - egg
-fire:
-  - remov
-globe_with_meridians:
-  - internationalization
-  - localization
-green_apple:
-  - fix
-  - ios
-green_heart:
-  - fix
-  - ci
-  - build
-hankey:
-  - bad
-  - code
-  - improv
-heavy_minus_sign:
-  - remov
-  - dependenc
-heavy_plus_sign:
-  - add
-  - dependenc
-iphone:
-  - responsive
-  - design
-label:
-  - type
-  - Flow
-  - TypeScript
-lipstick:
-  - ui
-  - style
-lock:
-  - fix
-  - security
-  - issue
-loud_sound:
-  - logs
-mag:
-  - seo
-memo:
-  - docs
-mute:
-  - logs
-ok_hand:
-  - code
-  - review
-  - chang
-package:
-  - compil
-page_facing_up:
-  - license
-pencil2:
-  - fix
-  - typo
-penguin:
-  - fix
-  - linux
-pushpin:
-  - pin
-  - dependenc
-  - specific
-  - version
-recycle:
-  - refactor
-  - code
-rewind:
-  - revert
-  - chang
-robot:
-  - fix
-  - android
-rocket:
-  - deploy
-  - stuff
-rotating_light:
-  - remov
-  - linter
-  - warning
-see_no_evil:
-  - .gitignore
-sparkles:
-  - introduc
-  - new
-  - feature
-speech_balloon:
-  - text
-  - literals
-tada:
-  - initial
-  - commit
-truck:
-  - mov
-  - renam
-  - file
-twisted_rightwards_arrows:
-  - merg
-  - branch
-whale:
-  - docker
-wheelchair:
-  - accessibility
-wheel_of_dharma:
-  - kubernetes
-  - k8s
-white_check_mark:
-  - tests
-wrench:
-  - configuration
-  - file
-zap:
-  - improv
-  - performance
+gitmojis:
+  alembic:
+    codepoint: 2697
+    requiresVariation: true
+    keywords:
+      - experiment
+      - poc
+  alien:
+    codepoint: 1F47D
+    keywords:
+      - updat
+      - extern
+      - chang
+  ambulance:
+    codepoint: 1F691
+    keywords:
+      - critical
+      - hotfix
+  apple:
+    codepoint: 1F34E
+    keywords:
+      - fix
+      - macos
+  arrow_down:
+    codepoint: 2B07
+    requiresVariation: true
+    keywords:
+      - downgrad
+      - dependenc
+  arrow_up:
+    codepoint: 2B06
+    requiresVariation: true
+    keywords:
+      - upgrad
+      - dependenc
+  art:
+    codepoint: 1F3A8
+    keywords:
+      - improv
+      - structur
+      - format
+  beers:
+    codepoint: 1F37B
+    keywords:
+      - drunk
+  bento:
+    codepoint: 1F371
+    keywords:
+      - add
+      - updat
+      - asset
+  bookmark:
+    codepoint: 1F516
+    keywords:
+      - releas
+      - version
+      - tag
+  boom:
+    codepoint: 1F4A5
+    keywords:
+      - introduc
+      - break
+      - chang
+  bug:
+    codepoint: 1F41B
+    keywords:
+      - fix
+      - bug
+  building_construction:
+    codepoint: 1F3D7
+    requiresVariation: true
+    keywords:
+      - architectur
+      - chang
+  bulb:
+    codepoint: 1F4A1
+    keywords:
+      - document
+      - source
+      - code
+  busts_in_silhouette:
+    codepoint: 1F465
+    keywords:
+      - contribut
+  camera_flash:
+    codepoint: 1F4F8
+    keywords:
+      - snapshot
+  card_file_box:
+    codepoint: 1F5C3
+    requiresVariation: true
+    keywords:
+      - database
+      - chang
+  chart_with_upwards_trend:
+    codepoint: 1F4C8
+    keywords:
+      - analytic
+      - track
+  checkered_flag:
+    codepoint: 1F3C1
+    keywords:
+      - fix
+      - windows
+  children_crossing:
+    codepoint: 1F6B8
+    keywords:
+      - improv
+      - user
+      - experienc
+      - usability
+  clown_face:
+    codepoint: 1F921
+    keywords:
+      - mock
+  construction:
+    codepoint: 1F6A7
+    keywords:
+      - work
+      - progress
+  construction_worker:
+    codepoint: 1F477
+    keywords:
+      - ci
+      - build
+  egg:
+    codepoint: 1F95A
+    keywords:
+      - easter
+      - egg
+  fire:
+    codepoint: 1F525
+    keywords:
+      - remov
+  globe_with_meridians:
+    codepoint: 1F310
+    keywords:
+      - internationalization
+      - localization
+  green_apple:
+    codepoint: 1F34F
+    keywords:
+      - fix
+      - ios
+  green_heart:
+    codepoint: 1F49A
+    keywords:
+      - fix
+      - ci
+      - build
+  hankey:
+    codepoint: 1F4A9
+    keywords:
+      - bad
+      - code
+      - improv
+  heavy_minus_sign:
+    codepoint: 2796
+    keywords:
+      - remov
+      - dependenc
+  heavy_plus_sign:
+    codepoint: 2795
+    keywords:
+      - add
+      - dependenc
+  iphone:
+    codepoint: 1F4F1
+    keywords:
+      - responsive
+      - design
+  label:
+    codepoint: 1F3F7
+    requiresVariation: true
+    keywords:
+      - type
+      - Flow
+      - TypeScript
+  lipstick:
+    codepoint: 1F484
+    keywords:
+      - ui
+      - style
+  lock:
+    codepoint: 1F512
+    keywords:
+      - fix
+      - security
+      - issue
+  loud_sound:
+    codepoint: 1F50A
+    keywords:
+      - logs
+  mag:
+    codepoint: 1F50D
+    keywords:
+      - seo
+  memo:
+    codepoint: 1F4DD
+    keywords:
+      - docs
+  mute:
+    codepoint: 1F507
+    keywords:
+      - logs
+  ok_hand:
+    codepoint: 1F44C
+    keywords:
+      - code
+      - review
+      - chang
+  package:
+    codepoint: 1F4E6
+    keywords:
+      - compil
+  page_facing_up:
+    codepoint: 1F4C4
+    keywords:
+      - license
+  pencil2:
+    codepoint: 270F
+    requiresVariation: true
+    keywords:
+      - fix
+      - typo
+  penguin:
+    codepoint: 1F427
+    keywords:
+      - fix
+      - linux
+  pushpin:
+    codepoint: 1F4CC
+    keywords:
+      - pin
+      - dependenc
+      - specific
+      - version
+  recycle:
+    codepoint: 267B
+    requiresVariation: true
+    keywords:
+      - refactor
+      - code
+  rewind:
+    codepoint: 23EA
+    keywords:
+      - revert
+      - chang
+  robot:
+    codepoint: 1F916
+    keywords:
+      - fix
+      - android
+  rocket:
+    codepoint: 1F680
+    keywords:
+      - deploy
+      - stuff
+  rotating_light:
+    codepoint: 1F6A8
+    keywords:
+      - remov
+      - linter
+      - warning
+  see_no_evil:
+    codepoint: 1F648
+    keywords:
+      - .gitignore
+  sparkles:
+    codepoint: 2728
+    keywords:
+      - introduc
+      - new
+      - feature
+  speech_balloon:
+    codepoint: 1F4AC
+    keywords:
+      - text
+      - literals
+  tada:
+    codepoint: 1F389
+    keywords:
+      - initial
+      - commit
+  truck:
+    codepoint: 1F69A
+    keywords:
+      - mov
+      - renam
+      - file
+  twisted_rightwards_arrows:
+    codepoint: 1F500
+    keywords:
+      - merg
+      - branch
+  whale:
+    codepoint: 1F433
+    keywords:
+      - docker
+  wheelchair:
+    codepoint: 267F
+    keywords:
+      - accessibility
+  wheel_of_dharma:
+    codepoint: 2638
+    requiresVariation: true
+    keywords:
+      - kubernetes
+      - k8s
+  white_check_mark:
+    codepoint: 2705
+    keywords:
+      - tests
+  wrench:
+    codepoint: 1F527
+    keywords:
+      - configuration
+      - file
+  zap:
+    codepoint: 26A1
+    keywords:
+      - improv
+      - performance

@@ -35,7 +35,7 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
         .withIcon(icon)
         .withInsertHandler(insertHandler)
 
-      val wordsList = GitmojiKeywords.getKeywords(gitmoji)
+      val wordsList = GitmojiMetadata.getKeywords(gitmoji)
       if (wordsList.isNotEmpty()) {
         builder = builder.withLookupStrings(wordsList)
       }
