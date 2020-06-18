@@ -1,10 +1,13 @@
 package zielu.gittoolbox.config
 
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import zielu.gittoolbox.metrics.AppMetrics
 import zielu.gittoolbox.util.AppUtil
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal object AppConfig {
+  private val log = Logger.getInstance(AppConfig::class.java)
   private val migrationDone = AtomicBoolean()
 
   @JvmStatic
@@ -14,13 +17,16 @@ internal object AppConfig {
     } else {
       synchronized(this) {
         val config = getConfig()
-        if (migrationDone.get()) {
-          return config
+        return if (migrationDone.get()) {
+          config
         } else {
           val timer = AppMetrics.getInstance().timer("app-config.migrate")
-          val migratedConfig = timer.timeSupplier { migrate(config) }
+          val result = timer.timeSupplier { migrate(config) }
           migrationDone.set(true)
-          return migratedConfig
+          if (result.migrated) {
+            saveSettings()
+          }
+          return result.config
         }
       }
     }
@@ -30,10 +36,20 @@ internal object AppConfig {
     return AppUtil.getServiceInstance(GitToolBoxConfig2::class.java)
   }
 
-  private fun migrate(config: GitToolBoxConfig2): GitToolBoxConfig2 {
-    if (ConfigMigrator().migrate(config)) {
+  private fun saveSettings() {
+    ApplicationManager.getApplication().executeOnPooledThread {
       AppUtil.saveAppSettings()
+      log.info("Settings saved after project config migration")
     }
-    return config
+  }
+
+  private fun migrate(config: GitToolBoxConfig2): AppMigrationResult {
+    val migrated = ConfigMigrator().migrate(config)
+    return AppMigrationResult(migrated, config)
   }
 }
+
+private data class AppMigrationResult(
+  val migrated: Boolean,
+  val config: GitToolBoxConfig2
+)

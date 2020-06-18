@@ -15,7 +15,8 @@ internal data class WorkspaceStore
 
 @NonInjectable
 constructor(
-  var recentBranches: RecentBranches = RecentBranches()
+  var recentBranches: RecentBranches = RecentBranches(),
+  var projectConfigVersion: Int = 1
 ) : PersistentStateComponent<WorkspaceStore> {
 
   @Transient
@@ -32,6 +33,7 @@ constructor(
   }
 
   companion object {
+    @JvmStatic
     fun getInstance(project: Project): WorkspaceStore {
       return AppUtil.getServiceInstance(project, WorkspaceStore::class.java)
     }

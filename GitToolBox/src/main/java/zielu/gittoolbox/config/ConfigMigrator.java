@@ -3,6 +3,7 @@ package zielu.gittoolbox.config;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.store.WorkspaceStore;
 
 class ConfigMigrator {
   private final Logger log = Logger.getInstance(getClass());
@@ -16,7 +17,7 @@ class ConfigMigrator {
   boolean migrate(@NotNull Project project,
                   @NotNull GitToolBoxConfigPrj prjConfig,
                   @NotNull GitToolBoxConfig2 appConfig) {
-    boolean migrated = migrateProject(prjConfig);
+    boolean migrated = migrateProject(project, prjConfig);
     migrated = applyConfigOverrides(project, appConfig, prjConfig) || migrated;
     return migrated;
   }
@@ -44,13 +45,18 @@ class ConfigMigrator {
     return false;
   }
 
-  private boolean migrateProject(@NotNull GitToolBoxConfigPrj config) {
-    ConfigForProjectMigrator migrator = new ConfigForProjectMigrator(config);
-    boolean migrated = migrator.migrate();
-    if (migrated) {
-      log.info("Project config migrated");
+  private boolean migrateProject(@NotNull Project project, @NotNull GitToolBoxConfigPrj config) {
+    WorkspaceStore workspaceStore = WorkspaceStore.getInstance(project);
+    if (workspaceStore.getProjectConfigVersion() == 1) {
+      ConfigForProjectMigrator migrator = new ConfigForProjectMigrator(config);
+      boolean migrated = migrator.migrate();
+      if (migrated) {
+        log.info("Project config migrated");
+        workspaceStore.setProjectConfigVersion(2);
+        return true;
+      }
     }
-    return migrated;
+    return false;
   }
 
   private boolean applyConfigOverrides(@NotNull Project project,
