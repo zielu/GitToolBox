@@ -22,7 +22,8 @@ constructor(
   @Transient
   fun copy(): WorkspaceStore {
     return WorkspaceStore(
-      recentBranches.copy()
+      recentBranches.copy(),
+      projectConfigVersion
     )
   }
 
