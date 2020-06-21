@@ -51,10 +51,11 @@ class ConfigMigrator {
       ConfigForProjectMigrator migrator = new ConfigForProjectMigrator(config);
       boolean migrated = migrator.migrate();
       if (migrated) {
-        log.info("Project config migrated");
-        workspaceStore.setProjectConfigVersion(2);
-        return true;
+        log.info("Project config migrated to version 2");
       }
+      workspaceStore.setProjectConfigVersion(2);
+      log.info("Project config set at version 2");
+      return true;
     }
     return false;
   }
