@@ -72,15 +72,9 @@ abstract class NodeDecorationBaseTest {
 
   private List<DecorationPartConfig> statusBeforeLocationParts() {
     return Lists.newArrayList(
-        DecorationPartConfig.builder()
-            .withType(DecorationPartType.BRANCH)
-            .build(),
-        DecorationPartConfig.builder()
-            .withType(DecorationPartType.STATUS)
-            .build(),
-        DecorationPartConfig.builder()
-            .withType(DecorationPartType.LOCATION)
-            .build()
+        new DecorationPartConfig(DecorationPartType.BRANCH),
+        new DecorationPartConfig(DecorationPartType.STATUS),
+        new DecorationPartConfig(DecorationPartType.LOCATION)
     );
   }
 
@@ -147,12 +141,8 @@ abstract class NodeDecorationBaseTest {
   @DisplayName("Status is shown when location is hidden")
   void statusWhenLocationBeforeStatusAndLocationNotShown() {
     config.setDecorationParts(Lists.newArrayList(
-        DecorationPartConfig.builder()
-            .withType(DecorationPartType.BRANCH)
-            .build(),
-        DecorationPartConfig.builder()
-            .withType(DecorationPartType.STATUS)
-            .build()
+        new DecorationPartConfig(DecorationPartType.BRANCH),
+        new DecorationPartConfig(DecorationPartType.STATUS)
     ));
 
     PresentationData presentationData = apply(presentationData(true));

@@ -22,7 +22,7 @@ public class NodeDecorationUi {
 
   public NodeDecorationUi(@NotNull GitToolBoxConfig2 config) {
     this.config = config;
-    config.getDecorationParts().forEach(part -> configuredParts.put(part.type, part));
+    config.getDecorationParts().forEach(part -> configuredParts.put(part.getType(), part));
   }
 
   public StatusPresenter getPresenter() {
@@ -39,14 +39,14 @@ public class NodeDecorationUi {
 
   public boolean isLocationPartLast() {
     List<DecorationPartConfig> parts = config.getDecorationParts();
-    return !parts.isEmpty() && parts.get(parts.size() - 1).type == LOCATION;
+    return !parts.isEmpty() && parts.get(parts.size() - 1).getType() == LOCATION;
   }
 
   @Nullable
   public String getDecorationPartText(@Nullable String value, DecorationPartType type) {
     if (StringUtils.isNotBlank(value)) {
       DecorationPartConfig part = configuredParts.get(type);
-      return new StringBand(part.prefix).append(value).append(part.postfix).toString();
+      return new StringBand(part.getPrefix()).append(value).append(part.getPostfix()).toString();
     }
     return null;
   }

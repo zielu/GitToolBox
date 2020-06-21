@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Vector;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.Action;
 import javax.swing.ComboBoxModel;
@@ -104,8 +105,7 @@ public class GtForm implements GtFormUi {
       Action action = new AbstractActionExt(type.getLabel()) {
         @Override
         public void actionPerformed(ActionEvent e) {
-          DecorationPartConfig config = new DecorationPartConfig();
-          config.type = type;
+          DecorationPartConfig config = new DecorationPartConfig(type);
           decorationPartsModel.add(config);
           addDecorationLayoutPartPopup.remove(decorationPartActions.get(type));
           int lastAddedIndex = decorationPartsModel.getSize() - 1;
@@ -124,7 +124,7 @@ public class GtForm implements GtFormUi {
     decorationLayoutList.setCellRenderer(new SimpleListCellRenderer<DecorationPartConfig>() {
       @Override
       public void customize(JList list, DecorationPartConfig value, int index, boolean selected, boolean hasFocus) {
-        setText(value.prefix + value.type.getPlaceholder() + value.postfix);
+        setText(value.getPrefix() + value.getType().getPlaceholder() + value.getPostfix());
       }
     });
     decorationLayoutList.getSelectionModel().addListSelectionListener(event -> {
@@ -134,8 +134,8 @@ public class GtForm implements GtFormUi {
         decorationPartPrefixTextField.setEnabled(editorsEnabled);
         decorationPartPostfixTextField.setEnabled(editorsEnabled);
         getCurrentDecorationPart().ifPresent(current -> {
-          decorationPartPrefixTextField.setText(current.prefix);
-          decorationPartPostfixTextField.setText(current.postfix);
+          decorationPartPrefixTextField.setText(current.getPrefix());
+          decorationPartPostfixTextField.setText(current.getPostfix());
         });
       }
     });
@@ -148,7 +148,7 @@ public class GtForm implements GtFormUi {
     decorationToolbar.setRemoveAction(button -> {
       List<DecorationPartConfig> selected = decorationLayoutList.getSelectedValuesList();
       selected.forEach(config -> {
-        addDecorationLayoutPartPopup.add(decorationPartActions.get(config.type));
+        addDecorationLayoutPartPopup.add(decorationPartActions.get(config.getType()));
         decorationPartsModel.remove(config);
       });
       updateDecorationLayoutPreview();
@@ -241,17 +241,22 @@ public class GtForm implements GtFormUi {
   }
 
   private void updateCurrentDecorationPartPrefix(JBTextField textField) {
-    getCurrentDecorationPart().ifPresent(current -> {
-      current.prefix = textField.getText();
-      repaintDecorationPart();
-    });
+    updateCurrentDecorationPart(current -> current.copy(current.getType(), textField.getText(), current.getPostfix()));
   }
 
   private void updateCurrentDecorationPartPostfix(JBTextField textField) {
-    getCurrentDecorationPart().ifPresent(current -> {
-      current.postfix = textField.getText();
+    updateCurrentDecorationPart(current -> current.copy(current.getType(), current.getPrefix(), textField.getText()));
+  }
+
+  private void updateCurrentDecorationPart(Function<DecorationPartConfig, DecorationPartConfig> update) {
+    int[] selectedIndices = decorationLayoutList.getSelectedIndices();
+    if (selectedIndices.length > 0) {
+      int index = selectedIndices[0];
+      DecorationPartConfig current = decorationPartsModel.getElementAt(index);
+      DecorationPartConfig updated = update.apply(current);
+      decorationPartsModel.setElementAt(updated, index);
       repaintDecorationPart();
-    });
+    }
   }
 
   private void repaintDecorationPart() {
@@ -265,10 +270,10 @@ public class GtForm implements GtFormUi {
   }
 
   private String getDecorationPartPreview(DecorationPartConfig config) {
-    StringBand preview = new StringBand(config.prefix);
+    StringBand preview = new StringBand(config.getPrefix());
     DecorationPartPreview
-        .appendPreview(getPresenter(), config.type, preview)
-        .append(config.postfix);
+        .appendPreview(getPresenter(), config.getType(), preview)
+        .append(config.getPostfix());
     return preview.toString();
   }
 
@@ -297,7 +302,7 @@ public class GtForm implements GtFormUi {
   }
 
   private boolean hasDecorationPart(DecorationPartType type) {
-    return decorationPartsModel.getItems().stream().anyMatch(config -> type == config.type);
+    return decorationPartsModel.getItems().stream().anyMatch(config -> type == config.getType());
   }
 
   private void onAutoFetchEnabledOverride() {

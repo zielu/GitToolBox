@@ -21,20 +21,14 @@ internal class ConfigMigratorV1toV2(
         decorationParts.add(DecorationPartConfig(DecorationPartType.BRANCH))
         decorationParts.add(DecorationPartConfig(DecorationPartType.STATUS))
         if (v1.showProjectViewHeadTags) {
-            val tagsOnHead = DecorationPartConfig.builder()
-              .withType(DecorationPartType.TAGS_ON_HEAD)
-              .withPrefix("(")
-              .withPostfix(")")
-              .build()
+            val tagsOnHead = DecorationPartConfig(DecorationPartType.TAGS_ON_HEAD, "(", ")")
             decorationParts.add(tagsOnHead)
         }
         if (v1.showProjectViewLocationPath) {
-            val location = DecorationPartConfig.builder().withType(DecorationPartType.LOCATION)
             if (v1.showProjectViewStatusBeforeLocation) {
-                location.withPrefix("- ")
-                decorationParts.add(location.build())
+                decorationParts.add(DecorationPartConfig(DecorationPartType.LOCATION, "- "))
             } else {
-                decorationParts.add(0, location.build())
+                decorationParts.add(0, DecorationPartConfig(DecorationPartType.LOCATION))
             }
         }
         v2.decorationParts = decorationParts
