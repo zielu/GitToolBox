@@ -236,11 +236,20 @@
             text="Switch Recent Git Branches"
             popup="true">
     </action>
+    <action class="zielu.gittoolbox.ui.actions.OpenBranchIssueActionGroup" id="GitToolBox.OpenBranchIssue"
+            text="Open Branch Issue"
+            popup="true"
+    />
 
-    <group id="GitToolBoxMenu" text="GitToolBox" popup="true">
-      <reference id="GitToolBox.PushTags"/>
-      <reference id="GitToolBox.RefreshBlame"/>
-      <add-to-group group-id="VcsGlobalGroup" anchor="after" relative-to-action="Git.Menu"/>
+    <group id="GitToolBox.Menu" text="GitToolBox" popup="true">
+      <reference id="GitToolBox.PushTags" />
+      <reference id="GitToolBox.RefreshBlame" />
+      <add-to-group group-id="VcsGlobalGroup" anchor="after" relative-to-action="Git.Menu" />
+    </group>
+
+    <group id="GitToolBox.BranchIssues" text="Branch issues" popup="true"
+           class="zielu.gittoolbox.ui.actions.OpenBranchIssueActionGroup">
+      <add-to-group group-id="Git.ContextMenu" anchor="last" />
     </group>
   </actions>
 

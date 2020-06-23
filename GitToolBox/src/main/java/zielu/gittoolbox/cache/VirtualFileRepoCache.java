@@ -68,11 +68,11 @@ public interface VirtualFileRepoCache extends DirMappingAware {
     return null;
   }
 
-  default boolean isUnderGitRoot(@NotNull VirtualFile file) {
-    return (file.isDirectory() ? getRepoForDir(file) : getRepoForFile(file)) != null;
+  default Optional<GitRepository> findRepoForFileOrDir(@NotNull VirtualFile fileOrDir) {
+    return Optional.ofNullable(fileOrDir.isDirectory() ? getRepoForDir(fileOrDir) : getRepoForFile(fileOrDir));
   }
 
-  default boolean isUnderGitRoot(@NotNull FilePath path) {
-    return getRepoForPath(path) != null;
+  default boolean isUnderGitRoot(@NotNull VirtualFile file) {
+    return (file.isDirectory() ? getRepoForDir(file) : getRepoForFile(file)) != null;
   }
 }
