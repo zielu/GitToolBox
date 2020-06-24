@@ -247,7 +247,7 @@
       <add-to-group group-id="VcsGlobalGroup" anchor="after" relative-to-action="Git.Menu" />
     </group>
 
-    <group id="GitToolBox.BranchIssues" text="Branch issues" popup="true"
+    <group id="GitToolBox.BranchIssues" text="Branch Issues"
            class="zielu.gittoolbox.ui.actions.OpenBranchIssueActionGroup">
       <add-to-group group-id="Git.ContextMenu" anchor="last" />
     </group>
