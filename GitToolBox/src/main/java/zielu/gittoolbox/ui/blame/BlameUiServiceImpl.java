@@ -25,7 +25,7 @@ import zielu.intellij.util.ZUtil;
 
 class BlameUiServiceImpl implements BlameUiService {
   private static final TextAttributesKey ATTRIBUTES_KEY = DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES;
-  private static final String BLAME_PREFIX = FontUtil.spaceAndThinSpace() + " ";
+  private static final String BLAME_PREFIX =  " ";
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicInteger configGeneration = new AtomicInteger(1);
   private final Project project;
