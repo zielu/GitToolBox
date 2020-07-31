@@ -30,13 +30,7 @@ internal data class GitToolBoxConfig2(
   var showChangesInStatusBar: Boolean = true,
   var previousVersionMigrated: Boolean = false,
   var version: Int = 1,
-  var decorationParts: List<DecorationPartConfig> = arrayListOf(
-    DecorationPartConfig(DecorationPartType.LOCATION, "- "),
-    DecorationPartConfig(DecorationPartType.BRANCH),
-    DecorationPartConfig(DecorationPartType.STATUS),
-    DecorationPartConfig(DecorationPartType.TAGS_ON_HEAD, "(", ")"),
-    DecorationPartConfig(DecorationPartType.CHANGED_COUNT, "/ ")
-  ),
+  var decorationParts: List<DecorationPartConfig> = ConfigDefaults.decorationParts,
   var extrasConfig: ExtrasConfig = ExtrasConfig(),
   var commitDialogGitmojiCompletion: Boolean = false,
   @Deprecated("Since 193.8.1") var hideInlineBlameWhileDebugging: Boolean = true,

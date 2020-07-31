@@ -3,10 +3,12 @@ package zielu.gittoolbox.config
 import com.intellij.util.xmlb.annotations.Transient
 
 internal data class DecorationPartConfig(
-  val type: DecorationPartType,
-  val prefix: String,
-  val postfix: String
+  var type: DecorationPartType,
+  var prefix: String,
+  var postfix: String
 ) {
+    constructor() : this(DecorationPartType.UNKNOWN)
+
     constructor(type: DecorationPartType) : this(type, "", "")
 
     constructor(type: DecorationPartType, prefix: String) : this(type, prefix, "")

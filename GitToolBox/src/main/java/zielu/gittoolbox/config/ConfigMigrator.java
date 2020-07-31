@@ -34,15 +34,20 @@ class ConfigMigrator {
   }
 
   private boolean migrateV2(@NotNull GitToolBoxConfig2 config) {
+    boolean migrated = false;
     if (config.getVersion() == 1) {
-      if (!config.getHideInlineBlameWhileDebugging()) {
-        config.setAlwaysShowInlineBlameWhileDebugging(true);
-      }
+      ConfigMigratorV2.INSTANCE.migrate1To2(config);
       config.setVersion(2);
       log.info("V2 config migrated to version 2");
-      return true;
+      migrated = true;
     }
-    return false;
+    if (config.getVersion() == 2) {
+      ConfigMigratorV2.INSTANCE.migrate2To3(config);
+      config.setVersion(3);
+      log.info("V2 config migrated to version 3");
+      migrated = true;
+    }
+    return migrated;
   }
 
   private boolean migrateProject(@NotNull Project project, @NotNull GitToolBoxConfigPrj config) {
