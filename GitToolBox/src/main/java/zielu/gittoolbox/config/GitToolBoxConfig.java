@@ -5,6 +5,7 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.update.DefaultUpdateProjectAction;
@@ -36,6 +37,7 @@ public class GitToolBoxConfig implements PersistentStateComponent<GitToolBoxConf
     return vanilla;
   }
 
+  @NotNull
   public static GitToolBoxConfig getInstance() {
     return AppUtil.getServiceInstance(GitToolBoxConfig.class);
   }

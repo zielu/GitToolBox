@@ -7,7 +7,8 @@ public enum DecorationPartType {
   STATUS,
   TAGS_ON_HEAD,
   CHANGED_COUNT,
-  LOCATION
+  LOCATION,
+  UNKNOWN
   ;
 
   public String getLabel() {
