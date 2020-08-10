@@ -1,9 +1,8 @@
 package zielu.gittoolbox.config;
 
-import zielu.gittoolbox.ResBundle;
-
 import java.util.EnumSet;
 import java.util.Set;
+import zielu.gittoolbox.ResBundle;
 
 public enum DecorationPartType {
   BRANCH,

@@ -13,11 +13,9 @@ import zielu.intellij.ui.YesNoDialog;
 
 public class CommitMessageValidationCheckinHandler extends CheckinHandler {
   private final CheckinProjectPanel panel;
-  private final String validationRegex;
 
-  public CommitMessageValidationCheckinHandler(CheckinProjectPanel panel, String validationRegex) {
+  public CommitMessageValidationCheckinHandler(CheckinProjectPanel panel) {
     this.panel = panel;
-    this.validationRegex = validationRegex;
   }
 
   @Nullable
@@ -51,7 +49,7 @@ public class CommitMessageValidationCheckinHandler extends CheckinHandler {
   }
 
   private ReturnResult validate() {
-    if (this.panel.getCommitMessage().matches(this.validationRegex)) {
+    if (this.panel.getCommitMessage().matches(getConfig().getCommitMessageValidationRegex())) {
       return ReturnResult.COMMIT;
     }
     YesNoDialog confirmationDialog = new YesNoDialog(panel.getProject(),
