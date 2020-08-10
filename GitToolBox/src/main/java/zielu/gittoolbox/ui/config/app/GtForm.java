@@ -15,7 +15,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -101,7 +100,7 @@ public class GtForm implements GtFormUi {
 
   @Override
   public void init() {
-    Arrays.stream(DecorationPartType.values()).forEach(type -> {
+    DecorationPartType.getValues().stream().forEach(type -> {
       Action action = new AbstractActionExt(type.getLabel()) {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -293,7 +292,7 @@ public class GtForm implements GtFormUi {
   @Override
   public void afterStateSet() {
     onProjectViewStatusChange();
-    Arrays.stream(DecorationPartType.values()).filter(type -> !hasDecorationPart(type)).forEach(type -> {
+    DecorationPartType.getValues().stream().filter(type -> !hasDecorationPart(type)).forEach(type -> {
       addDecorationLayoutPartPopup.add(decorationPartActions.get(type));
     });
     updateDecorationLayoutPreview();
