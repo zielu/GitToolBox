@@ -24,7 +24,6 @@ class BlameServiceImpl implements BlameService, Disposable {
   BlameServiceImpl(@NotNull Project project) {
     gateway = new BlameServiceLocalGateway(project);
     gateway.exposeCacheMetrics(lineNumberProviderCache, "blame-service-cache");
-    gateway.disposeWithProject(this);
   }
 
   @Override

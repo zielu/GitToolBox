@@ -4,13 +4,16 @@ import com.codahale.metrics.Counter
 import com.codahale.metrics.Gauge
 import com.codahale.metrics.MetricSet
 import com.codahale.metrics.Timer
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import zielu.gittoolbox.metrics.Jmx.startReporting
 import zielu.gittoolbox.util.DisposeSafeRunnable
 
-internal class ProjectMetricsImpl(private val project: Project) : ProjectMetrics {
+internal class ProjectMetricsImpl(
+  private val project: Project
+) : ProjectMetrics, Disposable {
   private val metrics = MetricsManager()
 
   override fun startReporting() {
@@ -20,7 +23,7 @@ internal class ProjectMetricsImpl(private val project: Project) : ProjectMetrics
 
   private fun startReporter(project: Project) {
     val reporter = startReporting(project, metrics.getRegistry())
-    Disposer.register(project, reporter)
+    Disposer.register(this, reporter)
   }
 
   override fun addAll(metricSet: MetricSet) = metrics.addAll(metricSet)
@@ -31,5 +34,8 @@ internal class ProjectMetricsImpl(private val project: Project) : ProjectMetrics
 
   override fun <T : Any?> gauge(simpleName: String, value: () -> T): Gauge<*> {
     return metrics.gauge(simpleName, value)
+  }
+
+  override fun dispose() {
   }
 }

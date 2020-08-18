@@ -39,7 +39,6 @@ class BlameCacheImpl implements BlameCache, Disposable {
     gateway = new BlameCacheLocalGateway(project);
     gateway.exposeCacheMetrics(annotations, "blame-cache");
     gateway.registerQueuedGauge(queued::size);
-    gateway.disposeWithProject(this);
   }
 
   @Override

@@ -52,7 +52,6 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
     gateway.rootsVFileCacheSizeGauge(rootsVFileCache::size);
     gateway.rootsFilePathCacheSizeGauge(rootsFilePathCache::size);
     gateway.exposeDirsCacheMetrics(dirsCache);
-    gateway.disposeWithProject(this);
   }
 
   @Override

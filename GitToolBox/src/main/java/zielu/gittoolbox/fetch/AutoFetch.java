@@ -3,7 +3,6 @@ package zielu.gittoolbox.fetch;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +18,6 @@ class AutoFetch implements AutoFetchComponent, Disposable {
 
   AutoFetch(@NotNull Project project) {
     this.project = project;
-    Disposer.register(project, this);
   }
 
   private GitToolBoxConfigPrj getConfig() {

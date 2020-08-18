@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
@@ -38,7 +37,6 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
     statusCalculator = new CachedStatusCalculator(() -> ProjectMetrics.getInstance(project));
     calculator = GitStatusCalculator.create(project);
     publisher = new InfoCachePublisher(project);
-    Disposer.register(project, this);
   }
 
   private ConcurrentMap<GitRepository, RepoInfo> createBehindStatuses() {

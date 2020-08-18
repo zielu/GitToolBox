@@ -21,7 +21,6 @@ class CompletionServiceImpl implements CompletionService, Disposable {
 
   CompletionServiceImpl(@NotNull Project project) {
     gateway = new CompletionLocalGateway(project);
-    gateway.disposeWithProject(this);
   }
 
   @Override

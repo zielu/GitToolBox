@@ -55,7 +55,6 @@ internal class BehindTrackerTest {
   fun beforeEach() {
     every { gatewayMock.isNotificationEnabled() } returns true
     every { gatewayMock.getGtRepository(repositoryMock) } returns gtRepositoryMock
-    every { gatewayMock.disposeWithProject(any()) } returns Unit
     every { gtRepositoryMock.getName() } returns ""
     behindTracker = BehindTracker(gatewayMock)
   }

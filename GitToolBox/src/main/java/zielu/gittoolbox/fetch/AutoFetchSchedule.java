@@ -2,7 +2,6 @@ package zielu.gittoolbox.fetch;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import git4idea.repo.GitRepository;
 import java.time.Duration;
 import java.util.Collection;
@@ -28,7 +27,6 @@ class AutoFetchSchedule implements Disposable {
 
   AutoFetchSchedule(@NotNull Project project) {
     this.project = project;
-    Disposer.register(project, this);
   }
 
   @NotNull

@@ -37,7 +37,6 @@ class BehindTracker implements Disposable {
   @NonInjectable
   BehindTracker(BehindTrackerLocalGateway gateway) {
     this.gateway = gateway;
-    gateway.disposeWithProject(this);
   }
 
   @NotNull

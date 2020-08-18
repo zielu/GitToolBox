@@ -30,7 +30,7 @@ class CacheTaskScheduler implements Disposable {
   private final AtomicBoolean active = new AtomicBoolean(true);
   private final Map<GitRepository, Collection<CacheTask>> scheduledRepositories = new ConcurrentHashMap<>();
   private final CacheTaskSchedulerLocalGateway gateway;
-  private Supplier<ScheduledExecutorService> updateExecutor;
+  private final Supplier<ScheduledExecutorService> updateExecutor;
   private long taskDelayMillis = TASK_DELAY_MILLIS;
 
   CacheTaskScheduler(@NotNull Project project) {
@@ -41,7 +41,6 @@ class CacheTaskScheduler implements Disposable {
   CacheTaskScheduler(@NotNull CacheTaskSchedulerLocalGateway gateway) {
     this.gateway = gateway;
     updateExecutor = new MemoizeSupplier<>(this::createExecutor);
-    gateway.disposeWithProject(this);
   }
 
   private ScheduledExecutorService createExecutor() {

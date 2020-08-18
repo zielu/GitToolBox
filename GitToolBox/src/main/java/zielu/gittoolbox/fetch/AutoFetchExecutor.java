@@ -4,7 +4,6 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.ControlFlowException;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import git4idea.repo.GitRepository;
 import java.time.Duration;
 import java.util.LinkedList;
@@ -39,7 +38,6 @@ class AutoFetchExecutor implements Disposable {
     Metrics metrics = ProjectMetrics.getInstance(project);
     metrics.gauge("auto-fetch.cyclic-tasks.size", scheduledCyclicTasksCount::get);
     metrics.gauge("auto-fetch.repo-tasks.size", scheduledRepoTasksCount::get);
-    Disposer.register(project, this);
   }
 
   @NotNull

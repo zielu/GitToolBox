@@ -26,7 +26,6 @@ class RevisionServiceImpl implements RevisionService, Disposable {
     this.project = project;
     gateway = new RevisionServiceLocalGateway(project);
     gateway.exposeCommitMessageCacheMetrics(commitMessageCache);
-    gateway.disposeWithProject(this);
   }
 
   @Override
