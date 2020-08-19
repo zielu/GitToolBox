@@ -7,7 +7,7 @@ internal abstract class ProjectMessageBusListener(private val project: Project) 
   private val log = LoggerFactory.getLogger(this::class.java)
 
   fun handleEvent(handler: (project: Project) -> Unit) {
-    val isActive = !AppUtil.runReadAction { project.isDisposedOrDisposeInProgress }
+    val isActive = !AppUtil.runReadAction { project.isDisposed }
     if (isActive) {
       handler.invoke(project)
     } else {

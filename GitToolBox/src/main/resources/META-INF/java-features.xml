@@ -5,20 +5,12 @@
       <viewModuleNodeParent moduleNodeClass="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
     </extensions>
 
-    <!-- why is this not working ? -->
-    <!-- java.lang.ClassNotFoundException: zielu.gittoolbox.fetch.AutoFetchAllowedBuildListener -->
-    <!--
     <applicationListeners>
       <listener class="zielu.gittoolbox.fetch.AutoFetchAllowedBuildListener"
                 topic="com.intellij.compiler.server.BuildManagerListener" />
     </applicationListeners>
-    -->
 
     <extensions defaultExtensionNs="com.intellij">
       <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchAllowedBuild" />
-
-      <!-- workaround for applicationListener not working -->
-      <postStartupActivity implementation="zielu.gittoolbox.fetch.AutoFetchAllowedBuildAppListener" />
-      <applicationService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchAllowedBuildSubscriber" />
     </extensions>
 </idea-plugin>

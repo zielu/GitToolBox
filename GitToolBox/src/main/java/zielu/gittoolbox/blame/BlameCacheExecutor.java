@@ -15,7 +15,8 @@ import zielu.gittoolbox.util.AppUtil;
 import zielu.gittoolbox.util.ExecutableTask;
 
 class BlameCacheExecutor implements Disposable {
-  private final Semaphore activeTasks = new Semaphore(2);
+  private static final int MAX_ALLOWED = 2;
+  private final Semaphore activeTasks = new Semaphore(MAX_ALLOWED);
   private final Queue<ExecutableTask> tasks = new LinkedBlockingQueue<>();
   private final Project project;
   private final Consumer<ExecutableTask> execution;
@@ -25,6 +26,8 @@ class BlameCacheExecutor implements Disposable {
     execution = this::executeWithProgress;
     Metrics metrics = ProjectMetrics.getInstance(project);
     metrics.gauge("blame-cache.executor.queue.size", tasks::size);
+    metrics.gauge("blame-cache.executor.max-allowed", () -> MAX_ALLOWED);
+    metrics.gauge("blame-cache.executor.permits.count", activeTasks::availablePermits);
   }
 
   @NotNull
