@@ -1,10 +1,10 @@
 package zielu.gittoolbox.util
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import org.slf4j.LoggerFactory
 
 internal abstract class ProjectMessageBusListener(private val project: Project) {
-  private val log = LoggerFactory.getLogger(this::class.java)
+  private val log = Logger.getInstance(ProjectMessageBusListener::class.java)
 
   fun handleEvent(handler: (project: Project) -> Unit) {
     val isActive = !AppUtil.runReadAction { project.isDisposed }
