@@ -39,6 +39,8 @@
     <projectService serviceInterface="zielu.gittoolbox.metrics.ProjectMetrics"
                     serviceImplementation="zielu.gittoolbox.metrics.ProjectMetricsImpl" />
 
+    <applicationService serviceImplementation="zielu.gittoolbox.lifecycle.PluginUnload" />
+
     <applicationService serviceImplementation="zielu.gittoolbox.ui.ExtendedRepoInfoService" />
 
     <applicationService serviceImplementation="zielu.gittoolbox.ui.update.UpdateProjectActionService" />

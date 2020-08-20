@@ -19,6 +19,11 @@ internal object AppUtil {
   }
 
   @JvmStatic
+  fun <T> getExistingServiceInstance(serviceType: Class<T>): Optional<T> {
+    return Optional.ofNullable(ApplicationManager.getApplication().getServiceIfCreated(serviceType))
+  }
+
+  @JvmStatic
   fun <T> getServiceInstance(project: Project, serviceType: Class<T>): T {
     return project.getService(serviceType)
   }

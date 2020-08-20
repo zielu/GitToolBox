@@ -53,10 +53,10 @@ public class GtPatternFormatterForm implements GtFormUi {
 
   private void updateCommitCompletionStatus(Optional<String> error) {
     if (error.isPresent()) {
-      commitCompletionPatternStatus.setIcon(ResIcons.Error);
+      commitCompletionPatternStatus.setIcon(ResIcons.getError());
       commitCompletionPatternStatus.setToolTipText(error.get());
     } else {
-      commitCompletionPatternStatus.setIcon(ResIcons.Ok);
+      commitCompletionPatternStatus.setIcon(ResIcons.getOk());
       commitCompletionPatternStatus.setToolTipText(null);
     }
   }
@@ -71,10 +71,10 @@ public class GtPatternFormatterForm implements GtFormUi {
     Formatted formatted = RegExpFormatter.create(pattern).format(testInput);
     commitCompletionPatternOutput.setText(formatted.getText());
     if (formatted.getMatches()) {
-      commitCompletionPatternMatchStatus.setIcon(ResIcons.Ok);
+      commitCompletionPatternMatchStatus.setIcon(ResIcons.getOk());
       commitCompletionPatternMatchStatus.setToolTipText(getMatchedToolTip());
     } else {
-      commitCompletionPatternMatchStatus.setIcon(ResIcons.Warning);
+      commitCompletionPatternMatchStatus.setIcon(ResIcons.getWarning());
       commitCompletionPatternMatchStatus.setToolTipText(getNotMatchedToolTip());
     }
     config.pattern = pattern;

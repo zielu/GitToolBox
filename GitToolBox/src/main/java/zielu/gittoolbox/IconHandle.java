@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 import javax.swing.Icon;
 
 public enum IconHandle {
-  REG_EXP_FORMATTER(() -> ResIcons.BranchViolet),
-  SIMPLE_FORMATTER(() -> ResIcons.BranchOrange)
+  REG_EXP_FORMATTER(ResIcons::getBranchViolet),
+  SIMPLE_FORMATTER(ResIcons::getBranchOrange)
   ;
 
   private final Supplier<Icon> iconSupplier;

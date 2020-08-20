@@ -245,9 +245,9 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
       parts.add(StatusText.format(extendedInfo));
       if (extendedInfo.hasChanged()) {
         if (extendedInfo.getChangedCount().getValue() > 0) {
-          icon = ResIcons.ChangesPresent;
+          icon = ResIcons.getChangesPresent();
         } else {
-          icon = ResIcons.NoChanges;
+          icon = ResIcons.getNoChanges();
         }
       }
     }

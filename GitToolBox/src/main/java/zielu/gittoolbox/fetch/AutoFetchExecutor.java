@@ -100,11 +100,13 @@ class AutoFetchExecutor implements Disposable {
 
   private synchronized void trySchedulingTask(Duration delay) {
     if (cleanAndCheckTasks(scheduledCyclicTasks, scheduledCyclicTasksCount)) {
-      ScheduledFuture<?> scheduled = AutoFetchGateway.getInstance(project)
-                                         .scheduleAutoFetch(delay, (project, schedule) ->
-                                      new AutoFetchTask(project, AutoFetchExecutor.this, schedule));
-      scheduledCyclicTasks.add(scheduled);
-      scheduledCyclicTasksCount.set(scheduledCyclicTasks.size());
+      AutoFetchGateway.getInstance(project)
+          .scheduleAutoFetch(delay, (project, schedule) ->
+              new AutoFetchTask(project, AutoFetchExecutor.this, schedule))
+          .ifPresent(scheduled -> {
+            scheduledCyclicTasks.add(scheduled);
+            scheduledCyclicTasksCount.set(scheduledCyclicTasks.size());
+          });
     } else {
       log.debug("Tasks already scheduled (in regular auto-fetch)");
     }
@@ -112,11 +114,13 @@ class AutoFetchExecutor implements Disposable {
 
   private synchronized void trySchedulingTask(Duration delay, GitRepository repository) {
     if (cleanAndCheckTasks(scheduledRepoTasks, scheduledRepoTasksCount)) {
-      ScheduledFuture<?> scheduled = AutoFetchGateway.getInstance(project)
-                                         .scheduleAutoFetch(delay, (project, schedule) ->
-                                      new AutoFetchTask(project, AutoFetchExecutor.this, schedule, repository));
-      scheduledRepoTasks.add(scheduled);
-      scheduledRepoTasksCount.set(scheduledRepoTasks.size());
+      AutoFetchGateway.getInstance(project)
+          .scheduleAutoFetch(delay, (project, schedule) ->
+              new AutoFetchTask(project, AutoFetchExecutor.this, schedule, repository))
+          .ifPresent(scheduled -> {
+            scheduledRepoTasks.add(scheduled);
+            scheduledRepoTasksCount.set(scheduledRepoTasks.size());
+          });
     } else {
       log.debug("Tasks already scheduled (in repo auto-fetch)");
     }

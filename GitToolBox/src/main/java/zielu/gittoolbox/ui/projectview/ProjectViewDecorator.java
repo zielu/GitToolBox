@@ -11,6 +11,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import git4idea.repo.GitRepository;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.config.AppConfig;
+import zielu.gittoolbox.lifecycle.PluginUnload;
 import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 
@@ -44,6 +45,9 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   }
 
   private boolean shouldDecorate(ProjectViewNode<?> projectViewNode) {
+    if (PluginUnload.isUnloading()) {
+      return false;
+    }
     Project project = projectViewNode.getProject();
     boolean result = project != null && AppConfig.get().getShowProjectViewStatus();
     if (!result && log.isDebugEnabled()) {

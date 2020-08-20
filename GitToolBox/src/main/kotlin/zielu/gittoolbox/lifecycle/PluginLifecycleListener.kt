@@ -16,6 +16,7 @@ internal class PluginLifecycleListener : DynamicPluginListener {
 
   override fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
     if (GitToolBox.isItMe(pluginDescriptor)) {
+      PluginUnload.getInstance().markUnloading()
       log.info("Plugin unloading")
       ApplicationManager.getApplication().messageBus.syncPublisher(PluginLifecycleNotifier.TOPIC).beforePluginUnload()
     }

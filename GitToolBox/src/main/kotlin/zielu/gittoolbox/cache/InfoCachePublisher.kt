@@ -6,7 +6,7 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.PerRepoInfoCache.CACHE_CHANGE
 import zielu.gittoolbox.util.LocalGateway
 
-internal class InfoCachePublisher(private val project: Project) : LocalGateway(project) {
+internal class InfoCachePublisher(project: Project) : LocalGateway(project) {
   fun notifyEvicted(repositories: Collection<GitRepository>) {
     publishAsync { it.syncPublisher(CACHE_CHANGE).evicted(repositories) }
   }
