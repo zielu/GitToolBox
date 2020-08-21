@@ -7,6 +7,6 @@ import zielu.gittoolbox.util.LocalGateway
 internal class AutoFetchAllowedLocalGateway(project: Project) : LocalGateway(project) {
 
   fun fireStateChanged() {
-    publishSync { it.syncPublisher(AUTO_FETCH_ALLOWED_TOPIC).stateChanged() }
+    publishAsync { it.syncPublisher(AUTO_FETCH_ALLOWED_TOPIC).stateChanged() }
   }
 }

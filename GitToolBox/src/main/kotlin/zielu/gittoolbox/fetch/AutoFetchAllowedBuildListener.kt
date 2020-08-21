@@ -7,13 +7,15 @@ import java.util.UUID
 internal class AutoFetchAllowedBuildListener : BuildManagerListener {
   override fun buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean) {
     if (isNotDefault(project)) {
-      AutoFetchAllowedBuild.getInstance(project).onBuildStarted(project)
+      AutoFetchAllowedBuild.getInstance(project)
+        .ifPresent { it.onBuildStarted(project) }
     }
   }
 
   override fun buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean) {
     if (isNotDefault(project)) {
-      AutoFetchAllowedBuild.getInstance(project).onBuildFinished(project)
+      AutoFetchAllowedBuild.getInstance(project)
+        .ifPresent { it.onBuildFinished(project) }
     }
   }
 

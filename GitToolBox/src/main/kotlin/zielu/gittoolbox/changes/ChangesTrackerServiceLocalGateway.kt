@@ -13,7 +13,7 @@ internal open class ChangesTrackerServiceLocalGateway(
 ) : LocalGateway(project) {
 
   fun fireChangeCountsUpdated() {
-    publishSync { it.syncPublisher(CHANGES_TRACKER_TOPIC).changeCountsUpdated() }
+    publishAsync { it.syncPublisher(CHANGES_TRACKER_TOPIC).changeCountsUpdated() }
   }
 
   fun getRepoForPath(path: FilePath): GitRepository? {

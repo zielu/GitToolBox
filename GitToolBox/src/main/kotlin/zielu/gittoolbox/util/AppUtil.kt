@@ -2,7 +2,6 @@ package zielu.gittoolbox.util
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.util.ThrowableRunnable
@@ -28,9 +27,13 @@ internal object AppUtil {
     return project.getService(serviceType)
   }
 
+  fun <T> getServiceInstanceSafe(project: Project, serviceType: Class<T>): Optional<T> {
+    return Optional.ofNullable(project.getService(serviceType))
+  }
+
   @JvmStatic
   fun <T> getServiceInstance(serviceType: Class<T>): T {
-    return ServiceManager.getService(serviceType)
+    return ApplicationManager.getApplication().getService(serviceType)
   }
 
   fun <T> runReadAction(block: () -> T): T {

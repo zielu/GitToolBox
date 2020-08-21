@@ -3,6 +3,7 @@ package zielu.gittoolbox.fetch
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.util.AppUtil
+import java.util.Optional
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class AutoFetchAllowedBuild(private val project: Project) {
@@ -36,8 +37,8 @@ internal class AutoFetchAllowedBuild(private val project: Project) {
   companion object {
     private val log = Logger.getInstance(AutoFetchAllowedBuild::class.java)
 
-    fun getInstance(project: Project): AutoFetchAllowedBuild {
-      return AppUtil.getServiceInstance(project, AutoFetchAllowedBuild::class.java)
+    fun getInstance(project: Project): Optional<AutoFetchAllowedBuild> {
+      return AppUtil.getServiceInstanceSafe(project, AutoFetchAllowedBuild::class.java)
     }
   }
 }
