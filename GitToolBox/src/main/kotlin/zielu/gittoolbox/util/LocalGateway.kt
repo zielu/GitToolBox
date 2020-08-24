@@ -1,10 +1,9 @@
 package zielu.gittoolbox.util
 
 import com.google.common.cache.Cache
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.MessageBus
-import zielu.gittoolbox.lifecycle.PluginUnload
+import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.metrics.CacheMetrics
 import zielu.gittoolbox.metrics.Metrics
 import zielu.gittoolbox.metrics.ProjectMetrics
@@ -19,9 +18,7 @@ internal abstract class LocalGateway(private val project: Project) {
   }
 
   protected fun publishSync(publisher: (messageBus: MessageBus) -> Unit) {
-    if (PluginUnload.isInactive()) {
-      publisher.invoke(project.messageBus)
-    }
+    GitToolBoxApp.getInstance().ifPresent { it.publishSync(project, publisher) }
   }
 
   protected fun publishAsync(publisher: (messageBus: MessageBus) -> Unit) {
@@ -29,8 +26,6 @@ internal abstract class LocalGateway(private val project: Project) {
   }
 
   protected fun runInBackground(task: () -> Unit) {
-    if (PluginUnload.isInactive()) {
-      ApplicationManager.getApplication().executeOnPooledThread(DisposeSafeRunnable(project, task))
-    }
+    GitToolBoxApp.getInstance().ifPresent { it.runInBackground(DisposeSafeRunnable(project, task)) }
   }
 }
