@@ -116,7 +116,6 @@
                         serviceImplementation="zielu.gittoolbox.ui.blame.BlamePresenterImpl" />
     <projectService serviceInterface="zielu.gittoolbox.ui.blame.BlameUiService"
                     serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiServiceImpl" />
-    <projectService serviceImplementation="zielu.gittoolbox.ui.blame.BlameEditorUnloader" />
     <projectService serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiSubscriber" />
     <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter" />
 

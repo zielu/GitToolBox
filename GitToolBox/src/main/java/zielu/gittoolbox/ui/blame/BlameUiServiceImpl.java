@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.blame;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -7,12 +8,16 @@ import com.intellij.openapi.editor.LineExtensionInfo;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.FontUtil;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
@@ -23,10 +28,11 @@ import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.intellij.util.ZUtil;
 
-class BlameUiServiceImpl implements BlameUiService {
+class BlameUiServiceImpl implements BlameUiService, Disposable {
   private static final TextAttributesKey ATTRIBUTES_KEY = DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES;
   private static final String BLAME_PREFIX = FontUtil.spaceAndThinSpace() + " ";
   private final Logger log = Logger.getInstance(getClass());
+  private final AtomicBoolean active = new AtomicBoolean(true);
   private final AtomicInteger configGeneration = new AtomicInteger(1);
   private final Project project;
   private final BlameUiServiceLocalGateway gateway;
@@ -86,7 +92,7 @@ class BlameUiServiceImpl implements BlameUiService {
   }
 
   private boolean isDocumentValid(Document document, int lineIndex) {
-    return document != null  && lineIndex < document.getLineCount();
+    return document != null && lineIndex < document.getLineCount();
   }
 
   @Nullable
@@ -105,7 +111,11 @@ class BlameUiServiceImpl implements BlameUiService {
   @Nullable
   @Override
   public Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineIndex) {
-    return gateway.getEditorTimer().timeSupplier(() -> getLineExtensionsInternal(file, editorLineIndex));
+    if (active.get()) {
+      return gateway.getEditorTimer().timeSupplier(() -> getLineExtensionsInternal(file, editorLineIndex));
+    } else {
+      return null;
+    }
   }
 
   @Nullable
@@ -179,5 +189,26 @@ class BlameUiServiceImpl implements BlameUiService {
         .append(BLAME_PREFIX)
         .append(gateway.getEditorInlineDecoration(revisionInfo))
         .toString();
+  }
+
+  @Override
+  public void dispose() {
+    if (active.compareAndSet(true, false)) {
+      clearData();
+    }
+  }
+
+  private void clearData() {
+    Arrays.stream(FileEditorManager.getInstance(project).getAllEditors())
+        .filter(TextEditor.class::isInstance)
+        .map(TextEditor.class::cast)
+        .map(TextEditor::getEditor)
+        .forEach(this::clearEditorData);
+  }
+
+  private void clearEditorData(Editor editor) {
+    BlameEditorData.clear(editor);
+    BlameEditorLineData.clear(editor);
+    BlameStatusLineData.clear(editor);
   }
 }
