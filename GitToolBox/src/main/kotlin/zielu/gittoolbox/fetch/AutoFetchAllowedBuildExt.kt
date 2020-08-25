@@ -8,6 +8,6 @@ internal class AutoFetchAllowedBuildExt : AutoFetchAllowed {
   override fun isAllowed(project: Project): Boolean {
     return AutoFetchAllowedBuild.getInstance(project)
       .map { it.isFetchAllowed() }
-      .orElse(false)
+      .orElse(true)
   }
 }
