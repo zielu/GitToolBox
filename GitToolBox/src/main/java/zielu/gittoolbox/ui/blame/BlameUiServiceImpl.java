@@ -59,13 +59,18 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
 
   @Override
   public void refreshBlame() {
-    gateway.invalidateAllBlames();
+    if (active.get()) {
+      gateway.invalidateAllBlames();
+    }
   }
 
   @Nullable
   @Override
   public String getBlameStatus(@NotNull VirtualFile file, int editorLineIndex) {
-    return gateway.getStatusBarTimer().timeSupplier(() -> getBlameStatusInternal(file, editorLineIndex));
+    if (active.get()) {
+      return gateway.getStatusBarTimer().timeSupplier(() -> getBlameStatusInternal(file, editorLineIndex));
+    }
+    return null;
   }
 
   @Nullable
@@ -98,7 +103,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   @Nullable
   @Override
   public String getBlameStatusTooltip(@NotNull VirtualFile file, int editorLineIndex) {
-    if (gateway.isUnderGit(file)) {
+    if (active.get() && gateway.isUnderGit(file)) {
       Document document = gateway.getDocument(file);
       if (isDocumentValid(document, editorLineIndex)) {
         RevisionInfo revisionInfo = gateway.getLineBlame(document, file, editorLineIndex);
@@ -159,8 +164,10 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
 
   @Override
   public void blameUpdated(@NotNull VirtualFile file) {
-    log.debug("Blame updated: ", file);
-    AppUiUtil.invokeLaterIfNeeded(project, () -> handleBlameUpdated(file));
+    if (active.get()) {
+      log.debug("Blame updated: ", file);
+      AppUiUtil.invokeLaterIfNeeded(project, () -> handleBlameUpdated(file));
+    }
   }
 
   private void handleBlameUpdated(@NotNull VirtualFile file) {

@@ -72,11 +72,14 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   @NotNull
   @Override
   public RepoInfo getInfo(@NotNull GitRepository repository) {
-    RepoInfo repoInfo = getRepoInfo(repository);
-    if (repoInfo.isEmpty()) {
-      scheduleUpdate(repository);
+    if (active.get()) {
+      RepoInfo repoInfo = getRepoInfo(repository);
+      if (repoInfo.isEmpty()) {
+        scheduleUpdate(repository);
+      }
+      return repoInfo;
     }
-    return repoInfo;
+    return RepoInfo.empty();
   }
 
   @NotNull
@@ -101,15 +104,19 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   @Override
   public void repoChanged(@NotNull GitRepository repository) {
-    log.debug("Got repo changed event: ", repository);
-    scheduleMandatoryRefresh(repository);
+    if (active.get()) {
+      log.debug("Got repo changed event: ", repository);
+      scheduleMandatoryRefresh(repository);
+    }
   }
 
   @Override
   public void updatedRepoList(ImmutableList<GitRepository> repositories) {
-    Set<GitRepository> removed = new HashSet<>(behindStatuses.get().keySet());
-    removed.removeAll(repositories);
-    purgeRepositories(removed);
+    if (active.get()) {
+      Set<GitRepository> removed = new HashSet<>(behindStatuses.get().keySet());
+      removed.removeAll(repositories);
+      purgeRepositories(removed);
+    }
   }
 
   private void purgeRepositories(@NotNull Collection<GitRepository> repositories) {
@@ -128,14 +135,18 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   @Override
   public void refreshAll() {
-    log.debug("Refreshing all repository statuses");
-    refresh(GitUtil.getRepositories(project));
+    if (active.get()) {
+      log.debug("Refreshing all repository statuses");
+      refresh(GitUtil.getRepositories(project));
+    }
   }
 
   @Override
   public void refresh(Iterable<GitRepository> repositories) {
-    log.debug("Refreshing repositories statuses: ", repositories);
-    repositories.forEach(this::scheduleUpdate);
+    if (active.get()) {
+      log.debug("Refreshing repositories statuses: ", repositories);
+      repositories.forEach(this::scheduleUpdate);
+    }
   }
 
   private class RefreshTask implements CacheTaskScheduler.Task {
