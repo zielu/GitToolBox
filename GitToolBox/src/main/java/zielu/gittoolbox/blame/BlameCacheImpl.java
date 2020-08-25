@@ -27,6 +27,7 @@ import zielu.gittoolbox.util.ExecutableTask;
 
 class BlameCacheImpl implements BlameCache, Disposable {
   private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
+  private final AtomicBoolean active = new AtomicBoolean(true);
   private final BlameCacheLocalGateway gateway;
   private final LoadingCache<VirtualFile, Cached<Blamed>> annotations = CacheBuilder.newBuilder()
       .maximumSize(75)
@@ -43,14 +44,19 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   @Override
   public void dispose() {
-    annotations.invalidateAll();
-    queued.clear();
+    if (active.compareAndSet(true, false)) {
+      annotations.invalidateAll();
+      queued.clear();
+    }
   }
 
   @NotNull
   @Override
   public BlameAnnotation getAnnotation(@NotNull VirtualFile file) {
-    return gateway.getCacheGetTimer().timeSupplier(() -> getAnnotationInternal(file));
+    if (active.get()) {
+      return gateway.getCacheGetTimer().timeSupplier(() -> getAnnotationInternal(file));
+    }
+    return BlameAnnotation.EMPTY;
   }
 
   private BlameAnnotation getAnnotationInternal(@NotNull VirtualFile file) {
@@ -120,9 +126,15 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   @Override
   public void refreshForRoot(@NotNull VirtualFile root) {
+    if (active.get()) {
+      refreshForRootImpl(root);
+    }
+  }
+
+  private void refreshForRootImpl(@NotNull VirtualFile root) {
     LOG.debug("Refresh for root: ", root);
     Set<VirtualFile> files = new HashSet<>(annotations.asMap()
-                                               .keySet());
+        .keySet());
     files.stream()
         .filter(file -> VfsUtilCore.isAncestor(root, file, false))
         .forEach(this::markDirty);
@@ -139,10 +151,16 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   @Override
   public void invalidateForRoot(@NotNull VirtualFile root) {
+    if (active.get()) {
+      invalidateForRootImpl(root);
+    }
+  }
+
+  private void invalidateForRootImpl(@NotNull VirtualFile root) {
     LOG.debug("Invalidate for root: ", root);
     gateway.invalidateForRoot(root);
     Set<VirtualFile> files = new HashSet<>(annotations.asMap()
-                                               .keySet());
+        .keySet());
     files.stream()
         .filter(file -> VfsUtilCore.isAncestor(root, file, false))
         .forEach(this::invalidate);
