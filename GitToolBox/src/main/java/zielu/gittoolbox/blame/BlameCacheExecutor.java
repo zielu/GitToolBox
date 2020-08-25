@@ -4,9 +4,11 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.metrics.Metrics;
@@ -17,6 +19,7 @@ import zielu.gittoolbox.util.ExecutableTask;
 class BlameCacheExecutor implements Disposable {
   private static final int MAX_ALLOWED = 2;
   private final Semaphore activeTasks = new Semaphore(MAX_ALLOWED);
+  private final AtomicBoolean active = new AtomicBoolean(true);
   private final Queue<ExecutableTask> tasks = new LinkedBlockingQueue<>();
   private final Project project;
   private final Consumer<ExecutableTask> execution;
@@ -31,15 +34,17 @@ class BlameCacheExecutor implements Disposable {
   }
 
   @NotNull
-  static BlameCacheExecutor getInstance(@NotNull Project project) {
-    return AppUtil.getServiceInstance(project, BlameCacheExecutor.class);
+  static Optional<BlameCacheExecutor> getInstance(@NotNull Project project) {
+    return AppUtil.getServiceInstanceSafe(project, BlameCacheExecutor.class);
   }
 
   void execute(ExecutableTask executable) {
-    if (activeTasks.tryAcquire()) {
-      execution.accept(executable);
-    } else {
-      tasks.offer(executable);
+    if (active.get()) {
+      if (activeTasks.tryAcquire()) {
+        execution.accept(executable);
+      } else {
+        tasks.offer(executable);
+      }
     }
   }
 
@@ -55,7 +60,9 @@ class BlameCacheExecutor implements Disposable {
       @Override
       public void run(@NotNull ProgressIndicator indicator) {
         indicator.setIndeterminate(true);
-        executable.run();
+        if (active.get()) {
+          executable.run();
+        }
       }
 
       @Override
@@ -64,11 +71,15 @@ class BlameCacheExecutor implements Disposable {
         executeNext();
       }
     };
-    task.queue();
+    if (active.get()) {
+      task.queue();
+    }
   }
 
   @Override
   public void dispose() {
-    tasks.clear();
+    if (active.compareAndSet(true, false)) {
+      tasks.clear();
+    }
   }
 }

@@ -37,7 +37,7 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
   }
 
   fun execute(task: ExecutableTask) {
-    BlameCacheExecutor.getInstance(project).execute(task)
+    BlameCacheExecutor.getInstance(project).ifPresent { it.execute(task) }
   }
 
   fun getCurrentRevision(repository: GitRepository): VcsRevisionNumber {

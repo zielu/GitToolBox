@@ -1,6 +1,5 @@
 package zielu.gittoolbox.config
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.metrics.ProjectMetrics
@@ -33,7 +32,9 @@ internal class ProjectConfig {
           val result = timer.timeSupplier { migrate(project, config, appConfig) }
           migrationDone.set(true)
           if (result.migrated) {
-            saveSettings()
+            log.info("Migration done")
+          } else {
+            log.info("Already migrated")
           }
           result.config
         }
@@ -43,13 +44,6 @@ internal class ProjectConfig {
 
   private fun getConfig(project: Project): GitToolBoxConfigPrj {
     return AppUtil.getServiceInstance(project, GitToolBoxConfigPrj::class.java)
-  }
-
-  private fun saveSettings() {
-    ApplicationManager.getApplication().executeOnPooledThread {
-      AppUtil.saveAppSettings()
-      log.info("Settings saved after project config migration")
-    }
   }
 
   private fun migrate(

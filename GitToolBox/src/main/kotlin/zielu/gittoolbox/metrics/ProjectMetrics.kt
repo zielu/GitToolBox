@@ -2,6 +2,7 @@ package zielu.gittoolbox.metrics
 
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.util.AppUtil.getServiceInstance
+import zielu.gittoolbox.util.AppUtil.getServiceInstanceSafe
 
 internal interface ProjectMetrics : Metrics {
   fun startReporting()
@@ -13,7 +14,7 @@ internal interface ProjectMetrics : Metrics {
     }
 
     fun startReporting(project: Project) {
-      getServiceInstance(project, ProjectMetrics::class.java).startReporting()
+      getServiceInstanceSafe(project, ProjectMetrics::class.java).ifPresent { it.startReporting() }
     }
   }
 }

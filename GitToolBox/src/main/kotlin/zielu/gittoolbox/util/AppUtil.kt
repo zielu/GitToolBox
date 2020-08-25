@@ -27,6 +27,7 @@ internal object AppUtil {
     return project.getService(serviceType)
   }
 
+  @JvmStatic
   fun <T> getServiceInstanceSafe(project: Project, serviceType: Class<T>): Optional<T> {
     return Optional.ofNullable(project.getService(serviceType))
   }

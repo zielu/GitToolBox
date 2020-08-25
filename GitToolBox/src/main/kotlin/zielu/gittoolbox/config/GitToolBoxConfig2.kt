@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.xmlb.XmlSerializerUtil
 import com.intellij.util.xmlb.annotations.Transient
 import zielu.gittoolbox.extension.update.UpdateProjectAction
@@ -110,5 +111,15 @@ internal data class GitToolBoxConfig2(
 
     override fun loadState(state: GitToolBoxConfig2) {
         XmlSerializerUtil.copyBean(state, this)
+    }
+
+    override fun initializeComponent() {
+        val migrated = ConfigMigrator().migrate(this)
+        val log = Logger.getInstance(GitToolBoxConfig2::class.java)
+        if (migrated) {
+            log.info("Migration done")
+        } else {
+            log.info("Already migrated")
+        }
     }
 }

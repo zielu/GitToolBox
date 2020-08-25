@@ -9,12 +9,14 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.revision.RevisionInfo;
 
 class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
+  private final AtomicBoolean active = new AtomicBoolean(true);
   private final BlameServiceLocalGateway gateway;
   private final LoadingCache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
       .weakKeys()
@@ -28,14 +30,19 @@ class BlameServiceImpl implements BlameService, Disposable {
 
   @Override
   public void dispose() {
-    lineNumberProviderCache.invalidateAll();
+    if (active.compareAndSet(true, false)) {
+      lineNumberProviderCache.invalidateAll();
+    }
   }
 
   @NotNull
   @Override
   public RevisionInfo getDocumentLineIndexBlame(@NotNull Document document, @NotNull VirtualFile file,
                                                 int lineIndex) {
-    return gateway.getLineBlameTimer().timeSupplier(() -> getLineBlameInternal(document, file, lineIndex));
+    if (active.get()) {
+      return gateway.getLineBlameTimer().timeSupplier(() -> getLineBlameInternal(document, file, lineIndex));
+    }
+    return RevisionInfo.NULL;
   }
 
   @NotNull
@@ -73,12 +80,16 @@ class BlameServiceImpl implements BlameService, Disposable {
 
   @Override
   public void invalidate(@NotNull VirtualFile file) {
-    gateway.fireBlameInvalidated(file);
+    if (active.get()) {
+      gateway.fireBlameInvalidated(file);
+    }
   }
 
   @Override
   public void blameUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-    gateway.fireBlameUpdated(file);
+    if (active.get()) {
+      gateway.fireBlameUpdated(file);
+    }
   }
 
   private static final class CachedLineProvider {
