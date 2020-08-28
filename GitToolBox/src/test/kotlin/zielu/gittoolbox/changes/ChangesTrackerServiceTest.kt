@@ -106,11 +106,14 @@ internal class ChangesTrackerServiceTest {
     every { gatewayMock.getRepoForPath(filePathMock21) } returns repoMock2
     every { gatewayMock.fireChangeCountsUpdated() } just Runs
 
-    val changeListData = ChangeListData("list1", listOf(
-      ChangeData(filePathMock1),
-      ChangeData(filePathMock2),
-      ChangeData(filePathMock21)
-    ))
+    val changeListData = ChangeListData(
+      "list1",
+      listOf(
+        ChangeData(filePathMock1),
+        ChangeData(filePathMock2),
+        ChangeData(filePathMock21)
+      )
+    )
 
     // when
     changesTrackerService.changeListChanged(changeListData)
@@ -138,14 +141,16 @@ internal class ChangesTrackerServiceTest {
     every { gatewayMock.getRepoForPath(filePathMock21) } returns repoMock2
     every { gatewayMock.fireChangeCountsUpdated() } just Runs
 
-    val changeListData1 = ChangeListData("list1", listOf(
-      ChangeData(filePathMock1),
-      ChangeData(filePathMock2),
-      ChangeData(filePathMock21)
-    ))
-    val changeListData2 = ChangeListData("list1", listOf(
-      ChangeData(filePathMock2)
-    ))
+    val changeListData1 = ChangeListData(
+      "list1",
+      listOf(
+        ChangeData(filePathMock1),
+        ChangeData(filePathMock2),
+        ChangeData(filePathMock21)
+      )
+    )
+
+    val changeListData2 = ChangeListData("list1", listOf(ChangeData(filePathMock2)))
 
     // when
     changesTrackerService.changeListChanged(changeListData1)

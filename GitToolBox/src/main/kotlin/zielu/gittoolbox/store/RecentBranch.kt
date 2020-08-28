@@ -11,6 +11,7 @@ internal data class RecentBranch(
   fun copy(): RecentBranch {
     return RecentBranch(
       branchName,
-      lastUsedInstant)
+      lastUsedInstant
+    )
   }
 }

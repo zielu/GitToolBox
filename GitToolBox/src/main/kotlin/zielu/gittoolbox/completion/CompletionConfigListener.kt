@@ -7,7 +7,8 @@ import zielu.gittoolbox.config.ProjectConfigNotifier
 internal class CompletionConfigListener(private val project: Project) : ProjectConfigNotifier {
   override fun configChanged(previous: GitToolBoxConfigPrj, current: GitToolBoxConfigPrj) {
     CompletionService.getExistingInstance(project).ifPresent {
-      service: CompletionService -> service.onConfigChanged(current)
+      service: CompletionService ->
+      service.onConfigChanged(current)
     }
   }
 }

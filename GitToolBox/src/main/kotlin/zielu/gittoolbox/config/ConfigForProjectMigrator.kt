@@ -10,8 +10,8 @@ internal class ConfigForProjectMigrator(private val config: GitToolBoxConfigPrj)
   private fun migrateAutoFetchExclusions(): Boolean {
     var migrated = false
     if (config.autoFetchExclusions.isNotEmpty()) {
-      val configs = config.autoFetchExclusionConfigs.groupBy {
-        autoFetchExclusionConfig: AutoFetchExclusionConfig -> autoFetchExclusionConfig.repositoryRootPath
+      val configs = config.autoFetchExclusionConfigs.groupBy { autoFetchExclusionConfig: AutoFetchExclusionConfig ->
+        autoFetchExclusionConfig.repositoryRootPath
       }
       val cleanConfigs = LinkedHashMap<String, AutoFetchExclusionConfig>()
       configs.entries.forEach { exConfigs ->

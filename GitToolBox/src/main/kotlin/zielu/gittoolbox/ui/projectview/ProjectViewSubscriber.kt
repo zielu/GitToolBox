@@ -14,11 +14,13 @@ internal class ProjectViewSubscriber(
 
   fun refreshProjectView() {
     if (active.get()) {
-      invokeLater(project, Runnable {
-        if (active.get()) {
-          ProjectView.getInstance(project).refresh()
-        }
-      })
+      invokeLater(project, Runnable { refreshProjectViewInternal() })
+    }
+  }
+
+  private fun refreshProjectViewInternal() {
+    if (active.get()) {
+      ProjectView.getInstance(project).refresh()
     }
   }
 

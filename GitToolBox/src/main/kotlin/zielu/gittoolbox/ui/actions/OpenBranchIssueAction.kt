@@ -12,12 +12,12 @@ internal class OpenBranchIssueAction(
   private val url: String
 ) : AnAction(Supplier { ResBundle.message("open.branch.issue.action.text", text) }), DumbAware {
 
-    override fun update(e: AnActionEvent) {
-        super.update(e)
-        e.presentation.isVisible = e.project != null
-    }
+  override fun update(e: AnActionEvent) {
+    super.update(e)
+    e.presentation.isVisible = e.project != null
+  }
 
-    override fun actionPerformed(e: AnActionEvent) {
-        BrowserUtil.browse(url, e.project)
-    }
+  override fun actionPerformed(e: AnActionEvent) {
+    BrowserUtil.browse(url, e.project)
+  }
 }

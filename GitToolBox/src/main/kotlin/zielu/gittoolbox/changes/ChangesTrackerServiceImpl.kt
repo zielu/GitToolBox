@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 internal class ChangesTrackerServiceImpl
-  @NonInjectable
-  constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTrackerService {
+@NonInjectable
+constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTrackerService {
 
   constructor(project: Project) : this(ChangesTrackerServiceLocalGateway(project))
 

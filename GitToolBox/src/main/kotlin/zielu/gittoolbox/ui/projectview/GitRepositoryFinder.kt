@@ -31,8 +31,10 @@ internal class GitRepositoryFinder {
         repository = viewPsiDirectoryNodeExtensions.findForDirectory(node)
       }
       if (repository == null && log.isTraceEnabled) {
-        log.trace("Unsupported directory $node, type=${node.javaClass.simpleName}, name=${node.name}" +
-          ", title=${node.title}, parent=${node.parent?.javaClass?.simpleName}")
+        log.trace(
+          "Unsupported directory $node, type=${node.javaClass.simpleName}, name=${node.name}" +
+            ", title=${node.title}, parent=${node.parent?.javaClass?.simpleName}"
+        )
       } else {
         log.debug("Repo for dir ", node, IS_PART, repository)
       }
@@ -40,8 +42,10 @@ internal class GitRepositoryFinder {
       repository = findForChildOfViewModuleNode(node)
       log.debug("Repo for child of view node ", node, IS_PART, repository)
     } else if (log.isTraceEnabled) {
-      log.trace("Unsupported node $node, type=${node.javaClass.simpleName}, name=${node.name}" +
-        ", title=${node.title}, parent=${node.parent?.javaClass?.simpleName}")
+      log.trace(
+        "Unsupported node $node, type=${node.javaClass.simpleName}, name=${node.name}" +
+          ", title=${node.title}, parent=${node.parent?.javaClass?.simpleName}"
+      )
     }
     return repository
   }

@@ -18,4 +18,5 @@ internal class ViewModuleNodeChildExtension {
 }
 
 private val EXTENSION_POINT_NAME: ExtensionPointName<ViewModuleNodeChildEP> = ExtensionPointName.create(
-  "zielu.gittoolbox.viewModuleNodeChild")
+  "zielu.gittoolbox.viewModuleNodeChild"
+)

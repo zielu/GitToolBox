@@ -5,17 +5,17 @@ import org.junit.jupiter.api.Test
 
 internal class GitmojiMetadataTest {
 
-    @Test
-    fun shouldReturnKeywords() {
-        val keywords = GitmojiMetadata.getKeywords("alembic")
+  @Test
+  fun shouldReturnKeywords() {
+    val keywords = GitmojiMetadata.getKeywords("alembic")
 
-        assertThat(keywords).isNotEmpty
-    }
+    assertThat(keywords).isNotEmpty
+  }
 
-    @Test
-    fun shouldReturnCharacters() {
-        val characters = GitmojiMetadata.getCharacters("alembic")
+  @Test
+  fun shouldReturnCharacters() {
+    val characters = GitmojiMetadata.getCharacters("alembic")
 
-        assertThat(characters).isNotEmpty
-    }
+    assertThat(characters).isNotEmpty
+  }
 }

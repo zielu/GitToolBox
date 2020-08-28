@@ -8,7 +8,6 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.HashMap
-import java.util.function.Function
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.math.max
@@ -38,9 +37,9 @@ internal class IncrementalBlameBuilder : GitLineHandlerListener {
     for (entry in entries) {
       for (i in 0 until entry.lineCount) {
         val index = entry.lineNumber - 1 + i
-        lineInfos[index] = commits.computeIfAbsent(entry.commitHash, Function<String, CommitInfo> {
-          hash: String -> commitBuilders[hash]!!.build()
-        })
+        lineInfos[index] = commits.computeIfAbsent(entry.commitHash) { hash: String ->
+          commitBuilders[hash]!!.build()
+        }
       }
     }
     return lineInfos
@@ -92,9 +91,10 @@ internal class IncrementalBlameBuilder : GitLineHandlerListener {
       line.startsWith(authorTag) -> currentCommitBuilder.authorName(extractTagValue(authorTag, line))
       line.startsWith(authorMailTag) -> currentCommitBuilder.authorEmail(extractEmailValue(authorMailTag, line))
       line.startsWith(authorTimeTag) -> currentCommitBuilder.authorTime(extractTimeValue(authorTimeTag, line))
-      line.startsWith(authorTimeZoneTag) -> currentCommitBuilder.authorTimeOffset(extractTimeZoneValue(
-        authorTimeZoneTag, line)
-      )
+      line.startsWith(authorTimeZoneTag) ->
+        currentCommitBuilder.authorTimeOffset(
+          extractTimeZoneValue(authorTimeZoneTag, line)
+        )
     }
   }
 

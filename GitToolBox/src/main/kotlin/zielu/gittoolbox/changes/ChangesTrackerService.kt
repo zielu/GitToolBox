@@ -15,8 +15,8 @@ internal interface ChangesTrackerService {
 
   companion object {
     @JvmField
-    val CHANGES_TRACKER_TOPIC: Topic<ChangesTrackerListener> = Topic.create("Git ToolBox Changes Notification",
-      ChangesTrackerListener::class.java
+    val CHANGES_TRACKER_TOPIC: Topic<ChangesTrackerListener> = Topic.create(
+      "Git ToolBox Changes Notification", ChangesTrackerListener::class.java
     )
 
     @JvmStatic

@@ -7,27 +7,27 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 internal object GitmojiMetadata {
-    private val metadata: Gitmojis by lazy {
-        load()
-    }
-    private val characters: ConcurrentMap<String, List<Char>> = ConcurrentHashMap()
+  private val metadata: Gitmojis by lazy {
+    load()
+  }
+  private val characters: ConcurrentMap<String, List<Char>> = ConcurrentHashMap()
 
-    private fun load(): Gitmojis {
-        val yaml = Yaml(Constructor(Gitmojis::class.java))
-        return yaml.load(this::class.java.getResourceAsStream("/zielu/gittoolbox/gitmoji.yaml"))
-    }
+  private fun load(): Gitmojis {
+    val yaml = Yaml(Constructor(Gitmojis::class.java))
+    return yaml.load(this::class.java.getResourceAsStream("/zielu/gittoolbox/gitmoji.yaml"))
+  }
 
-    fun getKeywords(gitmoji: String): List<String> {
-        return metadata.gitmojis[gitmoji]?.keywords ?: listOf()
-    }
+  fun getKeywords(gitmoji: String): List<String> {
+    return metadata.gitmojis[gitmoji]?.keywords ?: listOf()
+  }
 
-    fun getCharacters(gitmoji: String): List<Char> {
-        return metadata.gitmojis[gitmoji]?.let { found ->
-            characters.computeIfAbsent(gitmoji) {
-                UtfSeq.fromCodepoint(found.codepoint, found.requiresVariation)
-            }
-        } ?: listOf()
-    }
+  fun getCharacters(gitmoji: String): List<Char> {
+    return metadata.gitmojis[gitmoji]?.let { found ->
+      characters.computeIfAbsent(gitmoji) {
+        UtfSeq.fromCodepoint(found.codepoint, found.requiresVariation)
+      }
+    } ?: listOf()
+  }
 }
 
 data class Gitmojis(

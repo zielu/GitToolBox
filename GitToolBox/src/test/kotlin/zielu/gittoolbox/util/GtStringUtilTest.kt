@@ -12,7 +12,8 @@ internal class GtStringUtilTest {
     "'  abc\ncba','  abc'",
     "'abc  \ncba','abc  '",
     "'',''",
-    ",")
+    ","
+  )
   fun `firstLine should return expected value`(value: String?, expected: String?) {
     assertThat(firstLine(value)).isEqualTo(expected)
   }

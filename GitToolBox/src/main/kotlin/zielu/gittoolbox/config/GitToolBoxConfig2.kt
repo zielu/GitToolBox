@@ -38,88 +38,88 @@ internal data class GitToolBoxConfig2(
   var alwaysShowInlineBlameWhileDebugging: Boolean = false
 ) : PersistentStateComponent<GitToolBoxConfig2> {
 
-    @Transient
-    fun copy(): GitToolBoxConfig2 {
-        return GitToolBoxConfig2(
-          presentationMode,
-          behindTracker,
-          showStatusWidget,
-          showProjectViewStatus,
-          showBlameWidget,
-          showEditorInlineBlame,
-          updateProjectActionId,
-          commitDialogCompletionMode,
-          blameInlineAuthorNameType,
-          blameStatusAuthorNameType,
-          blameInlineDateType,
-          blameInlineShowSubject,
-          absoluteDateTimeStyle,
-          showChangesInStatusBar,
-          previousVersionMigrated,
-          version,
-          decorationParts.map { it.copy() },
-          extrasConfig.copy(),
-          commitDialogGitmojiCompletion,
-          hideInlineBlameWhileDebugging,
-          alwaysShowInlineBlameWhileDebugging
-        )
-    }
+  @Transient
+  fun copy(): GitToolBoxConfig2 {
+    return GitToolBoxConfig2(
+      presentationMode,
+      behindTracker,
+      showStatusWidget,
+      showProjectViewStatus,
+      showBlameWidget,
+      showEditorInlineBlame,
+      updateProjectActionId,
+      commitDialogCompletionMode,
+      blameInlineAuthorNameType,
+      blameStatusAuthorNameType,
+      blameInlineDateType,
+      blameInlineShowSubject,
+      absoluteDateTimeStyle,
+      showChangesInStatusBar,
+      previousVersionMigrated,
+      version,
+      decorationParts.map { it.copy() },
+      extrasConfig.copy(),
+      commitDialogGitmojiCompletion,
+      hideInlineBlameWhileDebugging,
+      alwaysShowInlineBlameWhileDebugging
+    )
+  }
 
-    @Transient
-    fun getPresenter(): StatusPresenter {
-        return StatusPresenters.forKey(presentationMode)
-    }
+  @Transient
+  fun getPresenter(): StatusPresenter {
+    return StatusPresenters.forKey(presentationMode)
+  }
 
-    fun setPresenter(presenter: StatusPresenter) {
-        presentationMode = presenter.key()
-    }
+  fun setPresenter(presenter: StatusPresenter) {
+    presentationMode = presenter.key()
+  }
 
-    @Transient
-    fun getUpdateProjectAction(): UpdateProjectAction {
-        return UpdateProjectActionService.getInstance().getById(updateProjectActionId)
-    }
+  @Transient
+  fun getUpdateProjectAction(): UpdateProjectAction {
+    return UpdateProjectActionService.getInstance().getById(updateProjectActionId)
+  }
 
-    fun setUpdateProjectAction(action: UpdateProjectAction) {
-        updateProjectActionId = action.getId()
-    }
+  fun setUpdateProjectAction(action: UpdateProjectAction) {
+    updateProjectActionId = action.getId()
+  }
 
-    fun isBlameInlinePresentationChanged(other: GitToolBoxConfig2): Boolean {
-        return blameInlineAuthorNameType != other.blameInlineAuthorNameType ||
-          blameInlineDateType != other.blameInlineDateType ||
-          blameInlineShowSubject != other.blameInlineShowSubject ||
-          absoluteDateTimeStyle != other.absoluteDateTimeStyle
-    }
+  fun isBlameInlinePresentationChanged(other: GitToolBoxConfig2): Boolean {
+    return blameInlineAuthorNameType != other.blameInlineAuthorNameType ||
+      blameInlineDateType != other.blameInlineDateType ||
+      blameInlineShowSubject != other.blameInlineShowSubject ||
+      absoluteDateTimeStyle != other.absoluteDateTimeStyle
+  }
 
-    fun isBlameStatusPresentationChanged(other: GitToolBoxConfig2): Boolean {
-        return blameStatusAuthorNameType != other.blameStatusAuthorNameType ||
-          absoluteDateTimeStyle != other.absoluteDateTimeStyle
-    }
+  fun isBlameStatusPresentationChanged(other: GitToolBoxConfig2): Boolean {
+    return blameStatusAuthorNameType != other.blameStatusAuthorNameType ||
+      absoluteDateTimeStyle != other.absoluteDateTimeStyle
+  }
 
-    @Transient
-    fun isChangesTrackingEnabled(): Boolean {
-        return showChangesInStatusBar || decorationParts.stream()
-          .anyMatch { part: DecorationPartConfig -> part.type == DecorationPartType.CHANGED_COUNT }
-    }
+  @Transient
+  fun isChangesTrackingEnabled(): Boolean {
+    return showChangesInStatusBar || decorationParts.stream()
+      .anyMatch { part: DecorationPartConfig -> part.type == DecorationPartType.CHANGED_COUNT }
+  }
 
-    fun fireChanged(previousConfig: GitToolBoxConfig2) {
-        ApplicationManager.getApplication().messageBus
-          .syncPublisher(AppConfigNotifier.CONFIG_TOPIC)
-          .configChanged(previousConfig, this)
-    }
+  fun fireChanged(previousConfig: GitToolBoxConfig2) {
+    ApplicationManager.getApplication().messageBus
+      .syncPublisher(AppConfigNotifier.CONFIG_TOPIC)
+      .configChanged(previousConfig, this)
+  }
 
-    override fun getState(): GitToolBoxConfig2 = this
+  override fun getState(): GitToolBoxConfig2 = this
 
-    override fun loadState(state: GitToolBoxConfig2) {
-        XmlSerializerUtil.copyBean(state, this)
-    }
+  override fun loadState(state: GitToolBoxConfig2) {
+    XmlSerializerUtil.copyBean(state, this)
+  }
 
-    override fun initializeComponent() {
-        val migrated = ConfigMigrator().migrate(this)
-        val log = Logger.getInstance(GitToolBoxConfig2::class.java)
-        if (migrated) {
-            log.info("Migration done")
-        } else {
-            log.info("Already migrated")
-        }
+  override fun initializeComponent() {
+    val migrated = ConfigMigrator().migrate(this)
+    val log = Logger.getInstance(GitToolBoxConfig2::class.java)
+    if (migrated) {
+      log.info("Migration done")
+    } else {
+      log.info("Already migrated")
     }
+  }
 }

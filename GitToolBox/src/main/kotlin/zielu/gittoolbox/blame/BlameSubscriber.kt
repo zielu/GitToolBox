@@ -8,20 +8,20 @@ import zielu.gittoolbox.util.AppUtil
 internal class BlameSubscriber(private val project: Project) {
 
   fun onRepoStateChanged(repository: GitRepository) {
-    BlameCache.getExistingInstance(project).ifPresent {
-      cache: BlameCache -> cache.refreshForRoot(repository.root)
+    BlameCache.getExistingInstance(project).ifPresent { cache: BlameCache ->
+      cache.refreshForRoot(repository.root)
     }
   }
 
   fun onCacheUpdated(file: VirtualFile, annotation: BlameAnnotation) {
-    BlameService.getExistingInstance(project).ifPresent {
-      service: BlameService -> service.blameUpdated(file, annotation)
+    BlameService.getExistingInstance(project).ifPresent { service: BlameService ->
+      service.blameUpdated(file, annotation)
     }
   }
 
   fun onCacheInvalidated(file: VirtualFile) {
-    BlameService.getExistingInstance(project).ifPresent {
-      service: BlameService -> service.invalidate(file)
+    BlameService.getExistingInstance(project).ifPresent { service: BlameService ->
+      service.invalidate(file)
     }
   }
 

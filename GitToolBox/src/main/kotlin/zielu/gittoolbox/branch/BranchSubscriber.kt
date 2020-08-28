@@ -7,8 +7,8 @@ import zielu.gittoolbox.cache.RepoInfo
 import zielu.gittoolbox.util.AppUtil
 
 internal class BranchSubscriber
-  @NonInjectable
-  constructor(private val gateway: BranchSubscriberLocalGateway) {
+@NonInjectable
+constructor(private val gateway: BranchSubscriberLocalGateway) {
 
   constructor(project: Project) : this(BranchSubscriberLocalGateway(project))
 

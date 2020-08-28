@@ -20,11 +20,11 @@ internal data class BoolConfigOverride(
   }
 
   fun isNotApplied(project: Project): Boolean {
-      return project.presentableUrl?.let { path ->
-        applied.stream()
-          .map { it.projectPath }
-          .noneMatch { it == path }
-      } ?: false
+    return project.presentableUrl?.let { path ->
+      applied.stream()
+        .map { it.projectPath }
+        .noneMatch { it == path }
+    } ?: false
   }
 
   fun applied(project: Project) {

@@ -18,4 +18,5 @@ internal class UpdateProjectActionExtension {
 }
 
 private val EXTENSION_POINT_NAME: ExtensionPointName<UpdateProjectActionEP> = ExtensionPointName.create(
-  "zielu.gittoolbox.updateProjectAction")
+  "zielu.gittoolbox.updateProjectAction"
+)

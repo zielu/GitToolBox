@@ -30,8 +30,8 @@ internal class AutoFetchGateway(
     taskCreator: BiFunction<Project, AutoFetchSchedule, Runnable>
   ): Optional<ScheduledFuture<*>> {
     return if (active.get()) {
-        val task = taskCreator.apply(prj, AutoFetchSchedule.getInstance(prj))
-        log.debug("Scheduling auto-fetch in ", delay)
+      val task = taskCreator.apply(prj, AutoFetchSchedule.getInstance(prj))
+      log.debug("Scheduling auto-fetch in ", delay)
       Optional.of(schedule(delay, task))
     } else {
       Optional.empty()

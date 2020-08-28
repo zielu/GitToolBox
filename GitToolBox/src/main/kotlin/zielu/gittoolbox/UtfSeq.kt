@@ -21,8 +21,8 @@ internal object UtfSeq {
     val pointInt = Integer.parseInt(codePoint, 16)
     val chars = Character.toChars(pointInt)
     return if (variation) {
-        val basic = chars.toMutableList()
-        basic.addAll(variationChars)
+      val basic = chars.toMutableList()
+      basic.addAll(variationChars)
       basic.toList()
     } else {
       chars.toList()

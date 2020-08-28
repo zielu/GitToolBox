@@ -26,93 +26,93 @@ import java.nio.file.Path
 @IntegrationTest
 @ExtendWith(HeavyPlatformTestCaseExtension::class, GitTestExtension::class, ResourcesExtension::class)
 internal class GitStatusCalculatorIntegrationTest {
-    @BeforeEach
-    fun beforeEach(project: Project, module: Module) {
-        GitProject.setup(project, module, repoPath)
+  @BeforeEach
+  fun beforeEach(project: Project, module: Module) {
+    GitProject.setup(project, module, repoPath)
+  }
+
+  @Test
+  fun test(gitTest: GitTest) {
+    gitTest.ops(object : GitOps {
+      override fun getRootPath(): Path = repoPath
+
+      override fun invoke(git: Git) {
+        git.push().call()
+      }
+    })
+  }
+
+  companion object {
+    private const val fileName = "file.txt"
+    private lateinit var myTestDataPath: Path
+    private lateinit var repoPath: Path
+
+    @BeforeAll
+    @Throws(Exception::class)
+    @JvmStatic
+    fun beforeAll(
+      gitTest: GitTest,
+      @ExternalPath(".", "testDataDynamic", "it", "GitStatusIT") testDataPath: Path
+    ) {
+      myTestDataPath = testDataPath
+      initGit(gitTest, myTestDataPath)
     }
 
-    @Test
-    fun test(gitTest: GitTest) {
-        gitTest.ops(object : GitOps {
-            override fun getRootPath(): Path = repoPath
+    private fun initGit(gitTest: GitTest, rootPath: Path) {
+      val upstream1RootPath = rootPath.resolve("upstream1")
+      val upstream2RootPath = rootPath.resolve("upstream2")
 
-            override fun invoke(git: Git) {
-                git.push().call()
-            }
-        })
-    }
+      gitTest.prepare(object : GitTestSetup {
+        override fun getRootPath(): Path = upstream1RootPath
 
-    companion object {
-        private const val fileName = "file.txt"
-        private lateinit var myTestDataPath: Path
-        private lateinit var repoPath: Path
-
-        @BeforeAll
-        @Throws(Exception::class)
-        @JvmStatic
-        fun beforeAll(
-          gitTest: GitTest,
-          @ExternalPath(".", "testDataDynamic", "it", "GitStatusIT") testDataPath: Path
-        ) {
-            myTestDataPath = testDataPath
-            initGit(gitTest, myTestDataPath)
+        override fun setup(git: Git) {
+          // do nothing
         }
+      })
+      gitTest.prepare(object : GitTestSetup {
+        override fun getRootPath(): Path = upstream2RootPath
 
-        private fun initGit(gitTest: GitTest, rootPath: Path) {
-            val upstream1RootPath = rootPath.resolve("upstream1")
-            val upstream2RootPath = rootPath.resolve("upstream2")
-
-            gitTest.prepare(object : GitTestSetup {
-                override fun getRootPath(): Path = upstream1RootPath
-
-                override fun setup(git: Git) {
-                    // do nothing
-                }
-            })
-            gitTest.prepare(object : GitTestSetup {
-                override fun getRootPath(): Path = upstream2RootPath
-
-                override fun setup(git: Git) {
-                    // do nothing
-                }
-            })
-            val inputRepoRoot = rootPath.resolve("inputRepo")
-            gitTest.prepare(object : GitTestSetup {
-                override fun getRootPath(): Path = inputRepoRoot
-
-                override fun setup(git: Git) {
-                    val addRemote = git.remoteAdd()
-                    addRemote.setName("origin")
-                    addRemote.setUri(URIish(upstream1RootPath.toUri().toURL()))
-                    addRemote.call()
-
-                    Files.write(inputRepoRoot.resolve(fileName), setOf("abc"), Charsets.UTF_8)
-                    git.add().addFilepattern(fileName).call()
-                    git.commit().setMessage("Initial commit").call()
-
-                    git.push().setRemote("origin").call()
-                }
-            })
-            repoPath = rootPath.resolve("repo")
-            gitTest.prepare(object : GitTestSetup {
-                override fun getRootPath(): Path = repoPath
-
-                override fun setup(git: Git) {
-                    val addRemote = git.remoteAdd()
-                    addRemote.setName("origin")
-                    addRemote.setUri(URIish(upstream1RootPath.toUri().toURL()))
-                    addRemote.call()
-
-                    val remoteSetUrl = git.remoteSetUrl()
-                    remoteSetUrl.setName("origin")
-                    remoteSetUrl.setPush(true)
-                    remoteSetUrl.setUri(URIish(upstream2RootPath.toUri().toURL()))
-                    remoteSetUrl.call()
-
-                    git.fetch().setRemote("origin").call()
-                    git.checkout().setName("master").setCreateBranch(true).setStartPoint("origin/master").call()
-                }
-            })
+        override fun setup(git: Git) {
+          // do nothing
         }
+      })
+      val inputRepoRoot = rootPath.resolve("inputRepo")
+      gitTest.prepare(object : GitTestSetup {
+        override fun getRootPath(): Path = inputRepoRoot
+
+        override fun setup(git: Git) {
+          val addRemote = git.remoteAdd()
+          addRemote.setName("origin")
+          addRemote.setUri(URIish(upstream1RootPath.toUri().toURL()))
+          addRemote.call()
+
+          Files.write(inputRepoRoot.resolve(fileName), setOf("abc"), Charsets.UTF_8)
+          git.add().addFilepattern(fileName).call()
+          git.commit().setMessage("Initial commit").call()
+
+          git.push().setRemote("origin").call()
+        }
+      })
+      repoPath = rootPath.resolve("repo")
+      gitTest.prepare(object : GitTestSetup {
+        override fun getRootPath(): Path = repoPath
+
+        override fun setup(git: Git) {
+          val addRemote = git.remoteAdd()
+          addRemote.setName("origin")
+          addRemote.setUri(URIish(upstream1RootPath.toUri().toURL()))
+          addRemote.call()
+
+          val remoteSetUrl = git.remoteSetUrl()
+          remoteSetUrl.setName("origin")
+          remoteSetUrl.setPush(true)
+          remoteSetUrl.setUri(URIish(upstream2RootPath.toUri().toURL()))
+          remoteSetUrl.call()
+
+          git.fetch().setRemote("origin").call()
+          git.checkout().setName("master").setCreateBranch(true).setStartPoint("origin/master").call()
+        }
+      })
     }
+  }
 }

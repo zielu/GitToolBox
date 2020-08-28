@@ -11,8 +11,7 @@ internal data class AutoFetchExclusionConfig(
 
   @Transient
   fun copy(): AutoFetchExclusionConfig {
-    return AutoFetchExclusionConfig(repositoryRootPath,
-        ArrayList(excludedRemotes.map { it.copy() }))
+    return AutoFetchExclusionConfig(repositoryRootPath, ArrayList(excludedRemotes.map { it.copy() }))
   }
 
   fun isRemoteExcluded(remoteName: String): Boolean {
