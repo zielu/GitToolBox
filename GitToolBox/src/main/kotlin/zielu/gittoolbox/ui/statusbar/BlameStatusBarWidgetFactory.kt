@@ -7,11 +7,11 @@ import zielu.gittoolbox.config.AppConfig
 
 internal class BlameStatusBarWidgetFactory : GitEditorBasedWidgetFactory() {
   override fun isVisible(project: Project): Boolean {
-    return AppConfig.get().showBlameWidget
+    return AppConfig.getConfig().showBlameWidget
   }
 
   override fun isEnabledByDefault(): Boolean {
-    return AppConfig.get().showBlameWidget
+    return AppConfig.getConfig().showBlameWidget
   }
 
   override fun getId(): String = BlameStatusWidget.ID

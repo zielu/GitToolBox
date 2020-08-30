@@ -23,7 +23,7 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
     }
   }
 
-  private fun isEnabled(): Boolean = AppConfig.get().commitDialogGitmojiCompletion
+  private fun isEnabled(): Boolean = AppConfig.getConfig().commitDialogGitmojiCompletion
 
   private fun addCompletions(result: CompletionResultSet) {
     val insertHandler = PrefixCompletionInsertHandler()

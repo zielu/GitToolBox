@@ -89,13 +89,13 @@ public class GtProjectConfigurable extends GtBinderConfigurableBase<GtPrjForm, G
   }
 
   @Override
-  protected GitToolBoxConfigPrj copy(GitToolBoxConfigPrj config) {
+  protected GitToolBoxConfigPrj copy(@NotNull GitToolBoxConfigPrj config) {
     return config.copy();
   }
 
   @Override
   protected void afterApply(GitToolBoxConfigPrj previous, GitToolBoxConfigPrj current) {
-    current.fireChanged(project, previous);
+    ProjectConfig.getInstance(project).updateState(current);
   }
 
   @NotNull

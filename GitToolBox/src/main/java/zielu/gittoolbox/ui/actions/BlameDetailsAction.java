@@ -24,7 +24,7 @@ public class BlameDetailsAction extends AnAction {
   }
 
   private boolean isEnabled(@NotNull AnActionEvent e) {
-    GitToolBoxConfig2 config = AppConfig.get();
+    GitToolBoxConfig2 config = AppConfig.getConfig();
     if (!config.getShowBlameWidget() && !config.getShowEditorInlineBlame()) {
       return false;
     }

@@ -1,11 +1,5 @@
 package zielu.gittoolbox.config
 
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.util.xmlb.XmlSerializerUtil
 import com.intellij.util.xmlb.annotations.Transient
 import zielu.gittoolbox.extension.update.UpdateProjectAction
 import zielu.gittoolbox.ui.StatusPresenter
@@ -13,7 +7,6 @@ import zielu.gittoolbox.ui.StatusPresenters
 import zielu.gittoolbox.ui.update.DefaultUpdateProjectAction
 import zielu.gittoolbox.ui.update.UpdateProjectActionService
 
-@State(name = "GitToolBoxAppSettings2", storages = [Storage("git_toolbox_2.xml")])
 internal data class GitToolBoxConfig2(
   var presentationMode: String = StatusPresenters.arrows.key(),
   var behindTracker: Boolean = true,
@@ -36,7 +29,7 @@ internal data class GitToolBoxConfig2(
   var commitDialogGitmojiCompletion: Boolean = false,
   @Deprecated("Since 193.8.1") var hideInlineBlameWhileDebugging: Boolean = true,
   var alwaysShowInlineBlameWhileDebugging: Boolean = false
-) : PersistentStateComponent<GitToolBoxConfig2> {
+) {
 
   @Transient
   fun copy(): GitToolBoxConfig2 {
@@ -99,27 +92,5 @@ internal data class GitToolBoxConfig2(
   fun isChangesTrackingEnabled(): Boolean {
     return showChangesInStatusBar || decorationParts.stream()
       .anyMatch { part: DecorationPartConfig -> part.type == DecorationPartType.CHANGED_COUNT }
-  }
-
-  fun fireChanged(previousConfig: GitToolBoxConfig2) {
-    ApplicationManager.getApplication().messageBus
-      .syncPublisher(AppConfigNotifier.CONFIG_TOPIC)
-      .configChanged(previousConfig, this)
-  }
-
-  override fun getState(): GitToolBoxConfig2 = this
-
-  override fun loadState(state: GitToolBoxConfig2) {
-    XmlSerializerUtil.copyBean(state, this)
-  }
-
-  override fun initializeComponent() {
-    val migrated = ConfigMigrator().migrate(this)
-    val log = Logger.getInstance(GitToolBoxConfig2::class.java)
-    if (migrated) {
-      log.info("Migration done")
-    } else {
-      log.info("Already migrated")
-    }
   }
 }

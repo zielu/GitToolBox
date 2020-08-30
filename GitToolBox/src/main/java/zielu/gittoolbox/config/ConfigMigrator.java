@@ -3,6 +3,7 @@ package zielu.gittoolbox.config;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.store.WorkspaceState;
 import zielu.gittoolbox.store.WorkspaceStore;
 
 class ConfigMigrator {
@@ -51,14 +52,14 @@ class ConfigMigrator {
   }
 
   private boolean migrateProject(@NotNull Project project, @NotNull GitToolBoxConfigPrj config) {
-    WorkspaceStore workspaceStore = WorkspaceStore.getInstance(project);
-    if (workspaceStore.getProjectConfigVersion() == 1) {
+    WorkspaceState workspaceState = WorkspaceStore.get(project);
+    if (workspaceState.getProjectConfigVersion() == 1) {
       ConfigForProjectMigrator migrator = new ConfigForProjectMigrator(config);
       boolean migrated = migrator.migrate();
       if (migrated) {
         log.info("Project config migrated to version 2");
       }
-      workspaceStore.setProjectConfigVersion(2);
+      workspaceState.setProjectConfigVersion(2);
       log.info("Project config set at version 2");
       return true;
     }

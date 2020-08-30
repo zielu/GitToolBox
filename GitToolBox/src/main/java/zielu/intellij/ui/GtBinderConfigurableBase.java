@@ -1,11 +1,10 @@
 package zielu.intellij.ui;
 
-import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class GtBinderConfigurableBase<F extends GtFormUi, C extends PersistentStateComponent> extends
+public abstract class GtBinderConfigurableBase<F extends GtFormUi, C> extends
     GtConfigurableBase<F, C> {
   private final Logger log = Logger.getInstance(getClass());
   private final ConfigUiBinder<C, F> binder = new ConfigUiBinder<>();

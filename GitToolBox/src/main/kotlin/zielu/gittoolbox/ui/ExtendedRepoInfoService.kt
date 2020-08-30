@@ -8,7 +8,7 @@ import zielu.gittoolbox.util.AppUtil
 internal class ExtendedRepoInfoService {
 
   fun getExtendedRepoInfo(repo: GitRepository): ExtendedRepoInfo {
-    val config = AppConfig.get()
+    val config = AppConfig.getConfig()
     return if (config.isChangesTrackingEnabled()) {
       val changesCount = getInstance(repo.project).getChangesCount(repo)
       ExtendedRepoInfo(changesCount)

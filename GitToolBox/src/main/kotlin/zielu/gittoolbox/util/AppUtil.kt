@@ -4,8 +4,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.util.ThrowableRunnable
-import zielu.gittoolbox.config.AppConfig.get
+import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.config.GitToolBoxConfig2
 import java.util.Optional
 
@@ -50,30 +49,17 @@ internal object AppUtil {
     return !ApplicationManager.getApplication().isHeadlessEnvironment
   }
 
-  fun saveAppSettings() {
-    val application = ApplicationManager.getApplication()
-    if (!application.isUnitTestMode) {
-      log.info("Saving app settings")
-      try {
-        WriteAction.runAndWait(ThrowableRunnable<Exception> { application.saveSettings() })
-      } catch (exception: Exception) {
-        log.error("Failed to save settings", exception)
-      }
-    }
-  }
-
   @JvmStatic
-  fun modifySettingsSaveAndNotify(modify: (GitToolBoxConfig2) -> Unit) {
+  fun updateSettingsAndSave(modify: (GitToolBoxConfig2) -> Unit) {
     val application = ApplicationManager.getApplication()
     if (!application.isUnitTestMode) {
       log.info("Saving settings")
       try {
         WriteAction.runAndWait<RuntimeException> {
-          val current = get()
-          val before = current.copy()
+          val current = AppConfig.getConfig()
           modify.invoke(current)
+          AppConfig.getInstance().updateState(current)
           application.saveSettings()
-          current.fireChanged(before)
         }
       } catch (exception: java.lang.Exception) {
         log.error("Failed to save settings", exception)

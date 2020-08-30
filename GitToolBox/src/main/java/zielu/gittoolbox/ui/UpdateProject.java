@@ -47,7 +47,7 @@ public class UpdateProject {
   }
 
   private AnAction getAction() {
-    String actionId = AppConfig.get().getUpdateProjectActionId();
+    String actionId = AppConfig.getConfig().getUpdateProjectActionId();
     return UpdateProjectActionService.getInstance().getById(actionId).getAction();
   }
 

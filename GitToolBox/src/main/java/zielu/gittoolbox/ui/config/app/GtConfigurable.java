@@ -33,7 +33,7 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
 
   @Override
   protected GitToolBoxConfig2 getConfig() {
-    return AppConfig.get();
+    return AppConfig.getConfig();
   }
 
   @Override
@@ -143,7 +143,7 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
 
   @Override
   protected void afterApply(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
-    current.fireChanged(previous);
+    AppConfig.getInstance().updateState(current);
   }
 
   @NotNull

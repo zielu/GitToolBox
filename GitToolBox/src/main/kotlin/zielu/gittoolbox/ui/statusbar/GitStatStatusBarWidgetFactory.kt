@@ -7,11 +7,11 @@ import zielu.gittoolbox.config.AppConfig
 
 internal class GitStatStatusBarWidgetFactory : GitEditorBasedWidgetFactory() {
   override fun isVisible(project: Project): Boolean {
-    return AppConfig.get().showStatusWidget
+    return AppConfig.getConfig().showStatusWidget
   }
 
   override fun isEnabledByDefault(): Boolean {
-    return AppConfig.get().showStatusWidget
+    return AppConfig.getConfig().showStatusWidget
   }
 
   override fun getId(): String = GitStatusWidget.ID

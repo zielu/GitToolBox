@@ -6,7 +6,7 @@ import zielu.gittoolbox.extension.blame.InlineBlameAllowed
 
 internal class DebugInlineBlameAllowedExt : InlineBlameAllowed {
   override fun isAllowed(project: Project): Boolean {
-    return if (AppConfig.get().alwaysShowInlineBlameWhileDebugging) {
+    return if (AppConfig.getConfig().alwaysShowInlineBlameWhileDebugging) {
       return true
     } else {
       DebugInlineBlameAllowed.getInstance(project).isAllowed()

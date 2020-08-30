@@ -8,12 +8,12 @@ import java.time.Instant
 internal open class RecentBranchesLocalGateway {
 
   fun getRecentBranchesFromStore(repository: GtRepository): List<RecentBranch> {
-    val store = WorkspaceStore.getInstance(repository.project)
+    val store = WorkspaceStore.get(repository.project)
     return store.recentBranches.findForRepositoryRootUrl(repository.getRootUrl())
   }
 
   fun storeRecentBranches(recentBranches: List<RecentBranch>, repository: GtRepository) {
-    val store = WorkspaceStore.getInstance(repository.project)
+    val store = WorkspaceStore.get(repository.project)
     store.recentBranches.storeForRepositoryRootUrl(recentBranches, repository.getRootUrl())
   }
 

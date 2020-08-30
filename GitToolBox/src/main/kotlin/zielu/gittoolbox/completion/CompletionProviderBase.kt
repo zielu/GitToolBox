@@ -33,7 +33,7 @@ internal abstract class CompletionProviderBase : CompletionProvider<CompletionPa
   private fun shouldComplete(parameters: CompletionParameters): Boolean {
     val config = getConfig(getProject(parameters))
     if (config.commitDialogCompletion) {
-      val mode = AppConfig.get().commitDialogCompletionMode
+      val mode = AppConfig.getConfig().commitDialogCompletionMode
       val modeHandler = modeHandlers.getOrDefault(mode) { _: CompletionParameters -> true }
       return modeHandler.invoke(parameters)
     }

@@ -219,7 +219,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   }
 
   private void updateVisibleFromConfig() {
-    setVisible(AppConfig.get().getShowBlameWidget());
+    setVisible(AppConfig.getConfig().getShowBlameWidget());
   }
 
   @Override

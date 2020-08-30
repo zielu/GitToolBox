@@ -35,7 +35,7 @@ class BehindTrackerUiService implements BehindTrackerUi {
 
   @Override
   public boolean isNotificationEnabled() {
-    return AppConfig.get().getBehindTracker();
+    return AppConfig.getConfig().getBehindTracker();
   }
 
   @Override

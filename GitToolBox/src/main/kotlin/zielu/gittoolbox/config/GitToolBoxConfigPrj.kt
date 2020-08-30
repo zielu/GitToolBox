@@ -1,15 +1,9 @@
 package zielu.gittoolbox.config
 
-import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
-import com.intellij.openapi.project.Project
-import com.intellij.util.xmlb.XmlSerializerUtil
 import com.intellij.util.xmlb.annotations.Transient
 import zielu.gittoolbox.fetch.AutoFetchParams
 import zielu.gittoolbox.formatter.Formatter
 
-@State(name = "GitToolBoxProjectSettings", storages = [Storage("git_toolbox_prj.xml")])
 internal data class GitToolBoxConfigPrj(
   var autoFetch: Boolean = true,
   var autoFetchIntervalMinutes: Int = AutoFetchParams.DEFAULT_INTERVAL_MINUTES,
@@ -21,7 +15,7 @@ internal data class GitToolBoxConfigPrj(
   var referencePointForStatus: ReferencePointForStatusConfig = ReferencePointForStatusConfig(),
   var commitMessageValidation: Boolean = false,
   var commitMessageValidationRegex: String = "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+"
-) : PersistentStateComponent<GitToolBoxConfigPrj> {
+) {
 
   @Transient
   fun copy(): GitToolBoxConfigPrj {
@@ -46,17 +40,5 @@ internal data class GitToolBoxConfigPrj(
 
   fun isReferencePointForStatusChanged(other: GitToolBoxConfigPrj): Boolean {
     return referencePointForStatus != other.referencePointForStatus
-  }
-
-  fun fireChanged(project: Project, previous: GitToolBoxConfigPrj) {
-    project.messageBus.syncPublisher(ProjectConfigNotifier.CONFIG_TOPIC).configChanged(previous, this)
-  }
-
-  override fun getState(): GitToolBoxConfigPrj? {
-    return this
-  }
-
-  override fun loadState(state: GitToolBoxConfigPrj) {
-    XmlSerializerUtil.copyBean(state, this)
   }
 }

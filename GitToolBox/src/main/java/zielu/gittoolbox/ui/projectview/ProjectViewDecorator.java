@@ -45,7 +45,7 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
 
   private boolean shouldDecorate(ProjectViewNode<?> projectViewNode) {
     Project project = projectViewNode.getProject();
-    boolean result = project != null && AppConfig.get().getShowProjectViewStatus();
+    boolean result = project != null && AppConfig.getConfig().getShowProjectViewStatus();
     if (!result && log.isDebugEnabled()) {
       log.debug("No project for node ", projectViewNode.getClass().getSimpleName(),
           " title=", projectViewNode.getTitle());

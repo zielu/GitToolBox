@@ -28,5 +28,5 @@ internal class ChangeListSubscriberLocalGateway(private val project: Project) : 
     return changeLists.map { ChangeListData(it) }
   }
 
-  fun getTrackingEnabled() = AppConfig.get().isChangesTrackingEnabled()
+  fun getTrackingEnabled() = AppConfig.getConfig().isChangesTrackingEnabled()
 }

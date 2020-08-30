@@ -190,7 +190,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private boolean isVisibleFromConfig() {
-    return AppConfig.get().getShowStatusWidget();
+    return AppConfig.getConfig().getShowStatusWidget();
   }
 
   @Override
@@ -240,7 +240,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private void updateData(@NotNull GitRepository repository, RepoInfo repoInfo, ExtendedRepoInfo extendedInfo) {
     icon = null;
     List<String> parts = new ArrayList<>();
-    GitToolBoxConfig2 config = AppConfig.get();
+    GitToolBoxConfig2 config = AppConfig.getConfig();
     if (config.getShowChangesInStatusBar()) {
       parts.add(StatusText.format(extendedInfo));
       if (extendedInfo.hasChanged()) {

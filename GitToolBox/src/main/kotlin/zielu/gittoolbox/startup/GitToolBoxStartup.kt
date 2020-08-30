@@ -10,7 +10,7 @@ internal class GitToolBoxStartup : StartupActivity, DumbAware {
   override fun runActivity(project: Project) {
     if (!project.isDefault) {
       // possibly run config migration
-      AppConfig.get()
+      AppConfig.getConfig()
       ProjectConfig.get(project)
 
       // project is ready after migrations are done

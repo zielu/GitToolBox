@@ -29,8 +29,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
     <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig" />
-    <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig2" />
-    <projectService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfigPrj" />
+    <applicationService serviceImplementation="zielu.gittoolbox.config.AppConfig" />
     <projectService serviceImplementation="zielu.gittoolbox.store.WorkspaceStore" />
     <projectService serviceImplementation="zielu.gittoolbox.config.ProjectConfig" />
 

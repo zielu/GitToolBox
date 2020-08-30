@@ -12,7 +12,7 @@ import zielu.gittoolbox.util.GtUtil
 internal class RefreshBlameAction : DumbAwareAction(ResBundle.message("refresh.blame.action")) {
   override fun actionPerformed(event: AnActionEvent) {
     val project = AnAction.getEventProject(event)
-    project?.let { AppConfig.get() }?.let { isBlameEnabled(it) }?.also {
+    project?.let { AppConfig.getConfig() }?.let { isBlameEnabled(it) }?.also {
       BlameUiService.getExistingInstance(project).ifPresent { it.refreshBlame() }
     }
   }
@@ -20,7 +20,7 @@ internal class RefreshBlameAction : DumbAwareAction(ResBundle.message("refresh.b
   override fun update(event: AnActionEvent) {
     super.update(event)
     val project = AnAction.getEventProject(event)
-    project?.let { AppConfig.get() }?.let { isBlameEnabled(it) }?.let {
+    project?.let { AppConfig.getConfig() }?.let { isBlameEnabled(it) }?.let {
       event.presentation.isEnabled = it
     }
     project?.let { GtUtil.hasGitVcs(it) }?.let {
