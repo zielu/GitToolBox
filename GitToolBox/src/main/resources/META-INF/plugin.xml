@@ -96,6 +96,7 @@
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl" />
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameSubscriber" />
+    <projectService serviceImplementation="zielu.gittoolbox.blame.persistence.PersistentBlameCache" />
 
     <projectService serviceImplementation="zielu.gittoolbox.extension.blame.InlineBlameAllowedExtension" />
 
