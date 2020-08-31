@@ -80,7 +80,7 @@ internal class PersistentBlameCache(
   companion object {
     private val log = Logger.getInstance(PersistentBlameCache::class.java)
     private val ttlMillis = Duration.ofDays(7).toMillis()
-    private val maxSize = 30
+    private const val maxSize = 30
 
     @JvmStatic
     fun getInstance(project: Project): PersistentBlameCache {
