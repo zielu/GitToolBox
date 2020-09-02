@@ -96,7 +96,7 @@
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
                     serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl" />
     <projectService serviceImplementation="zielu.gittoolbox.blame.BlameSubscriber" />
-    <projectService serviceImplementation="zielu.gittoolbox.blame.persistence.PersistentBlameCache" />
+    <projectService serviceImplementation="zielu.gittoolbox.blame.calculator.persistence.BlameCalculationPersistence" />
 
     <projectService serviceImplementation="zielu.gittoolbox.extension.blame.InlineBlameAllowedExtension" />
 
@@ -143,6 +143,8 @@
 
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.GitStatStatusBarWidgetFactory" />
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
+
+    <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
   </extensions>
 
   <applicationListeners>

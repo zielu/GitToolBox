@@ -24,14 +24,7 @@ class BlameLoaderImpl implements BlameLoader {
     GitRepository repo = gateway.getRepoForFile(file);
     if (repo != null) {
       VcsRevisionNumber fileRevision = gateway.getCurrentRevisionNumber(file);
-      RevisionDataProvider provider = gateway.getCachedData(file, fileRevision)
-          .orElseGet(() -> {
-            RevisionDataProvider annotated = calculator.annotate(repo, file, fileRevision);
-            if (annotated != null) {
-              gateway.cacheData(annotated);
-            }
-            return annotated;
-          });
+      RevisionDataProvider provider = calculator.annotate(repo, file, fileRevision);
       if (provider != null) {
         return new BlameAnnotationImpl(provider, gateway.getRevisionService());
       }

@@ -1,4 +1,4 @@
-package zielu.gittoolbox.blame.persistence
+package zielu.gittoolbox.blame.calculator.persistence
 
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import java.time.ZonedDateTime

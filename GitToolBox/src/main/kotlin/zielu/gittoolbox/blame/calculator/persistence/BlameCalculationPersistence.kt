@@ -1,4 +1,4 @@
-package zielu.gittoolbox.blame.persistence
+package zielu.gittoolbox.blame.calculator.persistence
 
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
@@ -13,10 +13,9 @@ import zielu.gittoolbox.revision.RevisionDataProvider
 import zielu.gittoolbox.util.AppUtil
 import java.time.Clock
 import java.time.Duration
-import java.util.Optional
 
-@State(name = "GitToolBoxBlameCache", storages = [Storage(StoragePathMacros.CACHE_FILE)])
-internal class PersistentBlameCache(
+@State(name = "GitToolBoxBlamePersistence", storages = [Storage(StoragePathMacros.CACHE_FILE)])
+internal class BlameCalculationPersistence(
   private val project: Project
 ) : PersistentStateComponent<BlameState> {
   private var state: BlameState = BlameState()
@@ -38,7 +37,7 @@ internal class PersistentBlameCache(
       val path = filePath(revisionData.file)
       val key = path + ";" + revisionData.baseRevision.asString()
       state.fileBlames[key] = fileBlameState
-      log.info("Cached blame: $key")
+      log.info("Stored blame: $key")
       cleanGarbage()
     }
   }
@@ -47,7 +46,7 @@ internal class PersistentBlameCache(
     return FileUtil.getRelativePath(project.basePath!!, file.path, '/')!!
   }
 
-  fun getBlame(file: VirtualFile, revision: VcsRevisionNumber): Optional<RevisionDataProvider> {
+  fun getBlame(file: VirtualFile, revision: VcsRevisionNumber): RevisionDataProvider? {
     val path = filePath(file)
     val key = path + ";" + revision.asString()
     val fileBlameState = state.fileBlames[key]
@@ -56,8 +55,8 @@ internal class PersistentBlameCache(
       BlameCodec.fromPersistent(file, it)
     }?.let {
       log.info("Restored blame: $key")
-      Optional.of(it)
-    } ?: Optional.empty()
+      it
+    }
   }
 
   private fun nowTimestamp(): Long = Clock.systemUTC().millis()
@@ -78,13 +77,13 @@ internal class PersistentBlameCache(
   }
 
   companion object {
-    private val log = Logger.getInstance(PersistentBlameCache::class.java)
+    private val log = Logger.getInstance(BlameCalculationPersistence::class.java)
     private val ttlMillis = Duration.ofDays(7).toMillis()
     private const val maxSize = 30
 
     @JvmStatic
-    fun getInstance(project: Project): PersistentBlameCache {
-      return AppUtil.getServiceInstance(project, PersistentBlameCache::class.java)
+    fun getInstance(project: Project): BlameCalculationPersistence {
+      return AppUtil.getServiceInstance(project, BlameCalculationPersistence::class.java)
     }
   }
 }

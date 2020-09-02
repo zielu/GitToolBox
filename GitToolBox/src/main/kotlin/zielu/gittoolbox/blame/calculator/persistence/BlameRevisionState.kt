@@ -1,4 +1,4 @@
-package zielu.gittoolbox.blame.persistence
+package zielu.gittoolbox.blame.calculator.persistence
 
 internal data class BlameRevisionState(
   var version: String = "",
