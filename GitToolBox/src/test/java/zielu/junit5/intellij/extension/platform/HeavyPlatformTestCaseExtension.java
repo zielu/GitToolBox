@@ -1,6 +1,7 @@
 package zielu.junit5.intellij.extension.platform;
 
 import com.intellij.idea.IdeaLogger;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
@@ -11,6 +12,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.EdtTestUtil;
 import com.intellij.testFramework.EdtTestUtilKt;
 import com.intellij.testFramework.HeavyPlatformTestCase;
+import com.intellij.util.ThrowableRunnable;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import java.lang.reflect.InvocationTargetException;
@@ -128,10 +130,19 @@ public class HeavyPlatformTestCaseExtension implements BeforeEachCallback, After
     private HeavyPlatformTest getPlatformTest(ExtensionContext extensionContext) {
       return new HeavyPlatformTest() {
         @Override
-        public void execute(@NotNull Runnable test) {
+        public void execute(@NotNull ThrowableRunnable<Throwable> test) {
           try {
-            invokeTestRunnable(test);
-          } catch (Exception e) {
+            runTestRunnable(test);
+          } catch (Throwable e) {
+            throw new RuntimeException("Failed to run test " + getTestName(extensionContext), e);
+          }
+        }
+
+        @Override
+        public void executeInWriteAction(@NotNull ThrowableRunnable<Throwable> test) {
+          try {
+            WriteAction.runAndWait(test);
+          } catch (Throwable e) {
             throw new RuntimeException("Failed to run test " + getTestName(extensionContext), e);
           }
         }

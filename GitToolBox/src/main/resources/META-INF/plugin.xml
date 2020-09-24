@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/zielu/GitToolBox">
   <id>zielu.gittoolbox</id>
   <name>GitToolBox</name>
-  <version>202.0.0-dev</version>
+  <version>203.0.0-dev</version>
   <vendor url="https://github.com/zielu">Lukasz Zielinski</vendor>
 
   <description><![CDATA[
@@ -24,7 +24,7 @@
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <depends optional="true" config-file="android-features.xml">org.jetbrains.android</depends>
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="202.5103" until-build="202.*" />
+  <idea-version since-build="203.3645" until-build="203.*" />
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
@@ -219,12 +219,12 @@
   <actions>
     <action class="zielu.gittoolbox.ui.actions.BlameDetailsAction" id="GitToolBox.BlameDetails"
             text="Show Blame Details" description="Show blame details for line at caret in active editor">
-      <add-to-group group-id="GitFileActions" anchor="after" relative-to-action="Annotate" />
+      <add-to-group group-id="Git.FileActions" anchor="after" relative-to-action="Annotate" />
       <keyboard-shortcut first-keystroke="alt shift B" keymap="$default" />
     </action>
     <action class="zielu.gittoolbox.ui.actions.InlineBlameToggleAction" id="GitToolBox.ShowInlineBlame"
             text="Show Inline Blame" description="Show inline blame in editor">
-      <add-to-group group-id="GitFileActions" anchor="after" relative-to-action="GitToolBox.BlameDetails" />
+      <add-to-group group-id="Git.FileActions" anchor="after" relative-to-action="GitToolBox.BlameDetails" />
     </action>
 
     <action class="zielu.gittoolbox.ui.actions.GitPushTagsAction" id="GitToolBox.PushTags"

@@ -34,8 +34,8 @@ project.ext {
     versionPropertiesFilePath = 'version.properties'
 }
 
-def javaVersion = JavaVersion.VERSION_1_8
-def kotlinJvmTarget = '1.8'
+def javaVersion = JavaVersion.VERSION_11
+def kotlinJvmTarget = '11'
 def encoding = 'UTF-8'
 def vendor = 'Lukasz Zielinski'
 

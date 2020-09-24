@@ -35,6 +35,7 @@ import zielu.junit5.intellij.extension.platform.HeavyPlatformTest;
 import zielu.junit5.intellij.extension.platform.HeavyPlatformTestCaseExtension;
 import zielu.junit5.intellij.extension.resources.ExternalPath;
 import zielu.junit5.intellij.extension.resources.ResourcesExtension;
+import zielu.junit5.intellij.util.TestUtil;
 
 @zielu.IntegrationTest
 @ExtendWith({
@@ -79,7 +80,7 @@ class IntegrationTest {
 
   @Test
   void perRepoInfoCacheLoadsDataIfCalled(Project project, Module module, HeavyPlatformTest test) {
-    VirtualFile root = GitProject.rootFor(module);
+    VirtualFile root = TestUtil.findVfForPath(GitProject.rootFor(module));
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
     Awaiter awaitInfoUpdate = new Awaiter();
     test.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
@@ -102,7 +103,7 @@ class IntegrationTest {
 
   @Test
   void lineBlameReturnsDataIfCalled(Project project, Module module, HeavyPlatformTest test) {
-    VirtualFile file = GitProject.rootFor(module).findChild(FILE_NAME);
+    VirtualFile file = TestUtil.findVfForPath(GitProject.rootFor(module)).findChild(FILE_NAME);
     Document document = test.getDocument(file);
 
     Awaiter awaitBlameUpdate = new Awaiter();
@@ -125,7 +126,7 @@ class IntegrationTest {
   void lineBlameReturnsSameRevisionIfRepoRefreshedButNotChanged(Project project,
                                                                 Module module,
                                                                 HeavyPlatformTest test) {
-    VirtualFile root = GitProject.rootFor(module);
+    VirtualFile root = TestUtil.findVfForPath(GitProject.rootFor(module));
     VirtualFile file = root.findChild(FILE_NAME);
     Document document = test.getDocument(file);
 

@@ -41,13 +41,15 @@ internal class ChangeListDataTest {
   @Test
   fun `should create from local change list if some changes`(
     @MockK afterRevisionMock: ContentRevision,
-    @MockK filePathMock: FilePath
+    @MockK filePathMock: FilePath,
+    @MockK change1Mock: Change,
+    @MockK change2Mock: Change
   ) {
     // given
     every { afterRevisionMock.file } returns filePathMock
-    val change1 = Change(null, afterRevisionMock)
-    val change2 = Change(null, afterRevisionMock)
-    every { localChangeListMock.changes } returns listOf(change1, change2)
+    every { change1Mock.afterRevision } returns afterRevisionMock
+    every { change2Mock.afterRevision } returns afterRevisionMock
+    every { localChangeListMock.changes } returns listOf(change1Mock, change2Mock)
 
     // when
     val changeListData = ChangeListData(localChangeListMock)
