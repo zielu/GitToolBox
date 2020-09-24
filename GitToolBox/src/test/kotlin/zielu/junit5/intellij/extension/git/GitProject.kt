@@ -9,7 +9,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsDirectoryMapping
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.testFramework.UsefulTestCase
 import git4idea.GitUtil
@@ -24,11 +23,12 @@ internal object GitProject {
     val root = rootFor(module)
     FileUtil.copyDir(testDataPath.toFile(), root.toFile())
     val rootVf = WriteCommandAction.runWriteCommandAction(
-      project, Computable<VirtualFile> {
-      val vf = UsefulTestCase.refreshAndFindFile(root.toFile())
-      UsefulTestCase.refreshRecursively(vf)
-      vf
-    }
+      project,
+      Computable {
+        val vf = UsefulTestCase.refreshAndFindFile(root.toFile())
+        UsefulTestCase.refreshRecursively(vf)
+        vf
+      }
     )
     val vcsManager = ProjectLevelVcsManager.getInstance(project)
     val rootPath = rootVf.path
