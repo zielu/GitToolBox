@@ -1,7 +1,6 @@
 package zielu.gittoolbox.ui.statusbar;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.CaretEvent;
@@ -41,26 +40,15 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   private final CaretListener caretListener = new CaretListener() {
     @Override
     public void caretPositionChanged(@NotNull CaretEvent event) {
-      onCaretPositionChanged(event);
+      if (shouldShow() && Objects.equals(myProject, event.getEditor().getProject())) {
+        updateBlame();
+      }
     }
   };
   private String text = "";
 
   BlameStatusWidget(@NotNull Project project) {
     super(project);
-  }
-
-  private void onCaretPositionChanged(@NotNull CaretEvent caretEvent) {
-    if (shouldShow() && Objects.equals(myProject, caretEvent.getEditor().getProject())) {
-      Caret caret = caretEvent.getCaret();
-      if (caret == null || caret.isUpToDate()) {
-        int lineIndex = caretEvent.getNewPosition().line;
-        VirtualFile selectedFile = getSelectedFile();
-        if (selectedFile != null) {
-          updateStatus(selectedFile, lineIndex);
-        }
-      }
-    }
   }
 
   private boolean shouldShow() {
