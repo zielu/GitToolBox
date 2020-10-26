@@ -32,6 +32,16 @@ internal object AppUiUtil {
   }
 
   @JvmStatic
+  fun invokeAndWaitIfNeeded(task: Runnable) {
+    val application = getApplication()
+    if (application.isUnitTestMode || application.isDispatchThread) {
+      task.run()
+    } else {
+      application.invokeAndWait(task)
+    }
+  }
+
+  @JvmStatic
   fun invokeLaterIfNeeded(project: Project, task: Runnable) {
     invokeLaterIfNeeded(DisposeSafeRunnable(project, task))
   }

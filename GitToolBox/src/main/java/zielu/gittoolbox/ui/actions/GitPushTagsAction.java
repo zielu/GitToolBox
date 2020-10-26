@@ -5,6 +5,7 @@ import static zielu.gittoolbox.push.GtPushResult.Type.NOT_AUTHORIZED;
 import static zielu.gittoolbox.push.GtPushResult.Type.REJECTED;
 
 import com.google.common.base.Joiner;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
+import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.push.GtPushResult;
 import zielu.gittoolbox.push.GtPushResult.Type;
 import zielu.gittoolbox.tag.GitTagsPusher;
@@ -29,11 +31,24 @@ public class GitPushTagsAction extends GitRepositoryAction {
 
   public GitPushTagsAction() {
     errorResultHandlers.put(ERROR, (notifier, result) ->
-        notifier.notifyError("Push failed", result.getOutput()));
+        notifier.notifyError("Push failed", result.getOutput())
+    );
     errorResultHandlers.put(REJECTED, (notifier, result) ->
-        notifier.notifyWeakError("Push rejected: " + Joiner.on(" ").join(result.getRejectedBranches())));
+        notifier.notifyWeakError("Push rejected: " + Joiner.on(" ").join(result.getRejectedBranches()))
+    );
     errorResultHandlers.put(NOT_AUTHORIZED, (notifier, result) ->
-        notifier.notifyError("Not authorized", result.getOutput()));
+        notifier.notifyError("Not authorized", result.getOutput())
+    );
+  }
+
+  @Override
+  protected boolean isEnabled(AnActionEvent e) {
+    Project project = getEventProject(e);
+    if (project != null) {
+      VirtualFileRepoCache repoCache = VirtualFileRepoCache.getInstance(project);
+      return super.isEnabled(e) && repoCache.hasAnyRepositories();
+    }
+    return false;
   }
 
   @NotNull

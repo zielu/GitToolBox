@@ -4,14 +4,12 @@ import com.google.common.base.Preconditions;
 import com.intellij.execution.process.ProcessOutputType;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcs.log.Hash;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
-import git4idea.commands.GitLineHandlerListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,23 +53,12 @@ public class GitTagCalculator {
     GitLineHandler handler = new GitLineHandler(project, Preconditions.checkNotNull(gitRoot), GitCommand.TAG);
     handler.addParameters("-l", "--points-at", commitish);
     handler.setSilent(true);
-    handler.addLineListener(new GitLineHandlerListener() {
-      @Override
-      public void onLineAvailable(String line, Key outputType) {
-        if (ProcessOutputType.isStdout(outputType)) {
-          String tag = StringUtils.trimToNull(line);
-          if (tag != null) {
-            tags.add(tag);
-          }
+    handler.addLineListener((line, outputType) -> {
+      if (ProcessOutputType.isStdout(outputType)) {
+        String tag = StringUtils.trimToNull(line);
+        if (tag != null) {
+          tags.add(tag);
         }
-      }
-
-      @Override
-      public void processTerminated(int exitCode) {
-      }
-
-      @Override
-      public void startFailed(Throwable exception) {
       }
     });
     log.debug("Tags for ", commitish, " are ", tags);
