@@ -2,7 +2,9 @@ package zielu.gittoolbox.cache
 
 import com.codahale.metrics.Counter
 import com.intellij.openapi.project.Project
+import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.util.LocalGateway
+import java.util.concurrent.TimeUnit
 
 internal class CacheTaskSchedulerLocalGatewayImpl(
   project: Project
@@ -21,5 +23,11 @@ internal class CacheTaskSchedulerLocalGatewayImpl(
 
   override fun discardedTasksCounterInc() {
     return getMetrics().counter("info-cache.discarded-updates.count").inc()
+  }
+
+  override fun schedule(task: Runnable, taskDelayMillis: Long) {
+    GitToolBoxApp.getInstance().ifPresent {
+      it.schedule(task, taskDelayMillis, TimeUnit.MILLISECONDS)
+    }
   }
 }

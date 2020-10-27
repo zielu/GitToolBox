@@ -4,7 +4,6 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.serviceContainer.NonInjectable;
-import com.intellij.util.concurrency.AppExecutorUtil;
 import git4idea.repo.GitRepository;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,8 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -28,7 +25,6 @@ class CacheTaskScheduler implements Disposable {
   private final AtomicBoolean active = new AtomicBoolean(true);
   private final Map<GitRepository, Collection<CacheTask>> scheduledRepositories = new ConcurrentHashMap<>();
   private final CacheTaskSchedulerLocalGateway gateway;
-  private final ScheduledExecutorService updateExecutor;
   private long taskDelayMillis = TASK_DELAY_MILLIS;
 
   CacheTaskScheduler(@NotNull Project project) {
@@ -38,7 +34,6 @@ class CacheTaskScheduler implements Disposable {
   @NonInjectable
   CacheTaskScheduler(@NotNull CacheTaskSchedulerLocalGateway gateway) {
     this.gateway = gateway;
-    this.updateExecutor = AppExecutorUtil.createBoundedScheduledExecutorService("GtCache", 1);
   }
 
   @NotNull
@@ -56,7 +51,6 @@ class CacheTaskScheduler implements Disposable {
       Collection<Collection<CacheTask>> tasks = new ArrayList<>(scheduledRepositories.values());
       scheduledRepositories.clear();
       tasks.stream().flatMap(Collection::stream).forEach(CacheTask::kill);
-      updateExecutor.shutdownNow();
     }
   }
 
@@ -97,7 +91,7 @@ class CacheTaskScheduler implements Disposable {
   }
 
   private void submitForExecution(CacheTask task) {
-    updateExecutor.schedule(task, taskDelayMillis, TimeUnit.MILLISECONDS);
+    gateway.schedule(task, taskDelayMillis);
     gateway.queueSizeCounterInc();
     log.debug("Scheduled: ", task);
   }

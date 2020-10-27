@@ -19,4 +19,8 @@ internal class AppMetricsImpl : AppMetrics {
   override fun <T : Any?> gauge(simpleName: String, value: () -> T): Gauge<*> {
     return metrics.gauge(simpleName, value)
   }
+
+  override fun startReporting() {
+    Jmx.startReporting(metrics.getRegistry())
+  }
 }

@@ -13,6 +13,7 @@ import java.util.Collections
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -21,7 +22,7 @@ import java.util.function.Supplier
 
 internal class GitToolBoxApp : Disposable {
   private val tasksThreadGroup = ThreadGroup("GitToolBox-task-group")
-  private val executor = ThreadPoolExecutor(
+  private val taskExecutor = ThreadPoolExecutor(
     1,
     Int.MAX_VALUE,
     60L,
@@ -57,19 +58,26 @@ internal class GitToolBoxApp : Disposable {
     ThreadGroupMetrics.expose(tasksThreadGroup, metrics)
     ThreadGroupMetrics.expose(asyncThreadGroup, metrics)
     ThreadGroupMetrics.expose(schedulesThreadGroup, metrics)
+    runInBackground { AppMetrics.startReporting() }
   }
 
   override fun dispose() {
     if (active.compareAndSet(true, false)) {
       ConcurrentUtil.shutdown(scheduledExecutor)
-      ConcurrentUtil.shutdown(executor)
+      ConcurrentUtil.shutdown(taskExecutor)
       ConcurrentUtil.shutdown(asyncExecutor)
     }
   }
 
   fun runInBackground(task: Runnable) {
     if (active.get()) {
-      executor.submit(task)
+      taskExecutor.submit(task)
+    }
+  }
+
+  fun runInBackground(task: () -> Unit) {
+    if (active.get()) {
+      taskExecutor.submit(task)
     }
   }
 
@@ -81,9 +89,11 @@ internal class GitToolBoxApp : Disposable {
     }
   }
 
-  fun schedule(task: Runnable, delay: Long, unit: TimeUnit) {
-    if (active.get()) {
+  fun schedule(task: Runnable, delay: Long, unit: TimeUnit): ScheduledFuture<*>? {
+    return if (active.get()) {
       scheduledExecutor.schedule({ runInBackground(task) }, delay, unit)
+    } else {
+      null
     }
   }
 

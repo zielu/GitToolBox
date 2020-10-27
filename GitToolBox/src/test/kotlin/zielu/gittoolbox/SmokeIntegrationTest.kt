@@ -25,6 +25,12 @@ import zielu.junit5.intellij.extension.platform.LightPlatformTestCaseExtension
 @IntegrationTest
 @ExtendWith(LightPlatformTestCaseExtension::class)
 internal class SmokeIntegrationTest {
+
+  @Test
+  fun `should return GitToolBoxApp`() {
+    assertThat(GitToolBoxApp.getInstance()).isNotEmpty
+  }
+
   @Test
   fun `should return StatusMessagesService`() {
     assertThat(StatusMessagesService.getInstance()).isNotNull
