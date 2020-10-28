@@ -20,7 +20,9 @@ internal class BehindTrackerSubscriber(
   private val executor: ReschedulingExecutor = ReschedulingExecutor(
     { task, duration ->
       GitToolBoxApp.getInstance().flatMap {
-        val result: Optional<Future<*>> = Optional.ofNullable(it.schedule(task, duration.toMillis(), TimeUnit.MILLISECONDS))
+        val result: Optional<Future<*>> = Optional.ofNullable(
+          it.schedule(task, duration.toMillis(), TimeUnit.MILLISECONDS)
+        )
         result
       }
     },
