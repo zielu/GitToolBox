@@ -11,6 +11,7 @@ import zielu.gittoolbox.util.DisposeSafeRunnable
 import zielu.gittoolbox.util.GtUtil
 import zielu.gittoolbox.util.ReschedulingExecutor
 import java.util.Optional
+import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
 internal class BehindTrackerSubscriber(
@@ -19,7 +20,8 @@ internal class BehindTrackerSubscriber(
   private val executor: ReschedulingExecutor = ReschedulingExecutor(
     { task, duration ->
       GitToolBoxApp.getInstance().flatMap {
-        Optional.ofNullable(it.schedule(task, duration.toMillis(), TimeUnit.MILLISECONDS))
+        val result: Optional<Future<*>> = Optional.ofNullable(it.schedule(task, duration.toMillis(), TimeUnit.MILLISECONDS))
+        result
       }
     },
     true
