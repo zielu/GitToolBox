@@ -3,6 +3,7 @@ package zielu.gittoolbox.metrics
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.util.AppUtil.getServiceInstance
 import zielu.gittoolbox.util.AppUtil.getServiceInstanceSafe
+import zielu.intellij.metrics.Metrics
 
 internal interface ProjectMetrics : Metrics {
   fun startReporting()

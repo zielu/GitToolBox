@@ -11,10 +11,10 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.util.AppUtil;
 import zielu.gittoolbox.util.ExecutableTask;
+import zielu.intellij.metrics.Metrics;
 
 class BlameCacheExecutor implements Disposable {
   private static final int MAX_ALLOWED = 2;
@@ -59,8 +59,9 @@ class BlameCacheExecutor implements Disposable {
     Task.Backgroundable task = new Task.Backgroundable(project, executable.getTitle()) {
       @Override
       public void run(@NotNull ProgressIndicator indicator) {
-        indicator.setIndeterminate(true);
         if (active.get()) {
+          indicator.setIndeterminate(true);
+          indicator.checkCanceled();
           executable.run();
         }
       }

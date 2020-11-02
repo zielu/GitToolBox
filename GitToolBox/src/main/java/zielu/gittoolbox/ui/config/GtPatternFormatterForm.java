@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.config;
 
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.DocumentAdapter;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -109,7 +110,7 @@ public class GtPatternFormatterForm implements GtFormUi {
 
   @Override
   public void dispose() {
-    commitCompletionPatternField.dispose();
+    Disposer.dispose(commitCompletionPatternField);
     config = null;
     patternUpdates.clear();
   }

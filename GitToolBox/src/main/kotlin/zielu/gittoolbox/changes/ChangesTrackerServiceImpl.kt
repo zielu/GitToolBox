@@ -1,27 +1,36 @@
 package zielu.gittoolbox.changes
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.serviceContainer.NonInjectable
 import com.jetbrains.rd.util.getOrCreate
 import git4idea.repo.GitRepository
 import gnu.trove.TObjectIntHashMap
 import zielu.gittoolbox.util.Count
+import zielu.intellij.util.ZDisposeGuard
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 internal class ChangesTrackerServiceImpl
 @NonInjectable
-constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTrackerService {
+constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTrackerService, Disposable {
 
   constructor(project: Project) : this(ChangesTrackerServiceLocalGateway(project))
 
   private val changeCounters: ConcurrentMap<GitRepository, ChangeCounters> = ConcurrentHashMap()
+  private val disposeGuard = ZDisposeGuard()
+  init {
+    gateway.registerDisposable(this, gateway)
+    gateway.registerDisposable(this, disposeGuard)
+  }
 
   override fun changeListChanged(changeListData: ChangeListData) {
-    if (changeListData.hasChanges) {
-      gateway.getNotEmptyChangeListTimer().time { handleNonEmptyChangeList(changeListData) }
-    } else {
-      handleEmptyChangeList(changeListData.id)
+    if (disposeGuard.isActive()) {
+      if (changeListData.hasChanges) {
+        gateway.getNotEmptyChangeListTimer().timeKt { handleNonEmptyChangeList(changeListData) }
+      } else {
+        handleEmptyChangeList(changeListData.id)
+      }
     }
   }
 
@@ -76,7 +85,9 @@ constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTra
   }
 
   override fun changeListRemoved(id: String) {
-    gateway.getChangeListRemovedTimer().time { handleChangeListRemoved(id) }
+    if (disposeGuard.isActive()) {
+      gateway.getChangeListRemovedTimer().timeKt { handleChangeListRemoved(id) }
+    }
   }
 
   private fun handleChangeListRemoved(id: String) {
@@ -90,7 +101,14 @@ constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTra
   }
 
   override fun getChangesCount(repository: GitRepository): Count {
-    return changeCounters[repository]?.let { Count(it.total) } ?: Count.ZERO
+    if (disposeGuard.isActive()) {
+      return changeCounters[repository]?.let { Count(it.total) } ?: Count.ZERO
+    }
+    return Count.ZERO
+  }
+
+  override fun dispose() {
+    changeCounters.clear()
   }
 }
 

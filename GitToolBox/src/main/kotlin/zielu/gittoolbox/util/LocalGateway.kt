@@ -1,12 +1,16 @@
 package zielu.gittoolbox.util
 
 import com.google.common.cache.Cache
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.util.messages.MessageBus
 import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.metrics.CacheMetrics
-import zielu.gittoolbox.metrics.Metrics
+import zielu.intellij.metrics.Metrics
 import zielu.gittoolbox.metrics.ProjectMetrics
+import zielu.intellij.concurrent.DisposeSafeRunnable
+import zielu.intellij.concurrent.ZDisposableRunnable
 
 internal abstract class LocalGateway(private val project: Project) {
   fun getMetrics(): Metrics {
@@ -17,15 +21,27 @@ internal abstract class LocalGateway(private val project: Project) {
     CacheMetrics.expose(cache, getMetrics(), cacheName)
   }
 
+  fun registerDisposable(parent: Disposable, child: Disposable) {
+    Disposer.register(parent, child)
+  }
+
+  fun dispose(subject: Disposable) {
+    Disposer.dispose(subject)
+  }
+
   protected fun publishSync(publisher: (messageBus: MessageBus) -> Unit) {
     GitToolBoxApp.getInstance().ifPresent { it.publishSync(project, publisher) }
   }
 
-  protected fun publishAsync(publisher: (messageBus: MessageBus) -> Unit) {
-    runInBackground { publisher.invoke(project.messageBus) }
+  protected fun publishAsync(disposable: Disposable, publisher: (messageBus: MessageBus) -> Unit) {
+    val task = ZDisposableRunnable(Runnable { publisher.invoke(project.messageBus) })
+    registerDisposable(disposable, task)
+    GitToolBoxApp.getInstance().ifPresent { it.runInBackground(DisposeSafeRunnable(task)) }
   }
 
-  protected fun runInBackground(task: () -> Unit) {
-    GitToolBoxApp.getInstance().ifPresent { it.runInBackground(DisposeSafeRunnable(project, task)) }
+  protected fun runInBackground(disposable: Disposable, task: () -> Unit) {
+    val disposableTask = ZDisposableRunnable(Runnable { task.invoke() })
+    registerDisposable(disposable, disposableTask)
+    GitToolBoxApp.getInstance().ifPresent { it.runInBackground(disposableTask) }
   }
 }

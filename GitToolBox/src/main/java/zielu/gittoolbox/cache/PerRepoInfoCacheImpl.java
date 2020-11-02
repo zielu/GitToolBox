@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -21,10 +20,11 @@ import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.MemoizeSupplier;
+import zielu.intellij.util.ZDisposeGuard;
 
 class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   private final Logger log = Logger.getInstance(getClass());
-  private final AtomicBoolean active = new AtomicBoolean(true);
+  private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
   private final Supplier<ConcurrentMap<GitRepository, RepoInfo>> behindStatuses;
   private final CachedStatusCalculator statusCalculator;
   private final Project project;
@@ -37,6 +37,8 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
     statusCalculator = new CachedStatusCalculator(() -> ProjectMetrics.getInstance(project));
     calculator = GitStatusCalculator.create(project);
     publisher = new InfoCachePublisher(project);
+    publisher.registerDisposable(this, publisher);
+    publisher.registerDisposable(this, disposeGuard);
   }
 
   private ConcurrentMap<GitRepository, RepoInfo> createBehindStatuses() {
@@ -46,7 +48,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   }
 
   private void update(@NotNull GitRepository repository) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       updateRepositoryStatus(repository);
     }
   }
@@ -72,7 +74,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   @NotNull
   @Override
   public RepoInfo getInfo(@NotNull GitRepository repository) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       RepoInfo repoInfo = getRepoInfo(repository);
       if (repoInfo.isEmpty()) {
         scheduleUpdate(repository);
@@ -89,9 +91,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   @Override
   public void dispose() {
-    if (active.compareAndSet(true, false)) {
-      behindStatuses.get().clear();
-    }
+    behindStatuses.get().clear();
   }
 
   private void scheduleMandatoryRefresh(@NotNull GitRepository repository) {
@@ -104,7 +104,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   @Override
   public void repoChanged(@NotNull GitRepository repository) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       log.debug("Got repo changed event: ", repository);
       scheduleMandatoryRefresh(repository);
     }
@@ -112,7 +112,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   @Override
   public void updatedRepoList(ImmutableList<GitRepository> repositories) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       Set<GitRepository> removed = new HashSet<>(behindStatuses.get().keySet());
       removed.removeAll(repositories);
       purgeRepositories(removed);
@@ -135,7 +135,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   @Override
   public void refreshAll() {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       log.debug("Refreshing all repository statuses");
       refresh(GitUtil.getRepositories(project));
     }
@@ -143,7 +143,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   @Override
   public void refresh(Iterable<GitRepository> repositories) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       log.debug("Refreshing repositories statuses: ", repositories);
       repositories.forEach(this::scheduleUpdate);
     }

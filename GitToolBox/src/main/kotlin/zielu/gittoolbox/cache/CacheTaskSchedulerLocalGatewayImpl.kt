@@ -1,9 +1,9 @@
 package zielu.gittoolbox.cache
 
-import com.codahale.metrics.Counter
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.util.LocalGateway
+import zielu.intellij.metrics.GtCounter
 import java.util.concurrent.TimeUnit
 
 internal class CacheTaskSchedulerLocalGatewayImpl(
@@ -17,7 +17,7 @@ internal class CacheTaskSchedulerLocalGatewayImpl(
     getQueueSizeCounter().dec()
   }
 
-  private fun getQueueSizeCounter(): Counter {
+  private fun getQueueSizeCounter(): GtCounter {
     return getMetrics().counter("info-cache.queue.size")
   }
 

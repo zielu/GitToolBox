@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.blame
 
-import com.codahale.metrics.Timer
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.TextAttributesKey
@@ -17,18 +16,19 @@ import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.config.DecorationColors
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.revision.RevisionInfo
+import zielu.intellij.metrics.GtTimer
 
 internal class BlameUiServiceLocalGateway(
   private val project: Project,
   private val textAttributesKey: TextAttributesKey
 ) {
-  val editorTimer: Timer
+  val editorTimer: GtTimer
     get() = ProjectMetrics.getInstance(project).timer("blame-editor-painter")
-  val statusBarTimer: Timer
+  val statusBarTimer: GtTimer
     get() = ProjectMetrics.getInstance(project).timer("blame-status-bar")
-  val editorInfoTimer: Timer
+  val editorInfoTimer: GtTimer
     get() = ProjectMetrics.getInstance(project).timer("blame-editor-get-info")
-  val statusBarInfoTimer: Timer
+  val statusBarInfoTimer: GtTimer
     get() = ProjectMetrics.getInstance(project).timer("blame-status-bar-get-info")
   val defaultBlameTextAttributes: TextAttributes
     get() = DecorationColors.textAttributes(textAttributesKey)

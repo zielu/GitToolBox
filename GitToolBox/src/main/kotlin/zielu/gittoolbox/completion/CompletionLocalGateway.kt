@@ -16,6 +16,6 @@ internal class CompletionLocalGateway(private val project: Project) : LocalGatew
 
   fun getRepositories(files: Collection<File>): Collection<GitRepository> {
     return getMetrics().timer("completion-get-repos")
-      .timeSupplier { GitCompatUtil.getRepositoriesForFiles(project, files) }
+      .timeSupplierKt { GitCompatUtil.getRepositoriesForFiles(project, files) }
   }
 }

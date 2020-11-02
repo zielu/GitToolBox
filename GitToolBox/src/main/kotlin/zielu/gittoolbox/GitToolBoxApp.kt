@@ -5,10 +5,9 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.MessageBus
 import zielu.gittoolbox.metrics.AppMetrics
-import zielu.gittoolbox.metrics.ThreadGroupMetrics
 import zielu.gittoolbox.util.AppUtil
 import zielu.gittoolbox.util.ConcurrentUtil
-import zielu.intellij.concurrent.ThreadGroupThreadFactory
+import zielu.intellij.concurrent.ZThreadFactory
 import java.util.Collections
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
@@ -21,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Supplier
 
 internal class GitToolBoxApp : Disposable {
-  private val tasksThreadGroup = ThreadGroup("GitToolBox-task-group")
+  private val taskThreadFactory = ZThreadFactory("GitToolBox-task-group")
   private val taskExecutor = ThreadPoolExecutor(
     1,
     Int.MAX_VALUE,
@@ -31,33 +30,33 @@ internal class GitToolBoxApp : Disposable {
     ThreadFactoryBuilder()
       .setNameFormat("GitToolBox-task-%d")
       .setDaemon(true)
-      .setThreadFactory(ThreadGroupThreadFactory(tasksThreadGroup))
+      .setThreadFactory(taskThreadFactory)
       .build()
   )
-  private val asyncThreadGroup = ThreadGroup("GitToolBox-async-group")
+  private val asyncThreadFactory = ZThreadFactory("GitToolBox-async-group")
   private val asyncExecutor = Executors.newFixedThreadPool(
     Runtime.getRuntime().availableProcessors(),
     ThreadFactoryBuilder()
       .setNameFormat("GitToolBox-async-%d")
       .setDaemon(true)
-      .setThreadFactory(ThreadGroupThreadFactory(asyncThreadGroup))
+      .setThreadFactory(asyncThreadFactory)
       .build()
   )
-  private val schedulesThreadGroup = ThreadGroup("GitToolBox-schedule-group")
+  private val scheduledThreadFactory = ZThreadFactory("GitToolBox-schedule-group")
   private val scheduledExecutor = Executors.newSingleThreadScheduledExecutor(
     ThreadFactoryBuilder()
       .setNameFormat("GitToolBox-schedule-%d")
       .setDaemon(true)
-      .setThreadFactory(ThreadGroupThreadFactory(schedulesThreadGroup))
+      .setThreadFactory(scheduledThreadFactory)
       .build()
   )
   private val active = AtomicBoolean(true)
 
   init {
     val metrics = AppMetrics.getInstance()
-    ThreadGroupMetrics.expose(tasksThreadGroup, metrics)
-    ThreadGroupMetrics.expose(asyncThreadGroup, metrics)
-    ThreadGroupMetrics.expose(schedulesThreadGroup, metrics)
+    taskThreadFactory.exposeMetrics(metrics)
+    asyncThreadFactory.exposeMetrics(metrics)
+    scheduledThreadFactory.exposeMetrics(metrics)
     runInBackground { AppMetrics.startReporting() }
   }
 

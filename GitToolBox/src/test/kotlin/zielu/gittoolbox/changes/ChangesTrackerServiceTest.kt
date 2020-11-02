@@ -26,6 +26,7 @@ internal class ChangesTrackerServiceTest {
   @BeforeEach
   fun beforeEach() {
     every { gatewayMock.getNotEmptyChangeListTimer() } returns metrics.timer("1")
+    every { gatewayMock.registerDisposable(any(), any()) } returns Unit
     changesTrackerService = ChangesTrackerServiceImpl(gatewayMock)
   }
 

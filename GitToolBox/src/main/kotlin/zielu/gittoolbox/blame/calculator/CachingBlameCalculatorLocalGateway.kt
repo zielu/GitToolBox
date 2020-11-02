@@ -9,8 +9,9 @@ import zielu.gittoolbox.blame.calculator.persistence.BlameCalculationPersistence
 import zielu.gittoolbox.metrics.CacheMetrics
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.revision.RevisionDataProvider
+import zielu.gittoolbox.util.LocalGateway
 
-internal class CachingBlameCalculatorLocalGateway(private val project: Project) {
+internal class CachingBlameCalculatorLocalGateway(private val project: Project) : LocalGateway(project) {
   private val incrementalCalculator = IncrementalBlameCalculator(project)
 
   fun calculator(): BlameCalculator = incrementalCalculator
@@ -25,7 +26,7 @@ internal class CachingBlameCalculatorLocalGateway(private val project: Project) 
 
   fun loadFromPersistence(file: VirtualFile, revision: VcsRevisionNumber): RevisionDataProvider? {
     return ProjectMetrics.getInstance(project)
-      .timer("blame-calculator-cache.load-persisted").timeSupplier {
+      .timer("blame-calculator-cache.load-persisted").timeSupplierKt {
         BlameCalculationPersistence.getInstance(project).getBlame(file, revision)
       }
   }

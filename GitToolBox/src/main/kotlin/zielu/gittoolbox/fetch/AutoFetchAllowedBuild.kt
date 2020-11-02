@@ -1,12 +1,13 @@
 package zielu.gittoolbox.fetch
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.util.AppUtil
 import java.util.Optional
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class AutoFetchAllowedBuild(private val project: Project) {
+internal class AutoFetchAllowedBuild(private val project: Project) : Disposable {
   private val gateway = AutoFetchAllowedLocalGateway(project)
   private val buildRunning = AtomicBoolean()
 
@@ -25,13 +26,17 @@ internal class AutoFetchAllowedBuild(private val project: Project) {
     log.debug("Build finished")
     if (isCurrentProject(builtProject)) {
       if (buildRunning.compareAndSet(true, false)) {
-        gateway.fireStateChanged()
+        gateway.fireStateChanged(this)
       }
     }
   }
 
   private fun isCurrentProject(builtProject: Project): Boolean {
     return project == builtProject
+  }
+
+  override fun dispose() {
+    // do nothing
   }
 
   companion object {

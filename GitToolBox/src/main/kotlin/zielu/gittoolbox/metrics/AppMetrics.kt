@@ -1,6 +1,7 @@
 package zielu.gittoolbox.metrics
 
 import zielu.gittoolbox.util.AppUtil
+import zielu.intellij.metrics.Metrics
 
 internal interface AppMetrics : Metrics {
   fun startReporting()

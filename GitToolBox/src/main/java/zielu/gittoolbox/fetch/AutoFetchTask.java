@@ -2,10 +2,12 @@ package zielu.gittoolbox.fetch;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.fetch.GitFetchResult;
@@ -25,14 +27,15 @@ import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
-import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.ui.util.AppUiUtil;
-import zielu.gittoolbox.util.DisposeSafeCallable;
 import zielu.gittoolbox.util.GtUtil;
+import zielu.intellij.metrics.Metrics;
+import zielu.intellij.util.ZDisposeGuard;
 
-class AutoFetchTask implements Runnable {
+class AutoFetchTask implements Runnable, Disposable {
   private final Logger log = Logger.getInstance(getClass());
+  private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
   private final AutoFetchExecutor owner;
   private final AutoFetchSchedule schedule;
   private final Project project;
@@ -123,6 +126,7 @@ class AutoFetchTask implements Runnable {
 
   private void tryToFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator, @NotNull String title) {
     log.debug("Starting auto-fetch...");
+    indicator.checkCanceled();
     AutoFetchState state = AutoFetchState.getInstance(project);
     if (state.canAutoFetch()) {
       log.debug("Can auto-fetch");
@@ -137,34 +141,29 @@ class AutoFetchTask implements Runnable {
     AutoFetchState state = AutoFetchState.getInstance(project);
     if (state.fetchStart()) {
       indicator.setText(title);
-      boolean result = tryExecuteFetch(repos, indicator);
-      if (result) {
-        state.fetchFinish();
-      }
+      log.debug("Auto-fetching...");
+      executeIdeaFetch(repos, indicator);
+      log.debug("Finished auto-fetch");
+      state.fetchFinish();
     } else {
       log.info("Auto-fetch already in progress");
       finishedWithoutFetch();
     }
   }
 
-  private boolean tryExecuteFetch(List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
-    return owner.callIfActive(new DisposeSafeCallable<>(project, () -> {
-      log.debug("Auto-fetching...");
-      executeIdeaFetch(repos, indicator);
-      log.debug("Finished auto-fetch");
-      return true;
-    }, false)).orElse(false);
-  }
-
   private void executeIdeaFetch(@NotNull List<GitRepository> repos, @NotNull ProgressIndicator indicator) {
     Collection<GitRepository> fetched = ImmutableList.copyOf(repos);
+    indicator.checkCanceled();
     Metrics metrics = ProjectMetrics.getInstance(project);
     GitFetchResult fetchResult = metrics.timer("fetch-roots-idea")
         .timeSupplier(() -> GtFetchUtil.fetch(project, repos));
+    indicator.checkCanceled();
     fetchPerformed(fetched);
     if (fetchResult.showNotificationIfFailed(autoFetchFailedTitle())) {
+      indicator.checkCanceled();
       finishedNotification(fetched);
     }
+    indicator.checkCanceled();
     PerRepoInfoCache.getInstance(project).refresh(fetched);
   }
 
@@ -185,7 +184,12 @@ class AutoFetchTask implements Runnable {
     if (cancelled) {
       log.info("Auto-fetch task cancelled");
     }
-    return !cancelled;
+    return !cancelled && disposeGuard.isActive();
+  }
+
+  @Override
+  public void dispose() {
+    Disposer.dispose(disposeGuard);
   }
 
   @Override
@@ -197,6 +201,7 @@ class AutoFetchTask implements Runnable {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
           try {
+            indicator.checkCanceled();
             runAutoFetch(reposForFetch(), indicator);
           } finally {
             owner.releaseAutoFetchLock();
@@ -211,17 +216,15 @@ class AutoFetchTask implements Runnable {
   }
 
   private void runAutoFetch(List<GitRepository> repos, ProgressIndicator indicator) {
-    owner.runIfActive(() -> {
-      if (isNotCancelled()) {
-        if (!repos.isEmpty()) {
-          String title = autoFetchTitle(repos);
-          tryToFetch(repos, indicator, title);
-        }
-        if (cyclic && isNotCancelled()) {
-          owner.scheduleNextTask();
-        }
+    if (isNotCancelled()) {
+      if (!repos.isEmpty()) {
+        String title = autoFetchTitle(repos);
+        tryToFetch(repos, indicator, title);
       }
-    });
+      if (cyclic && isNotCancelled()) {
+        owner.scheduleNextTask();
+      }
+    }
   }
 
   private String autoFetchTitle(List<GitRepository> repos) {

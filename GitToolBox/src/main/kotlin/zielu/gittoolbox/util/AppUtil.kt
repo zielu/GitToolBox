@@ -28,7 +28,11 @@ internal object AppUtil {
 
   @JvmStatic
   fun <T> getServiceInstanceSafe(project: Project, serviceType: Class<T>): Optional<T> {
-    return Optional.ofNullable(project.getService(serviceType))
+    return if (project.isDisposed) {
+      Optional.empty()
+    } else {
+      Optional.ofNullable(project.getService(serviceType))
+    }
   }
 
   @JvmStatic

@@ -1,6 +1,5 @@
 package zielu.gittoolbox.blame;
 
-import com.codahale.metrics.Timer;
 import com.google.common.base.Supplier;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -8,7 +7,7 @@ import com.google.common.cache.LoadingCache;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -23,11 +22,15 @@ import java.util.function.BiConsumer;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.util.Cached;
 import zielu.gittoolbox.util.CachedFactory;
+import zielu.gittoolbox.util.DisposeAfterExecutableTask;
+import zielu.gittoolbox.util.DisposeSafeExecutableTask;
 import zielu.gittoolbox.util.ExecutableTask;
+import zielu.intellij.metrics.GtTimer;
+import zielu.intellij.util.ZDisposeGuard;
 
 class BlameCacheImpl implements BlameCache, Disposable {
   private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
-  private final AtomicBoolean active = new AtomicBoolean(true);
+  private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
   private final BlameCacheLocalGateway gateway;
   private final LoadingCache<VirtualFile, Cached<Blamed>> annotations = CacheBuilder.newBuilder()
       .maximumSize(75)
@@ -40,20 +43,20 @@ class BlameCacheImpl implements BlameCache, Disposable {
     gateway = new BlameCacheLocalGateway(project);
     gateway.exposeCacheMetrics(annotations, "blame-cache");
     gateway.registerQueuedGauge(queued::size);
+    gateway.registerDisposable(this, gateway);
+    gateway.registerDisposable(this, disposeGuard);
   }
 
   @Override
   public void dispose() {
-    if (active.compareAndSet(true, false)) {
-      annotations.invalidateAll();
-      queued.clear();
-    }
+    annotations.invalidateAll();
+    queued.clear();
   }
 
   @NotNull
   @Override
   public BlameAnnotation getAnnotation(@NotNull VirtualFile file) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       return gateway.getCacheGetTimer().timeSupplier(() -> getAnnotationInternal(file));
     }
     return BlameAnnotation.EMPTY;
@@ -96,7 +99,8 @@ class BlameCacheImpl implements BlameCache, Disposable {
       LOG.debug("Add annotation task for ", file);
       annotations.put(file, CachedFactory.loading(new Blamed(BlameAnnotation.EMPTY)));
       AnnotationLoader loaderTask = new AnnotationLoader(file, gateway, this::annotationLoaded);
-      gateway.execute(loaderTask);
+      gateway.registerDisposable(this, loaderTask);
+      gateway.execute(new DisposeSafeExecutableTask(new DisposeAfterExecutableTask(loaderTask, loaderTask)));
     } else {
       LOG.debug("Discard annotation task for ", file);
       gateway.submitDiscarded();
@@ -109,7 +113,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   }
 
   private void annotationLoaded(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-    if (queued.remove(file)) {
+    if (disposeGuard.isActive() && queued.remove(file)) {
       annotations.put(file, CachedFactory.loaded(new Blamed(annotation)));
       gateway.fireBlameUpdated(file, annotation);
     }
@@ -126,15 +130,14 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   @Override
   public void refreshForRoot(@NotNull VirtualFile root) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       refreshForRootImpl(root);
     }
   }
 
   private void refreshForRootImpl(@NotNull VirtualFile root) {
     LOG.debug("Refresh for root: ", root);
-    Set<VirtualFile> files = new HashSet<>(annotations.asMap()
-        .keySet());
+    Set<VirtualFile> files = new HashSet<>(annotations.asMap().keySet());
     files.stream()
         .filter(file -> VfsUtilCore.isAncestor(root, file, false))
         .forEach(this::markDirty);
@@ -151,7 +154,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   @Override
   public void invalidateForRoot(@NotNull VirtualFile root) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       invalidateForRootImpl(root);
     }
   }
@@ -189,12 +192,13 @@ class BlameCacheImpl implements BlameCache, Disposable {
     }
   }
 
-  private static class AnnotationLoader implements ExecutableTask {
+  private static class AnnotationLoader implements ExecutableTask, Disposable {
+    private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
     private final VirtualFile file;
     private final BlameLoader loader;
     private final BiConsumer<VirtualFile, BlameAnnotation> loaded;
-    private final Timer loadTimer;
-    private final Timer queueWaitTimer;
+    private final GtTimer loadTimer;
+    private final GtTimer queueWaitTimer;
     private final long createdAt = System.currentTimeMillis();
 
     private AnnotationLoader(@NotNull VirtualFile file, @NotNull BlameCacheLocalGateway gateway,
@@ -209,8 +213,10 @@ class BlameCacheImpl implements BlameCache, Disposable {
     @Override
     public void run() {
       queueWaitTimer.update(System.currentTimeMillis() - createdAt, TimeUnit.MILLISECONDS);
+      disposeGuard.checkAndThrow();
       BlameAnnotation annotation = loadTimer.timeSupplier(this::load);
       LOG.info("Annotated " + file + ": " + annotation);
+      disposeGuard.checkAndThrow();
       loaded.accept(file, annotation);
     }
 
@@ -224,10 +230,15 @@ class BlameCacheImpl implements BlameCache, Disposable {
       LOG.debug("Annotate ", file);
       try {
         return loader.annotate(file);
-      } catch (VcsException e) {
+      } catch (Exception e) {
         LOG.warn("Failed to annotate " + file, e);
         return BlameAnnotation.EMPTY;
       }
+    }
+
+    @Override
+    public void dispose() {
+      Disposer.dispose(disposeGuard);
     }
   }
 }

@@ -2,7 +2,6 @@ package zielu.gittoolbox.blame
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vcs.VcsException
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
 import git4idea.GitVcs
@@ -11,8 +10,9 @@ import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.revision.RevisionService
 import zielu.gittoolbox.util.GtUtil
+import zielu.gittoolbox.util.LocalGateway
 
-internal class BlameLoaderLocalGateway(private val project: Project) {
+internal class BlameLoaderLocalGateway(private val project: Project) : LocalGateway(project) {
   fun getRepoForFile(vFile: VirtualFile): GitRepository? {
     return VirtualFileRepoCache.getInstance(project).getRepoForFile(vFile)
   }
@@ -24,7 +24,7 @@ internal class BlameLoaderLocalGateway(private val project: Project) {
   fun getCurrentRevisionNumber(repo: GitRepository): VcsRevisionNumber {
     return try {
       GitVcs.getInstance(project).parseRevisionNumber(repo.currentRevision) ?: VcsRevisionNumber.NULL
-    } catch (e: VcsException) {
+    } catch (e: Exception) {
       log.warn("Could not get current repoRevision for " + repo.root, e)
       VcsRevisionNumber.NULL
     }
@@ -32,7 +32,7 @@ internal class BlameLoaderLocalGateway(private val project: Project) {
 
   fun getCurrentRevisionNumber(vFile: VirtualFile): VcsRevisionNumber {
     val timer = ProjectMetrics.getInstance(project).timer("blame-loader.current-version")
-    return timer.timeSupplier { GtUtil.getCurrentRevision(project, vFile) }
+    return timer.timeSupplierKt { GtUtil.getCurrentRevision(project, vFile) }
   }
 
   companion object {

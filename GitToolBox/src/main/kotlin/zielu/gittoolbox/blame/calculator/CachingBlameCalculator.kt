@@ -2,6 +2,7 @@ package zielu.gittoolbox.blame.calculator
 
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.LoadingCache
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
@@ -10,12 +11,18 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.revision.RevisionDataProvider
 import zielu.intellij.guava.ThreadLocalCacheLoader
 import zielu.intellij.guava.getSafe
+import zielu.intellij.util.ZDisposeGuard
 
-internal class CachingBlameCalculator(project: Project) : BlameCalculator {
+internal class CachingBlameCalculator(project: Project) : BlameCalculator, Disposable {
+  private val disposeGuard = ZDisposeGuard()
   private val gateway = CachingBlameCalculatorLocalGateway(project)
   private val loader = object : ThreadLocalCacheLoader<LoadContext, Key, RevisionDataProvider>() {
     override fun loadInContext(context: LoadContext, key: Key): RevisionDataProvider {
-      return calculate(context.repository, context.file, key.revision)
+      return if (disposeGuard.isActive()) {
+        calculate(context.repository, context.file, key.revision)
+      } else {
+        RevisionDataProvider.EMPTY
+      }
     }
   }
   private val dataProviders: LoadingCache<Key, RevisionDataProvider> = CacheBuilder.newBuilder()
@@ -25,6 +32,7 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator {
 
   init {
     gateway.exposeCacheMetrics(dataProviders)
+    gateway.registerDisposable(this, disposeGuard)
   }
 
   override fun annotate(
@@ -32,6 +40,9 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator {
     file: VirtualFile,
     revision: VcsRevisionNumber
   ): RevisionDataProvider? {
+    if (VcsRevisionNumber.NULL == revision) {
+      return null
+    }
     val key = Key(file.url, revision)
     loader.setContext(LoadContext(repository, file))
     val presentProvider = dataProviders.getIfPresent(key)
@@ -41,7 +52,11 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator {
       loader.clearContext()
       return presentProvider
     }
-    val provider = dataProviders.getSafe(key, RevisionDataProvider.EMPTY)
+    val provider = if (disposeGuard.isActive()) {
+      dataProviders.getSafe(key, RevisionDataProvider.EMPTY)
+    } else {
+      RevisionDataProvider.EMPTY
+    }
     loader.clearContext()
     return toResult(provider)
   }
@@ -76,7 +91,7 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator {
   }
 
   private fun storeInPersistence(dataProvider: RevisionDataProvider?) {
-    if (gateway.shouldLoadFromPersistence()) {
+    if (disposeGuard.isActive() && gateway.shouldLoadFromPersistence()) {
       dataProvider?.apply {
         if (this != RevisionDataProvider.EMPTY) {
           gateway.storeInPersistence(this)
@@ -86,14 +101,20 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator {
   }
 
   override fun invalidateForRoot(root: VirtualFile) {
-    val keys = dataProviders.asMap().keys.toMutableSet()
-    val rootUrl = root.url
-    val keysToInvalidate = keys.filter {
-      it.url.startsWith(rootUrl)
+    if (disposeGuard.isActive()) {
+      val keys = dataProviders.asMap().keys.toMutableSet()
+      val rootUrl = root.url
+      val keysToInvalidate = keys.filter {
+        it.url.startsWith(rootUrl)
+      }
+      log.debug("Invalidate ", keysToInvalidate)
+      dataProviders.invalidateAll(keysToInvalidate)
+      gateway.calculator().invalidateForRoot(root)
     }
-    log.debug("Invalidate ", keysToInvalidate)
-    dataProviders.invalidateAll(keysToInvalidate)
-    gateway.calculator().invalidateForRoot(root)
+  }
+
+  override fun dispose() {
+    dataProviders.invalidateAll()
   }
 
   private companion object {

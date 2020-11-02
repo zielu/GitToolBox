@@ -3,21 +3,24 @@ package zielu.gittoolbox.fetch
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.util.AppUtil.getServiceInstance
 import zielu.gittoolbox.util.GatewayBase
+import zielu.intellij.concurrent.DisposeSafeRunnable
+import zielu.intellij.concurrent.ZDisposableRunnable
+import zielu.intellij.util.ZDisposeGuard
 import java.time.Clock
 import java.time.Duration
 import java.util.Optional
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.BiFunction
 
 internal class AutoFetchGateway(
   private val prj: Project
 ) : GatewayBase(prj), Disposable {
-  private val active = AtomicBoolean(true)
+  private val disposeGuard = ZDisposeGuard()
   private val clock: Clock by lazy {
     Clock.systemDefaultZone()
   }
@@ -28,7 +31,7 @@ internal class AutoFetchGateway(
     delay: Duration,
     taskCreator: BiFunction<Project, AutoFetchSchedule, Runnable>
   ): Optional<ScheduledFuture<*>> {
-    return if (active.get()) {
+    return if (disposeGuard.isActive()) {
       val task = taskCreator.apply(prj, AutoFetchSchedule.getInstance(prj))
       log.debug("Scheduling auto-fetch in ", delay)
       Optional.ofNullable(schedule(delay, task))
@@ -38,13 +41,15 @@ internal class AutoFetchGateway(
   }
 
   private fun schedule(delay: Duration, task: Runnable): ScheduledFuture<*>? {
+    val toSchedule = ZDisposableRunnable(task)
+    Disposer.register(this, toSchedule)
     return GitToolBoxApp.getInstance()
-      .map { app -> app.schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS) }
+      .map { app -> app.schedule(DisposeSafeRunnable(toSchedule), delay.toMillis(), TimeUnit.MILLISECONDS) }
       .orElse(null)
   }
 
   override fun dispose() {
-    active.compareAndSet(true, false)
+    Disposer.dispose(disposeGuard)
   }
 
   companion object {

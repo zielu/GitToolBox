@@ -9,14 +9,14 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.localVcs.UpToDateLineNumberProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.revision.RevisionInfo;
+import zielu.intellij.util.ZDisposeGuard;
 
 class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
-  private final AtomicBoolean active = new AtomicBoolean(true);
+  private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
   private final BlameServiceLocalGateway gateway;
   private final LoadingCache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
       .weakKeys()
@@ -26,20 +26,20 @@ class BlameServiceImpl implements BlameService, Disposable {
   BlameServiceImpl(@NotNull Project project) {
     gateway = new BlameServiceLocalGateway(project);
     gateway.exposeCacheMetrics(lineNumberProviderCache, "blame-service-cache");
+    gateway.registerDisposable(this, gateway);
+    gateway.registerDisposable(this, disposeGuard);
   }
 
   @Override
   public void dispose() {
-    if (active.compareAndSet(true, false)) {
-      lineNumberProviderCache.invalidateAll();
-    }
+    lineNumberProviderCache.invalidateAll();
   }
 
   @NotNull
   @Override
   public RevisionInfo getDocumentLineIndexBlame(@NotNull Document document, @NotNull VirtualFile file,
                                                 int lineIndex) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       return gateway.getLineBlameTimer().timeSupplier(() -> getLineBlameInternal(document, file, lineIndex));
     }
     return RevisionInfo.NULL;
@@ -80,14 +80,14 @@ class BlameServiceImpl implements BlameService, Disposable {
 
   @Override
   public void invalidate(@NotNull VirtualFile file) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       gateway.fireBlameInvalidated(file);
     }
   }
 
   @Override
   public void blameUpdated(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       gateway.fireBlameUpdated(file);
     }
   }
