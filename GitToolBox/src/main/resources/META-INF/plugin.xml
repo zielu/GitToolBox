@@ -248,7 +248,7 @@
     <group id="GitToolBox.Menu" text="GitToolBox" popup="true">
       <reference id="GitToolBox.PushTags" />
       <reference id="GitToolBox.RefreshBlame" />
-      <add-to-group group-id="VcsGlobalGroup" anchor="after" relative-to-action="Git.Menu" />
+      <add-to-group group-id="Git.MainMenu" anchor="last"/>
     </group>
 
     <group id="GitToolBox.BranchIssues" text="Branch Issues"
