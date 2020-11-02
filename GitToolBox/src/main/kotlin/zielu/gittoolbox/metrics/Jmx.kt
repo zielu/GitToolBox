@@ -12,10 +12,13 @@ internal object Jmx {
   private val log = Logger.getInstance(Jmx::class.java)
 
   @JvmStatic
-  fun startReporting(registry: MetricRegistry) {
-    if (shouldExport()) {
+  fun startReporting(registry: MetricRegistry): MetricsReporter {
+    return if (shouldExport()) {
       val reporter = JmxReporter.forRegistry(registry).inDomain(DOMAIN).build()
       reporter.start()
+      JmxMetricsReporter(reporter)
+    } else {
+      MetricsReporter.EMPTY
     }
   }
 

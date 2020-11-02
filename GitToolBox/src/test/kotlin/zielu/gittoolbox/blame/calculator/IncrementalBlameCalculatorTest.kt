@@ -1,6 +1,5 @@
 package zielu.gittoolbox.blame.calculator
 
-import com.codahale.metrics.Timer
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
 import git4idea.GitRevisionNumber
@@ -14,10 +13,12 @@ import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import zielu.gittoolbox.metrics.MockMetrics
 import zielu.intellij.test.MockVfsUtil
 
 @ExtendWith(MockKExtension::class)
 internal class IncrementalBlameCalculatorTest {
+  private val metricsMock = MockMetrics()
   private val vFileMock: VirtualFile = MockVfsUtil.createFile("/path/to/file.txt")
 
   @Test
@@ -45,7 +46,7 @@ internal class IncrementalBlameCalculatorTest {
     every { gatewayMock.createLineHandler(repoMock) } returns gitLineHandlerMock
     val commandResult = GitCommandResult(false, 0, listOf(), listOf())
     every { gatewayMock.runCommand(gitLineHandlerMock) } returns commandResult
-    val timer = Timer()
+    val timer = metricsMock.timer("test")
     every { gatewayMock.annotateTimer() } returns timer
     val calculator = IncrementalBlameCalculator(gatewayMock)
     val fileRevision = GitRevisionNumber("abc")
@@ -68,7 +69,7 @@ internal class IncrementalBlameCalculatorTest {
     every { gatewayMock.createLineHandler(repoMock) } returns gitLineHandlerMock
     val commandResult = GitCommandResult(false, 1, listOf("Blame failure for test"), listOf())
     every { gatewayMock.runCommand(gitLineHandlerMock) } returns commandResult
-    val timer = Timer()
+    val timer = metricsMock.timer("test")
     every { gatewayMock.annotateTimer() } returns timer
     val calculator = IncrementalBlameCalculator(gatewayMock)
 

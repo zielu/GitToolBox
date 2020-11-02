@@ -12,17 +12,15 @@ import zielu.gittoolbox.util.LocalGateway
 internal class RevisionServiceLocalGateway(private val project: Project) : LocalGateway(project) {
   fun loadCommitMessage(vFile: VirtualFile, revisionNumber: VcsRevisionNumber): String {
     val timer = getMetrics().timer("commit-message-cache.load")
-    return timer.timeSupplier(loadCommitMessageImpl(vFile, revisionNumber))
+    return timer.timeSupplierKt { loadCommitMessageImpl(vFile, revisionNumber) }
   }
 
-  private fun loadCommitMessageImpl(vFile: VirtualFile, revisionNumber: VcsRevisionNumber): () -> String {
+  private fun loadCommitMessageImpl(vFile: VirtualFile, revisionNumber: VcsRevisionNumber): String {
     val root = rootForFile(vFile)
     if (root != null) {
-      return {
-        loadCommitMessageFromIndex(revisionNumber, root) ?: ""
-      }
+      return loadCommitMessageFromIndex(revisionNumber, root) ?: ""
     } else {
-      return { "" }
+      return ""
     }
   }
 

@@ -1,6 +1,5 @@
 package zielu.gittoolbox.ui.projectview;
 
-import com.codahale.metrics.Timer;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.ProjectViewNodeDecorator;
@@ -11,8 +10,9 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import git4idea.repo.GitRepository;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.config.AppConfig;
-import zielu.gittoolbox.metrics.Metrics;
 import zielu.gittoolbox.metrics.ProjectMetrics;
+import zielu.intellij.metrics.GtTimer;
+import zielu.intellij.metrics.Metrics;
 
 public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   private final Logger log = Logger.getInstance(getClass());
@@ -35,10 +35,10 @@ public class ProjectViewDecorator implements ProjectViewNodeDecorator {
   }
 
   private void doDecorate(ProjectViewNode<?> node, PresentationData presentation, Metrics metrics) {
-    Timer repoForLatency = metrics.timer("decorate-repo-for");
+    GtTimer repoForLatency = metrics.timer("decorate-repo-for");
     GitRepository repo = repoForLatency.timeSupplier(() -> repoFinder.getRepoFor(node));
     if (repo != null) {
-      Timer applyLatency = metrics.timer("decorate-apply");
+      GtTimer applyLatency = metrics.timer("decorate-apply");
       applyLatency.time(() -> applyDecoration(node.getProject(), repo, node, presentation));
     }
   }

@@ -1,18 +1,14 @@
 package zielu.gittoolbox.ui;
 
 import com.google.common.base.Functions;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.CheckBoxList;
-import com.intellij.ui.CheckBoxListListener;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
@@ -23,16 +19,19 @@ import git4idea.GitUtil;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.tag.GitTagCalculator;
@@ -40,24 +39,24 @@ import zielu.gittoolbox.tag.TagsPushSpec;
 import zielu.gittoolbox.tag.TagsPushSpec.Builder;
 
 public class GitPushTagsDialog extends DialogWrapper {
-  private final LinkedList<String> existingTags = Lists.newLinkedList();
+  private final List<String> existingTags = new ArrayList<>();
   private final Project project;
   private final GitTagCalculator tagCalculator;
   private JPanel panel;
-  private ComboBox gitRootComboBox;
+  private ComboBox<VirtualFile> gitRootComboBox;
   private JLabel currentBranch;
   private CheckBoxList<String> tagsList;
   private JLabel selectedCountLabel;
   private JBCheckBox forceCheckbox;
   private int selectedCount;
 
-  public GitPushTagsDialog(Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
+  public GitPushTagsDialog(@NotNull Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
     super(project, true);
     this.project = project;
     tagCalculator = GitTagCalculator.create(this.project);
     initGui();
     GitUIUtil.setupRootChooser(this.project, roots, defaultRoot, gitRootComboBox, null);
-    updateRepositoryState();
+    afterSetup();
     init();
   }
 
@@ -65,13 +64,7 @@ public class GitPushTagsDialog extends DialogWrapper {
     setTitle(ResBundle.message("push.tags.title"));
     setOKButtonText(ResBundle.message("push.tags.ok.button"));
     panel = new JPanel(new MigLayout("fill, top, insets 0", "[]10[grow, fill]"));
-    gitRootComboBox = new ComboBox();
-    gitRootComboBox.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        updateRepositoryState();
-      }
-    });
+    gitRootComboBox = new ComboBox<>();
     panel.add(new JBLabel(ResBundle.message("git.root")));
     panel.add(gitRootComboBox, "spanx, wrap");
     currentBranch = new JBLabel();
@@ -80,16 +73,13 @@ public class GitPushTagsDialog extends DialogWrapper {
     panel.add(new JBLabel(ResBundle.message("force.tags.push.label")));
     forceCheckbox = new JBCheckBox(ResBundle.message("force.tags.push.text"));
     panel.add(forceCheckbox, "spanx, wrap");
-    tagsList = new CheckBoxList<String>(new CheckBoxListListener() {
-      @Override
-      public void checkBoxSelectionChanged(int index, boolean value) {
-        if (value) {
-          selectedCount++;
-        } else {
-          selectedCount--;
-        }
-        updateSelectedCount();
+    tagsList = new CheckBoxList<>((index, value) -> {
+      if (value) {
+        selectedCount++;
+      } else {
+        selectedCount--;
       }
+      updateSelectedCount();
     });
     panel.add(ScrollPaneFactory.createScrollPane(tagsList), "gaptop 10, span, grow, push, wrap");
     JPanel selectPanel = new JPanel(new MigLayout("fill, insets 0", "[]5[]10[grow]"));
@@ -111,6 +101,10 @@ public class GitPushTagsDialog extends DialogWrapper {
     getOKAction().putValue(DEFAULT_ACTION, true);
   }
 
+  private void afterSetup() {
+    gitRootComboBox.addActionListener(e -> updateRepositoryState());
+  }
+
   private void changeItemsSelection(boolean selected) {
     for (String tag : existingTags) {
       tagsList.setItemSelected(tag, selected);
@@ -124,6 +118,12 @@ public class GitPushTagsDialog extends DialogWrapper {
   @Override
   protected JComponent createCenterPanel() {
     return panel;
+  }
+
+  @Override
+  public void show() {
+    SwingUtilities.invokeLater(this::updateRepositoryState);
+    super.show();
   }
 
   private VirtualFile getGitRoot() {
@@ -155,22 +155,32 @@ public class GitPushTagsDialog extends DialogWrapper {
     selectedCountLabel.setText(message);
   }
 
-  private void fetchTags() {
+  private void updateRepositoryState() {
+    //TODO: disable controls
+    fetchTags().thenAccept(newTags -> {
+      SwingUtilities.invokeLater(
+          () -> {
+            existingTags.addAll(newTags);
+            tagsList.setStringItems(Maps.toMap(existingTags, Functions.constant(true)));
+            selectedCount = existingTags.size();
+            updateCurrentBranch();
+            updateSelectedCount();
+            validatePushAvailable();
+          }
+      );
+    });
+  }
+
+  private CompletableFuture<List<String>> fetchTags() {
     existingTags.clear();
     Optional<GitLocalBranch> current = currentBranch();
     if (current.isPresent()) {
-      List<String> newTags = tagCalculator.tagsForBranch(getGitRoot(), current.get().getName());
-      existingTags.addAll(newTags);
+      VirtualFile gitRoot = getGitRoot();
+      return GitToolBoxApp.getInstance()
+                 .map(app -> app.supplyAsyncList(() -> tagCalculator.tagsForBranch(gitRoot, current.get().getName())))
+                 .orElseGet(() -> CompletableFuture.completedFuture(Collections.emptyList()));
     }
-  }
-
-  private void updateRepositoryState() {
-    fetchTags();
-    tagsList.setStringItems(Maps.toMap(existingTags, Functions.constant(true)));
-    selectedCount = existingTags.size();
-    updateCurrentBranch();
-    updateSelectedCount();
-    validatePushAvailable();
+    return CompletableFuture.completedFuture(Collections.emptyList());
   }
 
   private void updateCurrentBranch() {
@@ -183,23 +193,21 @@ public class GitPushTagsDialog extends DialogWrapper {
         currentBranch.setText(current.get().getName());
       }
     } else {
-      currentBranch.setText(GitUIUtil.NO_CURRENT_BRANCH);
+      currentBranch.setText(GitUIUtil.getNoCurrentBranch());
     }
   }
 
   private Optional<GitLocalBranch> currentBranch() {
-    GitRepository repository = getRepository();
-    return Optional.ofNullable(repository.getCurrentBranch());
+    return getRepository().map(GitRepository::getCurrentBranch);
   }
 
-  private GitRepository getRepository() {
+  private Optional<GitRepository> getRepository() {
     VirtualFileRepoCache fileCache = VirtualFileRepoCache.getInstance(project);
-    return Preconditions.checkNotNull(fileCache.getRepoForRoot(getGitRoot()));
+    return Optional.ofNullable(fileCache.getRepoForRoot(getGitRoot()));
   }
 
   private Optional<GitBranchTrackInfo> remoteForCurrentBranch() {
-    GitRepository repository = getRepository();
-    return Optional.ofNullable(GitUtil.getTrackInfoForCurrentBranch(repository));
+    return getRepository().map(GitUtil::getTrackInfoForCurrentBranch);
   }
 
   private void validatePushAvailable() {
@@ -217,12 +225,7 @@ public class GitPushTagsDialog extends DialogWrapper {
   }
 
   private ImmutableList<String> getSelectedTags() {
-    return ImmutableList.copyOf(Collections2.filter(existingTags, new Predicate<String>() {
-      @Override
-      public boolean apply(String tag) {
-        return tagsList.isItemSelected(tag);
-      }
-    }));
+    return ImmutableList.copyOf(Collections2.filter(existingTags, tag -> tagsList.isItemSelected(tag)));
   }
 
   private boolean isAnythingSelected() {

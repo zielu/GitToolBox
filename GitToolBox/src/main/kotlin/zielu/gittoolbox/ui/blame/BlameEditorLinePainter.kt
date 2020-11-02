@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.blame
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorLinePainter
 import com.intellij.openapi.editor.LineExtensionInfo
 import com.intellij.openapi.project.DumbService
@@ -21,7 +22,27 @@ internal class BlameEditorLinePainter : EditorLinePainter() {
 
   private fun shouldShow(project: Project): Boolean {
     return AppConfig.getConfig().showEditorInlineBlame &&
-      !DumbService.isDumb(project) &&
-      InlineBlameAllowedExtension.isBlameAllowed(project)
+      isNotInDumbMode(project) &&
+      isAllowedByExtension(project)
+  }
+
+  private fun isAllowedByExtension(project: Project): Boolean {
+    val blameAllowed = InlineBlameAllowedExtension.isBlameAllowed(project)
+    if (log.isDebugEnabled && !blameAllowed) {
+      log.debug("Inline blame blocked by extension")
+    }
+    return blameAllowed
+  }
+
+  private fun isNotInDumbMode(project: Project): Boolean {
+    val dumb = DumbService.isDumb(project)
+    if (log.isDebugEnabled && dumb) {
+      log.debug("Inline blame blocked by dumb mode")
+    }
+    return !dumb
+  }
+
+  private companion object {
+    private val log = Logger.getInstance(BlameEditorLinePainter::class.java)
   }
 }

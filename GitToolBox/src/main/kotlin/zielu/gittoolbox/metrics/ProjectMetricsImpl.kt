@@ -1,41 +1,45 @@
 package zielu.gittoolbox.metrics
 
-import com.codahale.metrics.Counter
-import com.codahale.metrics.Gauge
-import com.codahale.metrics.MetricSet
-import com.codahale.metrics.Timer
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.metrics.Jmx.startReporting
-import zielu.gittoolbox.util.DisposeSafeRunnable
+import zielu.intellij.concurrent.DisposeSafeRunnable
+import zielu.intellij.concurrent.ZDisposableRunnable
+import zielu.intellij.metrics.GtCounter
+import zielu.intellij.metrics.GtGauge
+import zielu.intellij.metrics.GtTimer
+import zielu.intellij.metrics.codehale.CodehaleMetricsManager
 
 internal class ProjectMetricsImpl(
   private val project: Project
 ) : ProjectMetrics, Disposable {
-  private val metrics = MetricsManager()
+  private val metrics = CodehaleMetricsManager()
 
   override fun startReporting() {
-    ApplicationManager.getApplication()
-      .executeOnPooledThread(DisposeSafeRunnable(project, Runnable { startReporter(project) }))
+    val operation = ZDisposableRunnable(Runnable { startReporter(project) })
+    Disposer.register(this, operation)
+    GitToolBoxApp.getInstance().ifPresent {
+      it.runInBackground {
+        DisposeSafeRunnable(operation)
+      }
+    }
   }
 
   private fun startReporter(project: Project) {
-    val reporter = startReporting(project, metrics.getRegistry())
-    Disposer.register(this, reporter)
+    Disposer.register(this, startReporting(project, metrics.getRegistry()))
   }
 
-  override fun addAll(metricSet: MetricSet) = metrics.addAll(metricSet)
+  override fun timer(simpleName: String): GtTimer = metrics.timer(simpleName)
 
-  override fun timer(simpleName: String): Timer = metrics.timer(simpleName)
+  override fun counter(simpleName: String): GtCounter = metrics.counter(simpleName)
 
-  override fun counter(simpleName: String): Counter = metrics.counter(simpleName)
-
-  override fun <T : Any?> gauge(simpleName: String, value: () -> T): Gauge<*> {
+  override fun <T : Any?> gauge(simpleName: String, value: () -> T): GtGauge {
     return metrics.gauge(simpleName, value)
   }
 
   override fun dispose() {
+    // do nothing
   }
 }

@@ -13,7 +13,7 @@ internal class CompletionCheckinHandler(
     if (isCommitUiActive()) {
       val project = panel.project
       return ProjectMetrics.getInstance(project).timer("completion-get-affected")
-        .timeSupplier { panel.files }
+        .timeSupplierKt { panel.files }
     }
     return emptyList()
   }

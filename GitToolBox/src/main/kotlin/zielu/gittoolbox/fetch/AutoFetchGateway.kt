@@ -3,22 +3,24 @@ package zielu.gittoolbox.fetch
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.util.concurrency.AppExecutorUtil
+import com.intellij.openapi.util.Disposer
+import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.util.AppUtil.getServiceInstance
 import zielu.gittoolbox.util.GatewayBase
+import zielu.intellij.concurrent.DisposeSafeRunnable
+import zielu.intellij.concurrent.ZDisposableRunnable
+import zielu.intellij.util.ZDisposeGuard
 import java.time.Clock
 import java.time.Duration
 import java.util.Optional
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.BiFunction
 
 internal class AutoFetchGateway(
   private val prj: Project
 ) : GatewayBase(prj), Disposable {
-  private val autoFetchExecutor = AppExecutorUtil.createBoundedScheduledExecutorService("GtAutoFetch", 1)
-  private val active = AtomicBoolean(true)
+  private val disposeGuard = ZDisposeGuard()
   private val clock: Clock by lazy {
     Clock.systemDefaultZone()
   }
@@ -29,23 +31,25 @@ internal class AutoFetchGateway(
     delay: Duration,
     taskCreator: BiFunction<Project, AutoFetchSchedule, Runnable>
   ): Optional<ScheduledFuture<*>> {
-    return if (active.get()) {
+    return if (disposeGuard.isActive()) {
       val task = taskCreator.apply(prj, AutoFetchSchedule.getInstance(prj))
       log.debug("Scheduling auto-fetch in ", delay)
-      Optional.of(schedule(delay, task))
+      Optional.ofNullable(schedule(delay, task))
     } else {
       Optional.empty()
     }
   }
 
-  private fun schedule(delay: Duration, task: Runnable): ScheduledFuture<*> {
-    return autoFetchExecutor.schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS)
+  private fun schedule(delay: Duration, task: Runnable): ScheduledFuture<*>? {
+    val toSchedule = ZDisposableRunnable(task)
+    Disposer.register(this, toSchedule)
+    return GitToolBoxApp.getInstance()
+      .map { app -> app.schedule(DisposeSafeRunnable(toSchedule), delay.toMillis(), TimeUnit.MILLISECONDS) }
+      .orElse(null)
   }
 
   override fun dispose() {
-    if (active.compareAndSet(true, false)) {
-      autoFetchExecutor.shutdownNow()
-    }
+    Disposer.dispose(disposeGuard)
   }
 
   companion object {

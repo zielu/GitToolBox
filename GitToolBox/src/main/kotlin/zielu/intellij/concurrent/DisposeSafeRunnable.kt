@@ -1,29 +1,28 @@
-package zielu.gittoolbox.util
+package zielu.intellij.concurrent
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.Project
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
+import zielu.intellij.util.ZDisposedException
 
 internal class DisposeSafeRunnable(
-  private val project: Project,
   private val operation: Runnable
 ) : Runnable {
 
-  constructor(project: Project, task: () -> Unit) : this(project, Runnable { task.invoke() })
+  constructor(task: () -> Unit) : this(Runnable { task.invoke() })
 
   override fun run() {
     try {
-      if (!project.isDisposed) {
-        operation.run()
-      }
-    } catch (error: AssertionError) {
-      if (project.isDisposed) {
-        log.debug("Project already disposed", error)
-      } else {
-        log.error(error)
-      }
+      operation.run()
+    } catch (error: ZDisposedException) {
+      handleError(error)
+    } catch (error: InterruptedException) {
+      handleError(error)
     }
+  }
+
+  private fun handleError(error: Throwable) {
+    log.info("Already disposed", error)
   }
 
   override fun toString(): String {

@@ -1,11 +1,12 @@
 package zielu.gittoolbox.fetch
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.util.AppUtil
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class AutoFetchAllowedDumbMode(project: Project) {
+internal class AutoFetchAllowedDumbMode(project: Project) : Disposable {
   private val gateway = AutoFetchAllowedLocalGateway(project)
   private val inDumbMode = AtomicBoolean()
 
@@ -17,12 +18,16 @@ internal class AutoFetchAllowedDumbMode(project: Project) {
   fun leftDumbMode() {
     log.debug("Exited dumb mode")
     if (inDumbMode.compareAndSet(true, false)) {
-      gateway.fireStateChanged()
+      gateway.fireStateChanged(this)
     }
   }
 
   fun isAllowed(): Boolean {
     return !inDumbMode.get()
+  }
+
+  override fun dispose() {
+    // do nothing
   }
 
   companion object {

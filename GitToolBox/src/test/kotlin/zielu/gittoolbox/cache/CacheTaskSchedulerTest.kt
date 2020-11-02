@@ -4,14 +4,12 @@ import git4idea.repo.GitRepository
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
-import org.assertj.core.api.SoftAssertions.assertSoftly
+import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import kotlin.test.assertTrue
 
 @ExtendWith(MockKExtension::class)
 internal class CacheTaskSchedulerTest {
@@ -42,9 +40,8 @@ internal class CacheTaskSchedulerTest {
     scheduler.scheduleOptional(repository, DummyTask(executedCount, discardedCount))
 
     // then
-    assertSoftly { softly ->
-      softly.assertThat(discardedCount.await(1, TimeUnit.SECONDS)).isTrue
-      softly.assertThat(executedCount.await(1, TimeUnit.SECONDS)).isTrue
+    verify(exactly = 1) {
+      gatewayMock.schedule(any(), any())
     }
   }
 
@@ -59,7 +56,9 @@ internal class CacheTaskSchedulerTest {
     scheduler.scheduleMandatory(repository, DummyTask(executedCount))
 
     // then
-    assertTrue { executedCount.await(1, TimeUnit.SECONDS) }
+    verify(exactly = 2) {
+      gatewayMock.schedule(any(), any())
+    }
   }
 
   @Test

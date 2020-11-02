@@ -25,7 +25,7 @@ internal class ProjectConfig(
   override fun initializeComponent() {
     val appConfig = AppConfig.getConfig()
     val timer = ProjectMetrics.getInstance(project).timer("project-config.migrate")
-    val result = timer.timeSupplier { ConfigMigrator().migrate(project, state, appConfig) }
+    val result = timer.timeSupplierKt { ConfigMigrator().migrate(project, state, appConfig) }
     if (result) {
       log.info("Migration done")
     } else {

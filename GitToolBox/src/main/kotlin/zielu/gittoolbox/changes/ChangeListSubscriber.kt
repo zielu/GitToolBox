@@ -1,5 +1,6 @@
 package zielu.gittoolbox.changes
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.ChangeList
@@ -7,8 +8,11 @@ import com.intellij.openapi.vcs.changes.LocalChangeList
 import zielu.gittoolbox.config.GitToolBoxConfig2
 import zielu.gittoolbox.util.AppUtil
 
-internal class ChangeListSubscriber(project: Project) {
+internal class ChangeListSubscriber(project: Project) : Disposable {
   private val gateway = ChangeListSubscriberLocalGateway(project)
+  init {
+    gateway.registerDisposable(this, gateway)
+  }
 
   fun onChangeListsUpdated() {
     log.debug("Change lists changed")
@@ -34,6 +38,10 @@ internal class ChangeListSubscriber(project: Project) {
     if (current.isChangesTrackingEnabled()) {
       onChangeListsUpdated()
     }
+  }
+
+  override fun dispose() {
+    // do nothing
   }
 
   companion object {

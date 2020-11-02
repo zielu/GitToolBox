@@ -1,24 +1,22 @@
 package zielu.gittoolbox.metrics
 
-import com.codahale.metrics.Counter
-import com.codahale.metrics.Gauge
-import com.codahale.metrics.MetricSet
-import com.codahale.metrics.Timer
+import zielu.intellij.metrics.GtCounter
+import zielu.intellij.metrics.GtGauge
+import zielu.intellij.metrics.GtTimer
+import zielu.intellij.metrics.codehale.CodehaleMetricsManager
 
 internal class MockMetrics : AppMetrics, ProjectMetrics {
-  private val metrics = MetricsManager()
+  private val metrics = CodehaleMetricsManager()
 
   override fun startReporting() {
     // do nothing
   }
 
-  override fun addAll(metricSet: MetricSet) = metrics.addAll(metricSet)
+  override fun timer(simpleName: String): GtTimer = metrics.timer(simpleName)
 
-  override fun timer(simpleName: String): Timer = metrics.timer(simpleName)
+  override fun counter(simpleName: String): GtCounter = metrics.counter(simpleName)
 
-  override fun counter(simpleName: String): Counter = metrics.counter(simpleName)
-
-  override fun <T : Any?> gauge(simpleName: String, value: () -> T): Gauge<*> {
+  override fun <T : Any?> gauge(simpleName: String, value: () -> T): GtGauge {
     return metrics.gauge(simpleName, value)
   }
 }

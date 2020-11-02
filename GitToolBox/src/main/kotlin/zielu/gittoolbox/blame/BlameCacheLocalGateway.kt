@@ -1,6 +1,6 @@
 package zielu.gittoolbox.blame
 
-import com.codahale.metrics.Timer
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
@@ -8,24 +8,25 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.util.ExecutableTask
 import zielu.gittoolbox.util.LocalGateway
+import zielu.intellij.metrics.GtTimer
 
-internal class BlameCacheLocalGateway(private val project: Project) : LocalGateway(project) {
-  fun getCacheGetTimer(): Timer = getMetrics().timer("blame-cache.get")
+internal class BlameCacheLocalGateway(
+  private val project: Project
+) : Disposable, LocalGateway(
+  project
+) {
+  fun getCacheGetTimer(): GtTimer = getMetrics().timer("blame-cache.get")
 
-  fun getLoadTimer(): Timer = getMetrics().timer("blame-cache.load")
+  fun getLoadTimer(): GtTimer = getMetrics().timer("blame-cache.load")
 
-  fun getQueueWaitTimer(): Timer = getMetrics().timer("blame-cache.queue-wait")
-
-  private val discardedCounter by lazy {
-    getMetrics().counter("blame-cache.discarded.count")
-  }
+  fun getQueueWaitTimer(): GtTimer = getMetrics().timer("blame-cache.queue-wait")
 
   fun fireBlameUpdated(vFile: VirtualFile, annotation: BlameAnnotation) {
-    publishAsync { it.syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(vFile, annotation) }
+    publishAsync(this) { it.syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(vFile, annotation) }
   }
 
   fun fireBlameInvalidated(vFile: VirtualFile) {
-    publishAsync { it.syncPublisher(BlameCache.CACHE_UPDATES).invalidated(vFile) }
+    publishAsync(this) { it.syncPublisher(BlameCache.CACHE_UPDATES).invalidated(vFile) }
   }
 
   fun getRepoForFile(vFile: VirtualFile): GitRepository? {
@@ -49,10 +50,14 @@ internal class BlameCacheLocalGateway(private val project: Project) : LocalGatew
   }
 
   fun submitDiscarded() {
-    discardedCounter.inc()
+    getMetrics().counter("blame-cache.discarded.count").inc()
   }
 
   fun invalidateForRoot(root: VirtualFile) {
     BlameLoader.getExistingInstance(project).ifPresent { it.invalidateForRoot(root) }
+  }
+
+  override fun dispose() {
+    // TODO: implement
   }
 }

@@ -6,4 +6,6 @@ internal interface CacheTaskSchedulerLocalGateway {
   fun queueSizeCounterDec()
 
   fun discardedTasksCounterInc()
+
+  fun schedule(task: Runnable, taskDelayMillis: Long)
 }

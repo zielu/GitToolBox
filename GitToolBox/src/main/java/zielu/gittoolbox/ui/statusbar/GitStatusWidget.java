@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.Conditions;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
@@ -38,8 +39,8 @@ import zielu.gittoolbox.ui.ExtendedRepoInfo;
 import zielu.gittoolbox.ui.ExtendedRepoInfoService;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.ui.util.AppUiUtil;
-import zielu.gittoolbox.util.DisposeSafeRunnable;
 import zielu.gittoolbox.util.GtUtil;
+import zielu.intellij.concurrent.ZDisposableRunnable;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     StatusBarWidget.Multiframe, StatusBarWidget.MultipleTextValuesPresentation {
@@ -64,12 +65,13 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   private void onCacheChange(@NotNull Project project, @NotNull final RepoInfo info,
                              @NotNull final GitRepository repository) {
-    Runnable onCacheChange = new DisposeSafeRunnable(project, () -> {
+    ZDisposableRunnable onCacheChange = new ZDisposableRunnable(() -> {
       if (isActive() && repository.equals(GtUtil.getCurrentRepositoryQuick(project))) {
         update(repository, info);
         updateStatusBar();
       }
     });
+    Disposer.register(this, onCacheChange);
     AppUiUtil.invokeLaterIfNeeded(project, onCacheChange);
   }
 

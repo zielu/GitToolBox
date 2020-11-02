@@ -61,6 +61,11 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
     dirsCache.invalidateAll();
   }
 
+  @Override
+  public boolean hasAnyRepositories() {
+    return !rootsVFileCache.isEmpty();
+  }
+
   @Nullable
   @Override
   public GitRepository getRepoForRoot(@NotNull VirtualFile root) {
