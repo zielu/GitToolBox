@@ -27,7 +27,9 @@ constructor(private val gateway: DatePresenterLocalGateway) : DatePresenter {
 
   private fun formatPrettyDate(date: ZonedDateTime): String {
     return ZDateFormatUtil.formatPrettyDateTime(
-      date, ZonedDateTime.now(gateway.getClock()), getAbsoluteDateTimeFormat()
+      date,
+      ZonedDateTime.now(gateway.getClock()),
+      getAbsoluteDateTimeFormat()
     )
   }
 
