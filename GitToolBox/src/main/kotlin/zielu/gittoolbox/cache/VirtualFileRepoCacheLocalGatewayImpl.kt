@@ -35,6 +35,10 @@ internal class VirtualFileRepoCacheLocalGatewayImpl(
     exposeCacheMetrics(cache, "vfile-repo-dirs-cache")
   }
 
+  override fun exposeFilePathsCacheMetrics(cache: Cache<*, *>) {
+    exposeCacheMetrics(cache, "filepath-repo-cache")
+  }
+
   override fun <T> repoForDirCacheTimer(supplier: Supplier<T>): T {
     return getMetrics().timer("repo-for-dir-cache.load").timeSupplier(supplier)
   }

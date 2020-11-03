@@ -2,7 +2,6 @@ package zielu.gittoolbox.changes
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vcs.changes.ChangeListManager
 import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.util.AppUtil
@@ -44,6 +43,6 @@ internal class ChangeListSubscriberLocalGateway(
   fun getTrackingEnabled() = AppConfig.getConfig().isChangesTrackingEnabled()
 
   override fun dispose() {
-    Disposer.dispose(disposeGuard)
+    dispose(disposeGuard)
   }
 }

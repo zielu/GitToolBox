@@ -3,6 +3,7 @@ package zielu.gittoolbox.cache;
 import static java.util.function.Function.identity;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -17,9 +18,7 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +39,12 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
       .weakKeys()
       .recordStats()
       .build(CacheLoader.from(this::computeRepoForDir));
+  private final Cache<String, GitRepository> filePathsToRepoCache = CacheBuilder.newBuilder()
+      .maximumSize(20)
+      .weakKeys()
+      .recordStats()
+      .build();
+
   private final VirtualFileRepoCacheLocalGateway gateway;
 
   VirtualFileRepoCacheImpl(@NotNull Project project) {
@@ -52,6 +57,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
     gateway.rootsVFileCacheSizeGauge(rootsVFileCache::size);
     gateway.rootsFilePathCacheSizeGauge(rootsFilePathCache::size);
     gateway.exposeDirsCacheMetrics(dirsCache);
+    gateway.exposeFilePathsCacheMetrics(filePathsToRepoCache);
   }
 
   @Override
@@ -88,13 +94,24 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   @Nullable
   @Override
   public GitRepository getRepoForPath(@NotNull FilePath path) {
-    //TODO: should have this cached to avoid iteration
-    List<FilePath> roots = new ArrayList<>(rootsFilePathCache.keySet());
-    return roots.stream()
-        .filter(root -> path.isUnder(root, true))
-        .findFirst()
-        .map(rootsFilePathCache::get)
-        .orElse(null);
+    String url = path.getPresentableUrl();
+    GitRepository repo = filePathsToRepoCache.getIfPresent(url);
+    if (repo == null) {
+      repo = computeRepoForPath(path);
+      if (repo != null) {
+        filePathsToRepoCache.put(url, repo);
+      }
+    }
+    return repo;
+  }
+
+  @Nullable
+  private GitRepository computeRepoForPath(@NotNull FilePath path) {
+    return rootsFilePathCache.keySet().stream()
+               .filter(root -> path.isUnder(root, true))
+               .findFirst()
+               .map(rootsFilePathCache::get)
+               .orElse(null);
   }
 
   @NotNull
@@ -136,6 +153,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
     RepoListUpdate update = buildUpdate(repositories);
     rebuildRootsCache(update);
     purgeDirsCache(update);
+    filePathsToRepoCache.invalidateAll();
 
     updateNotifications(update);
   }
