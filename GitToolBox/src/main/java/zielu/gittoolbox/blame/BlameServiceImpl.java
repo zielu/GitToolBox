@@ -40,7 +40,7 @@ class BlameServiceImpl implements BlameService, Disposable {
   public RevisionInfo getDocumentLineIndexBlame(@NotNull Document document, @NotNull VirtualFile file,
                                                 int lineIndex) {
     if (disposeGuard.isActive()) {
-      return gateway.getLineBlameTimer().timeSupplier(() -> getLineBlameInternal(document, file, lineIndex));
+      return gateway.timeLineBlame(() -> getLineBlameInternal(document, file, lineIndex));
     }
     return RevisionInfo.NULL;
   }

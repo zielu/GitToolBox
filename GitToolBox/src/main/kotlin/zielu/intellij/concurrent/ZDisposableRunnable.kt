@@ -24,7 +24,7 @@ internal class ZDisposableRunnable(private val task: Runnable) : Runnable, Dispo
   }
 
   override fun dispose() {
-    thread.get()?.interrupt()
+    thread.getAndSet(null)?.interrupt()
     Disposer.dispose(disposeGuard)
   }
 

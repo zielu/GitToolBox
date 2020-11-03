@@ -6,10 +6,13 @@ import com.intellij.openapi.localVcs.UpToDateLineNumberProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.impl.UpToDateLineNumberProviderImpl
 import com.intellij.openapi.vfs.VirtualFile
+import zielu.gittoolbox.revision.RevisionInfo
 import zielu.gittoolbox.util.LocalGateway
-import zielu.intellij.metrics.GtTimer
+import zielu.intellij.util.ZDisposeGuard
 
 internal class BlameServiceLocalGateway(private var project: Project) : LocalGateway(project), Disposable {
+  private val disposeGuard = ZDisposeGuard()
+
   fun lineNumberProvider(document: Document): UpToDateLineNumberProvider {
     return UpToDateLineNumberProviderImpl(document, project)
   }
@@ -23,14 +26,22 @@ internal class BlameServiceLocalGateway(private var project: Project) : LocalGat
   }
 
   fun getAnnotation(vFile: VirtualFile): BlameAnnotation {
-    return BlameCache.getInstance(project).getAnnotation(vFile)
+    return if (disposeGuard.isActive()) {
+      BlameCache.getInstance(project).getAnnotation(vFile)
+    } else {
+      BlameAnnotation.EMPTY
+    }
   }
 
-  fun getLineBlameTimer(): GtTimer {
-    return getMetrics().timer("blame-document-line")
+  fun timeLineBlame(blame: () -> RevisionInfo): RevisionInfo {
+    return if (disposeGuard.isActive()) {
+      getMetrics().timer("blame-document-line").timeSupplierKt(blame)
+    } else {
+      RevisionInfo.NULL
+    }
   }
 
   override fun dispose() {
-    // TODO: implement
+    dispose(disposeGuard)
   }
 }

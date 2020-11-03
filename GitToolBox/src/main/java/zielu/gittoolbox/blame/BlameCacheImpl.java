@@ -7,7 +7,6 @@ import com.google.common.cache.LoadingCache;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -25,7 +24,6 @@ import zielu.gittoolbox.util.CachedFactory;
 import zielu.gittoolbox.util.DisposeAfterExecutableTask;
 import zielu.gittoolbox.util.DisposeSafeExecutableTask;
 import zielu.gittoolbox.util.ExecutableTask;
-import zielu.intellij.metrics.GtTimer;
 import zielu.intellij.util.ZDisposeGuard;
 
 class BlameCacheImpl implements BlameCache, Disposable {
@@ -57,7 +55,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   @Override
   public BlameAnnotation getAnnotation(@NotNull VirtualFile file) {
     if (disposeGuard.isActive()) {
-      return gateway.getCacheGetTimer().timeSupplier(() -> getAnnotationInternal(file));
+      return gateway.timeCacheGet(() -> getAnnotationInternal(file));
     }
     return BlameAnnotation.EMPTY;
   }
@@ -195,26 +193,22 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private static class AnnotationLoader implements ExecutableTask, Disposable {
     private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
     private final VirtualFile file;
-    private final BlameLoader loader;
+    private final BlameCacheLocalGateway gateway;
     private final BiConsumer<VirtualFile, BlameAnnotation> loaded;
-    private final GtTimer loadTimer;
-    private final GtTimer queueWaitTimer;
     private final long createdAt = System.currentTimeMillis();
 
     private AnnotationLoader(@NotNull VirtualFile file, @NotNull BlameCacheLocalGateway gateway,
                              @NotNull BiConsumer<VirtualFile, BlameAnnotation> loaded) {
       this.file = file;
-      this.loader = gateway.getBlameLoader();
-      this.loadTimer = gateway.getLoadTimer();
-      this.queueWaitTimer = gateway.getQueueWaitTimer();
+      this.gateway = gateway;
       this.loaded = loaded;
     }
 
     @Override
     public void run() {
-      queueWaitTimer.update(System.currentTimeMillis() - createdAt, TimeUnit.MILLISECONDS);
+      gateway.updateQueueWait(System.currentTimeMillis() - createdAt, TimeUnit.MILLISECONDS);
       disposeGuard.checkAndThrow();
-      BlameAnnotation annotation = loadTimer.timeSupplier(this::load);
+      BlameAnnotation annotation = gateway.timeLoad(this::load);
       LOG.info("Annotated " + file + ": " + annotation);
       disposeGuard.checkAndThrow();
       loaded.accept(file, annotation);
@@ -229,7 +223,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
     private BlameAnnotation load() {
       LOG.debug("Annotate ", file);
       try {
-        return loader.annotate(file);
+        return gateway.getBlameLoader().annotate(file);
       } catch (Exception e) {
         LOG.warn("Failed to annotate " + file, e);
         return BlameAnnotation.EMPTY;
@@ -238,7 +232,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
     @Override
     public void dispose() {
-      Disposer.dispose(disposeGuard);
+      gateway.dispose(disposeGuard);
     }
   }
 }

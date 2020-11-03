@@ -8,18 +8,37 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.util.ExecutableTask
 import zielu.gittoolbox.util.LocalGateway
-import zielu.intellij.metrics.GtTimer
+import zielu.intellij.util.ZDisposeGuard
+import java.util.concurrent.TimeUnit
 
 internal class BlameCacheLocalGateway(
   private val project: Project
 ) : Disposable, LocalGateway(
   project
 ) {
-  fun getCacheGetTimer(): GtTimer = getMetrics().timer("blame-cache.get")
+  private val disposeGuard = ZDisposeGuard()
 
-  fun getLoadTimer(): GtTimer = getMetrics().timer("blame-cache.load")
+  fun timeCacheGet(get: () -> BlameAnnotation): BlameAnnotation {
+    return if (disposeGuard.isActive()) {
+      getMetrics().timer("blame-cache.get").timeSupplierKt(get)
+    } else {
+      BlameAnnotation.EMPTY
+    }
+  }
 
-  fun getQueueWaitTimer(): GtTimer = getMetrics().timer("blame-cache.queue-wait")
+  fun timeLoad(load: () -> BlameAnnotation): BlameAnnotation {
+    return if (disposeGuard.isActive()) {
+      getMetrics().timer("blame-cache.load").timeSupplierKt(load)
+    } else {
+      BlameAnnotation.EMPTY
+    }
+  }
+
+  fun updateQueueWait(duration: Long, unit: TimeUnit) {
+    if (disposeGuard.isActive()) {
+      getMetrics().timer("blame-cache.queue-wait").update(duration, unit)
+    }
+  }
 
   fun fireBlameUpdated(vFile: VirtualFile, annotation: BlameAnnotation) {
     publishAsync(this) { it.syncPublisher(BlameCache.CACHE_UPDATES).cacheUpdated(vFile, annotation) }
@@ -30,15 +49,25 @@ internal class BlameCacheLocalGateway(
   }
 
   fun getRepoForFile(vFile: VirtualFile): GitRepository? {
-    return VirtualFileRepoCache.getInstance(project).getRepoForFile(vFile)
+    return if (disposeGuard.isActive()) {
+      VirtualFileRepoCache.getInstance(project).getRepoForFile(vFile)
+    } else {
+      null
+    }
   }
 
   fun getBlameLoader(): BlameLoader {
-    return BlameLoader.getInstance(project)
+    return if (disposeGuard.isActive()) {
+      BlameLoader.getInstance(project)
+    } else {
+      NullBlameLoader
+    }
   }
 
   fun execute(task: ExecutableTask) {
-    BlameCacheExecutor.getInstance(project).ifPresent { it.execute(task) }
+    if (disposeGuard.isActive()) {
+      BlameCacheExecutor.getInstance(project).ifPresent { it.execute(task) }
+    }
   }
 
   fun getCurrentRevision(repository: GitRepository): VcsRevisionNumber {
@@ -46,18 +75,24 @@ internal class BlameCacheLocalGateway(
   }
 
   fun registerQueuedGauge(gauge: () -> Int) {
-    getMetrics().gauge("blame-cache.queue.size", gauge)
+    if (disposeGuard.isActive()) {
+      getMetrics().gauge("blame-cache.queue.size", gauge)
+    }
   }
 
   fun submitDiscarded() {
-    getMetrics().counter("blame-cache.discarded.count").inc()
+    if (disposeGuard.isActive()) {
+      getMetrics().counter("blame-cache.discarded.count").inc()
+    }
   }
 
   fun invalidateForRoot(root: VirtualFile) {
-    BlameLoader.getExistingInstance(project).ifPresent { it.invalidateForRoot(root) }
+    if (disposeGuard.isActive()) {
+      BlameLoader.getExistingInstance(project).ifPresent { it.invalidateForRoot(root) }
+    }
   }
 
   override fun dispose() {
-    // TODO: implement
+    dispose(disposeGuard)
   }
 }

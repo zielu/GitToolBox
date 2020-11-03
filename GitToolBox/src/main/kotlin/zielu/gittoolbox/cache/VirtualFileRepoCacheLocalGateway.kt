@@ -17,5 +17,7 @@ internal interface VirtualFileRepoCacheLocalGateway {
 
   fun exposeDirsCacheMetrics(cache: Cache<*, *>)
 
+  fun exposeFilePathsCacheMetrics(cache: Cache<*, *>)
+
   fun <T> repoForDirCacheTimer(supplier: Supplier<T>): T
 }
