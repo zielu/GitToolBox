@@ -43,7 +43,7 @@ internal class BlameCalculationPersistence(
   }
 
   private fun filePath(file: VirtualFile): String {
-    return FileUtil.getRelativePath(project.basePath!!, file.path, '/')!!
+    return FileUtil.getRelativePath(project.basePath!!, file.path, '/') ?: file.path
   }
 
   fun getBlame(file: VirtualFile, revision: VcsRevisionNumber): RevisionDataProvider? {
