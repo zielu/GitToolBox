@@ -21,9 +21,7 @@ internal class ProjectMetricsImpl(
     val operation = ZDisposableRunnable(Runnable { startReporter(project) })
     Disposer.register(this, operation)
     GitToolBoxApp.getInstance().ifPresent {
-      it.runInBackground {
-        DisposeSafeRunnable(operation)
-      }
+      it.runInBackground(DisposeSafeRunnable(operation))
     }
   }
 

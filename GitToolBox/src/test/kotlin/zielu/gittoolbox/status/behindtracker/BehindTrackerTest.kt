@@ -28,7 +28,13 @@ internal class BehindTrackerTest {
   private val LOCAL_HASH = HashImpl.build("92c4b38ed6cc6f2091f454d177074fceb70d5a80")
   private val LOCAL_BRANCH = GitLocalBranch("master")
   private val REMOTE_HASH_1 = HashImpl.build("2928c843afc39e677f3dc123d1da49b83298f78a")
-  private val REMOTE = GitRemote("origin", emptyList(), emptyList(), emptyList(), emptyList())
+  private val REMOTE = GitRemote(
+    "origin",
+    emptyList(),
+    emptyList(),
+    emptyList(),
+    emptyList()
+  )
   private val REMOTE_HASH_2 = HashImpl.build("2eb9b31b1ec2d9e01587031d87f2c34b57d89ea5")
   private val REMOTE_BRANCH: GitRemoteBranch = GitStandardRemoteBranch(REMOTE, "master")
 
