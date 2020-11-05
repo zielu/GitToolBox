@@ -1,5 +1,6 @@
 package zielu.gittoolbox.startup
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
@@ -14,7 +15,12 @@ internal class GitToolBoxStartup : StartupActivity, DumbAware {
       ProjectConfig.get(project)
 
       // project is ready after migrations are done
+      log.info("Project ready")
       GitToolBoxStartupGateway(project).fireProjectReady()
     }
+  }
+
+  private companion object {
+    private val log = Logger.getInstance(GitToolBoxStartup::class.java)
   }
 }

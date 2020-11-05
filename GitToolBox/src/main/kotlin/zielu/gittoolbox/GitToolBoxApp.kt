@@ -74,12 +74,6 @@ internal class GitToolBoxApp : Disposable {
     }
   }
 
-  fun runInBackground(task: () -> Unit) {
-    if (active.get()) {
-      taskExecutor.submit(task)
-    }
-  }
-
   fun <T> supplyAsyncList(supplier: Supplier<List<T>>): CompletableFuture<List<T>> {
     return if (active.get()) {
       CompletableFuture.supplyAsync(supplier, asyncExecutor)

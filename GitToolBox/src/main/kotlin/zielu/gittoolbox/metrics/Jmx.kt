@@ -16,6 +16,7 @@ internal object Jmx {
     return if (shouldExport()) {
       val reporter = JmxReporter.forRegistry(registry).inDomain(DOMAIN).build()
       reporter.start()
+      log.info("App metrics JMX reporter started")
       JmxMetricsReporter(reporter)
     } else {
       MetricsReporter.EMPTY
@@ -28,6 +29,7 @@ internal object Jmx {
       val projectName = project.name.replace("\\W".toRegex(), "")
       val reporter = JmxReporter.forRegistry(registry).inDomain("$DOMAIN.$projectName").build()
       reporter.start()
+      log.info("Project $projectName metrics JMX reporter started")
       JmxMetricsReporter(reporter)
     } else {
       MetricsReporter.EMPTY

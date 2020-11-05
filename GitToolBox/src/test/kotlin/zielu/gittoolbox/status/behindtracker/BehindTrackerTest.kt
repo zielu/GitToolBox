@@ -33,7 +33,8 @@ internal class BehindTrackerTest {
     emptyList(),
     emptyList(),
     emptyList(),
-    emptyList())
+    emptyList()
+  )
   private val REMOTE_HASH_2 = HashImpl.build("2eb9b31b1ec2d9e01587031d87f2c34b57d89ea5")
   private val REMOTE_BRANCH: GitRemoteBranch = GitStandardRemoteBranch(REMOTE, "master")
 

@@ -18,12 +18,10 @@ internal class ProjectMetricsImpl(
   private val metrics = CodehaleMetricsManager()
 
   override fun startReporting() {
-    val operation = ZDisposableRunnable(Runnable { startReporter(project) })
+    val operation = ZDisposableRunnable { startReporter(project) }
     Disposer.register(this, operation)
     GitToolBoxApp.getInstance().ifPresent {
-      it.runInBackground {
-        DisposeSafeRunnable(operation)
-      }
+      it.runInBackground(DisposeSafeRunnable(operation))
     }
   }
 
