@@ -18,7 +18,7 @@ public class UpdateProject {
   private static final Logger LOG = Logger.getInstance(UpdateProject.class);
   private final Project project;
 
-  private UpdateProject(Project project) {
+  private UpdateProject(@NotNull Project project) {
     this.project = project;
   }
 

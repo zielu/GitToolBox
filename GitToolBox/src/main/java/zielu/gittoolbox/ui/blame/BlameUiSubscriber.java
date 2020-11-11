@@ -1,5 +1,6 @@
 package zielu.gittoolbox.ui.blame;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -15,7 +16,7 @@ import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.AppUtil;
 
-class BlameUiSubscriber {
+class BlameUiSubscriber implements Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final Project project;
 
@@ -36,22 +37,18 @@ class BlameUiSubscriber {
     GitToolBoxConfig2 config = AppConfig.getConfig();
     if (config.getShowEditorInlineBlame()) {
       BlameUiService.getExistingInstance(project).ifPresent(service -> service.blameUpdated(file));
-      AppUiUtil.invokeLaterIfNeeded(project, () -> handleBlameUpdate(file));
+      AppUiUtil.invokeLaterIfNeeded(this, () -> handleBlameUpdate(file));
     }
   }
 
   private void handleBlameUpdate(@NotNull VirtualFile file) {
     if (FileEditorManager.getInstance(project).isFileOpen(file)) {
       log.debug("Refresh editors on blame update for ", file);
-      refreshEditorFile(file, true);
+      refreshEditorFile(file);
     }
   }
 
   private void refreshEditorFile(@NotNull VirtualFile file) {
-    refreshEditorFile(file, false);
-  }
-
-  private void refreshEditorFile(@NotNull VirtualFile file, boolean repaint) {
     FileEditorManagerEx editorManagerEx = FileEditorManagerEx.getInstanceEx(project);
     editorManagerEx.updateFilePresentation(file);
   }
@@ -62,7 +59,7 @@ class BlameUiSubscriber {
 
   void onConfigChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
     if (handleConfigChanged(previous, current)) {
-      AppUiUtil.invokeLater(project, BlameUiSubscriber.this::handleConfigChanged);
+      AppUiUtil.invokeLater(this, BlameUiSubscriber.this::handleConfigChanged);
     }
   }
 
@@ -89,5 +86,10 @@ class BlameUiSubscriber {
     return current.getShowBlameWidget() != previous.getShowBlameWidget()
         || current.getShowEditorInlineBlame() != previous.getShowEditorInlineBlame()
         || blamePresentationChanged;
+  }
+
+  @Override
+  public void dispose() {
+    //do nothing
   }
 }

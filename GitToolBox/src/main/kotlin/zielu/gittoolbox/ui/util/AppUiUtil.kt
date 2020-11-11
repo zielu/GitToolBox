@@ -1,9 +1,12 @@
 package zielu.gittoolbox.ui.util
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.Application
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import zielu.intellij.concurrent.DisposeSafeRunnable
+import com.intellij.openapi.util.Disposer
+import zielu.gittoolbox.GitToolBoxPrj
+import zielu.intellij.concurrent.ZDisposableRunnable
 
 internal object AppUiUtil {
   @JvmStatic
@@ -17,9 +20,10 @@ internal object AppUiUtil {
   }
 
   @JvmStatic
-  fun invokeLater(project: Project, task: Runnable) {
-    // TODO: replace project with Disposable
-    invokeLater(task)
+  fun invokeLater(disposable: Disposable, task: Runnable) {
+    val toDo = ZDisposableRunnable(task)
+    Disposer.register(disposable, toDo)
+    invokeLater(toDo)
   }
 
   @JvmStatic
@@ -33,19 +37,15 @@ internal object AppUiUtil {
   }
 
   @JvmStatic
-  fun invokeAndWaitIfNeeded(task: Runnable) {
-    val application = getApplication()
-    if (application.isUnitTestMode || application.isDispatchThread) {
-      task.run()
-    } else {
-      application.invokeAndWait(task)
-    }
+  fun invokeLaterIfNeeded(project: Project, task: Runnable) {
+    invokeLaterIfNeeded(GitToolBoxPrj.getInstance(project), task)
   }
 
   @JvmStatic
-  fun invokeLaterIfNeeded(project: Project, task: Runnable) {
-    // TODO: replace project with Disposable
-    invokeLaterIfNeeded(DisposeSafeRunnable(task))
+  fun invokeLaterIfNeeded(disposable: Disposable, task: Runnable) {
+    val toDo = ZDisposableRunnable(task)
+    Disposer.register(disposable, toDo)
+    invokeLaterIfNeeded(toDo)
   }
 
   private fun getApplication(): Application {

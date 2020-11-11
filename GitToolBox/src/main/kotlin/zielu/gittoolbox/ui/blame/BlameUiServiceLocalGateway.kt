@@ -16,12 +16,13 @@ import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.config.DecorationColors
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.revision.RevisionInfo
+import zielu.gittoolbox.util.LocalGateway
 import zielu.intellij.metrics.GtTimer
 
 internal class BlameUiServiceLocalGateway(
   private val project: Project,
   private val textAttributesKey: TextAttributesKey
-) {
+) : LocalGateway(project) {
   val editorTimer: GtTimer
     get() = ProjectMetrics.getInstance(project).timer("blame-editor-painter")
   val statusBarTimer: GtTimer
