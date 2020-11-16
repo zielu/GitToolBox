@@ -72,7 +72,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
       }
     });
     Disposer.register(this, onCacheChange);
-    AppUiUtil.invokeLaterIfNeeded(project, onCacheChange);
+    AppUiUtil.invokeLaterIfNeeded(this, onCacheChange);
   }
 
   private void runUpdateLater(@NotNull Project project) {
@@ -81,7 +81,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
         runUpdate(project);
       }
     };
-    AppUiUtil.invokeLaterIfNeeded(project, update);
+    AppUiUtil.invokeLaterIfNeeded(this, update);
   }
 
   private void setVisible(boolean visible) {
@@ -129,7 +129,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void repaintStatusBar() {
-    AppUiUtil.invokeLaterIfNeeded(myProject, this::updateStatusBar);
+    AppUiUtil.invokeLaterIfNeeded(this, this::updateStatusBar);
   }
 
   @Override

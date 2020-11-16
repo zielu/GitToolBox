@@ -67,7 +67,7 @@ internal class BlameCalculationPersistence(
 
     val overflow = state.fileBlames.size - maxSize
     if (overflow > 0) {
-      log.info("Remove $overflow overflowing entries")
+      log.info("Remove overflowing entries:  $overflow")
       val toRemove = state.fileBlames.entries
         .sortedBy { it.value.accessTimestamp }
         .take(overflow)

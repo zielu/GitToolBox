@@ -57,7 +57,7 @@ internal class GitToolBoxApp : Disposable {
     taskThreadFactory.exposeMetrics(metrics)
     asyncThreadFactory.exposeMetrics(metrics)
     scheduledThreadFactory.exposeMetrics(metrics)
-    runInBackground { AppMetrics.startReporting() }
+    runInBackground(Runnable { AppMetrics.startReporting() })
   }
 
   override fun dispose() {

@@ -3,29 +3,33 @@ package zielu.gittoolbox.ui.projectview
 import com.intellij.ide.projectView.ProjectView
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import zielu.gittoolbox.ui.util.AppUiUtil.invokeLater
 import zielu.gittoolbox.util.AppUtil
-import java.util.concurrent.atomic.AtomicBoolean
+import zielu.intellij.util.ZDisposeGuard
 
 internal class ProjectViewSubscriber(
   private val project: Project
 ) : Disposable {
-  private val active = AtomicBoolean(true)
+  private val disposeGuard = ZDisposeGuard()
+  init {
+    Disposer.register(this, disposeGuard)
+  }
 
   fun refreshProjectView() {
-    if (active.get()) {
-      invokeLater(project, Runnable { refreshProjectViewInternal() })
+    if (disposeGuard.isActive()) {
+      invokeLater(disposeGuard, Runnable { refreshProjectViewInternal() })
     }
   }
 
   private fun refreshProjectViewInternal() {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       ProjectView.getInstance(project).refresh()
     }
   }
 
   override fun dispose() {
-    active.compareAndSet(true, false)
+    // do nothing
   }
 
   companion object {

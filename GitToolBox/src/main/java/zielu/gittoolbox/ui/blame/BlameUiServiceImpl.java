@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
@@ -26,13 +25,14 @@ import zielu.gittoolbox.config.DecorationColors;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.ui.util.AppUiUtil;
+import zielu.intellij.util.ZDisposeGuard;
 import zielu.intellij.util.ZUtil;
 
 class BlameUiServiceImpl implements BlameUiService, Disposable {
   private static final TextAttributesKey ATTRIBUTES_KEY = DecorationColors.EDITOR_INLINE_BLAME_ATTRIBUTES;
   private static final String BLAME_PREFIX = FontUtil.spaceAndThinSpace() + " ";
   private final Logger log = Logger.getInstance(getClass());
-  private final AtomicBoolean active = new AtomicBoolean(true);
+  private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
   private final AtomicInteger configGeneration = new AtomicInteger(1);
   private final Project project;
   private final BlameUiServiceLocalGateway gateway;
@@ -41,6 +41,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   BlameUiServiceImpl(@NotNull Project project) {
     this.project = project;
     this.gateway = new BlameUiServiceLocalGateway(project, ATTRIBUTES_KEY);
+    this.gateway.registerDisposable(this, disposeGuard);
   }
 
   @Override
@@ -59,7 +60,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
 
   @Override
   public void refreshBlame() {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       gateway.invalidateAllBlames();
     }
   }
@@ -67,7 +68,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   @Nullable
   @Override
   public String getBlameStatus(@NotNull VirtualFile file, int editorLineIndex) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       return gateway.getStatusBarTimer().timeSupplier(() -> getBlameStatusInternal(file, editorLineIndex));
     }
     return null;
@@ -103,7 +104,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   @Nullable
   @Override
   public String getBlameStatusTooltip(@NotNull VirtualFile file, int editorLineIndex) {
-    if (active.get() && gateway.isUnderGit(file)) {
+    if (disposeGuard.isActive() && gateway.isUnderGit(file)) {
       Document document = gateway.getDocument(file);
       if (isDocumentValid(document, editorLineIndex)) {
         RevisionInfo revisionInfo = gateway.getLineBlame(document, file, editorLineIndex);
@@ -116,7 +117,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   @Nullable
   @Override
   public Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineIndex) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       return gateway.getEditorTimer().timeSupplier(() -> getLineExtensionsInternal(file, editorLineIndex));
     } else {
       return null;
@@ -164,9 +165,9 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
 
   @Override
   public void blameUpdated(@NotNull VirtualFile file) {
-    if (active.get()) {
+    if (disposeGuard.isActive()) {
       log.debug("Blame updated: ", file);
-      AppUiUtil.invokeLaterIfNeeded(project, () -> handleBlameUpdated(file));
+      AppUiUtil.invokeLaterIfNeeded(disposeGuard, () -> handleBlameUpdated(file));
     }
   }
 
@@ -200,9 +201,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
 
   @Override
   public void dispose() {
-    if (active.compareAndSet(true, false)) {
-      clearData();
-    }
+    clearData();
   }
 
   private void clearData() {
