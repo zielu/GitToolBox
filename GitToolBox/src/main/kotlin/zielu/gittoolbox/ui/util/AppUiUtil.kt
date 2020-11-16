@@ -20,6 +20,11 @@ internal object AppUiUtil {
   }
 
   @JvmStatic
+  fun invokeLater(project: Project, task: Runnable) {
+    invokeLater(GitToolBoxPrj.getInstance(project), task)
+  }
+
+  @JvmStatic
   fun invokeLater(disposable: Disposable, task: Runnable) {
     val toDo = ZDisposableRunnable(task)
     Disposer.register(disposable, toDo)

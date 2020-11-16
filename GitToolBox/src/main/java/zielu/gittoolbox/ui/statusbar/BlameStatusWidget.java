@@ -70,7 +70,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   }
 
   private void repaintStatusBar() {
-    AppUiUtil.invokeLaterIfNeeded(myProject, () -> myStatusBar.updateWidget(ID));
+    AppUiUtil.invokeLaterIfNeeded(this, () -> myStatusBar.updateWidget(ID));
   }
 
   @NotNull
@@ -87,8 +87,8 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
 
   private void setVisible(boolean visible) {
     if (visible && this.visible.compareAndSet(false, true)) {
-      EditorFactory.getInstance().getEventMulticaster().addCaretListener(caretListener, myProject);
-      AppUiUtil.invokeLater(myProject, this::updateBlame);
+      EditorFactory.getInstance().getEventMulticaster().addCaretListener(caretListener, this);
+      AppUiUtil.invokeLater(this, this::updateBlame);
     } else if (!visible && this.visible.compareAndSet(true, false)) {
       EditorFactory.getInstance().getEventMulticaster().removeCaretListener(caretListener);
     }
@@ -105,14 +105,14 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
       @Override
       public void blameUpdated(@NotNull VirtualFile file) {
         if (shouldShow()) {
-          AppUiUtil.invokeLaterIfNeeded(myProject, () -> updateBlame(file));
+          AppUiUtil.invokeLaterIfNeeded(BlameStatusWidget.this, () -> updateBlame(file));
         }
       }
 
       @Override
       public void blameInvalidated(@NotNull VirtualFile file) {
         if (shouldShow()) {
-          AppUiUtil.invokeLaterIfNeeded(myProject, () -> updatePresentation(null));
+          AppUiUtil.invokeLaterIfNeeded(BlameStatusWidget.this, () -> updatePresentation(null));
         }
       }
     });
@@ -121,7 +121,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
       public void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
         updateVisibleFromConfig();
         if (shouldShow() && current.isBlameStatusPresentationChanged(previous)) {
-          AppUiUtil.invokeLaterIfNeeded(myProject, BlameStatusWidget.this::updateBlame);
+          AppUiUtil.invokeLaterIfNeeded(BlameStatusWidget.this, BlameStatusWidget.this::updateBlame);
         }
         if (current.getShowBlameWidget() != previous.getShowBlameWidget()) {
           repaintStatusBar();
@@ -132,7 +132,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
       @Override
       public void exitDumbMode() {
         if (shouldShow()) {
-          AppUiUtil.invokeLaterIfNeeded(myProject, BlameStatusWidget.this::updateBlame);
+          AppUiUtil.invokeLaterIfNeeded(BlameStatusWidget.this, BlameStatusWidget.this::updateBlame);
         }
       }
     });
