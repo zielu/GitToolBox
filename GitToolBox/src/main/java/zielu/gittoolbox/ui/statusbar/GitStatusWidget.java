@@ -48,6 +48,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   public static final String ID = GitToolBox.PLUGIN_ID + "." + GitStatusWidget.class.getName();
   private final AtomicBoolean connected = new AtomicBoolean();
   private final AtomicBoolean visible = new AtomicBoolean();
+  private final AtomicBoolean active = new AtomicBoolean(true);
   private final StatusToolTip toolTip;
   private final RootActions rootActions;
   private String text = "";
@@ -197,6 +198,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
 
   @Override
   public void dispose() {
+    active.compareAndSet(true, false);
     setVisible(false);
     super.dispose();
   }
@@ -310,7 +312,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private boolean isActive() {
-    return !isDisposed() && visible.get();
+    return active.get() && visible.get();
   }
 
   @Nullable
