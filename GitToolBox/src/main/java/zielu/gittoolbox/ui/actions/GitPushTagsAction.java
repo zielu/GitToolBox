@@ -31,13 +31,19 @@ public class GitPushTagsAction extends GitRepositoryAction {
 
   public GitPushTagsAction() {
     errorResultHandlers.put(ERROR, (notifier, result) ->
-        notifier.notifyError("Push failed", result.getOutput())
+        notifier.notifyError(
+            "gittoolbox.push.failed",
+            ResBundle.message("message.tags.push.failed"),
+            result.getOutput())
     );
     errorResultHandlers.put(REJECTED, (notifier, result) ->
-        notifier.notifyWeakError("Push rejected: " + Joiner.on(" ").join(result.getRejectedBranches()))
+        notifier.notifyWeakError(
+            "gittoolbox.push.rejected",
+            ResBundle.message("message.tags.push.rejected", Joiner.on(" ").join(result.getRejectedBranches()))
+        )
     );
     errorResultHandlers.put(NOT_AUTHORIZED, (notifier, result) ->
-        notifier.notifyError("Not authorized", result.getOutput())
+        notifier.notifyError("gittoolbox.push.no.auth", "Not authorized", result.getOutput())
     );
   }
 
@@ -80,7 +86,11 @@ public class GitPushTagsAction extends GitRepositoryAction {
   private void handleResult(Project project, GtPushResult pushResult) {
     VcsNotifier vcsNotifier = VcsNotifier.getInstance(project);
     if (pushResult.getType() == Type.SUCCESS) {
-      vcsNotifier.notifySuccess(ResBundle.message("message.tags.pushed"));
+      vcsNotifier.notifySuccess(
+          "gittoolbox.push.success",
+          ResBundle.message("message.tags.pushed.title"),
+          ResBundle.message("message.tags.pushed")
+      );
     } else {
       errorResultHandlers.getOrDefault(pushResult.getType(), (notifier, result) -> { /*do nothing*/ })
           .accept(vcsNotifier, pushResult);
