@@ -73,6 +73,12 @@ intellij {
     instrumentCode = true
 }
 
+runPluginVerifier {
+    ideVersions = [
+        ideaVerifierVersion
+    ]
+}
+
 compileJava.options.encoding = encoding
 compileTestJava.options.encoding = encoding
 
