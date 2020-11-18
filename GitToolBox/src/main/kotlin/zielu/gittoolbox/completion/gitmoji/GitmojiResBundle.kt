@@ -1,6 +1,6 @@
 package zielu.gittoolbox.completion.gitmoji
 
-import com.intellij.BundleBase
+import com.intellij.AbstractBundle
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
 import zielu.intellij.util.ZBundleHolder
@@ -11,7 +11,7 @@ internal object GitmojiResBundle {
   private val BUNDLE_HOLDER = ZBundleHolder(BUNDLE_NAME)
 
   fun message(@PropertyKey(resourceBundle = BUNDLE_NAME) key: String, vararg params: Any?): String {
-    return BundleBase.message(BUNDLE_HOLDER.bundle, key, *params)
+    return AbstractBundle.message(BUNDLE_HOLDER.bundle, key, *params)
   }
 
   fun keySet(): Set<String> {

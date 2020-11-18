@@ -1,6 +1,6 @@
 package zielu.gittoolbox
 
-import com.intellij.BundleBase
+import com.intellij.AbstractBundle
 import org.jetbrains.annotations.PropertyKey
 import zielu.intellij.util.ZBundleHolder
 
@@ -10,7 +10,7 @@ internal object ResBundle {
 
   @JvmStatic
   fun message(@PropertyKey(resourceBundle = bundleName) key: String, vararg params: Any?): String {
-    return BundleBase.message(holder.bundle, key, *params)
+    return AbstractBundle.message(holder.bundle, key, *params)
   }
 
   @JvmStatic
