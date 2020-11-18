@@ -4,6 +4,7 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -125,9 +126,11 @@ class BlamePopup {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
           try {
+            indicator.checkCanceled();
             future.get();
-          } catch (CancellationException | InterruptedException ignored) {
+          } catch (CancellationException | InterruptedException cancelled) {
             Thread.currentThread().interrupt();
+            throw new ProcessCanceledException(cancelled);
           } catch (ExecutionException e) {
             LOG.error(e);
           }

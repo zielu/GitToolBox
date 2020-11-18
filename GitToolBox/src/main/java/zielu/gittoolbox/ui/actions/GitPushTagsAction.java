@@ -74,7 +74,9 @@ public class GitPushTagsAction extends GitRepositoryAction {
         Task.Backgroundable task = new Task.Backgroundable(project, ResBundle.message("message.pushing"), false) {
           @Override
           public void run(@NotNull ProgressIndicator indicator) {
+            indicator.checkCanceled();
             GtPushResult result = GitTagsPusher.create(getProject(), indicator).push(pushSpec.get());
+            indicator.checkCanceled();
             handleResult(getProject(), result);
           }
         };
