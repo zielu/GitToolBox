@@ -208,7 +208,9 @@ class AutoFetchTask implements Runnable, Disposable {
           }
         }
       });
-      AppUiUtil.invokeLaterIfNeeded(this, task);
+      if (isNotCancelled()) {
+        AppUiUtil.invokeLaterIfNeeded(this, task);
+      }
     } else {
       log.debug("Fetched skipped");
       owner.releaseAutoFetchLock();
