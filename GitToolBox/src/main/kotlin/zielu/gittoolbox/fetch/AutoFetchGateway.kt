@@ -8,7 +8,7 @@ import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.util.AppUtil.getServiceInstance
 import zielu.gittoolbox.util.GatewayBase
 import zielu.intellij.concurrent.DisposeSafeRunnable
-import zielu.intellij.concurrent.ZDisposableRunnableWrapper
+import zielu.intellij.concurrent.ZDisposableRunnable
 import zielu.intellij.util.ZDisposeGuard
 import java.time.Clock
 import java.time.Duration
@@ -29,7 +29,7 @@ internal class AutoFetchGateway(
 
   fun scheduleAutoFetch(
     delay: Duration,
-    taskCreator: BiFunction<Project, AutoFetchSchedule, Runnable>
+    taskCreator: BiFunction<Project, AutoFetchSchedule, ZDisposableRunnable>
   ): Optional<ScheduledFuture<*>> {
     return if (disposeGuard.isActive()) {
       val task = taskCreator.apply(prj, AutoFetchSchedule.getInstance(prj))
@@ -40,11 +40,10 @@ internal class AutoFetchGateway(
     }
   }
 
-  private fun schedule(delay: Duration, task: Runnable): ScheduledFuture<*>? {
-    val toSchedule = ZDisposableRunnableWrapper(task)
-    Disposer.register(this, toSchedule)
+  private fun schedule(delay: Duration, task: ZDisposableRunnable): ScheduledFuture<*>? {
+    Disposer.register(this, task)
     return GitToolBoxApp.getInstance()
-      .map { app -> app.schedule(DisposeSafeRunnable(toSchedule), delay.toMillis(), TimeUnit.MILLISECONDS) }
+      .map { app -> app.schedule(DisposeSafeRunnable(task), delay.toMillis(), TimeUnit.MILLISECONDS) }
       .orElse(null)
   }
 
