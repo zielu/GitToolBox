@@ -146,6 +146,21 @@
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
 
     <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
+
+    <notificationGroup
+        id="gittoolbox.behind.tracker"
+        displayType="TOOL_WINDOW"
+        toolWindowId="Version Control"
+        bundle="zielu.gittoolbox.ResourceBundle"
+        key="notification.group.behind.tracker"
+    />
+    <notificationGroup
+        id="gittoolbox.fetch"
+        displayType="TOOL_WINDOW"
+        toolWindowId="Version Control"
+        bundle="zielu.gittoolbox.ResourceBundle"
+        key="notification.group.fetch"
+    />
   </extensions>
 
   <applicationListeners>

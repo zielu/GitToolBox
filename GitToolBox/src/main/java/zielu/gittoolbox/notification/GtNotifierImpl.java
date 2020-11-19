@@ -2,6 +2,7 @@ package zielu.gittoolbox.notification;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
@@ -12,9 +13,14 @@ import org.jetbrains.annotations.Nullable;
 
 class GtNotifierImpl implements GtNotifier {
   private final Project project;
+  private final NotificationGroup behindTrackerGroup;
+  private final NotificationGroup fetchGroup;
 
   GtNotifierImpl(@NotNull Project project) {
     this.project = project;
+    var groupManager = NotificationGroupManager.getInstance();
+    behindTrackerGroup = groupManager.getNotificationGroup("gittoolbox.behind.tracker");
+    fetchGroup = groupManager.getNotificationGroup("gittoolbox.fetch");
   }
 
   @NotNull
@@ -27,13 +33,13 @@ class GtNotifierImpl implements GtNotifier {
   @Override
   public Notification behindTrackerSuccess(@NotNull String title, @NotNull String message,
                                            @Nullable NotificationListener listener) {
-    return notify(BEHIND_TRACKER_GROUP_ID, title, message, NotificationType.INFORMATION, listener);
+    return notify(behindTrackerGroup, title, message, NotificationType.INFORMATION, listener);
   }
 
   @NotNull
   @Override
   public Notification fetchError(@NotNull String message) {
-    return notify(FETCH_GROUP_ID, "", message, NotificationType.ERROR, null);
+    return notify(fetchGroup, "", message, NotificationType.ERROR, null);
   }
 
   @NotNull
@@ -45,7 +51,7 @@ class GtNotifierImpl implements GtNotifier {
   @NotNull
   private Notification fetchInfo(@NotNull String title, @NotNull String message,
                                  @Nullable NotificationListener listener) {
-    return notify(FETCH_GROUP_ID, title, message, NotificationType.INFORMATION, listener);
+    return notify(fetchGroup, title, message, NotificationType.INFORMATION, listener);
   }
 
   @NotNull
@@ -57,7 +63,7 @@ class GtNotifierImpl implements GtNotifier {
   @NotNull
   private Notification fetchWarning(@NotNull String title, @NotNull String message,
                                     @Nullable NotificationListener listener) {
-    return notify(FETCH_GROUP_ID, title, message, NotificationType.WARNING, listener);
+    return notify(fetchGroup, title, message, NotificationType.WARNING, listener);
   }
 
   @NotNull
