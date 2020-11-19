@@ -6,7 +6,7 @@ import com.intellij.openapi.util.Disposer
 import zielu.intellij.util.ZDisposeGuard
 import java.util.concurrent.atomic.AtomicReference
 
-internal class ZDisposableRunnable(private val task: Runnable) : Runnable, Disposable {
+internal class ZDisposableRunnableWrapper(private val task: Runnable) : Runnable, Disposable {
   private val thread = AtomicReference<Thread>()
   private val disposeGuard = ZDisposeGuard()
 
@@ -29,6 +29,6 @@ internal class ZDisposableRunnable(private val task: Runnable) : Runnable, Dispo
   }
 
   private companion object {
-    private val log = Logger.getInstance(ZDisposableRunnable::class.java)
+    private val log = Logger.getInstance(ZDisposableRunnableWrapper::class.java)
   }
 }

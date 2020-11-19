@@ -29,7 +29,7 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
     val insertHandler = PrefixCompletionInsertHandler()
     GitmojiResBundle.keySet().forEach { gitmoji ->
       val description = GitmojiResBundle.message(gitmoji)
-      val icon = IconLoader.findIcon("/zielu/gittoolbox/gitmoji/$gitmoji.png", false)
+      val icon = IconLoader.findIcon("/zielu/gittoolbox/gitmoji/$gitmoji.png", javaClass, true, false)
       var builder = LookupElementBuilder.create(":$gitmoji:")
         .withTypeText(description)
         .withIcon(icon)
