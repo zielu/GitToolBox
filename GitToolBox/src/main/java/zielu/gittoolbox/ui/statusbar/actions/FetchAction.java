@@ -19,7 +19,7 @@ public class FetchAction extends DumbAwareAction {
   private final GitRepository repository;
 
   public FetchAction(@NotNull GitRepository repository) {
-    super(GitBundle.getString("fetch.action.name"));
+    super(GitBundle.message("fetch.action.name"));
     this.repository = repository;
   }
 

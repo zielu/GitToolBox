@@ -1,15 +1,15 @@
 package zielu.intellij.util
 
-import com.intellij.AbstractBundle
+import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
 
-internal object ZResBundle {
-  @NonNls
-  private const val BUNDLE_NAME = "zielu.intellij.ZResBundle"
-  private val BUNDLE_HOLDER = ZBundleHolder(BUNDLE_NAME)
+internal object ZResBundle : DynamicBundle(BUNDLE_NAME) {
 
   fun message(@PropertyKey(resourceBundle = BUNDLE_NAME) key: String, vararg params: Any?): String {
-    return AbstractBundle.message(BUNDLE_HOLDER.bundle, key, *params)
+    return getMessage(key, *params)
   }
 }
+
+@NonNls
+private const val BUNDLE_NAME = "zielu.intellij.ZResBundle"

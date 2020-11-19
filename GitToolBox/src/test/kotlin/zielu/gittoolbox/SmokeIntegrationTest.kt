@@ -8,6 +8,7 @@ import zielu.IntegrationTest
 import zielu.gittoolbox.blame.BlameCache
 import zielu.gittoolbox.branch.RecentBranchesService
 import zielu.gittoolbox.changes.ChangesTrackerService
+import zielu.gittoolbox.completion.gitmoji.GitmojiResBundle
 import zielu.gittoolbox.fetch.AutoFetchComponent
 import zielu.gittoolbox.fetch.AutoFetchState
 import zielu.gittoolbox.metrics.AppMetrics
@@ -20,6 +21,7 @@ import zielu.gittoolbox.ui.StatusMessagesUi
 import zielu.gittoolbox.ui.blame.BlamePresenter
 import zielu.gittoolbox.ui.branch.BranchUiService
 import zielu.gittoolbox.ui.update.UpdateProjectActionService
+import zielu.intellij.util.ZResBundle
 import zielu.junit5.intellij.extension.platform.LightPlatformTestCaseExtension
 
 @IntegrationTest
@@ -104,5 +106,20 @@ internal class SmokeIntegrationTest {
   @Test
   fun `should return BranchUiService`(project: Project) {
     assertThat(BranchUiService.getInstance(project)).isNotNull
+  }
+
+  @Test
+  fun `should get message from ResBundle`() {
+    assertThat(ResBundle.message("common.on")).isNotNull
+  }
+
+  @Test
+  fun `should get message from ZResBundle`() {
+    assertThat(ZResBundle.message("date.format.today")).isNotNull
+  }
+
+  @Test
+  fun `should get message from GitmojiResBundle`() {
+    assertThat(GitmojiResBundle.message("alembic")).isNotNull
   }
 }

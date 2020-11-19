@@ -1,16 +1,13 @@
 package zielu.gittoolbox
 
-import com.intellij.AbstractBundle
+import com.intellij.DynamicBundle
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
-import zielu.intellij.util.ZBundleHolder
 
-internal object ResBundle {
-  private const val bundleName = "zielu.gittoolbox.ResourceBundle"
-  private val holder = ZBundleHolder(bundleName)
-
+internal object ResBundle : DynamicBundle(BUNDLE_NAME) {
   @JvmStatic
-  fun message(@PropertyKey(resourceBundle = bundleName) key: String, vararg params: Any?): String {
-    return AbstractBundle.message(holder.bundle, key, *params)
+  fun message(@PropertyKey(resourceBundle = BUNDLE_NAME) key: String, vararg params: Any?): String {
+    return getMessage(key, *params)
   }
 
   @JvmStatic
@@ -28,3 +25,6 @@ internal object ResBundle {
     return message("common.disabled")
   }
 }
+
+@NonNls
+private const val BUNDLE_NAME = "zielu.gittoolbox.ResourceBundle"
