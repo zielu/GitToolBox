@@ -1,14 +1,16 @@
 package zielu.gittoolbox.extension.projectview
 
 import com.intellij.ide.projectView.ProjectViewNode
-import com.intellij.openapi.extensions.AbstractExtensionPointBean
 import com.intellij.util.xmlb.annotations.Attribute
+import zielu.intellij.extensions.ZTypeExtensionInstance
 
-internal class ViewModuleNodeChildEP : AbstractExtensionPointBean() {
+internal class ViewModuleNodeChildEP : ZTypeExtensionInstance<ProjectViewNode<*>>() {
   @Attribute("nodeClass")
   lateinit var nodeClass: String
 
+  override fun getClassName(): String = nodeClass
+
   fun getNodeClass(): Class<ProjectViewNode<*>> {
-    return findClassNoExceptions(nodeClass)!!
+    return findClass()
   }
 }

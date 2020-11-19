@@ -1,13 +1,13 @@
 package zielu.gittoolbox.extension.autofetch
 
 import com.intellij.util.xmlb.annotations.Attribute
-import zielu.intellij.extensions.ZAbstractExtensionPointBean
+import zielu.intellij.extensions.ZAbstractLazyExtensionPoint
 
-internal class AutoFetchAllowedEP : ZAbstractExtensionPointBean() {
+internal class AutoFetchAllowedEP : ZAbstractLazyExtensionPoint<AutoFetchAllowed>() {
   @Attribute("provider")
   lateinit var provider: String
 
-  fun instantiate(): AutoFetchAllowed {
-    return createInstance(provider)
-  }
+  override fun getImplementationClassName(): String = provider
+
+  fun instantiate(): AutoFetchAllowed = createInstance()
 }
