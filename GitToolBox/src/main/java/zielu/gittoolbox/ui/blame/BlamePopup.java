@@ -10,8 +10,8 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.Balloon;
-import com.intellij.openapi.ui.popup.JBPopupAdapter;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.JBPopupListener;
 import com.intellij.openapi.ui.popup.LightweightWindowEvent;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
@@ -28,7 +28,7 @@ import com.intellij.ui.Gray;
 import com.intellij.ui.HyperlinkAdapter;
 import com.intellij.ui.JBColor;
 import com.intellij.vcs.log.impl.VcsLogContentUtil;
-import com.intellij.vcs.log.ui.AbstractVcsLogUi;
+import com.intellij.vcs.log.ui.MainVcsLogUi;
 import com.intellij.vcsUtil.VcsUtil;
 import java.awt.datatransfer.StringSelection;
 import java.util.concurrent.CancellationException;
@@ -71,7 +71,7 @@ class BlamePopup {
         .setCloseButtonEnabled(true)
         .setHideOnCloseClick(true)
         .createBalloon();
-    balloon.addListener(new JBPopupAdapter() {
+    balloon.addListener(new JBPopupListener() {
       @Override
       public void onClosed(@NotNull LightweightWindowEvent event) {
         if (!balloon.isDisposed()) {
@@ -105,7 +105,7 @@ class BlamePopup {
 
   private void handleLinkClick(String action) {
     if (PopupAction.REVEAL_IN_LOG.isAction(action)) {
-      VcsLogContentUtil.openMainLogAndExecute(project, this::revealRevisionInLog);
+      VcsLogContentUtil.runInMainLog(project, this::revealRevisionInLog);
     } else if (PopupAction.AFFECTED_FILES.isAction(action)) {
       showAffectedFiles();
     } else if (PopupAction.COPY_REVISION.isAction(action)) {
@@ -116,12 +116,12 @@ class BlamePopup {
     close();
   }
 
-  private void revealRevisionInLog(@NotNull AbstractVcsLogUi logUi) {
+  private void revealRevisionInLog(@NotNull MainVcsLogUi logUi) {
     String revisionNumber = revisionInfo.getRevisionNumber().asString();
     Future<Boolean> future = logUi.getVcsLog().jumpToReference(revisionNumber);
     if (!future.isDone()) {
       ProgressManager.getInstance().run(new Task.Backgroundable(project,
-          "Searching for revision " + revisionNumber, false,
+          "Searching for revision " + revisionNumber, true,
           PerformInBackgroundOption.ALWAYS_BACKGROUND) {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
