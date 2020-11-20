@@ -116,22 +116,12 @@ if (publish) {
 
     publishPlugin {
         token = getPublishToken(ci, project)
-        username = getPublishUsername(ci, project)
-        password = getPublishPassword(ci, project)
         channels = publishChannels(branchName, ci)
     }
 }
 
 def static getPublishToken(ci, project) {
-    return ci ? System.getenv('publish_token') : project.publishToken
-}
-
-def static getPublishUsername(ci, project) {
-    return ci ? System.getenv('publish_username') : project.publishUsername
-}
-
-def static getPublishPassword(ci, project) {
-    return ci ? System.getenv('publish_password') : project.publishPassword
+    return ci ? System.getenv('PUBLISH_TOKEN') : project.publishToken
 }
 
 jar {
