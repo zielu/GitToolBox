@@ -15,8 +15,10 @@ jobs:
       - name: Cache packages
         uses: actions/cache@v2
         with:
-          path: ~/.gradle/caches
-          key: gradle-${{ hashFiles('**/*.gradle') }}
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle', '**/gradle.properties', '**/gradle/wrapper/*') }}
           restore-keys: |
             gradle-
       - name: Build and check
