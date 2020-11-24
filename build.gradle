@@ -121,7 +121,30 @@ if (publish) {
 }
 
 def static getPublishToken(ci, project) {
-    return ci ? System.getenv('PUBLISH_TOKEN') : project.publishToken
+    if (ci) {
+        return publishTokenFromEnv()
+    } else {
+        return publishTokenFromProject(project)
+    }
+}
+
+def static publishTokenFromEnv() {
+    def systemProperty = 'PUBLISH_TOKEN'
+    def token = System.getenv(systemProperty)
+    if (token == null) {
+        def propertyPresent = System.getenv().containsKey(systemProperty)
+        println("Null token from env. Property was present: $propertyPresent")
+        throw new GradleException("Publish token not found in $systemProperty")
+    }
+    return token
+}
+
+def static publishTokenFromProject(project) {
+    def token = project.publishToken
+    if (token == null) {
+        throw new GradleException("Publish token not found in project.publishToken")
+    }
+    return token
 }
 
 jar {
