@@ -1,6 +1,6 @@
 package zielu.gittoolbox.repo;
 
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -13,13 +13,16 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
-public class GtRepositoryManager implements ProjectComponent, GitRepositoryChangeListener {
-  private final Map<GitRepository, GtConfig> configs = new ConcurrentHashMap<GitRepository, GtConfig>();
+public class GtRepositoryManager implements GitRepositoryChangeListener, Disposable {
+  private final Map<GitRepository, GtConfig> configs = new ConcurrentHashMap<>();
   private final Project project;
   private MessageBusConnection connection;
 
   public GtRepositoryManager(@NotNull Project project) {
     this.project = project;
+    //TODO: should be changed to subscriber instead
+    connection = project.getMessageBus().connect();
+    connection.subscribe(GitRepository.GIT_REPO_CHANGE, this);
   }
 
   @NotNull
@@ -42,17 +45,7 @@ public class GtRepositoryManager implements ProjectComponent, GitRepositoryChang
   }
 
   @Override
-  public void initComponent() {
-    connection = project.getMessageBus().connect();
-    connection.subscribe(GitRepository.GIT_REPO_CHANGE, this);
-  }
-
-  @Override
-  public void disposeComponent() {
-    if (connection != null) {
-      connection.disconnect();
-      connection = null;
-    }
+  public void dispose() {
     configs.clear();
   }
 }
