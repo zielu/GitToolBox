@@ -44,7 +44,7 @@ java {
     targetCompatibility = javaVersion
 }
 
-boolean ci = System.getenv().containsKey('CI')
+boolean ci = Boolean.valueOf(System.getenv('CI'))
 boolean publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
 
 configurations {
