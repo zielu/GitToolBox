@@ -44,7 +44,7 @@ java {
     targetCompatibility = javaVersion
 }
 
-boolean ci = System.getenv().containsKey('CI')
+boolean ci = Boolean.valueOf(System.getenv('CI'))
 boolean publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
 
 configurations {
@@ -67,10 +67,16 @@ intellij {
     version = ideaVersion
     type = ideaType
     updateSinceUntilBuild = false
-    downloadSources = true
+    downloadSources = !ci
     plugins = ['java', 'android', 'gradle', 'git4idea', 'gr.jchrist.gitextender:0.5.2']
     ideaDependencyCachePath = ideaCacheDir
     instrumentCode = true
+}
+
+runPluginVerifier {
+    ideVersions = [
+        ideaVerifierVersion
+    ]
 }
 
 compileJava.options.encoding = encoding
@@ -110,22 +116,35 @@ if (publish) {
 
     publishPlugin {
         token = getPublishToken(ci, project)
-        username = getPublishUsername(ci, project)
-        password = getPublishPassword(ci, project)
         channels = publishChannels(branchName, ci)
     }
 }
 
 def static getPublishToken(ci, project) {
-    return ci ? System.getenv('publish_token') : project.publishToken
+    if (ci) {
+        return publishTokenFromEnv()
+    } else {
+        return publishTokenFromProject(project)
+    }
 }
 
-def static getPublishUsername(ci, project) {
-    return ci ? System.getenv('publish_username') : project.publishUsername
+def static publishTokenFromEnv() {
+    def systemProperty = 'PUBLISH_TOKEN'
+    def token = System.getenv(systemProperty)
+    if (token == null) {
+        def propertyPresent = System.getenv().containsKey(systemProperty)
+        println("Null token from env. Property was present: $propertyPresent")
+        throw new GradleException("Publish token not found in $systemProperty")
+    }
+    return token
 }
 
-def static getPublishPassword(ci, project) {
-    return ci ? System.getenv('publish_password') : project.publishPassword
+def static publishTokenFromProject(project) {
+    def token = project.publishToken
+    if (token == null) {
+        throw new GradleException("Publish token not found in project.publishToken")
+    }
+    return token
 }
 
 jar {
