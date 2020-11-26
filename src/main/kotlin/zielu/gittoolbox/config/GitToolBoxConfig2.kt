@@ -27,6 +27,7 @@ internal data class GitToolBoxConfig2(
   var decorationParts: List<DecorationPartConfig> = ConfigDefaults.decorationParts,
   var extrasConfig: ExtrasConfig = ExtrasConfig(),
   var commitDialogGitmojiCompletion: Boolean = false,
+  var commitDialogGitmojiCompletionUnicode: Boolean = false,
   @Deprecated("Since 193.8.1") var hideInlineBlameWhileDebugging: Boolean = true,
   var alwaysShowInlineBlameWhileDebugging: Boolean = false
 ) {
@@ -53,6 +54,7 @@ internal data class GitToolBoxConfig2(
       decorationParts.map { it.copy() },
       extrasConfig.copy(),
       commitDialogGitmojiCompletion,
+      commitDialogGitmojiCompletionUnicode,
       hideInlineBlameWhileDebugging,
       alwaysShowInlineBlameWhileDebugging
     )

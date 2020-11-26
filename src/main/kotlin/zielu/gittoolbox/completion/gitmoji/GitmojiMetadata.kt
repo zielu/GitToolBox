@@ -28,6 +28,8 @@ internal object GitmojiMetadata {
       }
     } ?: listOf()
   }
+
+  fun getUnicode(gitmoji: String): String = String(getCharacters(gitmoji).toCharArray())
 }
 
 data class Gitmojis(
