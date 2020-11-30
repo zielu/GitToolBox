@@ -29,7 +29,7 @@ internal class BlameEditorLinePainter : EditorLinePainter() {
   private fun isAllowedByExtension(project: Project): Boolean {
     val blameAllowed = InlineBlameAllowedExtension.isBlameAllowed(project)
     if (log.isDebugEnabled && !blameAllowed) {
-      log.debug("Inline blame blocked by extension")
+      log.debug("Inline blame blocked by allow extension")
     }
     return blameAllowed
   }
