@@ -29,7 +29,7 @@ internal class AutoFetchGateway(
 
   fun scheduleAutoFetch(
     delay: Duration,
-    taskCreator: BiFunction<Project, AutoFetchSchedule, Runnable>
+    taskCreator: BiFunction<Project, AutoFetchSchedule, ZDisposableRunnable>
   ): Optional<ScheduledFuture<*>> {
     return if (disposeGuard.isActive()) {
       val task = taskCreator.apply(prj, AutoFetchSchedule.getInstance(prj))
@@ -40,11 +40,10 @@ internal class AutoFetchGateway(
     }
   }
 
-  private fun schedule(delay: Duration, task: Runnable): ScheduledFuture<*>? {
-    val toSchedule = ZDisposableRunnable(task)
-    Disposer.register(this, toSchedule)
+  private fun schedule(delay: Duration, task: ZDisposableRunnable): ScheduledFuture<*>? {
+    Disposer.register(this, task)
     return GitToolBoxApp.getInstance()
-      .map { app -> app.schedule(DisposeSafeRunnable(toSchedule), delay.toMillis(), TimeUnit.MILLISECONDS) }
+      .map { app -> app.schedule(DisposeSafeRunnable(task), delay.toMillis(), TimeUnit.MILLISECONDS) }
       .orElse(null)
   }
 

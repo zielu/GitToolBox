@@ -2,7 +2,6 @@ package zielu.gittoolbox.fetch;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
@@ -30,10 +29,11 @@ import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.GtUtil;
+import zielu.intellij.concurrent.ZDisposableRunnable;
 import zielu.intellij.metrics.Metrics;
 import zielu.intellij.util.ZDisposeGuard;
 
-class AutoFetchTask implements Runnable, Disposable {
+class AutoFetchTask implements ZDisposableRunnable {
   private final Logger log = Logger.getInstance(getClass());
   private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
   private final AutoFetchExecutor owner;

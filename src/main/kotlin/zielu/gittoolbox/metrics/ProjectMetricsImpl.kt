@@ -6,7 +6,7 @@ import com.intellij.openapi.util.Disposer
 import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.metrics.Jmx.startReporting
 import zielu.intellij.concurrent.DisposeSafeRunnable
-import zielu.intellij.concurrent.ZDisposableRunnable
+import zielu.intellij.concurrent.ZDisposableRunnableWrapper
 import zielu.intellij.metrics.GtCounter
 import zielu.intellij.metrics.GtGauge
 import zielu.intellij.metrics.GtTimer
@@ -18,7 +18,7 @@ internal class ProjectMetricsImpl(
   private val metrics = CodehaleMetricsManager()
 
   override fun startReporting() {
-    val operation = ZDisposableRunnable(Runnable { startReporter(project) })
+    val operation = ZDisposableRunnableWrapper(Runnable { startReporter(project) })
     Disposer.register(this, operation)
     GitToolBoxApp.getInstance().ifPresent {
       it.runInBackground(DisposeSafeRunnable(operation))

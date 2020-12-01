@@ -7,10 +7,10 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.util.messages.MessageBus
 import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.metrics.CacheMetrics
-import zielu.intellij.metrics.Metrics
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.intellij.concurrent.DisposeSafeRunnable
-import zielu.intellij.concurrent.ZDisposableRunnable
+import zielu.intellij.concurrent.ZDisposableRunnableWrapper
+import zielu.intellij.metrics.Metrics
 
 internal abstract class LocalGateway(private val project: Project) {
   fun getMetrics(): Metrics {
@@ -34,13 +34,13 @@ internal abstract class LocalGateway(private val project: Project) {
   }
 
   protected fun publishAsync(disposable: Disposable, publisher: (messageBus: MessageBus) -> Unit) {
-    val task = ZDisposableRunnable(Runnable { publisher.invoke(project.messageBus) })
+    val task = ZDisposableRunnableWrapper(Runnable { publisher.invoke(project.messageBus) })
     registerDisposable(disposable, task)
     GitToolBoxApp.getInstance().ifPresent { it.runInBackground(DisposeSafeRunnable(task)) }
   }
 
   protected fun runInBackground(disposable: Disposable, task: () -> Unit) {
-    val disposableTask = ZDisposableRunnable(Runnable { task.invoke() })
+    val disposableTask = ZDisposableRunnableWrapper(Runnable { task.invoke() })
     registerDisposable(disposable, disposableTask)
     GitToolBoxApp.getInstance().ifPresent { it.runInBackground(disposableTask) }
   }

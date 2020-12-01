@@ -6,7 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import zielu.gittoolbox.GitToolBoxPrj
-import zielu.intellij.concurrent.ZDisposableRunnable
+import zielu.intellij.concurrent.ZDisposableRunnableWrapper
 
 internal object AppUiUtil {
   @JvmStatic
@@ -26,7 +26,7 @@ internal object AppUiUtil {
 
   @JvmStatic
   fun invokeLater(disposable: Disposable, task: Runnable) {
-    val toDo = ZDisposableRunnable(task)
+    val toDo = ZDisposableRunnableWrapper(task)
     Disposer.register(disposable, toDo)
     invokeLater(toDo)
   }
@@ -48,7 +48,7 @@ internal object AppUiUtil {
 
   @JvmStatic
   fun invokeLaterIfNeeded(disposable: Disposable, task: Runnable) {
-    val toDo = ZDisposableRunnable(task)
+    val toDo = ZDisposableRunnableWrapper(task)
     Disposer.register(disposable, toDo)
     invokeLaterIfNeeded(toDo)
   }
