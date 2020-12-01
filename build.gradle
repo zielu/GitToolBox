@@ -213,6 +213,7 @@ checkstyle {
 }
 
 ktlint {
+    version = "${ktlintVersion}"
     additionalEditorconfigFile = project(':').file('config/ktlint/.editorconfig')
     coloredOutput = false
     reporters {
