@@ -14,6 +14,7 @@ internal class AppConfig : PersistentStateComponent<GitToolBoxConfig2> {
   override fun getState(): GitToolBoxConfig2 = state
 
   override fun loadState(state: GitToolBoxConfig2) {
+    log.debug("App config state loaded")
     this.state = state
   }
 
@@ -24,6 +25,10 @@ internal class AppConfig : PersistentStateComponent<GitToolBoxConfig2> {
     } else {
       log.info("Already migrated")
     }
+  }
+
+  override fun noStateLoaded() {
+    log.info("No persisted state of app configuration")
   }
 
   fun updateState(updated: GitToolBoxConfig2) {

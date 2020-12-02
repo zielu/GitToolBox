@@ -109,12 +109,14 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     myConnection.subscribe(AppConfigNotifier.CONFIG_TOPIC, new AppConfigNotifier() {
       @Override
       public void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
-        updateVisibleFromConfig();
-        if (current.getShowStatusWidget()) {
-          runUpdateLater(myProject);
-        }
-        if (current.getShowStatusWidget() != previous.getShowStatusWidget()) {
-          repaintStatusBar();
+        if (isActive()) {
+          updateVisibleFromConfig();
+          if (current.getShowStatusWidget()) {
+            runUpdateLater(myProject);
+          }
+          if (current.getShowStatusWidget() != previous.getShowStatusWidget()) {
+            repaintStatusBar();
+          }
         }
       }
     });

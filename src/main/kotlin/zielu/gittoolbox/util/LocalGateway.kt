@@ -7,10 +7,10 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.util.messages.MessageBus
 import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.metrics.CacheMetrics
-import zielu.intellij.metrics.Metrics
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.intellij.concurrent.DisposeSafeRunnable
 import zielu.intellij.concurrent.ZDisposableRunnableWrapper
+import zielu.intellij.metrics.Metrics
 
 internal abstract class LocalGateway(private val project: Project) {
   fun getMetrics(): Metrics {

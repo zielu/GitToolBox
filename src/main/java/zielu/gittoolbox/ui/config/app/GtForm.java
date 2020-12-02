@@ -95,6 +95,7 @@ public class GtForm implements GtFormUi {
   private JButton appliedAutoFetchOnBranchSwitchEnabled;
   private JCheckBox commitDialogGitmojiCompletionCheckBox;
   private JCheckBox alwaysShowInlineBlameWhileDebuggingCheckBox;
+  private JCheckBox commitDialogGitmojiCompletionUnicodeCheckBox;
 
   private ZProperty<Boolean> alwaysShowInlineBlameWhileDebugging;
 
@@ -498,6 +499,14 @@ public class GtForm implements GtFormUi {
 
   public boolean getCommitDialogGitmojiCompletionEnabled() {
     return commitDialogGitmojiCompletionCheckBox.isSelected();
+  }
+
+  public void setCommitDialogGitmojiCompletionUnicode(boolean enabled) {
+    commitDialogGitmojiCompletionUnicodeCheckBox.setSelected(enabled);
+  }
+
+  public boolean getCommitDialogGitmojiCompletionUnicode() {
+    return commitDialogGitmojiCompletionUnicodeCheckBox.isSelected();
   }
 
   public ZProperty<Boolean> alwaysShowInlineBlameWhileDebugging() {

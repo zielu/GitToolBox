@@ -26,14 +26,13 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
   private fun isEnabled(): Boolean = AppConfig.getConfig().commitDialogGitmojiCompletion
 
   private fun addCompletions(result: CompletionResultSet) {
-    val insertHandler = PrefixCompletionInsertHandler()
     GitmojiResBundle.keySet().forEach { gitmoji ->
       val description = GitmojiResBundle.message(gitmoji)
       val icon = IconLoader.findIcon("/zielu/gittoolbox/gitmoji/$gitmoji.png", javaClass, true, false)
       var builder = LookupElementBuilder.create(":$gitmoji:")
         .withTypeText(description)
         .withIcon(icon)
-        .withInsertHandler(insertHandler)
+        .withInsertHandler(PrefixCompletionInsertHandler(gitmoji))
 
       val wordsList = GitmojiMetadata.getKeywords(gitmoji)
       if (wordsList.isNotEmpty()) {
@@ -44,16 +43,27 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
   }
 }
 
-private class PrefixCompletionInsertHandler() : InsertHandler<LookupElement> {
+private class PrefixCompletionInsertHandler(private val gitmoji: String) : InsertHandler<LookupElement> {
   override fun handleInsert(context: InsertionContext, item: LookupElement) {
-    val gitmoji = item.lookupString
+    val gitmojiLookup = item.lookupString
     var startOffset = context.startOffset - 1
     if (startOffset < 0) {
       startOffset = 0
     }
+    val useUnicode = AppConfig.getConfig().commitDialogGitmojiCompletionUnicode
     val textBeforeOffsets = context.document.getText(TextRange(startOffset, context.tailOffset))
-    if (textBeforeOffsets.startsWith(":$gitmoji")) {
-      context.document.replaceString(startOffset, context.tailOffset, gitmoji)
+    if (textBeforeOffsets.startsWith(":$gitmojiLookup")) {
+      context.document.replaceString(startOffset, context.tailOffset, replacement(gitmojiLookup, useUnicode))
+    } else if (useUnicode) {
+      context.document.replaceString(context.startOffset, context.tailOffset, replacement(gitmojiLookup, true))
+    }
+  }
+
+  private fun replacement(gitmojiLookup: String, unicode: Boolean): String {
+    return if (unicode) {
+      GitmojiMetadata.getUnicode(gitmoji)
+    } else {
+      gitmojiLookup
     }
   }
 }

@@ -19,7 +19,12 @@ internal class ProjectConfig(
   override fun getState(): GitToolBoxConfigPrj = state
 
   override fun loadState(state: GitToolBoxConfigPrj) {
+    log.debug("Project config state loaded")
     this.state = state
+  }
+
+  override fun noStateLoaded() {
+    log.info("No persisted state of project configuration")
   }
 
   override fun initializeComponent() {
