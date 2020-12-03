@@ -45,6 +45,7 @@ internal object AppUtil {
     return Optional.ofNullable(ApplicationManager.getApplication().getService(serviceType))
   }
 
+  @JvmStatic
   fun <T> runReadAction(block: () -> T): T {
     return ApplicationManager.getApplication().runReadAction<T> { block.invoke() }
   }

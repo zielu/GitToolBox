@@ -31,17 +31,20 @@ import com.intellij.vcs.log.impl.VcsLogContentUtil;
 import com.intellij.vcs.log.ui.MainVcsLogUi;
 import com.intellij.vcsUtil.VcsUtil;
 import java.awt.datatransfer.StringSelection;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.swing.JComponent;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import zielu.gittoolbox.GitToolBoxApp;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.revision.RevisionService;
+import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.Html;
 import zielu.intellij.ui.ZUiUtil;
 
@@ -144,18 +147,23 @@ class BlamePopup {
     if (vcs != null) {
       CommittedChangesProvider<?, ?> changesProvider = vcs.getCommittedChangesProvider();
       if (changesProvider != null) {
-        Pair<? extends CommittedChangeList, FilePath> affectedFiles = findAffectedFiles(changesProvider);
-        if (affectedFiles != null) {
-          AbstractVcsHelperImpl.loadAndShowCommittedChangesDetails(project, revisionInfo.getRevisionNumber(),
-              affectedFiles.getSecond(), () -> affectedFiles);
-        }
+        GitToolBoxApp.getInstance().ifPresent(app -> showAffectedFiles(app, changesProvider));
       }
     }
   }
 
-  @Nullable
-  private Pair<? extends CommittedChangeList, FilePath> findAffectedFiles(
-      @NotNull CommittedChangesProvider<?, ?> changesProvider) {
+  private void showAffectedFiles(GitToolBoxApp app, CommittedChangesProvider<?, ?> changesProvider) {
+    CompletableFuture<Optional<Pair<? extends CommittedChangeList, FilePath>>> supplyAsync = app.supplyAsync(
+        () -> findAffectedFiles(changesProvider), Optional::empty);
+    supplyAsync.thenAccept(maybeAffectedFiles -> maybeAffectedFiles.ifPresent(
+        affectedFiles -> AppUiUtil.invokeLaterIfNeeded(project, () -> displayAffectedFiles(affectedFiles)))
+    );
+  }
+
+  @NotNull
+  private Optional<Pair<? extends CommittedChangeList, FilePath>> findAffectedFiles(
+      @NotNull CommittedChangesProvider<?, ?> changesProvider
+  ) {
     try {
       Pair<? extends CommittedChangeList, FilePath> pair = changesProvider.getOneList(file,
           revisionInfo.getRevisionNumber());
@@ -163,13 +171,18 @@ class BlamePopup {
         if (pair.getSecond() != null) {
           pair = Pair.create(pair.getFirst(), VcsUtil.getFilePath(file));
         }
-        return pair;
+        return Optional.of(pair);
       }
-      return null;
+      return Optional.empty();
     } catch (VcsException e) {
       LOG.warn("Failed to find affected files for path " + file, e);
-      return null;
+      return Optional.empty();
     }
+  }
+
+  private void displayAffectedFiles(Pair<? extends CommittedChangeList, FilePath> affectedFiles) {
+    AbstractVcsHelperImpl.loadAndShowCommittedChangesDetails(project, revisionInfo.getRevisionNumber(),
+        affectedFiles.getSecond(), () -> affectedFiles);
   }
 
   private void close() {
