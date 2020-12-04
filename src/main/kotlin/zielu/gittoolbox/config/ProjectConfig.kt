@@ -19,7 +19,7 @@ internal class ProjectConfig(
   override fun getState(): GitToolBoxConfigPrj = state
 
   override fun loadState(state: GitToolBoxConfigPrj) {
-    log.debug("Project config state loaded")
+    log.debug("Project config state loaded: ", state)
     this.state = state
   }
 

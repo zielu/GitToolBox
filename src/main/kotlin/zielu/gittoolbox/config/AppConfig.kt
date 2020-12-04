@@ -14,7 +14,7 @@ internal class AppConfig : PersistentStateComponent<GitToolBoxConfig2> {
   override fun getState(): GitToolBoxConfig2 = state
 
   override fun loadState(state: GitToolBoxConfig2) {
-    log.debug("App config state loaded")
+    log.debug("App config state loaded: ", state)
     this.state = state
   }
 
