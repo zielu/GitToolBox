@@ -6,7 +6,6 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.StoragePathMacros
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import zielu.gittoolbox.config.ProjectConfig
 import zielu.gittoolbox.util.AppUtil
 
 @State(name = "GitToolBoxStore", storages = [Storage(StoragePathMacros.WORKSPACE_FILE)])
