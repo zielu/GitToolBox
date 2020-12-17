@@ -82,7 +82,7 @@ class IntegrationTest {
     VirtualFile root = GitProject.rootFor(module);
     GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
     Awaiter awaitInfoUpdate = new Awaiter();
-    test.subscribe(PerRepoInfoCache.CACHE_CHANGE, new PerRepoStatusCacheListener() {
+    test.subscribe(PerRepoInfoCache.CACHE_CHANGE_TOPIC, new PerRepoStatusCacheListener() {
       @Override
       public void stateChanged(@NotNull RepoInfo info, @NotNull GitRepository repository) {
         awaitInfoUpdate.satisfied();

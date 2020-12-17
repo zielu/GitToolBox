@@ -3,7 +3,6 @@ package zielu.gittoolbox.ui.statusbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.containers.hash.LinkedHashMap;
 import com.intellij.util.text.DateFormatUtil;
-import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import java.util.Collection;
@@ -25,7 +24,7 @@ import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
-public class StatusToolTip {
+class StatusToolTip {
   private final Project project;
   private GitRepository currentRepository;
   private String currentStatusText;
@@ -57,7 +56,7 @@ public class StatusToolTip {
 
   private String prepareStatusTooltip() {
     StringBand infoPart = new StringBand();
-    Collection<GitRepository> repositories = GitUtil.getRepositories(project);
+    Collection<GitRepository> repositories = GtUtil.getRepositories(project);
     if (repositories.size() == 1) {
       PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
       RepoInfo info = cache.getInfo(currentRepository);

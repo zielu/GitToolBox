@@ -107,6 +107,16 @@ constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTra
     return Count.ZERO
   }
 
+  override fun getTotalChangesCount(): Count {
+    if (disposeGuard.isActive()) {
+      val total = changeCounters.values
+        .map { it.total }
+        .sum()
+      return Count(total)
+    }
+    return Count.ZERO
+  }
+
   override fun dispose() {
     changeCounters.clear()
   }

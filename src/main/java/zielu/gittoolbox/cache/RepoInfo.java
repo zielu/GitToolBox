@@ -27,8 +27,9 @@ public class RepoInfo {
     this.tags = ImmutableList.copyOf(tags);
   }
 
-  public static RepoInfo create(@NotNull RepoStatus status, @Nullable GitAheadBehindCount count,
-                                  @NotNull List<String> tags) {
+  public static RepoInfo create(@NotNull RepoStatus status,
+                                @Nullable GitAheadBehindCount count,
+                                @NotNull List<String> tags) {
     return new RepoInfo(status, count, tags);
   }
 
