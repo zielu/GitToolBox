@@ -148,6 +148,12 @@
     <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
   </extensions>
 
+  <application-components>
+    <component>
+      <implementation-class>zielu.gittoolbox.ForceReloadComponent</implementation-class>
+    </component>
+  </application-components>
+
   <applicationListeners>
     <listener class="zielu.gittoolbox.lifecycle.PluginLifecycleListener"
               topic="com.intellij.ide.plugins.DynamicPluginListener" />
