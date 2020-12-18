@@ -5,10 +5,11 @@ import com.google.common.collect.Maps;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -89,6 +90,12 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
     return behindStatuses.get().computeIfAbsent(repository, repo -> RepoInfo.empty());
   }
 
+  @NotNull
+  @Override
+  public List<RepoInfo> getAllInfos() {
+    return new ArrayList<>(behindStatuses.get().values());
+  }
+
   @Override
   public void dispose() {
     behindStatuses.get().clear();
@@ -137,12 +144,12 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   public void refreshAll() {
     if (disposeGuard.isActive()) {
       log.debug("Refreshing all repository statuses");
-      refresh(GitUtil.getRepositories(project));
+      refresh(GtUtil.getRepositories(project));
     }
   }
 
   @Override
-  public void refresh(Iterable<GitRepository> repositories) {
+  public void refresh(@NotNull Iterable<? extends GitRepository> repositories) {
     if (disposeGuard.isActive()) {
       log.debug("Refreshing repositories statuses: ", repositories);
       repositories.forEach(this::scheduleUpdate);

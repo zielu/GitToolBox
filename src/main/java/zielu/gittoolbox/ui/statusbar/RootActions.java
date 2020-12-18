@@ -3,7 +3,6 @@ package zielu.gittoolbox.ui.statusbar;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
-import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
 import java.util.List;
@@ -36,7 +35,7 @@ public class RootActions extends DefaultActionGroup {
   }
 
   private void addPerRepositoryActions() {
-    Collection<GitRepository> repositories = GitUtil.getRepositories(project);
+    Collection<GitRepository> repositories = GtUtil.getRepositories(project);
     repositories = GtUtil.sort(repositories);
     List<GitRepository> repos = repositories.stream().filter(GtUtil::hasRemotes).collect(Collectors.toList());
     if (hasRepositories(repos)) {

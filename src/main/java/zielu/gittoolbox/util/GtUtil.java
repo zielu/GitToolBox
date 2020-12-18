@@ -48,6 +48,10 @@ public final class GtUtil {
     return !repository.getRemotes().isEmpty();
   }
 
+  public static List<GitRepository> getRepositories(@NotNull Project project) {
+    return new ArrayList<>(GitUtil.getRepositories(project));
+  }
+
   @NotNull
   public static List<GitRepository> sort(@NotNull Collection<GitRepository> repositories) {
     return DvcsUtil.sortRepositories(new ArrayList<>(repositories));
