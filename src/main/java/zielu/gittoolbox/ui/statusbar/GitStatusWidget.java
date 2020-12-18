@@ -23,18 +23,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBox;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.PerRepoStatusCacheListener;
 import zielu.gittoolbox.cache.RepoInfo;
-import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.changes.ChangesTrackerService;
-import zielu.gittoolbox.config.AppConfig;
 import zielu.gittoolbox.config.AppConfigNotifier;
-import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.ui.ExtendedRepoInfo;
-import zielu.gittoolbox.ui.ExtendedRepoInfoService;
 import zielu.gittoolbox.ui.util.AppUiUtil;
-import zielu.gittoolbox.util.GtUtil;
 
 public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     StatusBarWidget.Multiframe, StatusBarWidget.MultipleTextValuesPresentation {
@@ -43,6 +37,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private final AtomicBoolean connected = new AtomicBoolean();
   private final AtomicBoolean visible = new AtomicBoolean();
   private final AtomicBoolean active = new AtomicBoolean(true);
+  private final GitStatusWidgetLocalGateway gateway = new GitStatusWidgetLocalGateway();
   private final GitStatusPresenter presenter;
   private final RootActions rootActions;
 
@@ -59,7 +54,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private void onCacheChange(@NotNull Project project, @NotNull final RepoInfo info,
                              @NotNull final GitRepository repository) {
     Runnable onCacheChange = () -> {
-      if (isActive() && repository.equals(GtUtil.getCurrentRepositoryQuick(project))) {
+      if (isActive() && repository.equals(gateway.getCurrentRepository(project))) {
         updateForRepo(repository, info);
         updateStatusBar();
       }
@@ -100,17 +95,14 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
         }
       }
     });
-    myConnection.subscribe(AppConfigNotifier.CONFIG_TOPIC, new AppConfigNotifier() {
-      @Override
-      public void configChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
-        if (isActive()) {
-          updateVisibleFromConfig();
-          if (current.getShowStatusWidget()) {
-            runUpdateLater(myProject);
-          }
-          if (current.getShowStatusWidget() != previous.getShowStatusWidget()) {
-            repaintStatusBar();
-          }
+    myConnection.subscribe(AppConfigNotifier.CONFIG_TOPIC, (previous, current) -> {
+      if (isActive()) {
+        updateVisibleFromConfig();
+        if (current.getShowStatusWidget()) {
+          runUpdateLater(myProject);
+        }
+        if (current.getShowStatusWidget() != previous.getShowStatusWidget()) {
+          repaintStatusBar();
         }
       }
     });
@@ -186,11 +178,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void updateVisibleFromConfig() {
-    setVisible(isVisibleFromConfig());
-  }
-
-  private boolean isVisibleFromConfig() {
-    return AppConfig.getConfig().getShowStatusWidget();
+    setVisible(gateway.getIsVisibleConfig());
   }
 
   @Override
@@ -235,21 +223,18 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void performUpdate(@NotNull Project project, @NotNull VirtualFile file) {
-    VirtualFileRepoCache fileCache = VirtualFileRepoCache.getInstance(project);
-    GitRepository repo = fileCache.getRepoForFile(file);
-    performUpdate(project, repo);
+    performUpdate(project, gateway.getRepoForFile(project, file));
   }
 
   private void performUpdate(@NotNull Project project) {
-    GitRepository repo = GtUtil.getCurrentRepositoryQuick(project);
-    performUpdate(project, repo);
+    performUpdate(project, gateway.getCurrentRepository(project));
   }
 
   private void performUpdate(@NotNull Project project, @Nullable GitRepository repository) {
     if (isActive()) {
       RepoInfo repoInfo = RepoInfo.empty();
       if (repository != null) {
-        repoInfo = PerRepoInfoCache.getInstance(project).getInfo(repository);
+        repoInfo = gateway.getRepoInfo(repository);
       }
       if (repository != null) {
         updateForRepo(repository, repoInfo);
@@ -263,13 +248,13 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void updateForRepo(@NotNull GitRepository repository, @NotNull RepoInfo repoInfo) {
-    ExtendedRepoInfo extendedInfo = ExtendedRepoInfoService.getInstance().getExtendedRepoInfo(repository);
+    ExtendedRepoInfo extendedInfo = gateway.getExtendedRepoInfo(repository);
     presenter.updateData(repository, repoInfo, extendedInfo);
   }
 
   private void updateForNoRepo(@NotNull Project project) {
-    List<RepoInfo> repoInfos = PerRepoInfoCache.getInstance(project).getAllInfos();
-    ExtendedRepoInfo extendedInfo = ExtendedRepoInfoService.getInstance().getExtendedRepoInfo(project);
+    List<RepoInfo> repoInfos = gateway.getRepoInfos(project);
+    ExtendedRepoInfo extendedInfo = gateway.getExtendedRepoInfo(project);
     presenter.updateData(repoInfos, extendedInfo);
   }
 

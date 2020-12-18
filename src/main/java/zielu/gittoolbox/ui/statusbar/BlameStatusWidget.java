@@ -23,12 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.GitToolBox;
 import zielu.gittoolbox.blame.BlameListener;
 import zielu.gittoolbox.blame.BlameService;
-import zielu.gittoolbox.config.AppConfig;
 import zielu.gittoolbox.config.AppConfigNotifier;
 import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.revision.RevisionInfo;
 import zielu.gittoolbox.ui.blame.BlameUi;
-import zielu.gittoolbox.ui.blame.BlameUiService;
 import zielu.gittoolbox.ui.util.AppUiUtil;
 
 class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, StatusBarWidget.TextPresentation {
@@ -45,10 +43,14 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
       }
     }
   };
+
+  private final BlameStatusWidgetLocalGateway gateway;
+
   private String text = "";
 
   BlameStatusWidget(@NotNull Project project) {
     super(project);
+    gateway = new BlameStatusWidgetLocalGateway(project);
   }
 
   private boolean shouldShow() {
@@ -56,8 +58,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   }
 
   private void updateStatus(@NotNull VirtualFile file, int lineIndex) {
-    String status = BlameUiService.getInstance(myProject).getBlameStatus(file, lineIndex);
-    updatePresentation(status);
+    updatePresentation(gateway.getBlameStatus(file, lineIndex));
   }
 
   private void updatePresentation(@Nullable String status) {
@@ -192,7 +193,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
       if (selectedFile != null) {
         int lineIndex = BlameUi.getCurrentLineIndex(getEditor());
         if (BlameUi.isValidLineIndex(lineIndex)) {
-          return BlameUiService.getInstance(myProject).getBlameStatusTooltip(selectedFile, lineIndex);
+          return gateway.getBlameStatusTooltip(selectedFile, lineIndex);
         }
       }
     }
@@ -207,7 +208,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   }
 
   private void updateVisibleFromConfig() {
-    setVisible(AppConfig.getConfig().getShowBlameWidget());
+    setVisible(gateway.getIsVisibleConfig());
   }
 
   @Override
@@ -234,8 +235,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
     if (selectedFile != null && editor != null) {
       int lineIndex = BlameUi.getCurrentLineIndex(getEditor());
       if (BlameUi.isValidLineIndex(lineIndex)) {
-        RevisionInfo revisionInfo = BlameService.getInstance(myProject)
-            .getDocumentLineIndexBlame(editor.getDocument(), selectedFile, lineIndex);
+        RevisionInfo revisionInfo = gateway.getRevisionInfo(editor.getDocument(), selectedFile, lineIndex);
         if (revisionInfo.isNotEmpty()) {
           BlameUi.showBlamePopup(editor, selectedFile, revisionInfo);
         }

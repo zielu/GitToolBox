@@ -14,27 +14,23 @@ import jodd.util.StringBand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
-import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.cache.RepoInfo;
-import zielu.gittoolbox.config.GitToolBoxConfigPrj;
-import zielu.gittoolbox.config.ProjectConfig;
-import zielu.gittoolbox.fetch.AutoFetchComponent;
 import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.ui.StatusText;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
 class StatusToolTip {
-  private final Project project;
+  private final StatusToolTipLocalGateway gateway;
   private GitRepository currentRepository;
   private String currentStatusText;
 
-  public StatusToolTip(@NotNull Project project) {
-    this.project = project;
+  StatusToolTip(@NotNull Project project) {
+    this.gateway = new StatusToolTipLocalGateway(project);
   }
 
   @Nullable
-  public String getText() {
+  String getText() {
     if (currentRepository != null) {
       return prepareToolTip();
     } else {
@@ -56,10 +52,9 @@ class StatusToolTip {
 
   private String prepareStatusTooltip() {
     StringBand infoPart = new StringBand();
-    Collection<GitRepository> repositories = GtUtil.getRepositories(project);
+    Collection<GitRepository> repositories = gateway.getRepositories();
     if (repositories.size() == 1) {
-      PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
-      RepoInfo info = cache.getInfo(currentRepository);
+      RepoInfo info = gateway.getRepoInfo(currentRepository);
       info.maybeCount().map(StatusText::formatToolTip).ifPresent(infoPart::append);
     } else if (repositories.size() > 2) {
       prepareMultiRepoTooltip(infoPart, repositories);
@@ -69,11 +64,10 @@ class StatusToolTip {
 
 
   private void prepareMultiRepoTooltip(StringBand infoPart, Collection<GitRepository> repositories) {
-    PerRepoInfoCache cache = PerRepoInfoCache.getInstance(project);
     Map<GitRepository, String> statuses = new LinkedHashMap<>();
     final AtomicReference<GitRepository> currentRepo = new AtomicReference<>();
     for (GitRepository repository : GtUtil.sort(repositories)) {
-      cache.getInfo(repository).maybeCount().map(StatusText::format).ifPresent(statusText -> {
+      gateway.getRepoInfo(repository).maybeCount().map(StatusText::format).ifPresent(statusText -> {
         if (repository.equals(currentRepository)) {
           currentRepo.set(repository);
         }
@@ -97,11 +91,10 @@ class StatusToolTip {
   }
 
   private StringBand prepareInfoToolTipPart() {
-    GitToolBoxConfigPrj config = ProjectConfig.get(project);
     StringBand result = new StringBand();
-    if (config.getAutoFetch()) {
+    if (gateway.isAutoFetchEnabled()) {
       result.append(GitUIUtil.bold(ResBundle.message("message.autoFetch"))).append(": ");
-      long lastAutoFetch = AutoFetchComponent.getInstance(project).lastAutoFetch();
+      long lastAutoFetch = gateway.getLastAutoFetchTimestamp();
       if (lastAutoFetch != 0) {
         result.append(DateFormatUtil.formatBetweenDates(lastAutoFetch, System.currentTimeMillis()));
       } else {
@@ -113,12 +106,12 @@ class StatusToolTip {
   }
 
 
-  public void update(@NotNull GitRepository repository, @Nullable GitAheadBehindCount aheadBehind) {
+  void update(@NotNull GitRepository repository, @Nullable GitAheadBehindCount aheadBehind) {
     currentRepository = repository;
     currentStatusText = null;
   }
 
-  public void clear() {
+  void clear() {
     currentRepository = null;
     currentStatusText = null;
   }
