@@ -117,16 +117,13 @@ internal class GitStatusPresenter(project: Project) {
   }
 
   private fun combine(repoInfos: List<RepoInfo>): RepoInfo {
-    if (repoInfos.size == 1) {
-      return repoInfos[0]
-    }
-    val aheadBehind = repoInfos
+    val aheadBehinds = repoInfos
       .mapNotNull { it.count() }
       .filter { it.status().isValid() }
-      .reduce(this::combine)
+      .toList()
 
-    return if (aheadBehind.isNotZero) {
-      RepoInfo.create(RepoStatus.empty(), aheadBehind, emptyList())
+    return if (aheadBehinds.isNotEmpty()) {
+      RepoInfo.create(RepoStatus.empty(), aheadBehinds.reduce(this::combine), emptyList())
     } else {
       RepoInfo.empty()
     }
