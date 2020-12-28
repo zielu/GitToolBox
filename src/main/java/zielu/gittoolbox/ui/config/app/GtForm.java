@@ -50,6 +50,8 @@ import zielu.gittoolbox.ui.StatusPresenter;
 import zielu.gittoolbox.ui.StatusPresenters;
 import zielu.gittoolbox.ui.config.AbsoluteDateTimeStyleRenderer;
 import zielu.gittoolbox.ui.config.AppliedProjectsDialog;
+import zielu.gittoolbox.ui.config.v2.DecorationPartPreview;
+import zielu.gittoolbox.ui.config.v2.PresenterPreview;
 import zielu.gittoolbox.ui.update.UpdateProjectActionService;
 import zielu.gittoolbox.ui.util.ListDataAnyChangeAdapter;
 import zielu.intellij.ui.GtFormUi;

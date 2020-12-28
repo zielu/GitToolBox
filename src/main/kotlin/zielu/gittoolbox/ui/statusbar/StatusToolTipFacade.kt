@@ -14,7 +14,7 @@ internal class StatusToolTipFacade(private val project: Project) {
 
   fun getRepoInfo(repo: GitRepository): RepoInfo = PerRepoInfoCache.getInstance(project).getInfo(repo)
 
-  fun isAutoFetchEnabled(): Boolean = ProjectConfig.get(project).autoFetch
+  fun isAutoFetchEnabled(): Boolean = ProjectConfig.getMerged(project).autoFetchEnabled()
 
   fun getLastAutoFetchTimestamp(): Long = AutoFetchComponent.getInstance(project).lastAutoFetch()
 }

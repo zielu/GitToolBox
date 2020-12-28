@@ -13,6 +13,10 @@ internal class UpdateProjectActionService {
     return extension.getById(id) ?: extension.getDefault()
   }
 
+  fun getDefault(): UpdateProjectAction {
+    return extension.getDefault()
+  }
+
   companion object {
     @JvmStatic
     fun getInstance() = AppUtil.getServiceInstance(UpdateProjectActionService::class.java)

@@ -111,8 +111,8 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="commit.dialog.completion.enabled.label"/>
-                      <toolTipText resource-bundle="zielu/gittoolbox/ResourceBundle" key="commit.dialog.completion.enabled.tooltip"/>
+                      <text resource-bundle="zielu/gittoolbox/ResourceBundle" key="commit.dialog.completion.branch.enabled.label"/>
+                      <toolTipText resource-bundle="zielu/gittoolbox/ResourceBundle" key="commit.dialog.completion.branch.enabled.tooltip"/>
                     </properties>
                   </component>
                   <hspacer id="862dd">

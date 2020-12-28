@@ -88,7 +88,7 @@ class AutoFetchSchedule implements Disposable {
     if (currentIntervalMinutes == null) {
       synchronized (this) {
         if (currentIntervalMinutes == null) {
-          GitToolBoxConfigPrj config = ProjectConfig.get(project);
+          GitToolBoxConfigPrj config = ProjectConfig.getConfig(project);
           if (config.getAutoFetch()) {
             currentIntervalMinutes = config.getAutoFetchIntervalMinutes();
           } else {

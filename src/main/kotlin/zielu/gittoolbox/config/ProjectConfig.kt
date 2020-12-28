@@ -73,8 +73,12 @@ internal class ProjectConfig(
     private val log = Logger.getInstance(ProjectConfig::class.java)
 
     @JvmStatic
-    fun get(project: Project): GitToolBoxConfigPrj {
+    fun getConfig(project: Project): GitToolBoxConfigPrj {
       return getInstance(project).state
+    }
+
+    fun getMerged(project: Project): MergedProjectConfig {
+      return MergedProjectConfig(AppConfig.getConfig(), getConfig(project))
     }
 
     @JvmStatic

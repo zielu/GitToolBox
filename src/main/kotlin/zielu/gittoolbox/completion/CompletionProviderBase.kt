@@ -41,7 +41,7 @@ internal abstract class CompletionProviderBase : CompletionProvider<CompletionPa
   }
 
   private fun getConfig(project: Project): GitToolBoxConfigPrj {
-    return ProjectConfig.get(project)
+    return ProjectConfig.getConfig(project)
   }
 
   private fun getProject(parameters: CompletionParameters): Project {

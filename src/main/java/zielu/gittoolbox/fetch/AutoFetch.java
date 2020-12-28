@@ -22,7 +22,7 @@ class AutoFetch implements AutoFetchComponent, Disposable {
   }
 
   private GitToolBoxConfigPrj getConfig() {
-    return ProjectConfig.get(project());
+    return ProjectConfig.getConfig(project());
   }
 
   private void updateAutoFetchEnabled(GitToolBoxConfigPrj config) {

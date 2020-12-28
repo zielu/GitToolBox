@@ -12,7 +12,7 @@ internal class GitToolBoxStartup : StartupActivity, DumbAware {
     if (!project.isDefault) {
       // possibly run config migration
       AppConfig.getConfig()
-      ProjectConfig.get(project)
+      ProjectConfig.getConfig(project)
 
       // project is ready after migrations are done
       log.info("Project ready")

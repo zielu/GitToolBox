@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config.prj
+package zielu.gittoolbox.ui.config.common
 
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig

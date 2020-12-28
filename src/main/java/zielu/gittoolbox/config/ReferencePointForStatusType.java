@@ -1,5 +1,7 @@
 package zielu.gittoolbox.config;
 
+import com.google.common.collect.ImmutableList;
+import java.util.EnumSet;
 import zielu.gittoolbox.ResBundle;
 
 public enum ReferencePointForStatusType {
@@ -7,6 +9,9 @@ public enum ReferencePointForStatusType {
   TRACKED_REMOTE_BRANCH("trackedRemoteBranch"),
   SELECTED_PARENT_BRANCH("selectedParentBranch")
   ;
+
+  private static final ImmutableList<ReferencePointForStatusType> ALL_VALUES =
+      ImmutableList.copyOf(EnumSet.allOf(ReferencePointForStatusType.class));
 
   private final String labelKey;
 
@@ -16,5 +21,9 @@ public enum ReferencePointForStatusType {
 
   public String getLabel() {
     return ResBundle.message(labelKey);
+  }
+
+  public static ImmutableList<ReferencePointForStatusType> allValues() {
+    return ALL_VALUES;
   }
 }

@@ -2,6 +2,7 @@ package zielu.gittoolbox.config
 
 import com.intellij.util.xmlb.annotations.Transient
 import zielu.gittoolbox.ResBundle
+import java.util.EnumSet
 
 internal enum class DateType(private val labelKey: String) {
   AUTO("date.type.auto"),
@@ -12,4 +13,8 @@ internal enum class DateType(private val labelKey: String) {
 
   @Transient
   fun getDisplayLabel() = ResBundle.message(labelKey)
+
+  companion object {
+    val allValues = EnumSet.allOf(DateType::class.java).toList()
+  }
 }

@@ -3,11 +3,12 @@ package zielu.gittoolbox.config;
 import com.intellij.util.xmlb.annotations.Transient;
 import java.util.Objects;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.formatter.RegExpFormatter;
 import zielu.gittoolbox.formatter.SimpleFormatter;
 
-public class CommitCompletionConfig {
+public class CommitCompletionConfig implements ConfigItem<CommitCompletionConfig> {
   private static final CommitCompletionConfig SIMPLE = new CommitCompletionConfig();
 
   public CommitCompletionType type = CommitCompletionType.SIMPLE;
@@ -58,6 +59,8 @@ public class CommitCompletionConfig {
     }
   }
 
+  @Override
+  @NotNull
   public CommitCompletionConfig copy() {
     CommitCompletionConfig copy = new CommitCompletionConfig();
     copy.pattern = pattern;

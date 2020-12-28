@@ -9,9 +9,9 @@ internal object ZUiProperties {
 }
 
 private class ZBoolCheckBoxSelectedProperty(private val checkBox: JCheckBox) : ZProperty<Boolean> {
-  override fun get(): Boolean = checkBox.isSelected
-
-  override fun set(value: Boolean) {
-    checkBox.isSelected = value
-  }
+  override var value: Boolean
+    get() = checkBox.isSelected
+    set(value) {
+      checkBox.isSelected = value
+    }
 }

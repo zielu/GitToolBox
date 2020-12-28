@@ -2,6 +2,7 @@ package zielu.gittoolbox.config
 
 import com.intellij.util.xmlb.annotations.Transient
 import zielu.gittoolbox.extension.update.UpdateProjectAction
+import zielu.gittoolbox.fetch.AutoFetchParams
 import zielu.gittoolbox.ui.StatusPresenter
 import zielu.gittoolbox.ui.StatusPresenters
 import zielu.gittoolbox.ui.update.DefaultUpdateProjectAction
@@ -25,11 +26,20 @@ internal data class GitToolBoxConfig2(
   var previousVersionMigrated: Boolean = false,
   var version: Int = 1,
   var decorationParts: List<DecorationPartConfig> = ConfigDefaults.decorationParts,
-  var extrasConfig: ExtrasConfig = ExtrasConfig(),
+  @Deprecated("Since 201.4.0") var extrasConfig: ExtrasConfig = ExtrasConfig(),
   var commitDialogGitmojiCompletion: Boolean = false,
   var commitDialogGitmojiCompletionUnicode: Boolean = false,
   @Deprecated("Since 193.8.1") var hideInlineBlameWhileDebugging: Boolean = true,
-  var alwaysShowInlineBlameWhileDebugging: Boolean = false
+  var alwaysShowInlineBlameWhileDebugging: Boolean = false,
+  var autoFetchEnabled: Boolean = true,
+  var autoFetchIntervalMinutes: Int = AutoFetchParams.DEFAULT_INTERVAL_MINUTES,
+  var autoFetchOnBranchSwitch: Boolean = true,
+  var autoFetchExclusionConfigs: List<AutoFetchExclusionConfig> = ArrayList(),
+  var commitDialogCompletion: Boolean = true,
+  var completionConfigs: List<CommitCompletionConfig> = arrayListOf(CommitCompletionConfig()),
+  var referencePointForStatus: ReferencePointForStatusConfig = ReferencePointForStatusConfig(),
+  var commitMessageValidationEnabled: Boolean = false,
+  var commitMessageValidationRegex: String = "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+"
 ) {
 
   @Transient
@@ -56,7 +66,16 @@ internal data class GitToolBoxConfig2(
       commitDialogGitmojiCompletion,
       commitDialogGitmojiCompletionUnicode,
       hideInlineBlameWhileDebugging,
-      alwaysShowInlineBlameWhileDebugging
+      alwaysShowInlineBlameWhileDebugging,
+      autoFetchEnabled,
+      autoFetchIntervalMinutes,
+      autoFetchOnBranchSwitch,
+      autoFetchExclusionConfigs.map { it.copy() },
+      commitDialogCompletion,
+      completionConfigs.map { it.copy() },
+      referencePointForStatus,
+      commitMessageValidationEnabled,
+      commitMessageValidationRegex
     )
   }
 

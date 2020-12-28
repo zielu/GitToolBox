@@ -295,6 +295,7 @@ dependencies {
     }
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    runtime "org.jetbrains.kotlin:kotlin-reflect"
 
     testImplementation("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
 

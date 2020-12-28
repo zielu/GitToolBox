@@ -23,7 +23,7 @@ class AutoFetchExclusions {
   }
 
   private Map<String, AutoFetchExclusionConfig> projectExclusionsProvider(@NotNull Project project) {
-    GitToolBoxConfigPrj config = ProjectConfig.get(project);
+    GitToolBoxConfigPrj config = ProjectConfig.getConfig(project);
     return config.getAutoFetchExclusionConfigs().stream()
         .collect(Collectors.toMap(AutoFetchExclusionConfig::getRepositoryRootPath, Function.identity()));
   }

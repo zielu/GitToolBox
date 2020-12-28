@@ -8,6 +8,8 @@ import zielu.IntegrationTest
 import zielu.gittoolbox.blame.BlameCache
 import zielu.gittoolbox.branch.RecentBranchesService
 import zielu.gittoolbox.changes.ChangesTrackerService
+import zielu.gittoolbox.config.AppConfig
+import zielu.gittoolbox.config.ProjectConfig
 import zielu.gittoolbox.completion.gitmoji.GitmojiResBundle
 import zielu.gittoolbox.fetch.AutoFetchComponent
 import zielu.gittoolbox.fetch.AutoFetchState
@@ -106,6 +108,16 @@ internal class SmokeIntegrationTest {
   @Test
   fun `should return BranchUiService`(project: Project) {
     assertThat(BranchUiService.getInstance(project)).isNotNull
+  }
+
+  @Test
+  fun `should get application configuration`() {
+    assertThat(AppConfig.getConfig()).isNotNull
+  }
+
+  @Test
+  fun `should get project configuration`(project: Project) {
+    assertThat(ProjectConfig.getConfig(project)).isNotNull
   }
 
   @Test

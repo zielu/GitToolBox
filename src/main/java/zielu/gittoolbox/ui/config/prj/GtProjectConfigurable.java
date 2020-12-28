@@ -85,7 +85,7 @@ public class GtProjectConfigurable extends GtBinderConfigurableBase<GtPrjForm, G
 
   @Override
   protected GitToolBoxConfigPrj getConfig() {
-    return ProjectConfig.get(project);
+    return ProjectConfig.getConfig(project);
   }
 
   @NotNull

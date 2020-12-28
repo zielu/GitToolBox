@@ -5,12 +5,12 @@ import com.intellij.util.xmlb.annotations.Transient
 internal data class AutoFetchExclusionConfig(
   var repositoryRootPath: String = "",
   var excludedRemotes: MutableList<RemoteConfig> = ArrayList()
-) {
+) : ConfigItem<AutoFetchExclusionConfig> {
 
   constructor(repositoryRootPath: String) : this(repositoryRootPath, ArrayList())
 
   @Transient
-  fun copy(): AutoFetchExclusionConfig {
+  override fun copy(): AutoFetchExclusionConfig {
     return AutoFetchExclusionConfig(repositoryRootPath, ArrayList(excludedRemotes.map { it.copy() }))
   }
 

@@ -46,7 +46,7 @@ class InfoCacheFacade {
   }
 
   private RepoStatusRemote createRemoteStatus(@NotNull GitRepository repository, @NotNull GitLocalBranch localBranch) {
-    GitToolBoxConfigPrj config = ProjectConfig.get(project);
+    GitToolBoxConfigPrj config = ProjectConfig.getConfig(project);
     GitRemoteBranch trackedBranch = localBranch.findTrackedBranch(repository);
     GitRemoteBranch parentBranch = null;
     GitRepoInfo repoInfo = repository.getInfo();

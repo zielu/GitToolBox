@@ -173,6 +173,7 @@ public enum StatusPresenters implements StatusPresenter {
   };
 
   private static final ImmutableMap<String, StatusPresenter> PRESENTERS;
+  private static final StatusPresenter[] ALL_PRESENTERS = values();
 
   static {
     ImmutableMap.Builder<String, StatusPresenter> builder = ImmutableMap.builder();
@@ -184,6 +185,14 @@ public enum StatusPresenters implements StatusPresenter {
 
   public static StatusPresenter forKey(String key) {
     return PRESENTERS.get(key);
+  }
+
+  public static StatusPresenter[] allPresenters() {
+    return ALL_PRESENTERS;
+  }
+
+  public static StatusPresenter defaultPresenter() {
+    return text;
   }
 
   protected String format(String aheadText, String behindText) {

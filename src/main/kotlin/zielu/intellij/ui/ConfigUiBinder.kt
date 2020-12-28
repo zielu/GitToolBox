@@ -91,15 +91,15 @@ private class JavaUiPropertyBinding<CONFIG, UI, T>(
   val uiAccessor: Function<UI, ZProperty<T>>
 ) : Binding<CONFIG, UI, T> {
   override fun populateUi(config: CONFIG, ui: UI) {
-    uiAccessor.apply(ui).set(getConfig.apply(config))
+    uiAccessor.apply(ui).value = getConfig.apply(config)
   }
 
   override fun checkModified(config: CONFIG, ui: UI): Boolean {
-    return uiAccessor.apply(ui).get() != getConfig.apply(config)
+    return uiAccessor.apply(ui).value != getConfig.apply(config)
   }
 
   override fun populateConfig(config: CONFIG, ui: UI) {
-    setConfig.accept(config, uiAccessor.apply(ui).get())
+    setConfig.accept(config, uiAccessor.apply(ui).value)
   }
 }
 

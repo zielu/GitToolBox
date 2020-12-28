@@ -3,6 +3,7 @@ package zielu.gittoolbox.config
 import com.intellij.openapi.vcs.actions.ShortNameType
 import com.intellij.util.xmlb.annotations.Transient
 import zielu.gittoolbox.ResBundle
+import java.util.EnumSet
 
 internal enum class AuthorNameType(private val labelSupplier: () -> String) {
   INITIALS(ShortNameType.INITIALS::getDescription),
@@ -18,6 +19,7 @@ internal enum class AuthorNameType(private val labelSupplier: () -> String) {
   fun getDisplayLabel() = labelSupplier.invoke()
 
   companion object {
+    val allValues = EnumSet.allOf(AuthorNameType::class.java).toList()
     @JvmStatic
     val inlineBlame = values().toList()
     @JvmStatic

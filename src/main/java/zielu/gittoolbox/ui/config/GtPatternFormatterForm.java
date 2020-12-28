@@ -12,9 +12,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.ResIcons;
-import zielu.gittoolbox.config.CommitCompletionConfig;
 import zielu.gittoolbox.formatter.Formatted;
 import zielu.gittoolbox.formatter.RegExpFormatter;
 import zielu.gittoolbox.ui.util.RegExpTextField;
@@ -23,26 +23,26 @@ import zielu.intellij.ui.GtFormUi;
 public class GtPatternFormatterForm implements GtFormUi {
   private final Set<Consumer<String>> patternUpdates = new LinkedHashSet<>();
 
-  private RegExpTextField commitCompletionPatternField;
-  private JTextField commitCompletionPatternInput;
-  private JTextField commitCompletionPatternOutput;
-  private JLabel commitCompletionPatternMatchStatus;
+  private RegExpTextField patternField;
+  private JTextField patternInput;
+  private JTextField patternOutput;
+  private JLabel patternMatchStatus;
   private JPanel content;
-  private JLabel commitCompletionPatternStatus;
+  private JLabel patternStatus;
 
-  private CommitCompletionConfig config;
+  private GtPatternFormatterData data;
   private boolean updateEnabled;
 
   @Override
   public void init() {
-    commitCompletionPatternField.addTextConsumer((text, error) -> {
+    patternField.addTextConsumer((text, error) -> {
       updateCommitCompletionStatus(error);
       updateCommitCompletionOutput();
       patternUpdates.forEach(c -> c.accept(text));
     });
-    commitCompletionPatternInput.getDocument().addDocumentListener(new DocumentAdapter() {
+    patternInput.getDocument().addDocumentListener(new DocumentAdapter() {
       @Override
-      protected void textChanged(DocumentEvent e) {
+      protected void textChanged(@NotNull DocumentEvent e) {
         updateCommitCompletionOutput();
       }
     });
@@ -54,32 +54,32 @@ public class GtPatternFormatterForm implements GtFormUi {
 
   private void updateCommitCompletionStatus(Optional<String> error) {
     if (error.isPresent()) {
-      commitCompletionPatternStatus.setIcon(ResIcons.getError());
-      commitCompletionPatternStatus.setToolTipText(error.get());
+      patternStatus.setIcon(ResIcons.getError());
+      patternStatus.setToolTipText(error.get());
     } else {
-      commitCompletionPatternStatus.setIcon(ResIcons.getOk());
-      commitCompletionPatternStatus.setToolTipText(null);
+      patternStatus.setIcon(ResIcons.getOk());
+      patternStatus.setToolTipText(null);
     }
   }
 
   private void updateCommitCompletionOutput() {
     if (updateEnabled) {
-      updateCommitCompletionOutput(commitCompletionPatternField.getText(), commitCompletionPatternInput.getText());
+      updateCommitCompletionOutput(patternField.getText(), patternInput.getText());
     }
   }
 
   private void updateCommitCompletionOutput(String pattern, String testInput) {
     Formatted formatted = RegExpFormatter.create(pattern).format(testInput);
-    commitCompletionPatternOutput.setText(formatted.getText());
+    patternOutput.setText(formatted.getText());
     if (formatted.getMatches()) {
-      commitCompletionPatternMatchStatus.setIcon(ResIcons.getOk());
-      commitCompletionPatternMatchStatus.setToolTipText(getMatchedToolTip());
+      patternMatchStatus.setIcon(ResIcons.getOk());
+      patternMatchStatus.setToolTipText(getMatchedToolTip());
     } else {
-      commitCompletionPatternMatchStatus.setIcon(ResIcons.getWarning());
-      commitCompletionPatternMatchStatus.setToolTipText(getNotMatchedToolTip());
+      patternMatchStatus.setIcon(ResIcons.getWarning());
+      patternMatchStatus.setToolTipText(getNotMatchedToolTip());
     }
-    config.pattern = pattern;
-    config.testInput = StringUtils.trimToNull(testInput);
+    data.setPattern(pattern);
+    data.setTestInput(StringUtils.trimToNull(testInput));
   }
 
   private String getMatchedToolTip() {
@@ -90,8 +90,8 @@ public class GtPatternFormatterForm implements GtFormUi {
     return ResBundle.message("commit.dialog.completion.pattern.output.not.matched.label");
   }
 
-  public void setCommitCompletionConfig(CommitCompletionConfig config) {
-    this.config = config;
+  public void setData(GtPatternFormatterData data) {
+    this.data = data;
   }
 
   @Override
@@ -102,16 +102,16 @@ public class GtPatternFormatterForm implements GtFormUi {
   @Override
   public void afterStateSet() {
     updateEnabled = false;
-    commitCompletionPatternField.setText(config.pattern);
-    commitCompletionPatternInput.setText(config.testInput);
+    patternField.setText(data.getPattern());
+    patternInput.setText(data.getTestInput());
     updateEnabled = true;
     updateCommitCompletionOutput();
   }
 
   @Override
   public void dispose() {
-    Disposer.dispose(commitCompletionPatternField);
-    config = null;
+    Disposer.dispose(patternField);
+    data = null;
     patternUpdates.clear();
   }
 }

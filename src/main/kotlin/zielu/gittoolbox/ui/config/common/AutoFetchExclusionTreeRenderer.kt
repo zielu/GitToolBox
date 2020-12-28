@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config.prj
+package zielu.gittoolbox.ui.config.common
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtilCore

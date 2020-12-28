@@ -54,6 +54,8 @@
 
     <applicationConfigurable instance="zielu.gittoolbox.ui.config.app.GtConfigurable"
                              id="zielu.gittoolbox.app.config" />
+    <applicationConfigurable instance="zielu.gittoolbox.ui.config.v2.app.AppConfigurable"
+                             id="zielu.gittoolbox.app.config.v2" />
     <projectConfigurable instance="zielu.gittoolbox.ui.config.prj.GtProjectConfigurable" id="zielu.svntoolbox.prj.config" />
 
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator" />
