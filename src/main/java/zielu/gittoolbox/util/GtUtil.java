@@ -59,10 +59,17 @@ public final class GtUtil {
 
   @Nullable
   @CalledInAwt
-  public static GitRepository getCurrentRepositoryQuick(@NotNull Project project) {
+  public static GitRepository guessCurrentRepository(@NotNull Project project) {
     GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
     String recentRootPath = GitVcsSettings.getInstance(project).getRecentRootPath();
     return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, recentRootPath);
+  }
+
+  @Nullable
+  @CalledInAwt
+  public static GitRepository getCurrentRepository(@NotNull Project project) {
+    GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
+    return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, null);
   }
 
   @Nullable

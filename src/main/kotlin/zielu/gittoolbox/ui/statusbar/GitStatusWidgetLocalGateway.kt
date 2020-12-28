@@ -17,10 +17,6 @@ internal class GitStatusWidgetLocalGateway {
     return VirtualFileRepoCache.getInstance(project).getRepoForFile(file)
   }
 
-  fun getCurrentRepository(project: Project): GitRepository? {
-    return GtUtil.getCurrentRepositoryQuick(project)
-  }
-
   fun getRepoInfo(repo: GitRepository): RepoInfo {
     return PerRepoInfoCache.getInstance(repo.project).getInfo(repo)
   }
