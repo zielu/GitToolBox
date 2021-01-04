@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config.v2.app
+package zielu.gittoolbox.ui.config.v2.shared
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.DialogPanel
@@ -8,6 +8,7 @@ import com.intellij.ui.layout.CCFlags
 import com.intellij.ui.layout.LCFlags
 import com.intellij.ui.layout.panel
 import com.intellij.ui.treeStructure.Tree
+import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.ResBundle.message
 import zielu.gittoolbox.ResIcons
 import zielu.gittoolbox.config.MutableConfig
@@ -33,7 +34,9 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
 
     decorator = ToolbarDecorator.createDecorator(autoFetchExclusions)
     decorator.setAddActionName(message("configurable.prj.autoFetch.exclusions.add.label"))
+    decorator.setAddAction { onAddExclusion() }
     decorator.setRemoveActionName(message("configurable.prj.autoFetch.exclusions.remove.label"))
+    decorator.setRemoveAction { onRemoveExclusion() }
     addRemoteButton = object : AnActionButton("Add remote", ResIcons.Plus) {
       init {
         isEnabled = false
@@ -56,8 +59,10 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
     val decoratorPanel = decorator.createPanel()
 
     panel = panel(LCFlags.fillX) {
-      row {
-        decoratorPanel(CCFlags.growX)
+      titledRow(ResBundle.message("configurable.prj.autoFetch.exclusions.label")) {
+        row {
+          decoratorPanel(CCFlags.growX)
+        }
       }
     }
   }
@@ -69,6 +74,18 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
     } else if (autoFetchExclusionsModel.hasRemoteAt(treePath)) {
       addRemoteButton.isEnabled = true
     }
+  }
+
+  private fun onAddExclusion() {
+    // TODO:
+  }
+
+  private fun onRemoveExclusion() {
+    // TODO:
+  }
+
+  fun setVisible(visible: Boolean) {
+    panel.isVisible = visible
   }
 
   override fun getContent(): JComponent = panel

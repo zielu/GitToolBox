@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config.v2.app
+package zielu.gittoolbox.ui.config.v2.shared
 
 import com.intellij.openapi.observable.properties.AtomicLazyProperty
 import com.intellij.openapi.ui.DialogPanel

@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config.v2.app
+package zielu.gittoolbox.ui.config.v2.prj
 
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.JBTabbedPane
@@ -11,7 +11,7 @@ import zielu.intellij.ui.CompositeGtFormUiEx
 import zielu.intellij.ui.GtFormUiEx
 import javax.swing.JComponent
 
-internal class AppConfigForm : GtFormUiEx<MutableConfig> {
+internal class PrjConfigForm : GtFormUiEx<MutableConfig> {
   private val pages = CompositeGtFormUiEx<MutableConfig>()
   private val tabs = JBTabbedPane()
 
@@ -28,23 +28,13 @@ internal class AppConfigForm : GtFormUiEx<MutableConfig> {
   }
 
   override fun init() {
-    val appPages = AppPages()
-    val generalPage = GeneralPage(appPages)
-    val projectViewPage = ProjectViewPage(appPages)
-    val blamePage = BlamePage()
     val autoFetchPage = AutoFetchPage()
     val statusPage = StatusPage()
     val commitPage = CommitPage()
-    pages.add(generalPage)
-    pages.add(projectViewPage)
     pages.add(autoFetchPage)
     pages.add(statusPage)
-    pages.add(blamePage)
     pages.add(commitPage)
     pages.init()
-    tabs.addTab(ResBundle.message("configurable.app.general.tab.title"), generalPage.content)
-    tabs.addTab(ResBundle.message("configurable.app.projectView.tab.title"), projectViewPage.content)
-    tabs.addTab(ResBundle.message("configurable.app.blame.tab.title"), blamePage.content)
     tabs.addTab(ResBundle.message("configurable.shared.autoFetch.tab.title"), autoFetchPage.content)
     tabs.addTab(ResBundle.message("configurable.shared.status.tab.title"), statusPage.content)
     tabs.addTab(ResBundle.message("configurable.shared.commit.tab.title"), commitPage.content)
