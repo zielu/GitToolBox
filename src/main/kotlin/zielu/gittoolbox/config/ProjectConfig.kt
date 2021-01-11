@@ -16,13 +16,25 @@ internal class ProjectConfig(
 ) : PersistentStateComponent<GitToolBoxConfigPrj> {
   private var state: GitToolBoxConfigPrj = GitToolBoxConfigPrj()
 
-  override fun getState(): GitToolBoxConfigPrj = state
+  override fun getState(): GitToolBoxConfigPrj {
+    synchronized(this) {
+      return state
+    }
+  }
 
   override fun loadState(state: GitToolBoxConfigPrj) {
-    this.state = state
+    synchronized(this) {
+      this.state = state
+    }
   }
 
   override fun initializeComponent() {
+    synchronized(this) {
+      migrate()
+    }
+  }
+
+  private fun migrate() {
     val appConfig = AppConfig.getConfig()
     val timer = ProjectMetrics.getInstance(project).timer("project-config.migrate")
     val result = timer.timeSupplierKt { ConfigMigrator().migrate(project, state, appConfig) }
@@ -34,9 +46,16 @@ internal class ProjectConfig(
   }
 
   fun updateState(updated: GitToolBoxConfigPrj) {
-    val current = state
-    if (updated != current) {
-      state = updated
+    var fire = false
+    var current: GitToolBoxConfigPrj
+    synchronized(this) {
+      current = state
+      if (updated != current) {
+        state = updated
+        fire = true
+      }
+    }
+    if (fire) {
       fireChanged(current, updated)
     }
   }

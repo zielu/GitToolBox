@@ -20,10 +20,16 @@ internal class BlameCalculationPersistence(
 ) : PersistentStateComponent<BlameState> {
   private var state: BlameState = BlameState()
 
-  override fun getState(): BlameState = state
+  override fun getState(): BlameState {
+    synchronized(this) {
+      return state
+    }
+  }
 
   override fun loadState(state: BlameState) {
-    this.state = state
+    synchronized(this) {
+      this.state = state
+    }
   }
 
   override fun initializeComponent() {
@@ -32,10 +38,18 @@ internal class BlameCalculationPersistence(
 
   fun storeBlame(revisionData: RevisionDataProvider) {
     if (revisionData.baseRevision != VcsRevisionNumber.NULL) {
-      val fileBlameState = BlameCodec.toPersistent(revisionData)
-      fileBlameState.accessTimestamp = nowTimestamp()
-      val path = filePath(revisionData.file)
-      val key = path + ";" + revisionData.baseRevision.asString()
+      synchronized(this) {
+        storeBlameImpl(revisionData)
+      }
+    }
+  }
+
+  private fun storeBlameImpl(revisionData: RevisionDataProvider) {
+    val fileBlameState = BlameCodec.toPersistent(revisionData)
+    fileBlameState.accessTimestamp = nowTimestamp()
+    val path = filePath(revisionData.file)
+    val key = path + ";" + revisionData.baseRevision.asString()
+    synchronized(this) {
       state.fileBlames[key] = fileBlameState
       log.info("Stored blame: $key")
       cleanGarbage()
@@ -49,19 +63,27 @@ internal class BlameCalculationPersistence(
   fun getBlame(file: VirtualFile, revision: VcsRevisionNumber): RevisionDataProvider? {
     val path = filePath(file)
     val key = path + ";" + revision.asString()
-    val fileBlameState = state.fileBlames[key]
-    return fileBlameState?.let {
-      it.accessTimestamp = nowTimestamp()
-      BlameCodec.fromPersistent(file, it)
-    }?.let {
-      log.info("Restored blame: $key")
-      it
+    synchronized(this) {
+      val fileBlameState = state.fileBlames[key]
+      return fileBlameState?.let {
+        it.accessTimestamp = nowTimestamp()
+        BlameCodec.fromPersistent(file, it)
+      }?.let {
+        log.info("Restored blame: $key")
+        it
+      }
     }
   }
 
   private fun nowTimestamp(): Long = Clock.systemUTC().millis()
 
   private fun cleanGarbage() {
+    synchronized(this) {
+      cleanGarbageImpl()
+    }
+  }
+
+  private fun cleanGarbageImpl() {
     val ttlBound = nowTimestamp() - ttlMillis
     state.fileBlames.entries.removeIf { it.value.accessTimestamp < ttlBound }
 
