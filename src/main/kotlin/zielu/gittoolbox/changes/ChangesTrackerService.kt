@@ -11,6 +11,9 @@ internal interface ChangesTrackerService {
   fun changeListChanged(changeListData: ChangeListData)
 
   fun getChangesCount(repository: GitRepository): Count
+
+  fun getTotalChangesCount(): Count
+
   fun changeListRemoved(id: String)
 
   companion object {

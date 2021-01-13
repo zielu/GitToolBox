@@ -48,6 +48,10 @@ public final class GtUtil {
     return !repository.getRemotes().isEmpty();
   }
 
+  public static List<GitRepository> getRepositories(@NotNull Project project) {
+    return new ArrayList<>(GitUtil.getRepositories(project));
+  }
+
   @NotNull
   public static List<GitRepository> sort(@NotNull Collection<GitRepository> repositories) {
     return DvcsUtil.sortRepositories(new ArrayList<>(repositories));
@@ -55,10 +59,17 @@ public final class GtUtil {
 
   @Nullable
   @CalledInAwt
-  public static GitRepository getCurrentRepositoryQuick(@NotNull Project project) {
+  public static GitRepository guessCurrentRepository(@NotNull Project project) {
     GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
     String recentRootPath = GitVcsSettings.getInstance(project).getRecentRootPath();
     return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, recentRootPath);
+  }
+
+  @Nullable
+  @CalledInAwt
+  public static GitRepository getCurrentRepository(@NotNull Project project) {
+    GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
+    return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, null);
   }
 
   @Nullable
