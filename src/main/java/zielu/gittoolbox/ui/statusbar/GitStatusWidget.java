@@ -54,9 +54,13 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private void onCacheChange(@NotNull Project project, @NotNull final RepoInfo info,
                              @NotNull final GitRepository repository) {
     Runnable onCacheChange = () -> {
-      if (isActive() && repository.equals(gateway.getCurrentRepository(project))) {
-        updateForRepo(repository, info);
-        updateStatusBar();
+      if (isActive()) {
+        VirtualFile selectedFile = getSelectedFile();
+        if (selectedFile != null) {
+          performUpdate(project, selectedFile);
+        } else {
+          performUpdate(project);
+        }
       }
     };
     if (isActive()) {
@@ -223,14 +227,14 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void performUpdate(@NotNull Project project, @NotNull VirtualFile file) {
-    performUpdate(project, gateway.getRepoForFile(project, file));
+    performRepoUpdate(project, gateway.getRepoForFile(project, file));
   }
 
   private void performUpdate(@NotNull Project project) {
-    performUpdate(project, gateway.getCurrentRepository(project));
+    performRepoUpdate(project, null);
   }
 
-  private void performUpdate(@NotNull Project project, @Nullable GitRepository repository) {
+  private void performRepoUpdate(@NotNull Project project, @Nullable GitRepository repository) {
     if (isActive()) {
       RepoInfo repoInfo = RepoInfo.empty();
       if (repository != null) {

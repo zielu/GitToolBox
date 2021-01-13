@@ -11,14 +11,26 @@ import zielu.gittoolbox.util.AppUtil
 internal class AppConfig : PersistentStateComponent<GitToolBoxConfig2> {
   private var state: GitToolBoxConfig2 = GitToolBoxConfig2()
 
-  override fun getState(): GitToolBoxConfig2 = state
+  override fun getState(): GitToolBoxConfig2 {
+    synchronized(this) {
+      return state
+    }
+  }
 
   override fun loadState(state: GitToolBoxConfig2) {
-    log.debug("App config state loaded: ", state)
-    this.state = state
+    synchronized(this) {
+      log.debug("App config state loaded: ", state)
+      this.state = state
+    }
   }
 
   override fun initializeComponent() {
+    synchronized(this) {
+      migrate()
+    }
+  }
+
+  private fun migrate() {
     val migrated = ConfigMigrator().migrate(state)
     if (migrated) {
       log.info("Migration done")
@@ -32,9 +44,16 @@ internal class AppConfig : PersistentStateComponent<GitToolBoxConfig2> {
   }
 
   fun updateState(updated: GitToolBoxConfig2) {
-    val current = state
-    if (updated != current) {
-      state = updated
+    var fire = false
+    var current: GitToolBoxConfig2
+    synchronized(this) {
+      current = state
+      if (updated != current) {
+        state = updated
+        fire = true
+      }
+    }
+    if (fire) {
       fireUpdated(current, updated)
     }
   }

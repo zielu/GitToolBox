@@ -9,16 +9,11 @@ import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.ui.ExtendedRepoInfo
 import zielu.gittoolbox.ui.ExtendedRepoInfoService
-import zielu.gittoolbox.util.GtUtil
 
 internal class GitStatusWidgetLocalGateway {
 
   fun getRepoForFile(project: Project, file: VirtualFile): GitRepository? {
     return VirtualFileRepoCache.getInstance(project).getRepoForFile(file)
-  }
-
-  fun getCurrentRepository(project: Project): GitRepository? {
-    return GtUtil.getCurrentRepositoryQuick(project)
   }
 
   fun getRepoInfo(repo: GitRepository): RepoInfo {
