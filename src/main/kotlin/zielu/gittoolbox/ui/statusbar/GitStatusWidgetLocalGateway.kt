@@ -9,7 +9,6 @@ import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.ui.ExtendedRepoInfo
 import zielu.gittoolbox.ui.ExtendedRepoInfoService
-import zielu.gittoolbox.util.GtUtil
 
 internal class GitStatusWidgetLocalGateway {
 
