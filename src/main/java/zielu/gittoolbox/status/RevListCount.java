@@ -42,7 +42,7 @@ public class RevListCount {
   }
 
   public int value() {
-    Preconditions.checkState(Status.SUCCESS == status, "Value not possible for {0}", status);
+    Preconditions.checkState(Status.SUCCESS == status, "Value not possible for %s", status);
     return value;
   }
 

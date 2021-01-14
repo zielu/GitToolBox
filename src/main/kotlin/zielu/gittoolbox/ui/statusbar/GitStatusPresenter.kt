@@ -13,6 +13,7 @@ import zielu.gittoolbox.cache.RepoStatus
 import zielu.gittoolbox.config.AppConfig.Companion.getConfig
 import zielu.gittoolbox.config.GitToolBoxConfig2
 import zielu.gittoolbox.status.GitAheadBehindCount
+import zielu.gittoolbox.status.Status
 import zielu.gittoolbox.ui.ExtendedRepoInfo
 import zielu.gittoolbox.ui.StatusText.format
 import java.util.ArrayList
@@ -119,7 +120,7 @@ internal class GitStatusPresenter(project: Project) {
   private fun combine(repoInfos: List<RepoInfo>): RepoInfo {
     val aheadBehinds = repoInfos
       .mapNotNull { it.count() }
-      .filter { it.status().isValid() }
+      .filter { it.status() == Status.SUCCESS }
       .toList()
 
     return if (aheadBehinds.isNotEmpty()) {
