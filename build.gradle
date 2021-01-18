@@ -68,7 +68,14 @@ intellij {
     type = ideaType
     updateSinceUntilBuild = false
     downloadSources = !ci
-    plugins = ['java', 'android', 'gradle', 'git4idea', 'gr.jchrist.gitextender:0.5.2']
+    plugins = [
+            'java',
+            'android',
+            'gradle',
+            'git4idea',
+            'gr.jchrist.gitextender:0.5.2',
+            'org.jetbrains.plugins.github'
+    ]
     ideaDependencyCachePath = ideaCacheDir
     instrumentCode = true
 }
