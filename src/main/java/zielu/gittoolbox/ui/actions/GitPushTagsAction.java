@@ -50,10 +50,11 @@ public class GitPushTagsAction extends GitRepositoryAction {
 
   @Override
   protected boolean isEnabled(AnActionEvent e) {
-    Project project = getEventProject(e);
-    if (project != null) {
-      VirtualFileRepoCache repoCache = VirtualFileRepoCache.getInstance(project);
-      return super.isEnabled(e) && repoCache.hasAnyRepositories();
+    if (super.isEnabled(e)) {
+      Project project = getEventProject(e);
+      if (project != null) {
+        return VirtualFileRepoCache.getInstance(project).hasAnyRepositories();
+      }
     }
     return false;
   }
