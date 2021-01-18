@@ -41,6 +41,7 @@ public interface VirtualFileRepoCache extends DirMappingAware {
   default Optional<GitRepository> findRepoForRoot(@NotNull String rootPath) {
     return Optional.of(rootPath)
             .map(GtUtil::findFileByUrl)
+            .filter(Objects::nonNull)
             .map(this::getRepoForRoot);
   }
 
