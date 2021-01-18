@@ -7,7 +7,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.intellij.openapi.Disposable;
@@ -19,6 +18,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -149,7 +149,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   }
 
   @Override
-  public void updatedRepoList(ImmutableList<GitRepository> repositories) {
+  public void updatedRepoList(List<GitRepository> repositories) {
     RepoListUpdate update = buildUpdate(repositories);
     rebuildRootsCache(update);
     purgeDirsCache(update);
@@ -172,7 +172,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
     }
   }
 
-  private RepoListUpdate buildUpdate(ImmutableList<GitRepository> repositories) {
+  private RepoListUpdate buildUpdate(List<GitRepository> repositories) {
     Map<VirtualFile, GitRepository> mappedRepositories = repositories.stream()
         .collect(Collectors.toMap(GitRepository::getRoot, identity()));
     Set<VirtualFile> removed = new HashSet<>(rootsVFileCache.keySet());

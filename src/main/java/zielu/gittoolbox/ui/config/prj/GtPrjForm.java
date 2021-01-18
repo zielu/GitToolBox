@@ -14,7 +14,6 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.treeStructure.Tree;
 import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryManager;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -230,7 +229,7 @@ public class GtPrjForm implements GtFormUi {
     List<GitRepository> excluded = getExcludedRepositories(autoFetchExclusionsModel.getConfigs());
     log.debug("Currently excluded: ", excluded);
     chooser.setSelectedRepositories(excluded);
-    chooser.setRepositories(GitRepositoryManager.getInstance(project).getRepositories());
+    chooser.setRepositories(GtUtil.getRepositories(project));
     if (chooser.showAndGet()) {
       log.debug("Exclusions about to change");
       List<GitRepository> selectedRepositories = chooser.getSelectedRepositories();

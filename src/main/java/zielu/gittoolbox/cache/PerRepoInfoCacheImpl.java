@@ -1,6 +1,5 @@
 package zielu.gittoolbox.cache;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
@@ -118,7 +117,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   }
 
   @Override
-  public void updatedRepoList(ImmutableList<GitRepository> repositories) {
+  public void updatedRepoList(List<GitRepository> repositories) {
     if (disposeGuard.isActive()) {
       Set<GitRepository> removed = new HashSet<>(behindStatuses.get().keySet());
       removed.removeAll(repositories);

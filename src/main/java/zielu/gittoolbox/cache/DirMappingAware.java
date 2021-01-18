@@ -1,8 +1,8 @@
 package zielu.gittoolbox.cache;
 
-import com.google.common.collect.ImmutableList;
 import git4idea.repo.GitRepository;
+import java.util.List;
 
 interface DirMappingAware {
-  void updatedRepoList(ImmutableList<GitRepository> repositories);
+  void updatedRepoList(List<GitRepository> repositories);
 }

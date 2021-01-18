@@ -1,16 +1,15 @@
 package zielu.gittoolbox.cache;
 
-import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.util.AppUtil;
+import zielu.gittoolbox.util.GtUtil;
 
 class CacheSourcesSubscriber {
   private final Logger log = Logger.getInstance(getClass());
@@ -38,16 +37,14 @@ class CacheSourcesSubscriber {
 
   void onDirMappingChanged() {
     log.debug("Dir mappings changed");
-    GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
-    ImmutableList<GitRepository> repositories = ImmutableList.copyOf(gitManager.getRepositories());
+    List<GitRepository> repositories = GtUtil.getRepositories(project);
     dirMappingAwares.forEach(aware -> aware.updatedRepoList(repositories));
     log.debug("Dir mappings change notification done");
   }
 
   void onConfigChanged(@NotNull GitToolBoxConfigPrj previous, @NotNull GitToolBoxConfigPrj current) {
     if (previous.isReferencePointForStatusChanged(current)) {
-      GitRepositoryManager gitManager = GitRepositoryManager.getInstance(project);
-      ImmutableList.copyOf(gitManager.getRepositories()).forEach(repo ->
+      GtUtil.getRepositories(project).forEach(repo ->
           repoChangeAwares.forEach(aware -> aware.repoChanged(repo)));
     }
   }

@@ -9,13 +9,13 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import git4idea.repo.GitRepositoryManager
 import zielu.gittoolbox.blame.BlameCache
 import zielu.gittoolbox.blame.BlameService
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.config.DecorationColors
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.revision.RevisionInfo
+import zielu.gittoolbox.util.GtUtil
 import zielu.gittoolbox.util.LocalGateway
 import zielu.intellij.metrics.GtTimer
 
@@ -82,8 +82,7 @@ internal class BlameUiServiceLocalGateway(
   }
 
   fun invalidateAllBlames() {
-    val manager = GitRepositoryManager.getInstance(project)
-    val repositories = manager.repositories.toList()
+    val repositories = GtUtil.getRepositories(project)
     val roots = repositories.map { it.root }
     if (roots.isNotEmpty()) {
       BlameCache.getExistingInstance(project).ifPresent { cache -> invalidateBlameForRoots(cache, roots) }

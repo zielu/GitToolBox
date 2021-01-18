@@ -4,13 +4,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryManager;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.util.GtUtil;
 
 public final class GitCompatUtil {
   private GitCompatUtil() {
@@ -26,8 +26,7 @@ public final class GitCompatUtil {
   }
 
   private static List<GitRepoInfo> getRepos(@NotNull Project project) {
-    return GitRepositoryManager.getInstance(project).getRepositories().stream().map(GitRepoInfo::new)
-        .collect(Collectors.toList());
+    return GtUtil.getRepositories(project).stream().map(GitRepoInfo::new).collect(Collectors.toList());
   }
 
   private static Optional<GitRepoInfo> getRepoFor(List<GitRepoInfo> repositories, File file) {

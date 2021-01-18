@@ -1,7 +1,7 @@
 package zielu.gittoolbox.cache;
 
-import com.google.common.collect.ImmutableList;
 import git4idea.repo.GitRepository;
+import java.util.List;
 import java.util.function.Supplier;
 import zielu.gittoolbox.util.MemoizeSupplier;
 
@@ -13,7 +13,7 @@ class LazyDirMappingAware<T extends DirMappingAware> implements DirMappingAware 
   }
 
   @Override
-  public void updatedRepoList(ImmutableList<GitRepository> repositories) {
+  public void updatedRepoList(List<GitRepository> repositories) {
     supplier.get().updatedRepoList(repositories);
   }
 }
