@@ -73,7 +73,7 @@ public class RevListCount {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(value, status);
+    return Objects.hashCode(value, top, status);
   }
 
   @Override

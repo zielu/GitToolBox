@@ -71,7 +71,7 @@ public class GitTagsPusher {
       return h;
     });
     if (rejectedDetector.rejected()) {
-      return GtPushResult.reject(rejectedDetector.getRejectedBranches());
+      return GtPushResult.rejected(rejectedDetector.getRejectedBranches());
     } else {
       return translate(result);
     }
@@ -81,7 +81,7 @@ public class GitTagsPusher {
     if (result.success()) {
       return GtPushResult.success();
     } else if (result.cancelled()) {
-      return GtPushResult.cancel();
+      return GtPushResult.cancelled();
     } else {
       return GtPushResult.error(result.getErrorOutputAsJoinedString());
     }

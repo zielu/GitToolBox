@@ -7,7 +7,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.intellij.openapi.Disposable;
@@ -18,7 +17,9 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,6 +71,11 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   @Override
   public boolean hasAnyRepositories() {
     return !rootsVFileCache.isEmpty();
+  }
+
+  @Override
+  public List<GitRepository> getRepositories() {
+    return new ArrayList<>(rootsVFileCache.values());
   }
 
   @Nullable
@@ -149,30 +155,24 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   }
 
   @Override
-  public void updatedRepoList(ImmutableList<GitRepository> repositories) {
-    RepoListUpdate update = buildUpdate(repositories);
-    rebuildRootsCache(update);
-    purgeDirsCache(update);
-    filePathsToRepoCache.invalidateAll();
+  public void updatedRepoList(List<GitRepository> repositories) {
+    synchronized (this) {
+      RepoListUpdate update = buildUpdate(repositories);
+      rebuildRootsCache(update);
+      purgeDirsCache(update);
+      filePathsToRepoCache.invalidateAll();
 
-    updateNotifications(update);
+      updateNotifications(update);
+    }
   }
 
   private void updateNotifications(RepoListUpdate update) {
-    if (update.hasRemovals()) {
-      gateway.fireRemoved(update.removedRoots);
-    }
-
-    if (update.hasAdditions()) {
-      gateway.fireAdded(update.addedRoots);
-    }
-
     if (update.hasUpdates()) {
       gateway.fireCacheChanged();
     }
   }
 
-  private RepoListUpdate buildUpdate(ImmutableList<GitRepository> repositories) {
+  private RepoListUpdate buildUpdate(List<GitRepository> repositories) {
     Map<VirtualFile, GitRepository> mappedRepositories = repositories.stream()
         .collect(Collectors.toMap(GitRepository::getRoot, identity()));
     Set<VirtualFile> removed = new HashSet<>(rootsVFileCache.keySet());

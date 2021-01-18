@@ -1,8 +1,8 @@
 package zielu.gittoolbox.ui.actions;
 
-import static zielu.gittoolbox.push.GtPushResult.Type.ERROR;
-import static zielu.gittoolbox.push.GtPushResult.Type.NOT_AUTHORIZED;
-import static zielu.gittoolbox.push.GtPushResult.Type.REJECTED;
+import static zielu.gittoolbox.push.PushResultType.ERROR;
+import static zielu.gittoolbox.push.PushResultType.NOT_AUTHORIZED;
+import static zielu.gittoolbox.push.PushResultType.REJECTED;
 
 import com.google.common.base.Joiner;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -21,13 +21,14 @@ import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
 import zielu.gittoolbox.push.GtPushResult;
-import zielu.gittoolbox.push.GtPushResult.Type;
+import zielu.gittoolbox.push.PushResultType;
 import zielu.gittoolbox.tag.GitTagsPusher;
 import zielu.gittoolbox.tag.TagsPushSpec;
 import zielu.gittoolbox.ui.GitPushTagsDialog;
 
 public class GitPushTagsAction extends GitRepositoryAction {
-  private final EnumMap<Type, BiConsumer<VcsNotifier, GtPushResult>> errorResultHandlers = new EnumMap<>(Type.class);
+  private final EnumMap<PushResultType, BiConsumer<VcsNotifier, GtPushResult>> errorResultHandlers
+      = new EnumMap<>(PushResultType.class);
 
   public GitPushTagsAction() {
     errorResultHandlers.put(ERROR, (notifier, result) ->
@@ -87,7 +88,7 @@ public class GitPushTagsAction extends GitRepositoryAction {
 
   private void handleResult(Project project, GtPushResult pushResult) {
     VcsNotifier vcsNotifier = VcsNotifier.getInstance(project);
-    if (pushResult.getType() == Type.SUCCESS) {
+    if (pushResult.getType() == PushResultType.SUCCESS) {
       vcsNotifier.notifySuccess(
           "gittoolbox.push.success",
           ResBundle.message("message.tags.pushed.title"),

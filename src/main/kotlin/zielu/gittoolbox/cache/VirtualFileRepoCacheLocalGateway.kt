@@ -1,15 +1,10 @@
 package zielu.gittoolbox.cache
 
 import com.google.common.cache.Cache
-import com.intellij.openapi.vfs.VirtualFile
 import java.util.function.Supplier
 
 internal interface VirtualFileRepoCacheLocalGateway {
   fun fireCacheChanged()
-
-  fun fireAdded(roots: Collection<VirtualFile>)
-
-  fun fireRemoved(roots: Collection<VirtualFile>)
 
   fun rootsVFileCacheSizeGauge(size: () -> Int)
 
