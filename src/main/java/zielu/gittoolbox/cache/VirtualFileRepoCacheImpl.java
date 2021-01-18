@@ -17,6 +17,7 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.serviceContainer.NonInjectable;
 import git4idea.repo.GitRepository;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,11 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   @Override
   public boolean hasAnyRepositories() {
     return !rootsVFileCache.isEmpty();
+  }
+
+  @Override
+  public List<GitRepository> getRepositories() {
+    return new ArrayList<>(rootsVFileCache.values());
   }
 
   @Nullable
@@ -150,23 +156,17 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
 
   @Override
   public void updatedRepoList(List<GitRepository> repositories) {
-    RepoListUpdate update = buildUpdate(repositories);
-    rebuildRootsCache(update);
-    purgeDirsCache(update);
-    filePathsToRepoCache.invalidateAll();
+    synchronized (this) {
+      RepoListUpdate update = buildUpdate(repositories);
+      rebuildRootsCache(update);
+      purgeDirsCache(update);
+      filePathsToRepoCache.invalidateAll();
 
-    updateNotifications(update);
+      updateNotifications(update);
+    }
   }
 
   private void updateNotifications(RepoListUpdate update) {
-    if (update.hasRemovals()) {
-      gateway.fireRemoved(update.removedRoots);
-    }
-
-    if (update.hasAdditions()) {
-      gateway.fireAdded(update.addedRoots);
-    }
-
     if (update.hasUpdates()) {
       gateway.fireCacheChanged();
     }
