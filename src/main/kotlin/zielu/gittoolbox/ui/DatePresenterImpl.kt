@@ -3,7 +3,6 @@ package zielu.gittoolbox.ui
 import com.intellij.serviceContainer.NonInjectable
 import com.intellij.util.text.SyncDateFormat
 import zielu.gittoolbox.config.DateType
-import zielu.gittoolbox.util.DateFormattingUtil
 import zielu.intellij.util.ZDateFormatUtil
 import java.time.ZonedDateTime
 import java.util.Date
@@ -40,7 +39,7 @@ constructor(private val gateway: DatePresenterLocalGateway) : DatePresenter {
   }
 
   private fun formatRelative(date: ZonedDateTime): String {
-    val now = Date.from(gateway.getClock().instant())
-    return DateFormattingUtil.formatRelativeBetweenDateTimes(Date.from(date.toInstant()), now)
+    val now = ZonedDateTime.ofInstant(gateway.getClock().instant(), gateway.getClock().zone)
+    return ZDateFormatUtil.formatBetweenDates(date, now)
   }
 }

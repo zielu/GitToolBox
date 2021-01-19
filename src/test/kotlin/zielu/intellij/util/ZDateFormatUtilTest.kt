@@ -5,6 +5,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.Instant
@@ -103,6 +104,87 @@ internal class ZDateFormatUtilTest {
   fun `format yesterday`(diffFromNow: Duration, expectedText: String) {
     val date = now.minus(diffFromNow)
     val text = ZDateFormatUtil.formatPrettyDateTime(date, now, dateFormat)
+    assertThat(text).isEqualTo(expectedText)
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+    strings = ["PT0S", "PT1S", "PT59S"]
+  )
+  fun `format relative between under minute`(diffFromNow: Duration) {
+    val date = now.minus(diffFromNow)
+    val text = ZDateFormatUtil.formatBetweenDates(date, now)
+    assertThat(text).isEqualTo("moments ago")
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    "PT60S,one minute ago",
+    "PT2M1S,2 minutes ago",
+    "PT59M,59 minutes ago"
+  )
+  fun `format relative between under hour`(diffFromNow: Duration, expectedText: String) {
+    val date = now.minus(diffFromNow)
+    val text = ZDateFormatUtil.formatBetweenDates(date, now)
+    assertThat(text).isEqualTo(expectedText)
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    "PT60M,one hour ago",
+    "PT120M,2 hours ago",
+    "PT23H59M,23 hours ago"
+  )
+  fun `format relative between under day`(diffFromNow: Duration, expectedText: String) {
+    val date = now.minus(diffFromNow)
+    val text = ZDateFormatUtil.formatBetweenDates(date, now)
+    assertThat(text).isEqualTo(expectedText)
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    "PT24H,one day ago",
+    "P2D,2 days ago",
+    "P6DT23H59M,6 days ago"
+  )
+  fun `format relative between under week`(diffFromNow: Duration, expectedText: String) {
+    val date = now.minus(diffFromNow)
+    val text = ZDateFormatUtil.formatBetweenDates(date, now)
+    assertThat(text).isEqualTo(expectedText)
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    "P7D,one week ago",
+    "P14D,2 weeks ago",
+    "P29DT23H59M,4 weeks ago"
+  )
+  fun `format relative between under month`(diffFromNow: Duration, expectedText: String) {
+    val date = now.minus(diffFromNow)
+    val text = ZDateFormatUtil.formatBetweenDates(date, now)
+    assertThat(text).isEqualTo(expectedText)
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    "P30D,one month ago",
+    "P60D,2 months ago",
+    "P364DT23H59M,12 months ago"
+  )
+  fun `format relative between under year`(diffFromNow: Duration, expectedText: String) {
+    val date = now.minus(diffFromNow)
+    val text = ZDateFormatUtil.formatBetweenDates(date, now)
+    assertThat(text).isEqualTo(expectedText)
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    "P366D,one year ago",
+    "P731D,2 years ago"
+  )
+  fun `format relative between years`(diffFromNow: Duration, expectedText: String) {
+    val date = now.minus(diffFromNow)
+    val text = ZDateFormatUtil.formatBetweenDates(date, now)
     assertThat(text).isEqualTo(expectedText)
   }
 }
