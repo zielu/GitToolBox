@@ -3,11 +3,11 @@ package zielu.gittoolbox.ui.statusbar;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.concurrency.annotations.RequiresEdt;
 import git4idea.repo.GitRepository;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.CalledInAwt;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.ui.statusbar.actions.RefreshStatusAction;
 import zielu.gittoolbox.ui.statusbar.actions.UpdateAction;
@@ -24,7 +24,7 @@ public class RootActions extends DefaultActionGroup {
     this.project = project;
   }
 
-  @CalledInAwt
+  @RequiresEdt
   public boolean update() {
     removeAll();
     add(new RefreshStatusAction());

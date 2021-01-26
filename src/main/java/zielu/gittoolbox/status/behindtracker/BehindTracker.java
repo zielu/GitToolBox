@@ -127,7 +127,7 @@ class BehindTracker implements Disposable {
     if (changeType == ChangeType.FETCHED) {
       BehindStatus status = null;
       if (previousInfo == null) {
-        status = calculateBehindStatus(info, count -> BehindStatus.create(count.behind));
+        status = calculateBehindStatus(info, count -> BehindStatus.create(count.getBehind()));
       } else if (info.maybeCount().isPresent()) {
         status = calculateBehindStatus(info, count -> calculateBehindStatus(previousInfo, count));
       }
@@ -149,9 +149,9 @@ class BehindTracker implements Disposable {
 
   private BehindStatus calculateBehindStatus(@Nullable RepoInfo previous, @NotNull GitAheadBehindCount currentCount) {
     int oldBehind = Optional.ofNullable(previous).flatMap(RepoInfo::maybeCount)
-        .map(count -> count.behind.value()).orElse(0);
-    int delta = currentCount.behind.value() - oldBehind;
-    return BehindStatus.create(currentCount.behind, delta);
+        .map(count -> count.getBehind().value()).orElse(0);
+    int delta = currentCount.getBehind().value() - oldBehind;
+    return BehindStatus.create(currentCount.getBehind(), delta);
   }
 
   private ChangeType detectChangeType(@Nullable RepoInfo previous, @NotNull RepoInfo current) {
@@ -182,15 +182,15 @@ class BehindTracker implements Disposable {
   }
 
   private boolean isSameParentBranch(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
-    return previous.status().sameParentBranch(current.status());
+    return previous.getStatus().sameParentBranch(current.getStatus());
   }
 
   private boolean isParentHashChanged(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
-    return !previous.status().sameParentHash(current.status());
+    return !previous.getStatus().sameParentHash(current.getStatus());
   }
 
   private boolean isLocalBranchSwitched(@NotNull RepoInfo previous, @NotNull RepoInfo current) {
-    return !previous.status().sameLocalBranch(current.status());
+    return !previous.getStatus().sameLocalBranch(current.getStatus());
   }
 
   void showChangeNotification() {

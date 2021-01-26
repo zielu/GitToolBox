@@ -13,17 +13,17 @@ constructor(private val gateway: BranchSubscriberLocalGateway) {
   constructor(project: Project) : this(BranchSubscriberLocalGateway(project))
 
   fun onRepoStateChanged(previous: RepoInfo, current: RepoInfo, repository: GitRepository) {
-    if (!previous.isEmpty && !current.isEmpty) {
-      if (previous.status().localBranch() != null) {
-        if (current.status().localBranch() != null) {
-          if (!previous.status().sameLocalBranch(current.status())) {
-            gateway.branchSwitch(previous.status().localBranch()!!, current.status().localBranch()!!, repository)
+    if (!previous.isEmpty() && !current.isEmpty()) {
+      if (previous.status.localBranch() != null) {
+        if (current.status.localBranch() != null) {
+          if (!previous.status.sameLocalBranch(current.status)) {
+            gateway.branchSwitch(previous.status.localBranch()!!, current.status.localBranch()!!, repository)
           }
         } else {
-          gateway.switchFromBranchToOther(previous.status().localBranch()!!, repository)
+          gateway.switchFromBranchToOther(previous.status.localBranch()!!, repository)
         }
-      } else if (current.status().localBranch() != null) {
-        gateway.switchToBranchFromOther(current.status().localBranch()!!, repository)
+      } else if (current.status.localBranch() != null) {
+        gateway.switchToBranchFromOther(current.status.localBranch()!!, repository)
       }
     }
   }

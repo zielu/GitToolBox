@@ -28,7 +28,7 @@ internal class OpenBranchIssueActionGroup : GitToolboxActionGroup() {
   private fun getLinkActions(project: Project, file: VirtualFile): List<AnAction> {
     return VirtualFileRepoCache.getInstance(project).findRepoForFileOrDir(file).map { repo ->
       val repoInfo = PerRepoInfoCache.getInstance(project).getInfo(repo)
-      repoInfo.status().localBranch()?.let { branch ->
+      repoInfo.status.localBranch()?.let { branch ->
         val issueNavigation = IssueNavigationConfiguration.getInstance(project)
         val branchName = branch.name
         val links = issueNavigation.findIssueLinks(branchName)

@@ -25,7 +25,7 @@ public class RevListCount {
     this.top = top;
   }
 
-  public static RevListCount success(int count, Hash top) {
+  public static RevListCount success(int count, @Nullable Hash top) {
     return new RevListCount(Status.SUCCESS, count, top);
   }
 

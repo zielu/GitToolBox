@@ -33,10 +33,10 @@ public abstract class NodeDecorationBase implements NodeDecoration {
 
   @Nullable
   protected final String getCountText() {
-    GitAheadBehindCount count = repoInfo.count();
+    GitAheadBehindCount count = repoInfo.getCount();
     if (count != null && count.status() == Status.SUCCESS) {
       StatusPresenter presenter = ui.getPresenter();
-      String status = presenter.nonZeroAheadBehindStatus(count.ahead.value(), count.behind.value());
+      String status = presenter.nonZeroAheadBehindStatus(count.getAhead().value(), count.getBehind().value());
       return status.length() > 0 ? status : null;
     }
     return null;
@@ -54,7 +54,7 @@ public abstract class NodeDecorationBase implements NodeDecoration {
 
   @NotNull
   private String getNormalStateBranchText() {
-    RepoStatus status = repoInfo.status();
+    RepoStatus status = repoInfo.getStatus();
     if (status.isParentDifferentFromTracking()) {
       if (status.parentBranch() != null) {
         return getParentBranchText(status);
@@ -80,14 +80,14 @@ public abstract class NodeDecorationBase implements NodeDecoration {
 
   @NotNull
   private String getDetachedStateBranchText() {
-    RepoStatus status = repoInfo.status();
+    RepoStatus status = repoInfo.getStatus();
     return status.localShortHash() == null ? GitBranchUtil.getDisplayableBranchText(repo) : status.localShortHash();
   }
 
   @Nullable
   protected final String getTagsText() {
     if (repoInfo.tagsNotEmpty() && TAGS_VISIBLE_STATES.contains(repo.getState())) {
-      return String.join(", ", repoInfo.tags());
+      return String.join(", ", repoInfo.getTags());
     }
     return null;
   }
@@ -98,10 +98,10 @@ public abstract class NodeDecorationBase implements NodeDecoration {
   }
 
   protected final boolean isTrackingBranch() {
-    return repoInfo.status().isTrackingRemote();
+    return repoInfo.getStatus().isTrackingRemote();
   }
 
   protected final boolean isMaster() {
-    return repoInfo.status().isNameMaster();
+    return repoInfo.getStatus().isNameMaster();
   }
 }
