@@ -33,12 +33,13 @@ class CachedStatusCalculator {
     GtTimer statusUpdateTimer = metrics.get().timer("status-update");
     GitAheadBehindCount count = statusUpdateTimer
         .timeSupplier(() -> calculator.aheadBehindStatus(repo, status.localHash(), status.parentHash()));
-    log.debug("Calculated status [", GtUtil.name(repo), "]: ", count);
+    String repoName = GtUtil.name(repo);
     if (!status.sameHashes(count)) {
-      log.warn("Hash mismatch between count and status: " + count + " <> " + status);
+      log.info("Hash mismatch for repo [" + repoName + "] between count and status: " + count + " <> " + status);
     }
     GtTimer tagsUpdateTimer = metrics.get().timer("tags-update");
     List<String> tags = tagsUpdateTimer.timeSupplier(() -> calculateTags(repo, status.localHash()));
+    log.info("Found tags for repo [" + repoName + "]: " + tags);
     return RepoInfo.create(status, count, tags);
   }
 

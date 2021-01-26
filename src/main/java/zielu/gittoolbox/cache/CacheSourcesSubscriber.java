@@ -36,7 +36,7 @@ class CacheSourcesSubscriber {
   }
 
   void onDirMappingChanged() {
-    log.debug("Dir mappings changed");
+    log.info("Dir mappings changed");
     List<GitRepository> repositories = GtUtil.getRepositories(project);
     dirMappingAwares.forEach(aware -> aware.updatedRepoList(repositories));
     log.debug("Dir mappings change notification done");

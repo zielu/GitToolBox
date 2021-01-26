@@ -119,6 +119,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   @Override
   public void updatedRepoList(List<GitRepository> repositories) {
     if (disposeGuard.isActive()) {
+      log.debug("Updated repo list: ", repositories);
       Set<GitRepository> removed = new HashSet<>(behindStatuses.get().keySet());
       removed.removeAll(repositories);
       purgeRepositories(removed);

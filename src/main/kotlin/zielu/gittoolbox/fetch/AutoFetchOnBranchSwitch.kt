@@ -18,11 +18,12 @@ internal class AutoFetchOnBranchSwitch(private val project: Project) {
     }
   }
 
-  fun getInstance(project: Project): AutoFetchOnBranchSwitch {
-    return getServiceInstance(project, AutoFetchOnBranchSwitch::class.java)
-  }
+  companion object {
+    private val log = Logger.getInstance(AutoFetchOnBranchSwitch::class.java)
 
-  private companion object {
-    val log = Logger.getInstance(AutoFetchOnBranchSwitch::class.java)
+    @JvmStatic
+    fun getInstance(project: Project): AutoFetchOnBranchSwitch {
+      return getServiceInstance(project, AutoFetchOnBranchSwitch::class.java)
+    }
   }
 }
