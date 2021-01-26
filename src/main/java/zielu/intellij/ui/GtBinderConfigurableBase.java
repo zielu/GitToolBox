@@ -30,14 +30,14 @@ public abstract class GtBinderConfigurableBase<F extends GtFormUi, C> extends
 
   @Override
   protected final void doApply(F form, C config) throws ConfigurationException {
-    C previous = copy(config);
-    binder.populateConfig(config, form);
-    log.debug("Applied");
-    afterApply(previous, config);
+    C copy = copy(config);
+    binder.populateConfig(copy, form);
+    log.debug("Applied to copy");
+    storeConfig(config, copy);
   }
 
   @NotNull
   protected abstract C copy(@NotNull C config);
 
-  protected abstract void afterApply(@NotNull C previous, @NotNull C current);
+  protected abstract void storeConfig(@NotNull C existing, @NotNull C updated);
 }

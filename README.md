@@ -57,13 +57,14 @@ Generate code coverage report
 ```shell script
 gradle clean codeCoverage
 ```
-Update gradlew version
-```shell script
-gradle wrapper --gradle-version 5.6.4 --distribution-type ALL
-```
 Build to install with Install from disk
 ```shell script
 gradle buildPlugin
+```
+
+#### Update gradle version
+```shell script
+./gradlew wrapper --gradle-version 6.8.1 --distribution-type BIN
 ```
 
 ### Useful run commands
