@@ -146,8 +146,8 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
   }
 
   @Override
-  protected void afterApply(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
-    AppConfig.getInstance().updateState(current);
+  protected void storeConfig(@NotNull GitToolBoxConfig2 existing, @NotNull GitToolBoxConfig2 updated) {
+    AppConfig.getInstance().updateState(updated);
   }
 
   @NotNull
