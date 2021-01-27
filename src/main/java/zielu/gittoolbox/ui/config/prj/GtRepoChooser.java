@@ -21,14 +21,14 @@ import org.jetbrains.annotations.Nullable;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.util.GtUtil;
 
-class GtRepoChooser extends DialogWrapper {
+public class GtRepoChooser extends DialogWrapper {
   private final Project project;
   private JPanel centerPanel;
   private JBList<GitRepository> repoList;
   private List<GitRepository> repositories = new ArrayList<>();
   private List<GitRepository> selectedRepositories = new ArrayList<>();
 
-  GtRepoChooser(@NotNull Project project, @Nullable Component parentComponent) {
+  public GtRepoChooser(@NotNull Project project, @Nullable Component parentComponent) {
     super(project, parentComponent, false, IdeModalityType.PROJECT);
     this.project = project;
     repoList = new JBList<>();

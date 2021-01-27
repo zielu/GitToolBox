@@ -19,7 +19,7 @@ internal class PrjConfigurable(private val project: Project) : GtConfigurableBas
   }
 
   override fun getConfig(): MutableConfig {
-    return MutableConfig(AppConfig.getConfig(), ProjectConfig.getConfig(project))
+    return MutableConfig(AppConfig.getConfig(), ProjectConfig.getConfig(project), project)
   }
 
   override fun setFormState(form: PrjConfigForm, config: MutableConfig) {
