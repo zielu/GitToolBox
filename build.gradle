@@ -73,7 +73,7 @@ intellij {
             'android',
             'gradle',
             'git4idea',
-            'gr.jchrist.gitextender:0.5.2',
+            'gr.jchrist.gitextender:0.6.0',
             'org.jetbrains.plugins.github'
     ]
     ideaDependencyCachePath = ideaCacheDir
