@@ -12,7 +12,7 @@ internal data class RepoInfo(
 
   fun tagsNotEmpty(): Boolean = tags.isNotEmpty()
 
-  @Deprecated("for Java compatibility", replaceWith = ReplaceWith("count?.") )
+  @Deprecated("for Java compatibility", replaceWith = ReplaceWith("count?."))
   fun maybeCount(): Optional<GitAheadBehindCount> = Optional.ofNullable(count)
 
   companion object {
