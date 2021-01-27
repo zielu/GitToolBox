@@ -3,6 +3,7 @@ package zielu.gittoolbox.cache;
 import git4idea.repo.GitRepository;
 import java.util.List;
 import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.util.MemoizeSupplier;
 
 class LazyDirMappingAware<T extends DirMappingAware> implements DirMappingAware {
@@ -13,7 +14,7 @@ class LazyDirMappingAware<T extends DirMappingAware> implements DirMappingAware 
   }
 
   @Override
-  public void updatedRepoList(List<GitRepository> repositories) {
+  public void updatedRepoList(@NotNull List<GitRepository> repositories) {
     supplier.get().updatedRepoList(repositories);
   }
 }

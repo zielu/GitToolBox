@@ -28,6 +28,10 @@ internal class AutoFetchSubscriberInfoCacheListener(private val project: Project
   override fun evicted(repositories: Collection<GitRepository>) {
     AutoFetchSubscriber.getInstance(project).onReposEvicted(repositories)
   }
+
+  override fun allRepositoriesInitialized(repositories: Collection<GitRepository>) {
+    AutoFetchSubscriber.getInstance(project).onAllReposInitialized(repositories)
+  }
 }
 
 internal class AutoFetchSubscriberProjectListener : ProjectLifecycleNotifier {

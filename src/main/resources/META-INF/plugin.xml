@@ -146,6 +146,7 @@
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
 
     <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
+    <registryKey defaultValue="false" description="Debounce first auto-fetch" key="zielu.gittoolbox.fetch.auto.debounce.first" />
 
     <notificationGroup
         id="gittoolbox.behind.tracker"

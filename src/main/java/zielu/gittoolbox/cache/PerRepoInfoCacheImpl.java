@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -16,6 +17,7 @@ import java.util.function.Supplier;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.GitToolBoxRegistry;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.util.GtUtil;
@@ -69,6 +71,22 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
     } else {
       log.debug("Status did not change [", GtUtil.name(repository), "]: ", freshInfo);
     }
+    checkAndNotifyAllRepositoriesInitialized();
+  }
+
+  private void checkAndNotifyAllRepositoriesInitialized() {
+    if (GitToolBoxRegistry.shouldDebounceFirstAutoFetch()) {
+      Map<GitRepository, RepoInfo> statusMap = Map.copyOf(behindStatuses.get());
+      if (!statusMap.isEmpty()) {
+        boolean allRepositoriesInitialized = statusMap.values().stream().noneMatch(RepoInfo::isEmpty);
+        log.debug("All repositories initialized: ", allRepositoriesInitialized);
+        if (allRepositoriesInitialized) {
+          publisher.notifyAllRepositoriesInitialized(List.copyOf(statusMap.keySet()));
+        }
+      } else {
+        log.debug("No repositories to check for all initialized");
+      }
+    }
   }
 
   @NotNull
@@ -117,12 +135,14 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   }
 
   @Override
-  public void updatedRepoList(List<GitRepository> repositories) {
+  public void updatedRepoList(@NotNull List<GitRepository> repositories) {
     if (disposeGuard.isActive()) {
       log.debug("Updated repo list: ", repositories);
-      Set<GitRepository> removed = new HashSet<>(behindStatuses.get().keySet());
+      ConcurrentMap<GitRepository, RepoInfo> statusMap = behindStatuses.get();
+      Set<GitRepository> removed = new HashSet<>(statusMap.keySet());
       removed.removeAll(repositories);
       purgeRepositories(removed);
+      repositories.forEach(repo -> statusMap.putIfAbsent(repo, RepoInfo.empty()));
     }
   }
 

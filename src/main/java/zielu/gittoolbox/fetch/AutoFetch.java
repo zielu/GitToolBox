@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.GitToolBoxRegistry;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.config.ProjectConfig;
 
@@ -111,8 +112,21 @@ class AutoFetch implements AutoFetchComponent, Disposable {
 
   @Override
   public void projectReady() {
+    if (GitToolBoxRegistry.shouldNotDebounceFirstAutoFetch()) {
+      activate();
+    }
+  }
+
+  private void activate() {
     if (active.compareAndSet(false, true)) {
       initializeFirstTask();
+    }
+  }
+
+  @Override
+  public void allRepositoriesInitialized() {
+    if (GitToolBoxRegistry.shouldDebounceFirstAutoFetch()) {
+      activate();
     }
   }
 

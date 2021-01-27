@@ -20,4 +20,6 @@ public interface AutoFetchComponent {
   static AutoFetchComponent getInstance(@NotNull Project project) {
     return AppUtil.getServiceInstance(project, AutoFetchComponent.class);
   }
+
+  void allRepositoriesInitialized();
 }

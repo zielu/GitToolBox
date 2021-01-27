@@ -29,6 +29,10 @@ class AutoFetchSubscriber {
     AutoFetchComponent.getInstance(project).projectReady();
   }
 
+  public void onAllReposInitialized(@NotNull Collection<? extends GitRepository> repositories) {
+    AutoFetchComponent.getInstance(project).allRepositoriesInitialized();
+  }
+
   void onRepoStateChanged(@NotNull RepoInfo previous,
                           @NotNull RepoInfo current,
                           @NotNull GitRepository repository) {

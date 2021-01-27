@@ -155,7 +155,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
   }
 
   @Override
-  public void updatedRepoList(List<GitRepository> repositories) {
+  public void updatedRepoList(@NotNull List<GitRepository> repositories) {
     synchronized (this) {
       RepoListUpdate update = buildUpdate(repositories);
       rebuildRootsCache(update);

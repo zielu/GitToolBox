@@ -20,6 +20,13 @@ internal class InfoCachePublisher(project: Project) : LocalGateway(project), Dis
     }
   }
 
+  fun notifyAllRepositoriesInitialized(repositories: Collection<GitRepository>) {
+    publishAsync(this) {
+      it.syncPublisher(CACHE_CHANGE_TOPIC).allRepositoriesInitialized(repositories)
+      log.debug("Publish all repositories initialized: ", repositories)
+    }
+  }
+
   override fun dispose() {
     // do nothing
   }

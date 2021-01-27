@@ -2,9 +2,9 @@ package zielu.gittoolbox.blame.calculator
 
 import com.google.common.cache.Cache
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
+import zielu.gittoolbox.GitToolBoxRegistry
 import zielu.gittoolbox.blame.calculator.persistence.BlameCalculationPersistence
 import zielu.gittoolbox.metrics.CacheMetrics
 import zielu.gittoolbox.metrics.ProjectMetrics
@@ -21,7 +21,7 @@ internal class CachingBlameCalculatorLocalGateway(private val project: Project) 
   }
 
   fun shouldLoadFromPersistence(): Boolean {
-    return Registry.`is`("zielu.gittoolbox.blame.cache.persistent", true)
+    return GitToolBoxRegistry.shouldLoadBlameFromPersistence()
   }
 
   fun loadFromPersistence(file: VirtualFile, revision: VcsRevisionNumber): RevisionDataProvider? {
