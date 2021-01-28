@@ -82,7 +82,8 @@ intellij {
 
 runPluginVerifier {
     ideVersions = [
-        ideaVerifierVersion
+        ideaVerifier2020Version,
+        //ideaVerifier2021Version
     ]
 }
 
