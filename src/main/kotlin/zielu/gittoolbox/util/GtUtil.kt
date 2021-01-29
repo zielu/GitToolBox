@@ -8,6 +8,7 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.vcs.log.Hash
 import com.intellij.vcs.log.impl.HashImpl
 import git4idea.GitUtil
@@ -15,8 +16,6 @@ import git4idea.GitVcs
 import git4idea.config.GitVcsSettings
 import git4idea.repo.GitRepository
 import org.apache.commons.lang3.ObjectUtils
-import org.jetbrains.annotations.CalledInAwt
-import java.util.ArrayList
 
 internal object GtUtil {
   @JvmStatic
@@ -48,14 +47,14 @@ internal object GtUtil {
     return DvcsUtil.sortRepositories(ArrayList(repositories))
   }
 
-  @CalledInAwt
+  @RequiresEdt
   fun guessCurrentRepository(project: Project): GitRepository? {
     val repositoryManager = GitUtil.getRepositoryManager(project)
     val recentRootPath = GitVcsSettings.getInstance(project).recentRootPath
     return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, recentRootPath)
   }
 
-  @CalledInAwt
+  @RequiresEdt
   fun getCurrentRepository(project: Project): GitRepository? {
     val repositoryManager = GitUtil.getRepositoryManager(project)
     return DvcsUtil.guessCurrentRepositoryQuick(project, repositoryManager, null)

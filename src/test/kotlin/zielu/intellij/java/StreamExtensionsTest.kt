@@ -63,7 +63,7 @@ internal class StreamExtensionsTest {
     assertThat(item).isEqualTo(expectedItem)
   }
 
-  private companion object {
+  companion object {
     @JvmStatic
     fun firstOrNullCases(): Stream<Arguments> {
       return Stream.of(
