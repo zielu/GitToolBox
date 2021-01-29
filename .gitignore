@@ -11,3 +11,4 @@ build/
 testDataDynamic/
 out/
 publish.gradle
+pluginVerifierBin

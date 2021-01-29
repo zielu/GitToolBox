@@ -82,9 +82,11 @@ intellij {
 
 runPluginVerifier {
     ideVersions = [
-        ideaVerifier2020Version,
-        //ideaVerifier2021Version
+        ideaVerifier_2020_2_4, //is not compatible ATM with 203 plugin line
+        ideaVerifier_2020_3_2,
+        ideaVerifier_2021_1
     ]
+    verifierPath = "pluginVerifierBin/verifier-all.jar" //download from https://github.com/JetBrains/intellij-plugin-verifier
 }
 
 compileJava.options.encoding = encoding

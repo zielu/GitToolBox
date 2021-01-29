@@ -76,6 +76,10 @@ Run with fresh sandbox
 ```shell script
 gradle clean runIde
 ```
+Run plugin verifier
+```shell script
+./gradlew runPluginVerifier -x buildSearchableOptions
+```
 
 ### Debugging
 To debug the plugin execute Gradle run configuration with `runIde` task using IDE **Debug action**.
