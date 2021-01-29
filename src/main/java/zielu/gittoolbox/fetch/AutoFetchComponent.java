@@ -21,5 +21,5 @@ public interface AutoFetchComponent {
     return AppUtil.getServiceInstance(project, AutoFetchComponent.class);
   }
 
-  void allRepositoriesInitialized();
+  void allRepositoriesInitialized(int reposCount);
 }

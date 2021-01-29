@@ -34,19 +34,14 @@ class AutoFetch implements AutoFetchComponent, Disposable {
     return AutoFetchExecutor.getInstance(project);
   }
 
-  private void initializeFirstTask() {
+  private void initializeFirstTask(int reposCount) {
     updateAutoFetchEnabled(getConfig());
     if (autoFetchEnabled.get()) {
-      log.debug("Auto-fetch on project ready for ", project);
-      scheduleFirstTask();
+      log.info("Schedule first auto-fetch for " + project);
+      executor().scheduleTask(schedule().getInitTaskDelay(reposCount));
     } else {
-      log.debug("Auto-fetch on project ready disabled for ", project);
+      log.info("Auto-fetch on project ready disabled for " + project);
     }
-  }
-
-  private void scheduleFirstTask() {
-    log.debug("Schedule first auto-fetch for ", project);
-    executor().scheduleTask(schedule().getInitTaskDelay());
   }
 
   private AutoFetchSchedule schedule() {
@@ -113,20 +108,21 @@ class AutoFetch implements AutoFetchComponent, Disposable {
   @Override
   public void projectReady() {
     if (GitToolBoxRegistry.shouldNotDebounceFirstAutoFetch()) {
-      activate();
+      activate(1);
     }
   }
 
-  private void activate() {
+  private void activate(int reposCount) {
     if (active.compareAndSet(false, true)) {
-      initializeFirstTask();
+      initializeFirstTask(reposCount);
     }
   }
 
   @Override
-  public void allRepositoriesInitialized() {
+  public void allRepositoriesInitialized(int reposCount) {
     if (GitToolBoxRegistry.shouldDebounceFirstAutoFetch()) {
-      activate();
+      log.info("All " + reposCount + " repositories initialized");
+      activate(reposCount);
     }
   }
 

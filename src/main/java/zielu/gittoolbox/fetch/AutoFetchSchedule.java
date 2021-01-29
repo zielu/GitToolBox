@@ -1,6 +1,7 @@
 package zielu.gittoolbox.fetch;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import java.time.Duration;
@@ -18,6 +19,7 @@ import zielu.gittoolbox.config.ProjectConfig;
 import zielu.gittoolbox.util.AppUtil;
 
 class AutoFetchSchedule implements Disposable {
+  private final Logger log = Logger.getInstance(getClass());
   private static final Duration DEFAULT_DELAY = Duration.ofMinutes(1);
   private static final Duration BRANCH_SWITCH_GRACE_PERIOD = Duration.ofSeconds(30);
   private final Map<GitRepository, AtomicLong> lastFetchTimestamps = new ConcurrentHashMap<>();
@@ -102,8 +104,10 @@ class AutoFetchSchedule implements Disposable {
     currentIntervalMinutes = minutes;
   }
 
-  Duration getInitTaskDelay() {
-    return Duration.ofSeconds(10);
+  Duration getInitTaskDelay(int reposCount) {
+    long secondsDuration = Math.round(Math.max(10, Math.log(reposCount) * 6 + 1));
+    log.info("First auto-fetch delay is " + secondsDuration + " sec");
+    return Duration.ofSeconds(secondsDuration);
   }
 
   void autoFetchDisabled() {

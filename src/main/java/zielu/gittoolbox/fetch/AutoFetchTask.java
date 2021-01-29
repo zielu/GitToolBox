@@ -25,7 +25,6 @@ import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.compat.NotificationHandle;
 import zielu.gittoolbox.compat.Notifier;
 import zielu.gittoolbox.metrics.ProjectMetrics;
-import zielu.gittoolbox.ui.util.AppUiUtil;
 import zielu.gittoolbox.util.GtUtil;
 import zielu.intellij.concurrent.ZDisposableRunnable;
 import zielu.intellij.metrics.Metrics;
@@ -193,7 +192,7 @@ class AutoFetchTask implements ZDisposableRunnable {
   public void run() {
     owner.acquireAutoFetchLock();
     if (isNotCancelled()) {
-      Runnable task = () -> GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project),
+      GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project),
           ResBundle.message("message.autoFetching")) {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
@@ -205,9 +204,6 @@ class AutoFetchTask implements ZDisposableRunnable {
           }
         }
       });
-      if (isNotCancelled()) {
-        AppUiUtil.invokeLaterIfNeeded(this, task);
-      }
     } else {
       log.debug("Fetched skipped");
       owner.releaseAutoFetchLock();
