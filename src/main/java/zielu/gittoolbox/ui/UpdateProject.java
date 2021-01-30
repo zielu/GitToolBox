@@ -27,11 +27,11 @@ public class UpdateProject {
   }
 
   public void execute(@NotNull AnActionEvent event) {
-    AppUiUtil.invokeLaterIfNeeded(project, () -> invokeAction(event));
+    AppUiUtil.invokeLater(project, () -> invokeAction(event));
   }
 
   public void execute(@Nullable InputEvent inputEvent) {
-    AppUiUtil.invokeLaterIfNeeded(project, () -> invokeAction(inputEvent));
+    AppUiUtil.invokeLater(project, () -> invokeAction(inputEvent));
   }
 
   private void invokeAction(AnActionEvent event) {
