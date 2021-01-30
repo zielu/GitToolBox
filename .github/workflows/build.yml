@@ -30,4 +30,4 @@ jobs:
           restore-keys: |
             gradle-
       - name: Build and check
-        run: ./gradlew clean check integrationTest --console plain
+        run: ./gradlew clean check integrationTest --console plain -x buildSearchableOptions
