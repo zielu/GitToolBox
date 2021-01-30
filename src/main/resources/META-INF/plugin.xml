@@ -147,6 +147,7 @@
 
     <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
     <registryKey defaultValue="false" description="Debounce first auto-fetch" key="zielu.gittoolbox.fetch.auto.debounce.first" />
+    <registryKey defaultValue="false" description="Diagnostic mode" key="zielu.gittoolbox.diagnostic.mode" />
 
     <notificationGroup
         id="gittoolbox.behind.tracker"
@@ -272,6 +273,10 @@
       <reference id="GitToolBox.PushTags" />
       <reference id="GitToolBox.RefreshBlame" />
       <add-to-group group-id="Git.MainMenu" anchor="last"/>
+      <group class="zielu.gittoolbox.ui.actions.diagnostic.DiagnosticGroup" id="GitToolBox.DiagnosticGroup"
+             text="GitToolBox Diagnostic"
+             popup="true"
+      />
     </group>
 
     <group id="GitToolBox.BranchIssues" text="Branch Issues"

@@ -16,4 +16,8 @@ internal object GitToolBoxRegistry {
   fun shouldNotDebounceFirstAutoFetch(): Boolean {
     return !shouldDebounceFirstAutoFetch()
   }
+
+  fun diagnosticMode(): Boolean {
+    return Registry.`is`("zielu.gittoolbox.diagnostic.mode", false)
+  }
 }
