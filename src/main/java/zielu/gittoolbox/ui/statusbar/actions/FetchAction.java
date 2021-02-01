@@ -10,6 +10,7 @@ import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.GitToolBoxRegistry;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.fetch.GtFetchUtil;
 import zielu.gittoolbox.ui.util.AppUiUtil;
@@ -31,13 +32,17 @@ public class FetchAction extends DumbAwareAction {
 
   private void fetch() {
     Project project = repository.getProject();
-    GitVcs.runInBackground(new Task.Backgroundable(Preconditions.checkNotNull(project),
-        ResBundle.message("message.fetching", GtUtil.name(repository))) {
-      @Override
-      public void run(@NotNull ProgressIndicator indicator) {
-        indicator.checkCanceled();
-        GtFetchUtil.fetch(repository).showNotificationIfFailed();
-      }
-    });
+    if (GitToolBoxRegistry.runAutoFetchInBackground()) {
+      GitVcs.runInBackground(new Task.Backgroundable(Preconditions.checkNotNull(project),
+          ResBundle.message("message.fetching", GtUtil.name(repository))) {
+        @Override
+        public void run(@NotNull ProgressIndicator indicator) {
+          indicator.checkCanceled();
+          GtFetchUtil.fetch(repository).showNotificationIfFailed();
+        }
+      });
+    } else {
+      GtFetchUtil.fetch(repository).showNotificationIfFailed();
+    }
   }
 }

@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
+import zielu.gittoolbox.GitToolBoxRegistry;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.PerRepoInfoCache;
 import zielu.gittoolbox.compat.NotificationHandle;
@@ -29,6 +30,7 @@ import zielu.gittoolbox.util.GtUtil;
 import zielu.intellij.concurrent.ZDisposableRunnable;
 import zielu.intellij.metrics.Metrics;
 import zielu.intellij.util.ZDisposeGuard;
+import zielu.intellij.util.ZDummyProgressIndicator;
 
 class AutoFetchTask implements ZDisposableRunnable {
   private final Logger log = Logger.getInstance(getClass());
@@ -192,18 +194,26 @@ class AutoFetchTask implements ZDisposableRunnable {
   public void run() {
     owner.acquireAutoFetchLock();
     if (isNotCancelled()) {
-      GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project),
-          ResBundle.message("message.autoFetching")) {
-        @Override
-        public void run(@NotNull ProgressIndicator indicator) {
-          try {
-            indicator.checkCanceled();
-            runAutoFetch(reposForFetch(), indicator);
-          } finally {
-            owner.releaseAutoFetchLock();
+      if (GitToolBoxRegistry.runAutoFetchInBackground()) {
+        GitVcs.runInBackground(new Backgroundable(Preconditions.checkNotNull(project),
+            ResBundle.message("message.autoFetching")) {
+          @Override
+          public void run(@NotNull ProgressIndicator indicator) {
+            try {
+              indicator.checkCanceled();
+              runAutoFetch(reposForFetch(), indicator);
+            } finally {
+              owner.releaseAutoFetchLock();
+            }
           }
+        });
+      } else {
+        try {
+          runAutoFetch(reposForFetch(), ZDummyProgressIndicator.INSTANCE);
+        } finally {
+          owner.releaseAutoFetchLock();
         }
-      });
+      }
     } else {
       log.debug("Fetched skipped");
       owner.releaseAutoFetchLock();

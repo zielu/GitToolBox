@@ -146,7 +146,8 @@
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
 
     <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
-    <registryKey defaultValue="false" description="Debounce first auto-fetch" key="zielu.gittoolbox.fetch.auto.debounce.first" />
+    <registryKey defaultValue="true" description="Debounce first auto-fetch" key="zielu.gittoolbox.fetch.auto.debounce.first" />
+    <registryKey defaultValue="false" description="Auto-fetch in background" key="zielu.gittoolbox.fetch.auto.in.background" />
     <registryKey defaultValue="false" description="Diagnostic mode" key="zielu.gittoolbox.diagnostic.mode" />
 
     <notificationGroup

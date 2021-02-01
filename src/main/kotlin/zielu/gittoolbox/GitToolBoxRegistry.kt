@@ -13,6 +13,11 @@ internal object GitToolBoxRegistry {
   }
 
   @JvmStatic
+  fun runAutoFetchInBackground(): Boolean {
+    return Registry.`is`("zielu.gittoolbox.fetch.auto.in.background", false)
+  }
+
+  @JvmStatic
   fun shouldNotDebounceFirstAutoFetch(): Boolean {
     return !shouldDebounceFirstAutoFetch()
   }
