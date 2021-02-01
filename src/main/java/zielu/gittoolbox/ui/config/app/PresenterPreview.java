@@ -24,8 +24,8 @@ class PresenterPreview {
   }
 
   static String getBehindTrackerPreview(StatusPresenter presenter) {
-    return String.join(DELIMITER, presenter.behindStatus(BehindStatus.create(3, 1)),
-        presenter.behindStatus(BehindStatus.create(3, -1)),
-        presenter.behindStatus(BehindStatus.create(3)));
+    return String.join(DELIMITER, presenter.behindStatus(new BehindStatus(3, 1)),
+        presenter.behindStatus(new BehindStatus(3, -1)),
+        presenter.behindStatus(new BehindStatus(3)));
   }
 }

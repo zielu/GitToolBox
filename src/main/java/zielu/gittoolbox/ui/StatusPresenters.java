@@ -206,7 +206,7 @@ public enum StatusPresenters implements StatusPresenter {
 
   protected StringBand formatBehind(BehindStatus behind, String symbol) {
     return new StringBand()
-               .append(behind.behind())
+               .append(behind.getBehind())
                .append(symbol);
   }
 

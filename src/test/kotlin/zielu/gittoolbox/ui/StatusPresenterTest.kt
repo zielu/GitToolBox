@@ -24,7 +24,7 @@ internal class StatusPresenterTest {
   @ParameterizedTest
   @MethodSource("expectedBehindStatusWithDeltaArgs")
   fun `expect behind status with delta`(presenter: StatusPresenter, count: Int, delta: Int, expectedValue: String) {
-    val status = presenter.behindStatus(BehindStatus.create(RevListCount.success(count, hash), delta))
+    val status = presenter.behindStatus(BehindStatus(RevListCount(hash, count), delta))
     assertThat(status).isEqualTo(expectedValue)
   }
 

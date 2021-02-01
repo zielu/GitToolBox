@@ -9,7 +9,7 @@ internal class StatusMessagesServiceLocalGatewayImpl : StatusMessagesServiceLoca
   }
 
   override fun aheadBehindStatus(count: GitAheadBehindCount): String {
-    return StatusMessagesUi.getInstance().presenter().aheadBehindStatus(count.ahead.value(), count.behind.value())
+    return StatusMessagesUi.getInstance().presenter().aheadBehindStatus(count.ahead.value!!, count.behind.value!!)
   }
 
   override fun extendedRepoInfo(extendedRepoInfo: ExtendedRepoInfo): String {

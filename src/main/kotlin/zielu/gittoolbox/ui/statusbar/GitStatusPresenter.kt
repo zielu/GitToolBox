@@ -131,8 +131,8 @@ internal class GitStatusPresenter(project: Project) {
   }
 
   private fun combine(first: GitAheadBehindCount, second: GitAheadBehindCount): GitAheadBehindCount {
-    val ahead = first.ahead.value() + second.ahead.value()
-    val behind = second.behind.value() + second.behind.value()
+    val ahead = first.ahead.value!! + second.ahead.value!!
+    val behind = first.behind.value!! + second.behind.value!!
     return GitAheadBehindCount.success(ahead, null, behind, null)
   }
 }

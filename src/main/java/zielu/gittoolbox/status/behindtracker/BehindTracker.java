@@ -77,7 +77,7 @@ class BehindTracker implements Disposable {
 
   private Map<GitRepository, BehindStatus> removeZeros(@NotNull Map<GitRepository, BehindStatus> statuses) {
     return statuses.entrySet().stream()
-        .filter(entry -> entry.getValue().behind() > 0)
+        .filter(entry -> entry.getValue().getBehind() > 0)
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
@@ -127,7 +127,7 @@ class BehindTracker implements Disposable {
     if (changeType == ChangeType.FETCHED) {
       BehindStatus status = null;
       if (previousInfo == null) {
-        status = calculateBehindStatus(info, count -> BehindStatus.create(count.getBehind()));
+        status = calculateBehindStatus(info, count -> new BehindStatus(count.getBehind()));
       } else if (info.maybeCount().isPresent()) {
         status = calculateBehindStatus(info, count -> calculateBehindStatus(previousInfo, count));
       }
@@ -149,9 +149,9 @@ class BehindTracker implements Disposable {
 
   private BehindStatus calculateBehindStatus(@Nullable RepoInfo previous, @NotNull GitAheadBehindCount currentCount) {
     int oldBehind = Optional.ofNullable(previous).flatMap(RepoInfo::maybeCount)
-        .map(count -> count.getBehind().value()).orElse(0);
-    int delta = currentCount.getBehind().value() - oldBehind;
-    return BehindStatus.create(currentCount.getBehind(), delta);
+        .map(count -> count.getBehind().value().orElse(0)).orElse(0);
+    int delta = currentCount.getBehind().value().orElse(0) - oldBehind;
+    return new BehindStatus(currentCount.getBehind(), delta);
   }
 
   private ChangeType detectChangeType(@Nullable RepoInfo previous, @NotNull RepoInfo current) {

@@ -7,11 +7,11 @@ internal data class GitAheadBehindCount constructor(
   val behind: RevListCount
 ) {
 
-  fun status(): Status = ahead.status()
+  fun status(): Status = ahead.status
 
   fun isNotZero(): Boolean {
     return if (status() == Status.SUCCESS) {
-      ahead.value() != 0 || behind.value() != 0
+      ahead.value != 0 || behind.value != 0
     } else {
       false
     }
@@ -19,7 +19,7 @@ internal data class GitAheadBehindCount constructor(
 
   fun isNotZeroBehind(): Boolean {
     return if (status() == Status.SUCCESS) {
-      behind.value() != 0
+      behind.value != 0
     } else {
       false
     }
@@ -37,7 +37,7 @@ internal data class GitAheadBehindCount constructor(
       behind: Int,
       behindHash: Hash?
     ): GitAheadBehindCount {
-      return GitAheadBehindCount(RevListCount.success(ahead, aheadHash), RevListCount.success(behind, behindHash))
+      return GitAheadBehindCount(RevListCount(aheadHash, ahead), RevListCount(behindHash, behind))
     }
 
     @JvmStatic

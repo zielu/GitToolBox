@@ -36,7 +36,10 @@ public abstract class NodeDecorationBase implements NodeDecoration {
     GitAheadBehindCount count = repoInfo.getCount();
     if (count != null && count.status() == Status.SUCCESS) {
       StatusPresenter presenter = ui.getPresenter();
-      String status = presenter.nonZeroAheadBehindStatus(count.getAhead().value(), count.getBehind().value());
+      String status = presenter.nonZeroAheadBehindStatus(
+          count.getAhead().value().getAsInt(),
+          count.getBehind().value().getAsInt()
+      );
       return status.length() > 0 ? status : null;
     }
     return null;

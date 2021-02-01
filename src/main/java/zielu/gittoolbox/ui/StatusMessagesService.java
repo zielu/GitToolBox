@@ -44,14 +44,14 @@ public class StatusMessagesService {
   }
 
   private String behindStatus(BehindStatus behind) {
-    if (SUCCESS == behind.status()) {
-      if (behind.behind() > 0) {
+    if (SUCCESS == behind.getStatus()) {
+      if (behind.getBehind() > 0) {
         return gateway.behindStatus(behind);
       } else {
         return ResBundle.message("message.up.to.date");
       }
     } else {
-      return commonStatus(behind.status());
+      return commonStatus(behind.getStatus());
     }
   }
 
