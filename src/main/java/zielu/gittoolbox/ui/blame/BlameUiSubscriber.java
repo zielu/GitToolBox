@@ -50,7 +50,9 @@ class BlameUiSubscriber implements Disposable {
 
   private void refreshEditorFile(@NotNull VirtualFile file) {
     FileEditorManagerEx editorManagerEx = FileEditorManagerEx.getInstanceEx(project);
-    editorManagerEx.updateFilePresentation(file);
+    for (FileEditor editor : editorManagerEx.getEditors(file)) {
+      editor.getComponent().repaint();
+    }
   }
 
   void onColorSchemeChanged(@NotNull EditorColorsScheme scheme) {
