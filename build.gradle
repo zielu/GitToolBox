@@ -98,6 +98,7 @@ compileKotlin {
         freeCompilerArgs = [
             "-Xjvm-default=enable"
         ]
+        useIR = true
     }
 }
 
