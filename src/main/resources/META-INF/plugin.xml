@@ -24,7 +24,7 @@
   <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
   <depends optional="true" config-file="android-features.xml">org.jetbrains.android</depends>
   <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="203.5981" until-build="211.4961.*" />
+  <idea-version since-build="203.5981" until-build="211.5538.*" />
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
