@@ -39,12 +39,10 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private final AtomicBoolean active = new AtomicBoolean(true);
   private final GitStatusWidgetLocalGateway gateway = new GitStatusWidgetLocalGateway();
   private final GitStatusPresenter presenter;
-  private final RootActions rootActions;
 
   private GitStatusWidget(@NotNull Project project) {
     super(project);
     presenter = new GitStatusPresenter(project);
-    rootActions = new RootActions(project);
   }
 
   public static GitStatusWidget create(@NotNull Project project) {
@@ -146,9 +144,9 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   @Nullable
   @Override
   public ListPopup getPopupStep() {
-    if (visible.get() && rootActions.update()) {
+    if (visible.get()) {
       String title = ResBundle.message("statusBar.status.menu.title");
-      return new StatusActionGroupPopup(title, rootActions, myProject, Conditions.alwaysTrue());
+      return new StatusActionGroupPopup(title, myProject, Conditions.alwaysTrue());
     } else {
       return null;
     }
