@@ -85,7 +85,7 @@ internal class BlameCalculationPersistence(
       try {
         cleanGarbageImpl()
       } catch (e: NullPointerException) {
-        log.error("Garbage cleanup failed", e)
+        log.error("Garbage cleanup failed: $state", e)
         throw e
       }
     }
