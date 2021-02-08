@@ -9,9 +9,9 @@ import java.util.Date
 
 internal class DatePresenterImpl
 @NonInjectable
-constructor(private val gateway: DatePresenterLocalGateway) : DatePresenter {
+constructor(private val facade: DatePresenterFacade) : DatePresenter {
 
-  constructor() : this(DatePresenterLocalGatewayImpl())
+  constructor() : this(DatePresenterFacade())
 
   override fun format(type: DateType, date: ZonedDateTime) = formatImpl(type, date)
 
@@ -27,19 +27,19 @@ constructor(private val gateway: DatePresenterLocalGateway) : DatePresenter {
   private fun formatPrettyDate(date: ZonedDateTime): String {
     return ZDateFormatUtil.formatPrettyDateTime(
       date,
-      ZonedDateTime.now(gateway.getClock()),
+      ZonedDateTime.now(facade.getClock()),
       getAbsoluteDateTimeFormat()
     )
   }
 
-  private fun getAbsoluteDateTimeFormat(): SyncDateFormat = gateway.getAbsoluteDateTimeFormat()
+  private fun getAbsoluteDateTimeFormat(): SyncDateFormat = facade.getAbsoluteDateTimeFormat()
 
   private fun formatAbsoluteDate(date: ZonedDateTime): String {
     return getAbsoluteDateTimeFormat().format(Date.from(date.toInstant()))
   }
 
   private fun formatRelative(date: ZonedDateTime): String {
-    val now = ZonedDateTime.ofInstant(gateway.getClock().instant(), gateway.getClock().zone)
+    val now = ZonedDateTime.ofInstant(facade.getClock().instant(), facade.getClock().zone)
     return ZDateFormatUtil.formatBetweenDates(date, now)
   }
 }

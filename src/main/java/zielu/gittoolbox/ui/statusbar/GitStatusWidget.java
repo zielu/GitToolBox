@@ -37,7 +37,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   private final AtomicBoolean connected = new AtomicBoolean();
   private final AtomicBoolean visible = new AtomicBoolean();
   private final AtomicBoolean active = new AtomicBoolean(true);
-  private final GitStatusWidgetLocalGateway gateway = new GitStatusWidgetLocalGateway();
+  private final GitStatusWidgetFacade facade = new GitStatusWidgetFacade();
   private final GitStatusPresenter presenter;
 
   private GitStatusWidget(@NotNull Project project) {
@@ -180,7 +180,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void updateVisibleFromConfig() {
-    setVisible(gateway.getIsVisibleConfig());
+    setVisible(facade.getIsVisibleConfig());
   }
 
   @Override
@@ -225,7 +225,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void performUpdate(@NotNull Project project, @NotNull VirtualFile file) {
-    performRepoUpdate(project, gateway.getRepoForFile(project, file));
+    performRepoUpdate(project, facade.getRepoForFile(project, file));
   }
 
   private void performUpdate(@NotNull Project project) {
@@ -236,7 +236,7 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
     if (isActive()) {
       RepoInfo repoInfo = RepoInfo.empty();
       if (repository != null) {
-        repoInfo = gateway.getRepoInfo(repository);
+        repoInfo = facade.getRepoInfo(repository);
       }
       if (repository != null) {
         updateForRepo(repository, repoInfo);
@@ -250,13 +250,13 @@ public class GitStatusWidget extends EditorBasedWidget implements StatusBarUi,
   }
 
   private void updateForRepo(@NotNull GitRepository repository, @NotNull RepoInfo repoInfo) {
-    ExtendedRepoInfo extendedInfo = gateway.getExtendedRepoInfo(repository);
+    ExtendedRepoInfo extendedInfo = facade.getExtendedRepoInfo(repository);
     presenter.updateData(repository, repoInfo, extendedInfo);
   }
 
   private void updateForNoRepo(@NotNull Project project) {
-    List<RepoInfo> repoInfos = gateway.getRepoInfos(project);
-    ExtendedRepoInfo extendedInfo = gateway.getExtendedRepoInfo(project);
+    List<RepoInfo> repoInfos = facade.getRepoInfos(project);
+    ExtendedRepoInfo extendedInfo = facade.getExtendedRepoInfo(project);
     presenter.updateData(repoInfos, extendedInfo);
   }
 

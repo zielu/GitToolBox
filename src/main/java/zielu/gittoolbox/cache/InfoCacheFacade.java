@@ -17,16 +17,16 @@ import zielu.gittoolbox.config.ProjectConfig;
 import zielu.gittoolbox.config.ReferencePointForStatusType;
 import zielu.gittoolbox.util.AppUtil;
 
-class InfoCacheGateway {
+class InfoCacheFacade {
   private final Project project;
 
-  InfoCacheGateway(@NotNull Project project) {
+  InfoCacheFacade(@NotNull Project project) {
     this.project = project;
   }
 
   @NotNull
-  static InfoCacheGateway getInstance(@NotNull Project project) {
-    return AppUtil.getServiceInstance(project, InfoCacheGateway.class);
+  static InfoCacheFacade getInstance(@NotNull Project project) {
+    return AppUtil.getServiceInstance(project, InfoCacheFacade.class);
   }
 
   @NotNull

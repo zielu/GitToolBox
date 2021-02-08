@@ -5,7 +5,7 @@ import zielu.gittoolbox.store.RecentBranch
 import zielu.gittoolbox.store.WorkspaceStore
 import java.time.Instant
 
-internal open class RecentBranchesLocalGateway {
+internal open class RecentBranchesFacade {
 
   fun getRecentBranchesFromStore(repository: GtRepository): List<RecentBranch> {
     val store = WorkspaceStore.get(repository.project)

@@ -35,13 +35,13 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
   private final AtomicInteger configGeneration = new AtomicInteger(1);
   private final Project project;
-  private final BlameUiServiceLocalGateway gateway;
+  private final BlameUiServiceFacade facade;
   private TextAttributes blameTextAttributes;
 
   BlameUiServiceImpl(@NotNull Project project) {
     this.project = project;
-    this.gateway = new BlameUiServiceLocalGateway(project, ATTRIBUTES_KEY);
-    this.gateway.registerDisposable(this, disposeGuard);
+    this.facade = new BlameUiServiceFacade(project, ATTRIBUTES_KEY);
+    this.facade.registerDisposable(this, disposeGuard);
   }
 
   @Override
@@ -61,7 +61,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   @Override
   public void refreshBlame() {
     if (disposeGuard.isActive()) {
-      gateway.invalidateAllBlames();
+      facade.invalidateAllBlames();
     }
   }
 
@@ -69,7 +69,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   @Override
   public String getBlameStatus(@NotNull VirtualFile file, int editorLineIndex) {
     if (disposeGuard.isActive()) {
-      return gateway.getStatusBarTimer().timeSupplier(() -> getBlameStatusInternal(file, editorLineIndex));
+      return facade.getStatusBarTimer().timeSupplier(() -> getBlameStatusInternal(file, editorLineIndex));
     }
     return null;
   }
@@ -78,17 +78,17 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   private String getBlameStatusInternal(@NotNull VirtualFile file, int editorLineIndex) {
     LineInfo lineInfo = createLineInfo(file, editorLineIndex);
     if (lineInfo != null) {
-      return gateway.getStatusBarInfoTimer().timeSupplier(() -> getStatusWithCaching(lineInfo));
+      return facade.getStatusBarInfoTimer().timeSupplier(() -> getStatusWithCaching(lineInfo));
     }
     return null;
   }
 
   @Nullable
   private LineInfo createLineInfo(@NotNull VirtualFile file, int lineIndex) {
-    if (gateway.isUnderGit(file)) {
-      Document document = gateway.getDocument(file);
+    if (facade.isUnderGit(file)) {
+      Document document = facade.getDocument(file);
       if (isDocumentValid(document, lineIndex)) {
-        Editor editor = gateway.getEditorIfDocumentSelected(document);
+        Editor editor = facade.getEditorIfDocumentSelected(document);
         if (editor != null) {
           return new LineInfo(file, editor, document, lineIndex, configGeneration.get());
         }
@@ -104,11 +104,11 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   @Nullable
   @Override
   public String getBlameStatusTooltip(@NotNull VirtualFile file, int editorLineIndex) {
-    if (disposeGuard.isActive() && gateway.isUnderGit(file)) {
-      Document document = gateway.getDocument(file);
+    if (disposeGuard.isActive() && facade.isUnderGit(file)) {
+      Document document = facade.getDocument(file);
       if (isDocumentValid(document, editorLineIndex)) {
-        RevisionInfo revisionInfo = gateway.getLineBlame(document, file, editorLineIndex);
-        return gateway.getBlameStatusTooltip(revisionInfo);
+        RevisionInfo revisionInfo = facade.getLineBlame(document, file, editorLineIndex);
+        return facade.getBlameStatusTooltip(revisionInfo);
       }
     }
     return null;
@@ -118,7 +118,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   @Override
   public Collection<LineExtensionInfo> getLineExtensions(@NotNull VirtualFile file, int editorLineIndex) {
     if (disposeGuard.isActive()) {
-      return gateway.getEditorTimer().timeSupplier(() -> getLineExtensionsInternal(file, editorLineIndex));
+      return facade.getEditorTimer().timeSupplier(() -> getLineExtensionsInternal(file, editorLineIndex));
     } else {
       return null;
     }
@@ -128,7 +128,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   private List<LineExtensionInfo> getLineExtensionsInternal(@NotNull VirtualFile file, int editorLineIndex) {
     LineInfo lineInfo = createLineInfo(file, editorLineIndex);
     if (lineInfo != null && isLineWithCaret(lineInfo.getEditor(), lineInfo.getIndex())) {
-      return gateway.getEditorInfoTimer().timeSupplier(() -> getLineInfosWithCaching(lineInfo));
+      return facade.getEditorInfoTimer().timeSupplier(() -> getLineInfosWithCaching(lineInfo));
     }
     return null;
   }
@@ -140,7 +140,7 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
     if (cachedInfo != null) {
       return cachedInfo;
     } else {
-      RevisionInfo lineRevisionInfo = gateway.getLineBlame(lineInfo);
+      RevisionInfo lineRevisionInfo = facade.getLineBlame(lineInfo);
       if (lineRevisionInfo.isNotEmpty()) {
         lineState.setRevisionInfo(lineRevisionInfo);
       }
@@ -151,15 +151,15 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   @Nullable
   private String getStatusWithCaching(@NotNull LineInfo lineInfo) {
     LineState lineState = new LineState(lineInfo);
-    String cachedInfo = lineState.getOrClearCachedStatus(gateway::getStatusDecoration);
+    String cachedInfo = lineState.getOrClearCachedStatus(facade::getStatusDecoration);
     if (cachedInfo != null) {
       return cachedInfo;
     } else {
-      RevisionInfo lineRevisionInfo = gateway.getLineBlame(lineInfo);
+      RevisionInfo lineRevisionInfo = facade.getLineBlame(lineInfo);
       if (lineRevisionInfo.isNotEmpty()) {
         lineState.setRevisionInfo(lineRevisionInfo);
       }
-      return lineState.getOrClearCachedStatus(gateway::getStatusDecoration);
+      return lineState.getOrClearCachedStatus(facade::getStatusDecoration);
     }
   }
 
@@ -172,14 +172,14 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   }
 
   private void handleBlameUpdated(@NotNull VirtualFile file) {
-    gateway.getAllEditors(file).forEach(editor -> {
+    facade.getAllEditors(file).forEach(editor -> {
       LineState.clear(editor);
       log.debug("Cleared line state: ", file, ", editor=", editor);
     });
   }
 
   private boolean isLineWithCaret(@NotNull Editor editor, int editorLineIndex) {
-    return gateway.getCurrentLineIndex(editor) == editorLineIndex;
+    return facade.getCurrentLineIndex(editor) == editorLineIndex;
   }
 
   @NotNull
@@ -189,13 +189,13 @@ class BlameUiServiceImpl implements BlameUiService, Disposable {
   }
 
   private TextAttributes getBlameTextAttributes() {
-    return ZUtil.defaultIfNull(blameTextAttributes, gateway::getDefaultBlameTextAttributes);
+    return ZUtil.defaultIfNull(blameTextAttributes, facade::getDefaultBlameTextAttributes);
   }
 
   private String formatBlameText(@NotNull RevisionInfo revisionInfo) {
     return new StringBand(2)
         .append(BLAME_PREFIX)
-        .append(gateway.getEditorInlineDecoration(revisionInfo))
+        .append(facade.getEditorInlineDecoration(revisionInfo))
         .toString();
   }
 

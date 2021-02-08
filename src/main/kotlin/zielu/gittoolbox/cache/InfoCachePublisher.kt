@@ -5,9 +5,9 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.PerRepoInfoCache.Companion.CACHE_CHANGE_TOPIC
-import zielu.gittoolbox.util.LocalGateway
+import zielu.gittoolbox.util.BaseFacade
 
-internal class InfoCachePublisher(project: Project) : LocalGateway(project), Disposable {
+internal class InfoCachePublisher(project: Project) : BaseFacade(project), Disposable {
 
   fun notifyEvicted(repositories: Collection<GitRepository>) {
     publishAsync(this) { it.syncPublisher(CACHE_CHANGE_TOPIC).evicted(repositories) }

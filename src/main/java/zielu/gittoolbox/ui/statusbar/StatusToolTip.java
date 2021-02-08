@@ -21,12 +21,12 @@ import zielu.gittoolbox.util.GtUtil;
 import zielu.gittoolbox.util.Html;
 
 class StatusToolTip {
-  private final StatusToolTipLocalGateway gateway;
+  private final StatusToolTipFacade facade;
   private GitRepository currentRepository;
   private String currentStatusText;
 
   StatusToolTip(@NotNull Project project) {
-    this.gateway = new StatusToolTipLocalGateway(project);
+    this.facade = new StatusToolTipFacade(project);
   }
 
   @Nullable
@@ -52,9 +52,9 @@ class StatusToolTip {
 
   private String prepareStatusTooltip() {
     StringBand infoPart = new StringBand();
-    Collection<GitRepository> repositories = gateway.getRepositories();
+    Collection<GitRepository> repositories = facade.getRepositories();
     if (repositories.size() == 1) {
-      RepoInfo info = gateway.getRepoInfo(currentRepository);
+      RepoInfo info = facade.getRepoInfo(currentRepository);
       info.maybeCount().map(StatusText::formatToolTip).ifPresent(infoPart::append);
     } else if (repositories.size() > 2) {
       prepareMultiRepoTooltip(infoPart, repositories);
@@ -67,7 +67,7 @@ class StatusToolTip {
     Map<GitRepository, String> statuses = new LinkedHashMap<>();
     final AtomicReference<GitRepository> currentRepo = new AtomicReference<>();
     for (GitRepository repository : GtUtil.sort(repositories)) {
-      gateway.getRepoInfo(repository).maybeCount().map(StatusText::format).ifPresent(statusText -> {
+      facade.getRepoInfo(repository).maybeCount().map(StatusText::format).ifPresent(statusText -> {
         if (repository.equals(currentRepository)) {
           currentRepo.set(repository);
         }
@@ -92,9 +92,9 @@ class StatusToolTip {
 
   private StringBand prepareInfoToolTipPart() {
     StringBand result = new StringBand();
-    if (gateway.isAutoFetchEnabled()) {
+    if (facade.isAutoFetchEnabled()) {
       result.append(GitUIUtil.bold(ResBundle.message("message.autoFetch"))).append(": ");
-      long lastAutoFetch = gateway.getLastAutoFetchTimestamp();
+      long lastAutoFetch = facade.getLastAutoFetchTimestamp();
       if (lastAutoFetch != 0) {
         result.append(DateFormatUtil.formatBetweenDates(lastAutoFetch, System.currentTimeMillis()));
       } else {

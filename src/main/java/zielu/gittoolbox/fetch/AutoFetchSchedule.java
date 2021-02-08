@@ -56,7 +56,7 @@ class AutoFetchSchedule implements Disposable {
   }
 
   private long getNowTimestamp() {
-    return AutoFetchGateway.getInstance(project).getNowMillis();
+    return AutoFetchFacade.getInstance(project).getNowMillis();
   }
 
   private AtomicLong getLastFetch(@NotNull GitRepository repository) {

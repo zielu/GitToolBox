@@ -12,7 +12,7 @@ import zielu.junit5.intellij.extension.platform.LightPlatformTestCaseExtension
 internal class AutoFetchIntegrationTest {
   @Test
   fun `should return AutoFetchGateway`(project: Project) {
-    assertThat(AutoFetchGateway.getInstance(project)).isNotNull
+    assertThat(AutoFetchFacade.getInstance(project)).isNotNull
   }
 
   @Test

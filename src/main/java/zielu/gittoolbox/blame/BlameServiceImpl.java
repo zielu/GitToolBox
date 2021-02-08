@@ -17,14 +17,14 @@ import zielu.intellij.util.ZDisposeGuard;
 class BlameServiceImpl implements BlameService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
-  private final BlameServiceLocalGateway gateway;
+  private final BlameServiceFacade gateway;
   private final LoadingCache<Document, CachedLineProvider> lineNumberProviderCache = CacheBuilder.newBuilder()
       .weakKeys()
       .recordStats()
       .build(CacheLoader.from(this::loadLineProvider));
 
   BlameServiceImpl(@NotNull Project project) {
-    gateway = new BlameServiceLocalGateway(project);
+    gateway = new BlameServiceFacade(project);
     gateway.exposeCacheMetrics(lineNumberProviderCache, "blame-service-cache");
     gateway.registerDisposable(this, gateway);
     gateway.registerDisposable(this, disposeGuard);

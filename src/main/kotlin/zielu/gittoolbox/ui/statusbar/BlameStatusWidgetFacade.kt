@@ -8,7 +8,7 @@ import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.revision.RevisionInfo
 import zielu.gittoolbox.ui.blame.BlameUiService
 
-internal class BlameStatusWidgetLocalGateway(private val project: Project) {
+internal class BlameStatusWidgetFacade(private val project: Project) {
 
   fun getBlameStatus(file: VirtualFile, lineIndex: Int): String? {
     return BlameUiService.getInstance(project).getBlameStatus(file, lineIndex)

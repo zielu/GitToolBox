@@ -8,7 +8,7 @@ import zielu.gittoolbox.config.ProjectConfig
 import zielu.gittoolbox.fetch.AutoFetchComponent
 import zielu.gittoolbox.util.GtUtil
 
-internal class StatusToolTipLocalGateway(private val project: Project) {
+internal class StatusToolTipFacade(private val project: Project) {
 
   fun getRepositories(): List<GitRepository> = GtUtil.getRepositories(project)
 

@@ -15,12 +15,12 @@ import zielu.gittoolbox.formatter.Formatter;
 
 class CompletionServiceImpl implements CompletionService, Disposable {
   private final Logger log = Logger.getInstance(getClass());
-  private final CompletionLocalGateway gateway;
+  private final CompletionFacade facade;
   private WeakReference<CompletionScopeProvider> scopeProviderRef;
   private volatile ImmutableList<Formatter> formatters;
 
   CompletionServiceImpl(@NotNull Project project) {
-    gateway = new CompletionLocalGateway(project);
+    facade = new CompletionFacade(project);
   }
 
   @Override
@@ -56,7 +56,7 @@ class CompletionServiceImpl implements CompletionService, Disposable {
   }
 
   private Collection<GitRepository> findAffectedRepositories(Collection<File> affectedFiles) {
-    return gateway.getRepositories(affectedFiles);
+    return facade.getRepositories(affectedFiles);
   }
 
   @Override
@@ -65,7 +65,7 @@ class CompletionServiceImpl implements CompletionService, Disposable {
     if (formatters == null) {
       synchronized (this) {
         if (formatters == null) {
-          formatters = gateway.getFormatters();
+          formatters = facade.getFormatters();
         }
       }
     }

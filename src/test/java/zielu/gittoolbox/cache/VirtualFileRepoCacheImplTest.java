@@ -27,7 +27,7 @@ class VirtualFileRepoCacheImplTest {
   @Mock(stubOnly = true)
   private GitRepository repositoryMock;
   @Mock
-  private VirtualFileRepoCacheLocalGateway gatewayMock;
+  private VirtualFileRepoCacheFacade facadeMock;
 
   private MockVirtualFile repositoryRoot = createDir("repoRoot");
 
@@ -35,8 +35,8 @@ class VirtualFileRepoCacheImplTest {
 
   @BeforeEach
   void beforeEach() {
-    when(gatewayMock.repoForDirCacheTimer(any())).then(MockUtil.callSupplier());
-    cache = new VirtualFileRepoCacheImpl(gatewayMock);
+    when(facadeMock.repoForDirCacheTimer(any())).then(MockUtil.callSupplier());
+    cache = new VirtualFileRepoCacheImpl(facadeMock);
   }
 
   private void mockRepository() {
@@ -116,7 +116,7 @@ class VirtualFileRepoCacheImplTest {
   void updatedRepoListPublishesToMessageBus() {
     setupRepo();
 
-    verify(gatewayMock).fireCacheChanged();
+    verify(facadeMock).fireCacheChanged();
   }
 
   @Test

@@ -6,7 +6,7 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.repo.GtRepository
 import zielu.gittoolbox.repo.createGtRepository
 
-internal open class BranchSubscriberLocalGateway(private val project: Project) {
+internal open class BranchSubscriberFacade(private val project: Project) {
   fun branchSwitch(previousBranch: GitBranch, currentBranch: GitBranch, repository: GitRepository) {
     RecentBranchesService.getInstance(project).branchSwitch(previousBranch, currentBranch, toGtRepo(repository))
   }

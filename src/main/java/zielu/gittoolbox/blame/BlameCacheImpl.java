@@ -29,7 +29,7 @@ import zielu.intellij.util.ZDisposeGuard;
 class BlameCacheImpl implements BlameCache, Disposable {
   private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
   private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
-  private final BlameCacheLocalGateway gateway;
+  private final BlameCacheFacade facade;
   private final LoadingCache<VirtualFile, Cached<Blamed>> annotations = CacheBuilder.newBuilder()
       .maximumSize(75)
       .expireAfterAccess(Duration.ofMinutes(45))
@@ -38,11 +38,11 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
 
   BlameCacheImpl(@NotNull Project project) {
-    gateway = new BlameCacheLocalGateway(project);
-    gateway.exposeCacheMetrics(annotations, "blame-cache");
-    gateway.registerQueuedGauge(queued::size);
-    gateway.registerDisposable(this, gateway);
-    gateway.registerDisposable(this, disposeGuard);
+    facade = new BlameCacheFacade(project);
+    facade.exposeCacheMetrics(annotations, "blame-cache");
+    facade.registerQueuedGauge(queued::size);
+    facade.registerDisposable(this, facade);
+    facade.registerDisposable(this, disposeGuard);
   }
 
   @Override
@@ -55,7 +55,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
   @Override
   public BlameAnnotation getAnnotation(@NotNull VirtualFile file) {
     if (disposeGuard.isActive()) {
-      return gateway.timeCacheGet(() -> getAnnotationInternal(file));
+      return facade.timeCacheGet(() -> getAnnotationInternal(file));
     }
     return BlameAnnotation.EMPTY;
   }
@@ -96,12 +96,12 @@ class BlameCacheImpl implements BlameCache, Disposable {
     if (queued.add(file)) {
       LOG.debug("Add annotation task for ", file);
       annotations.put(file, CachedFactory.loading(new Blamed(BlameAnnotation.EMPTY)));
-      AnnotationLoader loaderTask = new AnnotationLoader(file, gateway, this::annotationLoaded);
-      gateway.registerDisposable(this, loaderTask);
-      gateway.execute(new DisposeSafeExecutableTask(new DisposeAfterExecutableTask(loaderTask, loaderTask)));
+      AnnotationLoader loaderTask = new AnnotationLoader(file, facade, this::annotationLoaded);
+      facade.registerDisposable(this, loaderTask);
+      facade.execute(new DisposeSafeExecutableTask(new DisposeAfterExecutableTask(loaderTask, loaderTask)));
     } else {
       LOG.debug("Discard annotation task for ", file);
-      gateway.submitDiscarded();
+      facade.submitDiscarded();
     }
   }
 
@@ -113,15 +113,15 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private void annotationLoaded(@NotNull VirtualFile file, @NotNull BlameAnnotation annotation) {
     if (disposeGuard.isActive() && queued.remove(file)) {
       annotations.put(file, CachedFactory.loaded(new Blamed(annotation)));
-      gateway.fireBlameUpdated(file, annotation);
+      facade.fireBlameUpdated(file, annotation);
     }
   }
 
   @NotNull
   private VcsRevisionNumber currentRepoRevision(@NotNull VirtualFile file) {
-    GitRepository repo = gateway.getRepoForFile(file);
+    GitRepository repo = facade.getRepoForFile(file);
     if (repo != null) {
-      return gateway.getCurrentRevision(repo);
+      return facade.getCurrentRevision(repo);
     }
     return VcsRevisionNumber.NULL;
   }
@@ -159,7 +159,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   private void invalidateForRootImpl(@NotNull VirtualFile root) {
     LOG.debug("Invalidate for root: ", root);
-    gateway.invalidateForRoot(root);
+    facade.invalidateForRoot(root);
     Set<VirtualFile> files = new HashSet<>(annotations.asMap()
         .keySet());
     files.stream()
@@ -169,7 +169,7 @@ class BlameCacheImpl implements BlameCache, Disposable {
 
   private void invalidate(@NotNull VirtualFile file) {
     annotations.invalidate(file);
-    gateway.fireBlameInvalidated(file);
+    facade.fireBlameInvalidated(file);
     LOG.debug("Invalidated: ", file);
   }
 
@@ -193,11 +193,11 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private static class AnnotationLoader implements ExecutableTask, Disposable {
     private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
     private final VirtualFile file;
-    private final BlameCacheLocalGateway gateway;
+    private final BlameCacheFacade gateway;
     private final BiConsumer<VirtualFile, BlameAnnotation> loaded;
     private final long createdAt = System.currentTimeMillis();
 
-    private AnnotationLoader(@NotNull VirtualFile file, @NotNull BlameCacheLocalGateway gateway,
+    private AnnotationLoader(@NotNull VirtualFile file, @NotNull BlameCacheFacade gateway,
                              @NotNull BiConsumer<VirtualFile, BlameAnnotation> loaded) {
       this.file = file;
       this.gateway = gateway;

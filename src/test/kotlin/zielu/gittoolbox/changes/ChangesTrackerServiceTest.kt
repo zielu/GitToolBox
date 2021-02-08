@@ -20,14 +20,14 @@ internal class ChangesTrackerServiceTest {
   private val metrics = MockMetrics()
 
   @MockK
-  private lateinit var gatewayMock: ChangesTrackerServiceLocalGateway
+  private lateinit var facadeMock: ChangesTrackerServiceFacade
   private lateinit var changesTrackerService: ChangesTrackerService
 
   @BeforeEach
   fun beforeEach() {
-    every { gatewayMock.getNotEmptyChangeListTimer() } returns metrics.timer("1")
-    every { gatewayMock.registerDisposable(any(), any()) } returns Unit
-    changesTrackerService = ChangesTrackerServiceImpl(gatewayMock)
+    every { facadeMock.getNotEmptyChangeListTimer() } returns metrics.timer("1")
+    every { facadeMock.registerDisposable(any(), any()) } returns Unit
+    changesTrackerService = ChangesTrackerServiceImpl(facadeMock)
   }
 
   @Test
@@ -38,8 +38,8 @@ internal class ChangesTrackerServiceTest {
     // given
     val changeData = ChangeData(filePathMock)
     val changeListData = ChangeListData("id", listOf(changeData))
-    every { gatewayMock.getRepoForPath(filePathMock) } returns repoMock
-    every { gatewayMock.fireChangeCountsUpdated() } just Runs
+    every { facadeMock.getRepoForPath(filePathMock) } returns repoMock
+    every { facadeMock.fireChangeCountsUpdated() } just Runs
 
     // when
     changesTrackerService.changeListChanged(changeListData)
@@ -47,7 +47,7 @@ internal class ChangesTrackerServiceTest {
 
     // then
     assertThat(changesCount.value).isEqualTo(1)
-    verify(exactly = 1) { gatewayMock.fireChangeCountsUpdated() }
+    verify(exactly = 1) { facadeMock.fireChangeCountsUpdated() }
   }
 
   @Test
@@ -57,13 +57,13 @@ internal class ChangesTrackerServiceTest {
     // given
     val changeData = ChangeData(filePathMock)
     val changeListData = ChangeListData("id", listOf(changeData))
-    every { gatewayMock.getRepoForPath(filePathMock) } returns null
+    every { facadeMock.getRepoForPath(filePathMock) } returns null
 
     // when
     changesTrackerService.changeListChanged(changeListData)
 
     // then
-    verify(exactly = 0) { gatewayMock.fireChangeCountsUpdated() }
+    verify(exactly = 0) { facadeMock.fireChangeCountsUpdated() }
   }
 
   @Test
@@ -73,9 +73,9 @@ internal class ChangesTrackerServiceTest {
     @MockK repoMock: GitRepository
   ) {
     // given
-    every { gatewayMock.getRepoForPath(filePathMock1) } returns repoMock
-    every { gatewayMock.getRepoForPath(filePathMock2) } returns repoMock
-    every { gatewayMock.fireChangeCountsUpdated() } just Runs
+    every { facadeMock.getRepoForPath(filePathMock1) } returns repoMock
+    every { facadeMock.getRepoForPath(filePathMock2) } returns repoMock
+    every { facadeMock.fireChangeCountsUpdated() } just Runs
 
     val changeListData1 = ChangeListData("list1", listOf(ChangeData(filePathMock1), ChangeData(filePathMock2)))
     val changeListData21 = ChangeListData("list1", listOf(ChangeData(filePathMock1)))
@@ -90,7 +90,7 @@ internal class ChangesTrackerServiceTest {
 
     // then
     assertThat(changesCount.value).isEqualTo(2)
-    verify(exactly = 3) { gatewayMock.fireChangeCountsUpdated() }
+    verify(exactly = 3) { facadeMock.fireChangeCountsUpdated() }
   }
 
   @Test
@@ -102,10 +102,10 @@ internal class ChangesTrackerServiceTest {
     @MockK repoMock2: GitRepository
   ) {
     // given
-    every { gatewayMock.getRepoForPath(filePathMock1) } returns repoMock1
-    every { gatewayMock.getRepoForPath(filePathMock2) } returns repoMock2
-    every { gatewayMock.getRepoForPath(filePathMock21) } returns repoMock2
-    every { gatewayMock.fireChangeCountsUpdated() } just Runs
+    every { facadeMock.getRepoForPath(filePathMock1) } returns repoMock1
+    every { facadeMock.getRepoForPath(filePathMock2) } returns repoMock2
+    every { facadeMock.getRepoForPath(filePathMock21) } returns repoMock2
+    every { facadeMock.fireChangeCountsUpdated() } just Runs
 
     val changeListData = ChangeListData(
       "list1",
@@ -137,10 +137,10 @@ internal class ChangesTrackerServiceTest {
     @MockK repoMock2: GitRepository
   ) {
     // given
-    every { gatewayMock.getRepoForPath(filePathMock1) } returns repoMock1
-    every { gatewayMock.getRepoForPath(filePathMock2) } returns repoMock2
-    every { gatewayMock.getRepoForPath(filePathMock21) } returns repoMock2
-    every { gatewayMock.fireChangeCountsUpdated() } just Runs
+    every { facadeMock.getRepoForPath(filePathMock1) } returns repoMock1
+    every { facadeMock.getRepoForPath(filePathMock2) } returns repoMock2
+    every { facadeMock.getRepoForPath(filePathMock21) } returns repoMock2
+    every { facadeMock.fireChangeCountsUpdated() } just Runs
 
     val changeListData1 = ChangeListData(
       "list1",
@@ -164,6 +164,6 @@ internal class ChangesTrackerServiceTest {
       softly.assertThat(changesForRepo1.value).isEqualTo(0)
       softly.assertThat(changesForRepo2.value).isEqualTo(1)
     }
-    verify(exactly = 2) { gatewayMock.fireChangeCountsUpdated() }
+    verify(exactly = 2) { facadeMock.fireChangeCountsUpdated() }
   }
 }

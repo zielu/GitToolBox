@@ -61,7 +61,7 @@ internal class BehindTrackerTest {
   private val BEHIND_STATUS_VALUE = "behind state"
 
   @MockK
-  private lateinit var gatewayMock: BehindTrackerLocalGateway
+  private lateinit var facadeMock: BehindTrackerFacade
 
   @MockK
   private lateinit var repositoryMock: GitRepository
@@ -72,10 +72,10 @@ internal class BehindTrackerTest {
 
   @BeforeEach
   fun beforeEach() {
-    every { gatewayMock.isNotificationEnabled() } returns true
-    every { gatewayMock.getGtRepository(repositoryMock) } returns gtRepositoryMock
+    every { facadeMock.isNotificationEnabled() } returns true
+    every { facadeMock.getGtRepository(repositoryMock) } returns gtRepositoryMock
     every { gtRepositoryMock.getName() } returns ""
-    behindTracker = BehindTracker(gatewayMock)
+    behindTracker = BehindTracker(facadeMock)
   }
 
   @AfterEach
@@ -86,9 +86,9 @@ internal class BehindTrackerTest {
   @Test
   fun `should display delta notification if state changed`() {
     // given
-    every { gatewayMock.prepareBehindMessage(any(), any()) } returns BEHIND_STATUS_VALUE
+    every { facadeMock.prepareBehindMessage(any(), any()) } returns BEHIND_STATUS_VALUE
     val notificationSlot = slot<String>()
-    every { gatewayMock.displaySuccessNotification(capture(notificationSlot)) } returns Unit
+    every { facadeMock.displaySuccessNotification(capture(notificationSlot)) } returns Unit
 
     // when
     behindTracker.onStateChange(repositoryMock, REPO_INFO_1)
@@ -107,6 +107,6 @@ internal class BehindTrackerTest {
     behindTracker.onStateChange(repositoryMock, REPO_INFO_1)
     behindTracker.showChangeNotification()
 
-    verify(exactly = 0) { gatewayMock.displaySuccessNotification(any()) }
+    verify(exactly = 0) { facadeMock.displaySuccessNotification(any()) }
   }
 }

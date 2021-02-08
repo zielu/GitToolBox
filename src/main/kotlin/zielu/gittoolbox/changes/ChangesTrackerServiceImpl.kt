@@ -13,21 +13,21 @@ import java.util.concurrent.ConcurrentMap
 
 internal class ChangesTrackerServiceImpl
 @NonInjectable
-constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTrackerService, Disposable {
+constructor(private val facade: ChangesTrackerServiceFacade) : ChangesTrackerService, Disposable {
 
-  constructor(project: Project) : this(ChangesTrackerServiceLocalGateway(project))
+  constructor(project: Project) : this(ChangesTrackerServiceFacade(project))
 
   private val changeCounters: ConcurrentMap<GitRepository, ChangeCounters> = ConcurrentHashMap()
   private val disposeGuard = ZDisposeGuard()
   init {
-    gateway.registerDisposable(this, gateway)
-    gateway.registerDisposable(this, disposeGuard)
+    facade.registerDisposable(this, facade)
+    facade.registerDisposable(this, disposeGuard)
   }
 
   override fun changeListChanged(changeListData: ChangeListData) {
     if (disposeGuard.isActive()) {
       if (changeListData.hasChanges) {
-        gateway.getNotEmptyChangeListTimer().timeKt { handleNonEmptyChangeList(changeListData) }
+        facade.getNotEmptyChangeListTimer().timeKt { handleNonEmptyChangeList(changeListData) }
       } else {
         handleEmptyChangeList(changeListData.id)
       }
@@ -64,7 +64,7 @@ constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTra
       }
     }
     if (changed) {
-      gateway.fireChangeCountsUpdated()
+      facade.fireChangeCountsUpdated()
     }
   }
 
@@ -77,7 +77,7 @@ constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTra
   }
 
   private fun getRepoForChange(change: ChangeData): GitRepository? {
-    return gateway.getRepoForPath(change.filePath)
+    return facade.getRepoForPath(change.filePath)
   }
 
   private fun mergeCounters(existingCounters: ChangeCounters, newCounters: ChangeCounters): ChangeCounters {
@@ -86,7 +86,7 @@ constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTra
 
   override fun changeListRemoved(id: String) {
     if (disposeGuard.isActive()) {
-      gateway.getChangeListRemovedTimer().timeKt { handleChangeListRemoved(id) }
+      facade.getChangeListRemovedTimer().timeKt { handleChangeListRemoved(id) }
     }
   }
 
@@ -96,7 +96,7 @@ constructor(private val gateway: ChangesTrackerServiceLocalGateway) : ChangesTra
       .filter { it }
       .count()
     if (modified > 0) {
-      gateway.fireChangeCountsUpdated()
+      facade.fireChangeCountsUpdated()
     }
   }
 

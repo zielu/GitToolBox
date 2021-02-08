@@ -24,10 +24,10 @@ internal class IncrementalBlameCalculatorTest {
   @Test
   fun `annotate returns null if no current revision number`(
     @MockK repoMock: GitRepository,
-    @MockK gatewayMock: BlameCalculatorLocalGateway
+    @MockK facadeMock: BlameCalculatorFacade
   ) {
     // given
-    val calculator = IncrementalBlameCalculator(gatewayMock)
+    val calculator = IncrementalBlameCalculator(facadeMock)
 
     // when
     val dataProvider = calculator.annotate(repoMock, vFileMock, VcsRevisionNumber.NULL)
@@ -39,16 +39,16 @@ internal class IncrementalBlameCalculatorTest {
   @Test
   fun `annotate returns result if current revision number is present and command succeeds`(
     @MockK repoMock: GitRepository,
-    @MockK gatewayMock: BlameCalculatorLocalGateway,
+    @MockK facadeMock: BlameCalculatorFacade,
     @RelaxedMockK gitLineHandlerMock: GitLineHandler
   ) {
     // given
-    every { gatewayMock.createLineHandler(repoMock) } returns gitLineHandlerMock
+    every { facadeMock.createLineHandler(repoMock) } returns gitLineHandlerMock
     val commandResult = GitCommandResult(false, 0, listOf(), listOf())
-    every { gatewayMock.runCommand(gitLineHandlerMock) } returns commandResult
+    every { facadeMock.runCommand(gitLineHandlerMock) } returns commandResult
     val timer = metricsMock.timer("test")
-    every { gatewayMock.annotateTimer() } returns timer
-    val calculator = IncrementalBlameCalculator(gatewayMock)
+    every { facadeMock.annotateTimer() } returns timer
+    val calculator = IncrementalBlameCalculator(facadeMock)
     val fileRevision = GitRevisionNumber("abc")
 
     // when
@@ -62,16 +62,16 @@ internal class IncrementalBlameCalculatorTest {
   @Test
   fun `annotate returns null if current revision number is present and command fails`(
     @MockK repoMock: GitRepository,
-    @MockK gatewayMock: BlameCalculatorLocalGateway,
+    @MockK facadeMock: BlameCalculatorFacade,
     @RelaxedMockK gitLineHandlerMock: GitLineHandler
   ) {
     // given
-    every { gatewayMock.createLineHandler(repoMock) } returns gitLineHandlerMock
+    every { facadeMock.createLineHandler(repoMock) } returns gitLineHandlerMock
     val commandResult = GitCommandResult(false, 1, listOf("Blame failure for test"), listOf())
-    every { gatewayMock.runCommand(gitLineHandlerMock) } returns commandResult
+    every { facadeMock.runCommand(gitLineHandlerMock) } returns commandResult
     val timer = metricsMock.timer("test")
-    every { gatewayMock.annotateTimer() } returns timer
-    val calculator = IncrementalBlameCalculator(gatewayMock)
+    every { facadeMock.annotateTimer() } returns timer
+    val calculator = IncrementalBlameCalculator(facadeMock)
 
     // when
     val dataProvider = calculator.annotate(repoMock, vFileMock, GitRevisionNumber("abc"))

@@ -24,18 +24,18 @@ import zielu.gittoolbox.util.Html;
 
 public class StatusMessagesService {
   private final EnumMap<Status, String> commonStatuses = new EnumMap<>(Status.class);
-  private final StatusMessagesServiceLocalGateway gateway;
+  private final StatusMessagesServiceFacade facade;
 
   @NonInjectable
-  public StatusMessagesService(StatusMessagesServiceLocalGateway gateway) {
+  public StatusMessagesService(StatusMessagesServiceFacade facade) {
     commonStatuses.put(CANCEL, ResBundle.message("message.cancelled"));
     commonStatuses.put(FAILURE, ResBundle.message("message.failure"));
     commonStatuses.put(NO_REMOTE, ResBundle.message("message.no.remote"));
-    this.gateway = gateway;
+    this.facade = facade;
   }
 
   StatusMessagesService() {
-    this(new StatusMessagesServiceLocalGatewayImpl());
+    this(new StatusMessagesServiceFacade());
   }
 
   @NotNull
@@ -46,7 +46,7 @@ public class StatusMessagesService {
   private String behindStatus(BehindStatus behind) {
     if (SUCCESS == behind.getStatus()) {
       if (behind.getBehind() > 0) {
-        return gateway.behindStatus(behind);
+        return facade.behindStatus(behind);
       } else {
         return ResBundle.message("message.up.to.date");
       }
@@ -59,7 +59,7 @@ public class StatusMessagesService {
   public String aheadBehindStatus(GitAheadBehindCount count) {
     if (SUCCESS == count.status()) {
       if (count.isNotZero()) {
-        return gateway.aheadBehindStatus(count);
+        return facade.aheadBehindStatus(count);
       } else {
         return ResBundle.message("message.up.to.date");
       }
@@ -74,7 +74,7 @@ public class StatusMessagesService {
 
   @NotNull
   public String extendedRepoInfo(@NotNull ExtendedRepoInfo extendedRepoInfo) {
-    return gateway.extendedRepoInfo(extendedRepoInfo);
+    return facade.extendedRepoInfo(extendedRepoInfo);
   }
 
   private String repoNamePrefix(GitRepository repository) {

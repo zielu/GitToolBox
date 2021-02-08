@@ -8,7 +8,7 @@ import java.util.Optional
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class AutoFetchAllowedBuild(private val project: Project) : Disposable {
-  private val gateway = AutoFetchAllowedLocalGateway(project)
+  private val facade = AutoFetchAllowedFacade(project)
   private val buildRunning = AtomicBoolean()
 
   fun isFetchAllowed(): Boolean {
@@ -26,7 +26,7 @@ internal class AutoFetchAllowedBuild(private val project: Project) : Disposable 
     log.debug("Build finished")
     if (isCurrentProject(builtProject)) {
       if (buildRunning.compareAndSet(true, false)) {
-        gateway.fireStateChanged(this)
+        facade.fireStateChanged(this)
       }
     }
   }

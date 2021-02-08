@@ -5,9 +5,9 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.repo.GtRepository
 import zielu.gittoolbox.status.BehindStatus
 import zielu.gittoolbox.ui.behindtracker.BehindTrackerUi
-import zielu.gittoolbox.util.LocalGateway
+import zielu.gittoolbox.util.BaseFacade
 
-internal open class BehindTrackerLocalGateway(private val project: Project) : LocalGateway(project) {
+internal open class BehindTrackerFacade(private val project: Project) : BaseFacade(project) {
   fun displaySuccessNotification(message: String) {
     BehindTrackerUi.getInstance(project).displaySuccessNotification(message)
   }

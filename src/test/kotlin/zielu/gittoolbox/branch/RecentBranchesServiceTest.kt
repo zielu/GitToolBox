@@ -18,13 +18,13 @@ import java.time.Instant
 @ExtendWith(MockKExtension::class)
 internal class RecentBranchesServiceTest {
   @MockK
-  private lateinit var gatewayMock: RecentBranchesLocalGateway
+  private lateinit var facadeMock: RecentBranchesFacade
 
   private lateinit var service: RecentBranchesService
 
   @BeforeEach
   fun beforeEach() {
-    service = RecentBranchesService(gatewayMock)
+    service = RecentBranchesService(facadeMock)
   }
 
   @Test
@@ -45,9 +45,9 @@ internal class RecentBranchesServiceTest {
     val recentBranch5 = RecentBranch("branch5", now.minusSeconds(5).epochSecond)
     val branch5 = GitLocalBranch(recentBranch5.branchName)
 
-    every { gatewayMock.now() } returns now
+    every { facadeMock.now() } returns now
     every {
-      gatewayMock.getRecentBranchesFromStore(repositoryMock)
+      facadeMock.getRecentBranchesFromStore(repositoryMock)
     } returns
       listOf(recentBranch5, recentBranch4, recentBranch3, recentBranch2, recentBranch1)
     every { repositoryMock.findLocalBranch(branch1.name) } returns branch1
@@ -56,14 +56,14 @@ internal class RecentBranchesServiceTest {
     every { repositoryMock.findLocalBranch(branch4.name) } returns branch4
     every { repositoryMock.findLocalBranch(branch5.name) } returns branch5
 
-    every { gatewayMock.storeRecentBranches(any(), repositoryMock) } just Runs
+    every { facadeMock.storeRecentBranches(any(), repositoryMock) } just Runs
 
     // when
     service.branchSwitch(master, develop, repositoryMock)
 
     // then
     verify {
-      gatewayMock.storeRecentBranches(
+      facadeMock.storeRecentBranches(
         listOf(
           RecentBranch(develop.name, now.epochSecond),
           recentBranch1,
@@ -90,7 +90,7 @@ internal class RecentBranchesServiceTest {
     val develop = GitLocalBranch(recentDevelop.branchName)
 
     every {
-      gatewayMock.getRecentBranchesFromStore(repositoryMock)
+      facadeMock.getRecentBranchesFromStore(repositoryMock)
     } returns
       listOf(recentBranch1, recentBranch2, recentBranch3, recentBranch4, recentBranch5, recentDevelop)
     every { repositoryMock.findLocalBranch(recentBranch1.branchName) } returns branch1

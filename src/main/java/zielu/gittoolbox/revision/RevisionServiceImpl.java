@@ -19,13 +19,13 @@ class RevisionServiceImpl implements RevisionService, Disposable {
       .expireAfterAccess(Duration.ofMinutes(30))
       .recordStats()
       .build();
-  private final RevisionServiceLocalGateway gateway;
+  private final RevisionServiceFacade facade;
   private final Project project;
 
   RevisionServiceImpl(@NotNull Project project) {
     this.project = project;
-    gateway = new RevisionServiceLocalGateway(project);
-    gateway.exposeCommitMessageCacheMetrics(commitMessageCache);
+    facade = new RevisionServiceFacade(project);
+    facade.exposeCommitMessageCacheMetrics(commitMessageCache);
   }
 
   @Override
@@ -47,7 +47,7 @@ class RevisionServiceImpl implements RevisionService, Disposable {
     }
     VcsRevisionNumber revisionNumber = revisionInfo.getRevisionNumber();
     try {
-      return commitMessageCache.get(revisionNumber, () -> gateway.loadCommitMessage(file, revisionNumber));
+      return commitMessageCache.get(revisionNumber, () -> facade.loadCommitMessage(file, revisionNumber));
     } catch (ExecutionException e) {
       log.warn("Failed to load commit message " + revisionNumber, e);
       return null;

@@ -15,7 +15,7 @@ import zielu.intellij.util.ZDisposeGuard
 
 internal class CachingBlameCalculator(project: Project) : BlameCalculator, Disposable {
   private val disposeGuard = ZDisposeGuard()
-  private val gateway = CachingBlameCalculatorLocalGateway(project)
+  private val facade = CachingBlameCalculatorFacade(project)
   private val loader = object : ThreadLocalCacheLoader<LoadContext, Key, RevisionDataProvider>() {
     override fun loadInContext(context: LoadContext, key: Key): RevisionDataProvider {
       return if (disposeGuard.isActive()) {
@@ -31,8 +31,8 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator, Dispo
     .build(loader)
 
   init {
-    gateway.exposeCacheMetrics(dataProviders)
-    gateway.registerDisposable(this, disposeGuard)
+    facade.exposeCacheMetrics(dataProviders)
+    facade.registerDisposable(this, disposeGuard)
   }
 
   override fun annotate(
@@ -76,25 +76,25 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator, Dispo
   ): RevisionDataProvider {
     return getFromPersistence(file, revision)?.apply {
       log.debug("Found persisted blame provider for ", file, " at ", revision)
-    } ?: gateway.calculator().annotate(repository, file, revision)?.apply {
+    } ?: facade.calculator().annotate(repository, file, revision)?.apply {
       log.debug("Calculated blame for ", file, " at ", revision)
       storeInPersistence(this)
     } ?: RevisionDataProvider.EMPTY
   }
 
   private fun getFromPersistence(file: VirtualFile, revision: VcsRevisionNumber): RevisionDataProvider? {
-    return if (gateway.shouldLoadFromPersistence()) {
-      gateway.loadFromPersistence(file, revision)
+    return if (facade.shouldLoadFromPersistence()) {
+      facade.loadFromPersistence(file, revision)
     } else {
       null
     }
   }
 
   private fun storeInPersistence(dataProvider: RevisionDataProvider?) {
-    if (disposeGuard.isActive() && gateway.shouldLoadFromPersistence()) {
+    if (disposeGuard.isActive() && facade.shouldLoadFromPersistence()) {
       dataProvider?.apply {
         if (this != RevisionDataProvider.EMPTY) {
-          gateway.storeInPersistence(this)
+          facade.storeInPersistence(this)
         }
       }
     }
@@ -109,7 +109,7 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator, Dispo
       }
       log.debug("Invalidate ", keysToInvalidate)
       dataProviders.invalidateAll(keysToInvalidate)
-      gateway.calculator().invalidateForRoot(root)
+      facade.calculator().invalidateForRoot(root)
     }
   }
 

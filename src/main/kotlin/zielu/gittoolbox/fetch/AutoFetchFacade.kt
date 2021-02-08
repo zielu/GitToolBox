@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.util.AppUtil.getServiceInstance
-import zielu.gittoolbox.util.GatewayBase
 import zielu.intellij.concurrent.DisposeSafeRunnable
 import zielu.intellij.concurrent.ZDisposableRunnable
 import zielu.intellij.util.ZDisposeGuard
@@ -17,9 +16,9 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.function.BiFunction
 
-internal class AutoFetchGateway(
+internal class AutoFetchFacade(
   private val prj: Project
-) : GatewayBase(prj), Disposable {
+) : Disposable {
   private val disposeGuard = ZDisposeGuard()
   private val clock: Clock by lazy {
     Clock.systemDefaultZone()
@@ -52,11 +51,11 @@ internal class AutoFetchGateway(
   }
 
   companion object {
-    private val log = Logger.getInstance(AutoFetchGateway::class.java)
+    private val log = Logger.getInstance(AutoFetchFacade::class.java)
 
     @JvmStatic
-    fun getInstance(project: Project): AutoFetchGateway {
-      return getServiceInstance(project, AutoFetchGateway::class.java)
+    fun getInstance(project: Project): AutoFetchFacade {
+      return getServiceInstance(project, AutoFetchFacade::class.java)
     }
   }
 }

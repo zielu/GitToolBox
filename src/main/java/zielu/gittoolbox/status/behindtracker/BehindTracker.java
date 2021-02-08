@@ -28,15 +28,15 @@ class BehindTracker implements Disposable {
   private final Map<GitRepository, RepoInfo> state = new HashMap<>();
   private final Map<GitRepository, PendingChange> pendingChanges = new HashMap<>();
 
-  private final BehindTrackerLocalGateway gateway;
+  private final BehindTrackerFacade facade;
 
   BehindTracker(@NotNull Project project) {
-    this(new BehindTrackerLocalGateway(project));
+    this(new BehindTrackerFacade(project));
   }
 
   @NonInjectable
-  BehindTracker(BehindTrackerLocalGateway gateway) {
-    this.gateway = gateway;
+  BehindTracker(BehindTrackerFacade facade) {
+    this.facade = facade;
   }
 
   @NotNull
@@ -84,7 +84,7 @@ class BehindTracker implements Disposable {
   private BehindMessage createBehindMessage(Map<GitRepository, BehindStatus> statuses) {
     boolean manyReposInProject = hasManyReposInProject();
     boolean manyReposInStatuses = statuses.size() > 1;
-    return new BehindMessage(gateway.prepareBehindMessage(statuses, manyReposInProject),
+    return new BehindMessage(facade.prepareBehindMessage(statuses, manyReposInProject),
         manyReposInStatuses);
   }
 
@@ -101,7 +101,7 @@ class BehindTracker implements Disposable {
 
   private void showNotification(@NotNull BehindMessage message, @NotNull ChangeType changeType) {
     StringBand finalMessage = formatMessage(message, changeType);
-    gateway.displaySuccessNotification(finalMessage.toString());
+    facade.displaySuccessNotification(finalMessage.toString());
   }
 
   @NotNull
@@ -120,7 +120,7 @@ class BehindTracker implements Disposable {
   private void onStateChangeUnsafe(@NotNull GitRepository repository, @NotNull RepoInfo info) {
     RepoInfo previousInfo = state.put(repository, info);
     if (log.isDebugEnabled()) {
-      GtRepository repo = gateway.getGtRepository(repository);
+      GtRepository repo = facade.getGtRepository(repository);
       log.debug("Info update [", repo.getName(), "]: ", previousInfo, " > ", info);
     }
     ChangeType changeType = detectChangeType(previousInfo, info);
@@ -194,7 +194,7 @@ class BehindTracker implements Disposable {
   }
 
   void showChangeNotification() {
-    if (gateway.isNotificationEnabled()) {
+    if (facade.isNotificationEnabled()) {
       ImmutableMap<GitRepository, PendingChange> changes = drainChanges();
       log.debug("Show notification for ", changes.size(), " repositories");
       showNotification(changes);

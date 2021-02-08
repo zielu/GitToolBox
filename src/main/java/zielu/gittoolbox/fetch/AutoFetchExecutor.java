@@ -100,7 +100,7 @@ class AutoFetchExecutor implements Disposable {
 
   private synchronized void trySchedulingTask(Duration delay) {
     if (cleanAndCheckTasks(scheduledCyclicTasks, scheduledCyclicTasksCount)) {
-      AutoFetchGateway.getInstance(project)
+      AutoFetchFacade.getInstance(project)
           .scheduleAutoFetch(delay, (myProject, schedule) ->
               new AutoFetchTask(myProject, AutoFetchExecutor.this, schedule))
           .ifPresent(scheduled -> {
@@ -114,7 +114,7 @@ class AutoFetchExecutor implements Disposable {
 
   private synchronized void trySchedulingTask(Duration delay, GitRepository repository) {
     if (cleanAndCheckTasks(scheduledRepoTasks, scheduledRepoTasksCount)) {
-      AutoFetchGateway.getInstance(project)
+      AutoFetchFacade.getInstance(project)
           .scheduleAutoFetch(delay, (myProject, schedule) ->
               new AutoFetchTask(myProject, AutoFetchExecutor.this, schedule, repository))
           .ifPresent(scheduled -> {

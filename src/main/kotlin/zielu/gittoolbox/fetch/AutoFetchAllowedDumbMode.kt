@@ -7,7 +7,7 @@ import zielu.gittoolbox.util.AppUtil
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class AutoFetchAllowedDumbMode(project: Project) : Disposable {
-  private val gateway = AutoFetchAllowedLocalGateway(project)
+  private val facade = AutoFetchAllowedFacade(project)
   private val inDumbMode = AtomicBoolean()
 
   fun enteredDumbMode() {
@@ -18,7 +18,7 @@ internal class AutoFetchAllowedDumbMode(project: Project) : Disposable {
   fun leftDumbMode() {
     log.debug("Exited dumb mode")
     if (inDumbMode.compareAndSet(true, false)) {
-      gateway.fireStateChanged(this)
+      facade.fireStateChanged(this)
     }
   }
 

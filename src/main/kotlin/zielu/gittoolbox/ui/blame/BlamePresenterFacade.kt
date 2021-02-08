@@ -6,7 +6,7 @@ import zielu.gittoolbox.config.DateType
 import zielu.gittoolbox.ui.DatePresenter
 import java.time.ZonedDateTime
 
-internal class BlamePresenterLocalGateway {
+internal class BlamePresenterFacade {
   private val datePresenter by lazy {
     DatePresenter.getInstance()
   }

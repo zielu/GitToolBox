@@ -12,38 +12,38 @@ internal class RecentBranchesService
 
 @NonInjectable
 constructor(
-  private val gateway: RecentBranchesLocalGateway
+  private val facade: RecentBranchesFacade
 ) {
 
-  constructor() : this(RecentBranchesLocalGateway())
+  constructor() : this(RecentBranchesFacade())
 
   fun branchSwitch(previousBranch: GitBranch, currentBranch: GitBranch, repository: GtRepository) {
-    val now = gateway.now()
-    val recentBranches = gateway.getRecentBranchesFromStore(repository)
+    val now = facade.now()
+    val recentBranches = facade.getRecentBranchesFromStore(repository)
     if (recentBranches.isEmpty()) {
       val previous = createRecentBranch(previousBranch, now.minusSeconds(1))
       val current = createRecentBranch(currentBranch, now)
-      gateway.storeRecentBranches(listOf(current, previous), repository)
+      facade.storeRecentBranches(listOf(current, previous), repository)
     } else {
       updateRecentBranches(createRecentBranch(currentBranch, now), repository)
     }
   }
 
   fun switchToBranchFromOther(currentBranch: GitBranch, repository: GtRepository) {
-    val current = createRecentBranch(currentBranch, gateway.now())
-    val recentBranches = gateway.getRecentBranchesFromStore(repository)
+    val current = createRecentBranch(currentBranch, facade.now())
+    val recentBranches = facade.getRecentBranchesFromStore(repository)
     if (recentBranches.isEmpty()) {
-      gateway.storeRecentBranches(listOf(current), repository)
+      facade.storeRecentBranches(listOf(current), repository)
     } else {
       updateRecentBranches(current, repository)
     }
   }
 
   fun switchFromBranchToOther(previousBranch: GitBranch, repository: GtRepository) {
-    val previous = createRecentBranch(previousBranch, gateway.now())
-    val recentBranches = gateway.getRecentBranchesFromStore(repository)
+    val previous = createRecentBranch(previousBranch, facade.now())
+    val recentBranches = facade.getRecentBranchesFromStore(repository)
     if (recentBranches.isEmpty()) {
-      gateway.storeRecentBranches(listOf(previous), repository)
+      facade.storeRecentBranches(listOf(previous), repository)
     } else {
       updateRecentBranches(previous, repository)
     }
@@ -55,19 +55,19 @@ constructor(
 
   private fun updateRecentBranches(latestBranch: RecentBranch, repository: GtRepository) {
     synchronized(this) {
-      val recentBranches = gateway.getRecentBranchesFromStore(repository).toMutableList()
+      val recentBranches = facade.getRecentBranchesFromStore(repository).toMutableList()
       recentBranches.removeIf { repository.findLocalBranch(it.branchName) == null }
       recentBranches.removeIf { it.branchName == latestBranch.branchName }
       recentBranches.add(latestBranch)
       recentBranches
         .sortByDescending { it.lastUsedInstant }
       val trimmedToLimit = recentBranches.take(HISTORY_LIMIT)
-      gateway.storeRecentBranches(trimmedToLimit, repository)
+      facade.storeRecentBranches(trimmedToLimit, repository)
     }
   }
 
   fun getRecentBranches(repository: GtRepository): List<GitBranch> {
-    val recentBranches = gateway.getRecentBranchesFromStore(repository)
+    val recentBranches = facade.getRecentBranchesFromStore(repository)
     return recentBranches
       .sortedBy { it.lastUsedInstant }
       .mapNotNull { repository.findLocalBranch(it.branchName) }

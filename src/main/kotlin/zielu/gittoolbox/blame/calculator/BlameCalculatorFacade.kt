@@ -9,17 +9,17 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.intellij.metrics.GtTimer
 
-internal class BlameCalculatorLocalGatewayImpl(private val project: Project) : BlameCalculatorLocalGateway {
+internal open class BlameCalculatorFacade(private val project: Project) {
 
-  override fun createLineHandler(repository: GitRepository): GitLineHandler {
+  fun createLineHandler(repository: GitRepository): GitLineHandler {
     return GitLineHandler(project, repository.root, GitCommand.BLAME)
   }
 
-  override fun runCommand(lineHandler: GitLineHandler): GitCommandResult {
+  fun runCommand(lineHandler: GitLineHandler): GitCommandResult {
     return Git.getInstance().runCommandWithoutCollectingOutput(lineHandler)
   }
 
-  override fun annotateTimer(): GtTimer {
+  fun annotateTimer(): GtTimer {
     return ProjectMetrics.getInstance(project).timer("blame-calculator.annotate")
   }
 }

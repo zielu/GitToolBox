@@ -44,13 +44,13 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
     }
   };
 
-  private final BlameStatusWidgetLocalGateway gateway;
+  private final BlameStatusWidgetFacade facade;
 
   private String text = "";
 
   BlameStatusWidget(@NotNull Project project) {
     super(project);
-    gateway = new BlameStatusWidgetLocalGateway(project);
+    facade = new BlameStatusWidgetFacade(project);
   }
 
   private boolean shouldShow() {
@@ -58,7 +58,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   }
 
   private void updateStatus(@NotNull VirtualFile file, int lineIndex) {
-    updatePresentation(gateway.getBlameStatus(file, lineIndex));
+    updatePresentation(facade.getBlameStatus(file, lineIndex));
   }
 
   private void updatePresentation(@Nullable String status) {
@@ -193,7 +193,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
       if (selectedFile != null) {
         int lineIndex = BlameUi.getCurrentLineIndex(getEditor());
         if (BlameUi.isValidLineIndex(lineIndex)) {
-          return gateway.getBlameStatusTooltip(selectedFile, lineIndex);
+          return facade.getBlameStatusTooltip(selectedFile, lineIndex);
         }
       }
     }
@@ -208,7 +208,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
   }
 
   private void updateVisibleFromConfig() {
-    setVisible(gateway.getIsVisibleConfig());
+    setVisible(facade.getIsVisibleConfig());
   }
 
   @Override
@@ -235,7 +235,7 @@ class BlameStatusWidget extends EditorBasedWidget implements StatusBarUi, Status
     if (selectedFile != null && editor != null) {
       int lineIndex = BlameUi.getCurrentLineIndex(getEditor());
       if (BlameUi.isValidLineIndex(lineIndex)) {
-        RevisionInfo revisionInfo = gateway.getRevisionInfo(editor.getDocument(), selectedFile, lineIndex);
+        RevisionInfo revisionInfo = facade.getRevisionInfo(editor.getDocument(), selectedFile, lineIndex);
         if (revisionInfo.isNotEmpty()) {
           BlameUi.showBlamePopup(editor, selectedFile, revisionInfo);
         }

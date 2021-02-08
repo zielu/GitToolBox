@@ -18,14 +18,14 @@ import java.time.ZonedDateTime
 @ExtendWith(MockKExtension::class)
 internal class DatePresenterTest {
   @MockK
-  private lateinit var mockGateway: DatePresenterLocalGateway
+  private lateinit var mockFacade: DatePresenterFacade
   private lateinit var datePresenter: DatePresenter
 
   @BeforeEach
   fun beforeEach() {
-    datePresenter = DatePresenterImpl(mockGateway)
-    every { mockGateway.getClock() } returns Clock.systemDefaultZone()
-    every { mockGateway.getAbsoluteDateTimeFormat() } returns AbsoluteDateTimeStyle.FROM_LOCALE.format
+    datePresenter = DatePresenterImpl(mockFacade)
+    every { mockFacade.getClock() } returns Clock.systemDefaultZone()
+    every { mockFacade.getAbsoluteDateTimeFormat() } returns AbsoluteDateTimeStyle.FROM_LOCALE.format
   }
 
   @Test

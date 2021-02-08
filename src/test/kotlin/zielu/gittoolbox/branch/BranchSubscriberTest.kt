@@ -18,13 +18,13 @@ import zielu.gittoolbox.cache.RepoStatusRemote
 @ExtendWith(MockKExtension::class)
 internal class BranchSubscriberTest {
   @RelaxedMockK
-  private lateinit var gatewayMock: BranchSubscriberLocalGateway
+  private lateinit var facadeMock: BranchSubscriberFacade
 
   private lateinit var subscriber: BranchSubscriber
 
   @BeforeEach
   fun beforeEach() {
-    subscriber = BranchSubscriber(gatewayMock)
+    subscriber = BranchSubscriber(facadeMock)
   }
 
   @Test
@@ -51,7 +51,7 @@ internal class BranchSubscriberTest {
 
     // then
     verify {
-      gatewayMock.branchSwitch(oldBranch, newBranch, repositoryMock)
+      facadeMock.branchSwitch(oldBranch, newBranch, repositoryMock)
     }
   }
 
@@ -80,7 +80,7 @@ internal class BranchSubscriberTest {
 
     // then
     verify {
-      gatewayMock.switchToBranchFromOther(newBranch, repositoryMock)
+      facadeMock.switchToBranchFromOther(newBranch, repositoryMock)
     }
   }
 
@@ -110,7 +110,7 @@ internal class BranchSubscriberTest {
 
     // then
     verify {
-      gatewayMock.switchFromBranchToOther(oldBranch, repositoryMock)
+      facadeMock.switchFromBranchToOther(oldBranch, repositoryMock)
     }
   }
 }

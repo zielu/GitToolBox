@@ -24,16 +24,16 @@ class CacheTaskScheduler implements Disposable {
   private final Logger log = Logger.getInstance(getClass());
   private final AtomicBoolean active = new AtomicBoolean(true);
   private final Map<GitRepository, Collection<CacheTask>> scheduledRepositories = new ConcurrentHashMap<>();
-  private final CacheTaskSchedulerLocalGateway gateway;
+  private final CacheTaskSchedulerFacade facade;
   private long taskDelayMillis = TASK_DELAY_MILLIS;
 
   CacheTaskScheduler(@NotNull Project project) {
-    this(new CacheTaskSchedulerLocalGatewayImpl(project));
+    this(new CacheTaskSchedulerFacade(project));
   }
 
   @NonInjectable
-  CacheTaskScheduler(@NotNull CacheTaskSchedulerLocalGateway gateway) {
-    this.gateway = gateway;
+  CacheTaskScheduler(@NotNull CacheTaskSchedulerFacade facade) {
+    this.facade = facade;
   }
 
   @NotNull
@@ -60,7 +60,7 @@ class CacheTaskScheduler implements Disposable {
       if (taskToSubmit != null) {
         submitForExecution(taskToSubmit);
       } else {
-        gateway.discardedTasksCounterInc();
+        facade.discardedTasksCounterInc();
         task.discarded();
         log.debug("Tasks for ", repository, " already scheduled");
       }
@@ -91,8 +91,8 @@ class CacheTaskScheduler implements Disposable {
   }
 
   private void submitForExecution(CacheTask task) {
-    gateway.schedule(task, taskDelayMillis);
-    gateway.queueSizeCounterInc();
+    facade.schedule(task, taskDelayMillis);
+    facade.queueSizeCounterInc();
     log.debug("Scheduled: ", task);
   }
 
@@ -113,7 +113,7 @@ class CacheTaskScheduler implements Disposable {
     @Override
     public void run() {
       if (scheduledRepositories.getOrDefault(repository, Collections.emptySet()).remove(this)) {
-        gateway.queueSizeCounterDec();
+        facade.queueSizeCounterDec();
       }
       if (taskActive.get() && active.get()) {
         task.run(repository);

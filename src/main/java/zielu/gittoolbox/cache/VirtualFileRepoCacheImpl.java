@@ -46,19 +46,19 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
       .recordStats()
       .build();
 
-  private final VirtualFileRepoCacheLocalGateway gateway;
+  private final VirtualFileRepoCacheFacade facade;
 
   VirtualFileRepoCacheImpl(@NotNull Project project) {
-    this(new VirtualFileRepoCacheLocalGatewayImpl(project));
+    this(new VirtualFileRepoCacheFacade(project));
   }
 
   @NonInjectable
-  VirtualFileRepoCacheImpl(@NotNull VirtualFileRepoCacheLocalGateway gateway) {
-    this.gateway = gateway;
-    gateway.rootsVFileCacheSizeGauge(rootsVFileCache::size);
-    gateway.rootsFilePathCacheSizeGauge(rootsFilePathCache::size);
-    gateway.exposeDirsCacheMetrics(dirsCache);
-    gateway.exposeFilePathsCacheMetrics(filePathsToRepoCache);
+  VirtualFileRepoCacheImpl(@NotNull VirtualFileRepoCacheFacade facade) {
+    this.facade = facade;
+    facade.rootsVFileCacheSizeGauge(rootsVFileCache::size);
+    facade.rootsFilePathCacheSizeGauge(rootsFilePathCache::size);
+    facade.exposeDirsCacheMetrics(dirsCache);
+    facade.exposeFilePathsCacheMetrics(filePathsToRepoCache);
   }
 
   @Override
@@ -129,7 +129,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
 
   @NotNull
   private CacheEntry findRepoForDir(@NotNull VirtualFile dir) {
-    return gateway.repoForDirCacheTimer(() -> calculateRepoForDir(dir));
+    return facade.repoForDirCacheTimer(() -> calculateRepoForDir(dir));
   }
 
   @NotNull
@@ -168,7 +168,7 @@ class VirtualFileRepoCacheImpl implements VirtualFileRepoCache, Disposable {
 
   private void updateNotifications(RepoListUpdate update) {
     if (update.hasUpdates()) {
-      gateway.fireCacheChanged();
+      facade.fireCacheChanged();
     }
   }
 

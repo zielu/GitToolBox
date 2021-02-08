@@ -9,15 +9,15 @@ import zielu.gittoolbox.config.GitToolBoxConfig2
 import zielu.gittoolbox.util.AppUtil
 
 internal class ChangeListSubscriber(project: Project) : Disposable {
-  private val gateway = ChangeListSubscriberLocalGateway(project)
+  private val facade = ChangeListSubscriberFacade(project)
   init {
-    gateway.registerDisposable(this, gateway)
+    facade.registerDisposable(this, facade)
   }
 
   fun onChangeListsUpdated() {
     log.debug("Change lists changed")
-    if (gateway.getTrackingEnabled()) {
-      gateway.changeListsChanged(gateway.getAllChangeListsData())
+    if (facade.getTrackingEnabled()) {
+      facade.changeListsChanged(facade.getAllChangeListsData())
     }
   }
 
@@ -29,8 +29,8 @@ internal class ChangeListSubscriber(project: Project) : Disposable {
 
   private fun onChangeListRemoved(id: String) {
     log.debug("Change list removed", id)
-    if (gateway.getTrackingEnabled()) {
-      gateway.changeListRemoved(id)
+    if (facade.getTrackingEnabled()) {
+      facade.changeListRemoved(id)
     }
   }
 

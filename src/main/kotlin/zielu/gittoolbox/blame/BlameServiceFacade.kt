@@ -7,10 +7,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.impl.UpToDateLineNumberProviderImpl
 import com.intellij.openapi.vfs.VirtualFile
 import zielu.gittoolbox.revision.RevisionInfo
-import zielu.gittoolbox.util.LocalGateway
+import zielu.gittoolbox.util.BaseFacade
 import zielu.intellij.util.ZDisposeGuard
 
-internal class BlameServiceLocalGateway(private var project: Project) : LocalGateway(project), Disposable {
+internal class BlameServiceFacade(private var project: Project) : BaseFacade(project), Disposable {
   private val disposeGuard = ZDisposeGuard()
 
   fun lineNumberProvider(document: Document): UpToDateLineNumberProvider {

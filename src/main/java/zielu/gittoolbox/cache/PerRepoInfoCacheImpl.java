@@ -61,8 +61,8 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
 
   private void updateAction(@NotNull GitRepository repository) {
     RepoInfo info = getRepoInfo(repository);
-    InfoCacheGateway gateway = InfoCacheGateway.getInstance(project);
-    RepoStatus currentStatus = gateway.createRepoStatus(repository);
+    InfoCacheFacade facade = InfoCacheFacade.getInstance(project);
+    RepoStatus currentStatus = facade.createRepoStatus(repository);
     RepoInfo freshInfo = behindStatuses.get().computeIfPresent(repository, (repo, oldInfo) ->
         statusCalculator.update(repo, calculator, currentStatus));
 

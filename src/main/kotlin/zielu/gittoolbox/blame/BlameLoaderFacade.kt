@@ -10,9 +10,9 @@ import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.revision.RevisionService
 import zielu.gittoolbox.util.GtUtil
-import zielu.gittoolbox.util.LocalGateway
+import zielu.gittoolbox.util.BaseFacade
 
-internal class BlameLoaderLocalGateway(private val project: Project) : LocalGateway(project) {
+internal class BlameLoaderFacade(private val project: Project) : BaseFacade(project) {
   fun getRepoForFile(vFile: VirtualFile): GitRepository? {
     return VirtualFileRepoCache.getInstance(project).getRepoForFile(vFile)
   }
@@ -36,6 +36,6 @@ internal class BlameLoaderLocalGateway(private val project: Project) : LocalGate
   }
 
   companion object {
-    private val log = Logger.getInstance(BlameLoaderLocalGateway::class.java)
+    private val log = Logger.getInstance(BlameLoaderFacade::class.java)
   }
 }

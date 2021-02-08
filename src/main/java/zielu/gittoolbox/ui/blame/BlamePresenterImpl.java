@@ -19,17 +19,17 @@ class BlamePresenterImpl implements BlamePresenter {
   private static final String AUTHOR_PREFIX = ResBundle.message("blame.author") + " ";
   private static final String DATE_PREFIX = ResBundle.message("blame.date") + " ";
 
-  private final BlamePresenterLocalGateway gateway;
+  private final BlamePresenterFacade facade;
 
   BlamePresenterImpl() {
-    this.gateway = new BlamePresenterLocalGateway();
+    this.facade = new BlamePresenterFacade();
   }
 
   @NotNull
   @Override
   public String getEditorInline(@NotNull RevisionInfo revisionInfo) {
     String author = formatInlineAuthor(revisionInfo);
-    String date = gateway.formatInlineDateTime(revisionInfo.getDate());
+    String date = facade.formatInlineDateTime(revisionInfo.getDate());
     boolean notBlankAuthor = StringUtils.isNotBlank(author);
     boolean notBlankDate = StringUtils.isNotBlank(date);
     StringBand info = new StringBand(5);
@@ -40,7 +40,7 @@ class BlamePresenterImpl implements BlamePresenter {
     } else if (notBlankDate) {
       info.append(date);
     }
-    boolean showSubject = gateway.getShowInlineSubject();
+    boolean showSubject = facade.getShowInlineSubject();
     if (showSubject && revisionInfo.getSubject() != null) {
       info.append(SUBJECT_SEPARATOR).append(revisionInfo.getSubject());
     }
@@ -55,7 +55,7 @@ class BlamePresenterImpl implements BlamePresenter {
     if (StringUtils.isNotBlank(author)) {
       value.append(" ").append(author);
     }
-    value.append(" ").append(gateway.formatDateTime(DateType.ABSOLUTE, revisionInfo.getDate()));
+    value.append(" ").append(facade.formatDateTime(DateType.ABSOLUTE, revisionInfo.getDate()));
     return value.toString();
   }
 
@@ -73,7 +73,7 @@ class BlamePresenterImpl implements BlamePresenter {
 
     text.append(Html.BR)
         .append(DATE_PREFIX)
-        .append(gateway.formatDateTime(DateType.ABSOLUTE, revisionInfo.getDate()))
+        .append(facade.formatDateTime(DateType.ABSOLUTE, revisionInfo.getDate()))
         .append(Html.BR);
     if (StringUtil.isNotEmpty(details)) {
       text.append(Html.BR).append(details);
@@ -82,11 +82,11 @@ class BlamePresenterImpl implements BlamePresenter {
   }
 
   private String formatInlineAuthor(@NotNull RevisionInfo revisionInfo) {
-    return formatAuthor(gateway.getInlineAuthorNameType(), revisionInfo);
+    return formatAuthor(facade.getInlineAuthorNameType(), revisionInfo);
   }
 
   private String formatStatusAuthor(@NotNull RevisionInfo revisionInfo) {
-    return formatAuthor(gateway.getStatusAuthorNameTYpe(), revisionInfo);
+    return formatAuthor(facade.getStatusAuthorNameTYpe(), revisionInfo);
   }
 
   private String formatPopupAuthor(@NotNull RevisionInfo revisionInfo) {

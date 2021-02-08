@@ -16,7 +16,7 @@ internal class GitToolBoxStartup : StartupActivity, DumbAware {
 
       // project is ready after migrations are done
       log.info("Project ready")
-      GitToolBoxStartupGateway(project).fireProjectReady()
+      GitToolBoxStartupFacade(project).fireProjectReady()
     }
   }
 

@@ -16,15 +16,15 @@ import zielu.gittoolbox.util.GtUtil;
 
 public class IncrementalBlameCalculator implements BlameCalculator {
   private final Logger log = Logger.getInstance(getClass());
-  private final BlameCalculatorLocalGateway gateway;
+  private final BlameCalculatorFacade facade;
 
   public IncrementalBlameCalculator(@NotNull Project project) {
-    this(new BlameCalculatorLocalGatewayImpl(project));
+    this(new BlameCalculatorFacade(project));
   }
 
   // for testing
-  IncrementalBlameCalculator(BlameCalculatorLocalGateway gateway) {
-    this.gateway = gateway;
+  IncrementalBlameCalculator(BlameCalculatorFacade facade) {
+    this.facade = facade;
   }
 
   @Nullable
@@ -32,7 +32,7 @@ public class IncrementalBlameCalculator implements BlameCalculator {
                                        @NotNull VirtualFile file,
                                        @NotNull VcsRevisionNumber revision) {
     if (revision != VcsRevisionNumber.NULL) {
-      return gateway.annotateTimer().timeSupplier(() -> annotateImpl(repository, file, revision));
+      return facade.annotateTimer().timeSupplier(() -> annotateImpl(repository, file, revision));
     }
     return null;
   }
@@ -47,7 +47,7 @@ public class IncrementalBlameCalculator implements BlameCalculator {
 
     log.debug("Will run blame: ", handler);
 
-    GitCommandResult result = gateway.runCommand(handler);
+    GitCommandResult result = facade.runCommand(handler);
     if (result.success()) {
       List<CommitInfo> lineInfos = builder.buildLineInfos();
       if (log.isTraceEnabled()) {
@@ -62,7 +62,7 @@ public class IncrementalBlameCalculator implements BlameCalculator {
 
   private GitLineHandler prepareLineHandler(@NotNull GitRepository repository, @NotNull VirtualFile file,
                                             @NotNull VcsRevisionNumber revisionNumber) {
-    GitLineHandler handler = gateway.createLineHandler(repository);
+    GitLineHandler handler = facade.createLineHandler(repository);
     handler.setStdoutSuppressed(true);
     handler.addParameters("--incremental", "-l", "-t", "-w", "--encoding=UTF-8", revisionNumber.asString());
     handler.endOptions();

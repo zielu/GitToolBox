@@ -12,7 +12,7 @@ import zielu.intellij.concurrent.DisposeSafeRunnable
 import zielu.intellij.concurrent.ZDisposableRunnableWrapper
 import zielu.intellij.metrics.Metrics
 
-internal abstract class LocalGateway(private val project: Project) {
+internal abstract class BaseFacade(private val project: Project) {
   fun getMetrics(): Metrics {
     return ProjectMetrics.getInstance(project)
   }

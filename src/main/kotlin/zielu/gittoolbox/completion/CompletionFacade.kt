@@ -6,10 +6,10 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.compat.GitCompatUtil
 import zielu.gittoolbox.config.ProjectConfig
 import zielu.gittoolbox.formatter.Formatter
-import zielu.gittoolbox.util.LocalGateway
+import zielu.gittoolbox.util.BaseFacade
 import java.io.File
 
-internal class CompletionLocalGateway(private val project: Project) : LocalGateway(project) {
+internal class CompletionFacade(private val project: Project) : BaseFacade(project) {
   fun getFormatters(): ImmutableList<Formatter> {
     return ImmutableList.copyOf(ProjectConfig.get(project).getCompletionFormatters())
   }

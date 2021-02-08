@@ -109,7 +109,7 @@
     <projectService serviceInterface="zielu.gittoolbox.cache.VirtualFileRepoCache"
                     serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheImpl" />
     <projectService serviceImplementation="zielu.gittoolbox.cache.CacheTaskScheduler" />
-    <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheGateway" />
+    <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheFacade" />
     <projectService serviceInterface="zielu.gittoolbox.cache.PerRepoInfoCache"
                     serviceImplementation="zielu.gittoolbox.cache.PerRepoInfoCacheImpl" />
 
@@ -124,7 +124,7 @@
                     serviceImplementation="zielu.gittoolbox.fetch.AutoFetch" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchState" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSubscriber" />
-    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchGateway" />
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchFacade" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSchedule" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchOnBranchSwitch" />
     <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchExecutor" />

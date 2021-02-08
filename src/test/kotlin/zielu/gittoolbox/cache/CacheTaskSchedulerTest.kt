@@ -14,12 +14,12 @@ import java.util.concurrent.CountDownLatch
 @ExtendWith(MockKExtension::class)
 internal class CacheTaskSchedulerTest {
   @RelaxedMockK
-  private lateinit var gatewayMock: CacheTaskSchedulerLocalGateway
+  private lateinit var facadeMock: CacheTaskSchedulerFacade
   private lateinit var scheduler: CacheTaskScheduler
 
   @BeforeEach
   fun beforeEach() {
-    scheduler = CacheTaskScheduler(gatewayMock)
+    scheduler = CacheTaskScheduler(facadeMock)
     scheduler.setTaskDelayMillis(30)
   }
 
@@ -41,7 +41,7 @@ internal class CacheTaskSchedulerTest {
 
     // then
     verify(exactly = 1) {
-      gatewayMock.schedule(any(), any())
+      facadeMock.schedule(any(), any())
     }
   }
 
@@ -57,7 +57,7 @@ internal class CacheTaskSchedulerTest {
 
     // then
     verify(exactly = 2) {
-      gatewayMock.schedule(any(), any())
+      facadeMock.schedule(any(), any())
     }
   }
 

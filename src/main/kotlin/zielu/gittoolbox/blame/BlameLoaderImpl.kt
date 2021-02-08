@@ -11,23 +11,23 @@ import zielu.intellij.util.ZDisposeGuard
 
 internal class BlameLoaderImpl(val project: Project) : BlameLoader, Disposable {
   private val disposeGuard = ZDisposeGuard()
-  private val gateway = BlameLoaderLocalGateway(project)
+  private val facade = BlameLoaderFacade(project)
   private val calculator = CachingBlameCalculator(project)
 
   init {
-    gateway.registerDisposable(this, calculator)
-    gateway.registerDisposable(this, disposeGuard)
+    facade.registerDisposable(this, calculator)
+    facade.registerDisposable(this, disposeGuard)
   }
 
   override fun annotate(file: VirtualFile): BlameAnnotation {
     if (disposeGuard.isActive()) {
-      val repo = gateway.getRepoForFile(file)
+      val repo = facade.getRepoForFile(file)
       if (disposeGuard.isActive()) {
         if (repo != null) {
-          val fileRevision = gateway.getCurrentRevisionNumber(file)
+          val fileRevision = facade.getCurrentRevisionNumber(file)
           val provider = calculator.annotate(repo, file, fileRevision)
           if (disposeGuard.isActive() && provider != null) {
-            return BlameAnnotationImpl(provider, gateway.getRevisionService())
+            return BlameAnnotationImpl(provider, facade.getRevisionService())
           }
         } else {
           log.debug("File is not under Git root: ", file)
@@ -39,7 +39,7 @@ internal class BlameLoaderImpl(val project: Project) : BlameLoader, Disposable {
 
   override fun getCurrentRevision(repository: GitRepository): VcsRevisionNumber {
     return if (disposeGuard.isActive()) {
-      gateway.getCurrentRevisionNumber(repository)
+      facade.getCurrentRevisionNumber(repository)
     } else {
       VcsRevisionNumber.NULL
     }
