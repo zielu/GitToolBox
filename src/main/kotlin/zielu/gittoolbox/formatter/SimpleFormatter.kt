@@ -1,9 +1,9 @@
 package zielu.gittoolbox.formatter
 
-import zielu.gittoolbox.IconHandle
+import zielu.gittoolbox.completion.FormatterIcons
 
 internal object SimpleFormatter : Formatter {
-  override fun getIconHandle() = IconHandle.SIMPLE_FORMATTER
+  override fun getIcon() = FormatterIcons.Simple
 
   override fun format(input: String) = Formatted(input, true)
 }

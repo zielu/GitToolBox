@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.RemoteConfig
 import zielu.intellij.test.createRemote
-import java.util.function.Supplier
 
 @ExtendWith(MockKExtension::class)
 internal class AutoFetchExclusionsTest {
@@ -33,7 +32,7 @@ internal class AutoFetchExclusionsTest {
     val exclusionsMap: Map<String, AutoFetchExclusionConfig> = mapOf(
       repoRoot.url to AutoFetchExclusionConfig(repoRoot.url)
     )
-    val exclusions = AutoFetchExclusions(Supplier { exclusionsMap })
+    val exclusions = AutoFetchExclusions { exclusionsMap }
 
     // when
     val result = exclusions.apply(listOf(repository))
@@ -45,7 +44,7 @@ internal class AutoFetchExclusionsTest {
   @Test
   fun `should not exclude repo if it is not configured`() {
     // given
-    val exclusions = AutoFetchExclusions(Supplier { mapOf<String, AutoFetchExclusionConfig>() })
+    val exclusions = AutoFetchExclusions { mapOf<String, AutoFetchExclusionConfig>() }
 
     // when
     val result = exclusions.apply(listOf(repository))
@@ -63,7 +62,7 @@ internal class AutoFetchExclusionsTest {
     val exclusionsMap: Map<String, AutoFetchExclusionConfig> = mapOf(
       repoRoot.url to AutoFetchExclusionConfig(repoRoot.url, mutableListOf(RemoteConfig(upstream.name)))
     )
-    val exclusions = AutoFetchExclusions(Supplier { exclusionsMap })
+    val exclusions = AutoFetchExclusions { exclusionsMap }
 
     // when
     val result = exclusions.apply(listOf(repository))

@@ -3,9 +3,10 @@ package zielu.gittoolbox.formatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import javax.swing.Icon;
 import jodd.util.StringBand;
 import org.apache.commons.lang.StringUtils;
-import zielu.gittoolbox.IconHandle;
+import zielu.gittoolbox.completion.FormatterIcons;
 
 public class RegExpFormatter implements Formatter {
   private final Pattern pattern;
@@ -50,7 +51,7 @@ public class RegExpFormatter implements Formatter {
   }
 
   @Override
-  public IconHandle getIconHandle() {
-    return IconHandle.REG_EXP_FORMATTER;
+  public Icon getIcon() {
+    return FormatterIcons.getRegExp();
   }
 }

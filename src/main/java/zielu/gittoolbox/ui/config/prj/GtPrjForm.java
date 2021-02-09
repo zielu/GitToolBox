@@ -38,9 +38,9 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.IconHandle;
 import zielu.gittoolbox.ResBundle;
 import zielu.gittoolbox.cache.VirtualFileRepoCache;
+import zielu.gittoolbox.completion.FormatterIcons;
 import zielu.gittoolbox.config.AutoFetchExclusionConfig;
 import zielu.gittoolbox.config.CommitCompletionConfig;
 import zielu.gittoolbox.config.CommitCompletionType;
@@ -86,7 +86,7 @@ public class GtPrjForm implements GtFormUi {
     addSimpleCompletionAction = new AbstractActionExt() {
       {
         setName(ResBundle.message("commit.dialog.completion.formatters.simple.add.label"));
-        setSmallIcon(IconHandle.SIMPLE_FORMATTER.getIcon());
+        setSmallIcon(FormatterIcons.getSimple());
       }
 
       @Override
@@ -99,7 +99,7 @@ public class GtPrjForm implements GtFormUi {
     Action addPatternCompletionAction = new AbstractActionExt() {
       {
         setName(ResBundle.message("commit.dialog.completion.formatters.pattern.add.label"));
-        setSmallIcon(IconHandle.REG_EXP_FORMATTER.getIcon());
+        setSmallIcon(FormatterIcons.getRegExp());
       }
 
       @Override
@@ -112,7 +112,7 @@ public class GtPrjForm implements GtFormUi {
     Action addIssuePatternCompletionAction = new AbstractActionExt() {
       {
         setName(ResBundle.message("commit.dialog.completion.formatters.pattern.issue.add.label"));
-        setSmallIcon(IconHandle.REG_EXP_FORMATTER.getIcon());
+        setSmallIcon(FormatterIcons.getRegExp());
       }
 
       @Override
@@ -399,8 +399,8 @@ public class GtPrjForm implements GtFormUi {
     private final EnumMap<CommitCompletionType, Icon> completionIcons = new EnumMap<>(CommitCompletionType.class);
 
     private CommitCompletionConfigCellRenderer() {
-      completionIcons.put(CommitCompletionType.SIMPLE, IconHandle.SIMPLE_FORMATTER.getIcon());
-      completionIcons.put(CommitCompletionType.PATTERN, IconHandle.REG_EXP_FORMATTER.getIcon());
+      completionIcons.put(CommitCompletionType.SIMPLE, FormatterIcons.getSimple());
+      completionIcons.put(CommitCompletionType.PATTERN, FormatterIcons.getRegExp());
     }
 
     @Override

@@ -1,9 +1,9 @@
 package zielu.gittoolbox.formatter;
 
-import zielu.gittoolbox.IconHandle;
+import javax.swing.Icon;
 
 public interface Formatter {
   Formatted format(String input);
 
-  IconHandle getIconHandle();
+  Icon getIcon();
 }

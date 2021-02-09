@@ -26,6 +26,6 @@ internal class AutoFetchIntegrationTest {
     val state = AutoFetchState.getInstance(project)
 
     // when
-    assertThat(state.canAutoFetch()).isTrue()
+    assertThat(state.canAutoFetch()).isTrue
   }
 }

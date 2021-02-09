@@ -35,7 +35,7 @@ class CurrentBranchCompletionProvider extends CompletionProviderBase {
     if (formatted.getDisplayable()) {
       result.addElement(LookupElementBuilder.create(formatted.getText())
           .withTypeText(repoName, true)
-          .withIcon(formatter.getIconHandle().getIcon()));
+          .withIcon(formatter.getIcon()));
     } else {
       log.debug("Skipped completion: ", formatted);
     }
