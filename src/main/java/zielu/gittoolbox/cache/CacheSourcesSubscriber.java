@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.util.AppUtil;
@@ -20,9 +19,8 @@ class CacheSourcesSubscriber {
   CacheSourcesSubscriber(@NotNull Project project) {
     this.project = project;
     dirMappingAwares.add(new LazyDirMappingAware<>(() -> VirtualFileRepoCache.getInstance(project)));
-    Supplier<PerRepoInfoCache> infoCacheSupplier = () -> PerRepoInfoCache.getInstance(project);
-    dirMappingAwares.add(new LazyDirMappingAware<>(infoCacheSupplier));
-    repoChangeAwares.add(new LazyRepoChangeAware<>(infoCacheSupplier));
+    dirMappingAwares.add(new LazyDirMappingAware<>(() -> PerRepoInfoCache.getInstance(project)));
+    repoChangeAwares.add(new LazyRepoChangeAware<>(() -> PerRepoInfoCache.getInstance(project)));
   }
 
   static CacheSourcesSubscriber getInstance(@NotNull Project project) {
