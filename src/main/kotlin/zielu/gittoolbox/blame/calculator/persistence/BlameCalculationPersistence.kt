@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
+import zielu.gittoolbox.GitToolBoxException
 import zielu.gittoolbox.revision.RevisionDataProvider
 import zielu.gittoolbox.util.AppUtil
 import java.time.Clock
@@ -85,8 +86,7 @@ internal class BlameCalculationPersistence(
       try {
         cleanGarbageImpl()
       } catch (e: NullPointerException) {
-        log.error("Garbage cleanup failed: $state", e)
-        throw e
+        throw GitToolBoxException("Garbage cleanup failed: $state", e)
       }
     }
   }
