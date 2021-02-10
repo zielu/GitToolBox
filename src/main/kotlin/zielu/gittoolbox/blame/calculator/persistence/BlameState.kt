@@ -6,5 +6,5 @@ internal data class BlameState(
   @XMap(
     keyAttributeName = "fileUrl"
   )
-  var fileBlames: MutableMap<String, FileBlameState> = mutableMapOf()
+  var fileBlames: Map<String, FileBlameState> = mapOf()
 )

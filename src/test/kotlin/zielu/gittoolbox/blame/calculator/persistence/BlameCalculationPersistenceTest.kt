@@ -11,9 +11,11 @@ import java.time.temporal.ChronoUnit
 
 @ExtendWith(MockKExtension::class)
 internal class BlameCalculationPersistenceTest {
+  @MockK
+  lateinit var projectMock: Project
 
   @Test
-  fun `should remove outdated items on initialization`(@MockK projectMock: Project) {
+  fun `should remove outdated items on initialization`() {
     // given
     val now = Clock.systemUTC().instant()
     val state = BlameState()
@@ -22,7 +24,7 @@ internal class BlameCalculationPersistenceTest {
       BlameRevisionState(),
       listOf(LineState())
     )
-    state.fileBlames["/path/to/file"] = fileBlame
+    state.fileBlames = mapOf("/path/to/file" to fileBlame)
     val persistence = BlameCalculationPersistence(projectMock)
 
     // when

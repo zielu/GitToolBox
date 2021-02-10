@@ -54,7 +54,9 @@ internal class BlameCalculationPersistence(
     val key = path + ";" + revisionData.baseRevision.asString()
     lock.withLock {
       fileBlameState.accessTimestamp = nowTimestamp()
-      state.fileBlames[key] = fileBlameState
+      val modified = state.fileBlames.toMutableMap()
+      modified[key] = fileBlameState
+      state.fileBlames = modified
       log.info("Stored blame: $key")
       cleanGarbage()
     }
@@ -86,23 +88,27 @@ internal class BlameCalculationPersistence(
       try {
         cleanGarbageImpl()
       } catch (e: NullPointerException) {
-        throw GitToolBoxException("Garbage cleanup failed: $state", e)
+        // remove corrupted data
+        val corrupted = state.fileBlames
+        state.fileBlames = mapOf()
+        throw GitToolBoxException("Garbage cleanup failed, corrupted blames: $corrupted", e)
       }
     }
   }
 
   private fun cleanGarbageImpl() {
+    val cleaned = state.fileBlames.toMutableMap()
     val ttlBound = nowTimestamp() - ttlMillis
 
-    val toRemoveByTtl = state.fileBlames.entries
+    val toRemoveByTtl = cleaned.entries
       .filter { it.value.accessTimestamp < ttlBound }
       .map { it.key }
     log.info("Remove outdated entries:  $toRemoveByTtl")
 
-    val overflow = state.fileBlames.size - maxSize
+    val overflow = cleaned.size - maxSize
     var toRemove = mutableSetOf<String>()
     if (overflow > 0) {
-      toRemove = state.fileBlames.entries
+      toRemove = cleaned.entries
         .sortedBy { it.value.accessTimestamp }
         .take(overflow)
         .map { it.key }
@@ -110,7 +116,8 @@ internal class BlameCalculationPersistence(
       log.info("Remove overflowing entries:  $toRemove")
     }
     toRemove.addAll(toRemoveByTtl)
-    toRemove.forEach { state.fileBlames.remove(it) }
+    toRemove.forEach { cleaned.remove(it) }
+    state.fileBlames = cleaned
   }
 
   companion object {
