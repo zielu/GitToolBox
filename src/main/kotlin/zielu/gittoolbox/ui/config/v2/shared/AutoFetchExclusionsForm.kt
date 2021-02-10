@@ -71,7 +71,7 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
       }
     }
     decorator.addExtraActions(addRemoteButton, removeRemoteButton)
-    autoFetchExclusions.addTreeSelectionListener(this::onTreeSelection)
+    autoFetchExclusions.addTreeSelectionListener { onTreeSelection(it) }
 
     val decoratorPanel = decorator.createPanel()
 
@@ -86,6 +86,7 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
 
   private fun onTreeSelection(event: TreeSelectionEvent) {
     val treePath = event.path
+    log.debug("Selection ", treePath)
     when {
       autoFetchExclusionsModel.hasConfigAt(treePath) -> {
         removeRemoteButton.isEnabled = false
@@ -146,8 +147,7 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
 
   private fun onRemoveExclusion() {
     autoFetchExclusions.selectionPath?.let {
-      val hasConfig = autoFetchExclusionsModel.getConfigAt(it) != null
-      if (hasConfig) {
+      if (autoFetchExclusionsModel.hasConfigAt(it)) {
         autoFetchExclusionsModel.removeAtPath(it)
       }
     }
@@ -185,7 +185,11 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
   }
 
   private fun onRemoveRemote() {
-    // TODO:
+    autoFetchExclusions.selectionPath?.let {
+      if (autoFetchExclusionsModel.hasRemoteAt(it)) {
+        autoFetchExclusionsModel.removeAtPath(it)
+      }
+    }
   }
 
   fun setVisible(visible: Boolean) {
