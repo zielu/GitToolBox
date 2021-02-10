@@ -30,9 +30,9 @@ internal object PresenterPreview {
   @JvmStatic
   fun getBehindTrackerPreview(presenter: StatusPresenter): String {
     return Stream.of(
-      presenter.behindStatus(BehindStatus.create(3, 1)),
-      presenter.behindStatus(BehindStatus.create(3, -1)),
-      presenter.behindStatus(BehindStatus.create(3))
+      presenter.behindStatus(BehindStatus(3, 1)),
+      presenter.behindStatus(BehindStatus(3, -1)),
+      presenter.behindStatus(BehindStatus(3))
     ).collect(Collectors.joining(delimiter))
   }
 }

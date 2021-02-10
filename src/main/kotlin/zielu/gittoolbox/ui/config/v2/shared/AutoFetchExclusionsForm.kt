@@ -105,9 +105,9 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
   private fun onAddExclusion() {
     log.debug("Add exclusions...")
     val chooser = GtRepoChooser(project(), content)
-    val excluded: List<GitRepository> = getExcludedRepositories(autoFetchExclusionsModel.getConfigs())
+    val excluded = getExcludedRepositories(autoFetchExclusionsModel.getConfigs())
     log.debug("Currently excluded: ", excluded)
-    chooser.setSelectedRepositories(excluded)
+    chooser.selectedRepositories = excluded
     chooser.setRepositories(getRepositories(project()))
     if (chooser.showAndGet()) {
       log.debug("Exclusions about to change")

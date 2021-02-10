@@ -14,7 +14,7 @@ internal class CommitMessageValidationCheckinHandler(
   private val checkinPanel: CheckinProjectPanel
 ) : CheckinHandler() {
   private val config: GitToolBoxConfigPrj
-    get() = ProjectConfig.get(checkinPanel.project)
+    get() = ProjectConfig.getConfig(checkinPanel.project)
 
   override fun getBeforeCheckinConfigurationPanel(): RefreshableOnComponent {
     return BooleanCommitOption(

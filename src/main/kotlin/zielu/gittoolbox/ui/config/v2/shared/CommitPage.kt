@@ -13,9 +13,9 @@ import com.intellij.ui.components.JBList
 import com.intellij.ui.layout.CCFlags
 import com.intellij.ui.layout.panel
 import org.jdesktop.swingx.action.AbstractActionExt
-import zielu.gittoolbox.IconHandle
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.ResBundle.message
+import zielu.gittoolbox.completion.FormatterIcons
 import zielu.gittoolbox.config.CommitCompletionConfig
 import zielu.gittoolbox.config.CommitCompletionMode
 import zielu.gittoolbox.config.CommitCompletionType
@@ -53,9 +53,9 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
     completionFormattersList.cellRenderer = SimpleListCellRenderer.create { label, value, _ ->
       label.text = value.presentableText
       if (value.type == CommitCompletionType.SIMPLE) {
-        label.icon = IconHandle.SIMPLE_FORMATTER.icon
+        label.icon = FormatterIcons.Simple
       } else if (value.type == CommitCompletionType.PATTERN) {
-        label.icon = IconHandle.REG_EXP_FORMATTER.icon
+        label.icon = FormatterIcons.RegExp
       }
     }
     val completionDecorator = ToolbarDecorator.createDecorator(completionFormattersList)
@@ -138,7 +138,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
     return object : AbstractActionExt() {
       init {
         name = message("commit.dialog.completion.formatters.simple.add.label")
-        smallIcon = IconHandle.SIMPLE_FORMATTER.icon
+        smallIcon = FormatterIcons.Simple
       }
 
       override fun actionPerformed(e: ActionEvent) {
@@ -152,7 +152,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
     return object : AbstractActionExt() {
       init {
         name = message("commit.dialog.completion.formatters.pattern.issue.add.label")
-        smallIcon = IconHandle.REG_EXP_FORMATTER.icon
+        smallIcon = FormatterIcons.RegExp
       }
 
       override fun actionPerformed(e: ActionEvent) {
@@ -166,7 +166,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
     return object : AbstractActionExt() {
       init {
         name = message("commit.dialog.completion.formatters.pattern.add.label")
-        smallIcon = IconHandle.REG_EXP_FORMATTER.icon
+        smallIcon = FormatterIcons.RegExp
       }
 
       override fun actionPerformed(e: ActionEvent) {
