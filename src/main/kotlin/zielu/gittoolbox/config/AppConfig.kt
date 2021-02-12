@@ -28,7 +28,7 @@ internal class AppConfig : PersistentStateComponent<GitToolBoxConfig2> {
   }
 
   override fun initializeComponent() {
-   lock.withLock {
+    lock.withLock {
       migrate()
     }
   }
