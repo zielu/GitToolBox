@@ -2,9 +2,9 @@ package zielu.gittoolbox.config
 
 import com.intellij.util.xmlb.annotations.Transient
 import zielu.gittoolbox.config.override.BoolValueOverride
-import zielu.gittoolbox.config.override.ConfigItemOverride
 import zielu.gittoolbox.config.override.IntValueOverride
 import zielu.gittoolbox.config.override.ListValueOverride
+import zielu.gittoolbox.config.override.ReferencePointForStatusOverride
 import zielu.gittoolbox.config.override.StringValueOverride
 import zielu.gittoolbox.fetch.AutoFetchParams
 import zielu.gittoolbox.formatter.Formatter
@@ -29,8 +29,7 @@ internal data class GitToolBoxConfigPrj(
   var autoFetchOnBranchSwitchOverride: BoolValueOverride = BoolValueOverride(),
   var commitDialogCompletionOverride: BoolValueOverride = BoolValueOverride(),
   var completionConfigsOverride: ListValueOverride<CommitCompletionConfig> = ListValueOverride(),
-  var referencePointForStatusOverride: ConfigItemOverride<ReferencePointForStatusConfig> =
-    ConfigItemOverride(false, ReferencePointForStatusConfig()),
+  var referencePointForStatusOverride: ReferencePointForStatusOverride = ReferencePointForStatusOverride(),
   var commitMessageValidationOverride: BoolValueOverride = BoolValueOverride(),
   var commitMessageValidationRegexOverride: StringValueOverride = StringValueOverride()
 ) {
