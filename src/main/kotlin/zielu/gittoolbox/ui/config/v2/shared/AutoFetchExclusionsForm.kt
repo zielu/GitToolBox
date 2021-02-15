@@ -19,6 +19,7 @@ import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.config.AutoFetchExclusionConfig
 import zielu.gittoolbox.config.MutableConfig
 import zielu.gittoolbox.config.RemoteConfig
+import zielu.gittoolbox.ui.config.common.AutoFetchExclusionTreeRenderer
 import zielu.gittoolbox.ui.config.common.AutoFetchExclusionsTreeModel
 import zielu.gittoolbox.ui.config.common.GtRemoteChooser
 import zielu.gittoolbox.ui.config.prj.GtRepoChooser
@@ -122,10 +123,7 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
             repositoryRootPath
           )
         }
-      val newContent = autoFetchExclusionsModel.getConfigs().toMutableList()
-      newContent.addAll(selectedRoots)
-      log.debug("New exclusions: ", newContent)
-      replaceAutoFetchExclusions(newContent)
+      autoFetchExclusionsModel.addConfigs(selectedRoots)
     } else {
       log.debug("Exclusions change cancelled")
     }
@@ -140,11 +138,6 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
     return VirtualFileRepoCache.getInstance(project()).findReposForRoots(roots)
   }
 
-  private fun replaceAutoFetchExclusions(exclusions: List<AutoFetchExclusionConfig>) {
-    val newContent = exclusions.sortedWith(Comparator.comparing(AutoFetchExclusionConfig::repositoryRootPath))
-    autoFetchExclusionsModel.setConfigs(newContent)
-  }
-
   private fun onRemoveExclusion() {
     autoFetchExclusions.selectionPath?.let {
       if (autoFetchExclusionsModel.hasConfigAt(it)) {
@@ -156,14 +149,15 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
   private fun onAddRemote() {
     autoFetchExclusions.selectionPath?.let {
       val config = autoFetchExclusionsModel.getConfigAt(it)!!
-      if (addRemote(config)) {
-        autoFetchExclusionsModel.setConfigs(autoFetchExclusionsModel.getConfigs())
-        autoFetchExclusions.expandPath(it)
+      val addedRemotes = addRemotes(config)
+      autoFetchExclusionsModel.addRemotes(config, addedRemotes)
+      autoFetchExclusionsModel.getPathFor(config)?.let { path ->
+        autoFetchExclusions.expandPath(path)
       }
     }
   }
 
-  private fun addRemote(config: AutoFetchExclusionConfig): Boolean {
+  private fun addRemotes(config: AutoFetchExclusionConfig): List<RemoteConfig> {
     val maybeRepository = VirtualFileRepoCache.getInstance(project()).findRepoForRoot(config.repositoryRootPath)
     if (maybeRepository.isPresent) {
       val chooser = GtRemoteChooser(project(), content)
@@ -175,13 +169,12 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
       }.toMutableList()
       if (chooser.showAndGet()) {
         val selectedRemotes = chooser.selectedRemotes
-        config.excludedRemotes = selectedRemotes.map {
+        return selectedRemotes.map {
           RemoteConfig(it)
-        }.toMutableList()
-        return true
+        }
       }
     }
-    return false
+    return listOf()
   }
 
   private fun onRemoveRemote() {
@@ -199,27 +192,34 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
   override fun getContent(): JComponent = panel
 
   override fun afterStateSet() {
-    if (project().isDefault) {
-      autoFetchExclusions.isEnabled = false
-      addRemoteButton.isEnabled = false
-      removeRemoteButton.isEnabled = false
-      decorator.disableAddAction()
-      decorator.disableRemoveAction()
+    if (config.hasProject()) {
+      if (project().isDefault) {
+        autoFetchExclusions.isEnabled = false
+        decorator.disableAddAction()
+        decorator.disableRemoveAction()
+      }
     }
   }
 
   override fun fillFromState(state: MutableConfig) {
     config = state
-    // autoFetchExclusionsModel.setConfigs(state.autoFetchExclusionConfigs().map { it.copy() })
+    if (state.hasProject()) {
+      autoFetchExclusions.cellRenderer = AutoFetchExclusionTreeRenderer(project())
+      autoFetchExclusionsModel.setConfigs(state.prj().autoFetchExclusionConfigs.map { it.copy() })
+    }
   }
 
   override fun isModified(): Boolean {
-    // TODO:
+    if (config.hasProject()) {
+      return autoFetchExclusionsModel.getConfigs() != config.prj().autoFetchExclusionConfigs
+    }
     return false
   }
 
   override fun applyToState(state: MutableConfig) {
-    // TODO:
+    if (state.hasProject()) {
+      config.prj().autoFetchExclusionConfigs = autoFetchExclusionsModel.getConfigs().map { it.copy() }
+    }
   }
 
   private companion object {

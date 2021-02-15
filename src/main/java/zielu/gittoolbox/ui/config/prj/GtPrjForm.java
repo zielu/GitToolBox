@@ -18,7 +18,6 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
@@ -246,10 +245,7 @@ public class GtPrjForm implements GtFormUi {
                                                          .map(VirtualFile::getUrl)
                                                          .map(AutoFetchExclusionConfig::new)
                                                          .collect(Collectors.toList());
-      List<AutoFetchExclusionConfig> newContent = autoFetchExclusionsModel.getConfigs();
-      newContent.addAll(selectedRoots);
-      log.debug("New exclusions: ", newContent);
-      replaceAutoFetchExclusions(newContent);
+      autoFetchExclusionsModel.addConfigs(selectedRoots);
     } else {
       log.debug("Exclusions change cancelled");
     }
@@ -357,13 +353,7 @@ public class GtPrjForm implements GtFormUi {
   }
 
   public void setAutoFetchExclusions(List<AutoFetchExclusionConfig> autoFetchExclusions) {
-    replaceAutoFetchExclusions(autoFetchExclusions);
-  }
-
-  private void replaceAutoFetchExclusions(List<AutoFetchExclusionConfig> exclusions) {
-    List<AutoFetchExclusionConfig> newContent = new ArrayList<>(exclusions);
-    newContent.sort(Comparator.comparing(AutoFetchExclusionConfig::getRepositoryRootPath));
-    autoFetchExclusionsModel.setConfigs(newContent);
+    autoFetchExclusionsModel.setConfigs(autoFetchExclusions);
   }
 
   public List<AutoFetchExclusionConfig> getAutoFetchExclusions() {
