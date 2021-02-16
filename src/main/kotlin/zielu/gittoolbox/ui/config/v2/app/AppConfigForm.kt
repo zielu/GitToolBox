@@ -50,10 +50,6 @@ internal class AppConfigForm : GtFormUiEx<MutableConfig> {
     tabs.addTab(ResBundle.message("configurable.shared.commit.tab.title"), commitPage.content)
   }
 
-  override fun dispose() {
-    pages.dispose()
-  }
-
   override fun fillFromState(state: MutableConfig) {
     pages.fillFromState(state)
   }

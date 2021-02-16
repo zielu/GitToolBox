@@ -4,6 +4,7 @@ import com.intellij.openapi.observable.properties.AtomicBooleanProperty
 import com.intellij.openapi.observable.properties.AtomicLazyProperty
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
+import com.intellij.openapi.util.Disposer
 import com.intellij.ui.CollectionComboBoxModel
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBTextField
@@ -13,8 +14,9 @@ import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.config.MutableConfig
 import zielu.gittoolbox.config.ReferencePointForStatusType
 import zielu.gittoolbox.ui.config.ReferencePointForStatusTypeRenderer
-import zielu.gittoolbox.ui.config.v2.RefPropWithOverride
-import zielu.gittoolbox.ui.config.v2.UiItem
+import zielu.gittoolbox.ui.config.v2.props.ValuePropWithOverride
+import zielu.gittoolbox.ui.config.v2.props.UiItems
+import zielu.gittoolbox.ui.config.v2.props.ValueProp
 import zielu.intellij.ui.GtFormUiEx
 import javax.swing.JComponent
 
@@ -32,8 +34,13 @@ internal class StatusPage : GtFormUiEx<MutableConfig> {
 
   private lateinit var panel: DialogPanel
 
-  private val uiItems = mutableListOf<UiItem>()
+  private val uiItems = UiItems()
+  private val overrideCheckBoxes = OverrideCheckBoxes()
   private var hasProject = false
+
+  init {
+    Disposer.register(this, uiItems)
+  }
 
   override fun init() {
     panel = panel {
@@ -57,11 +64,12 @@ internal class StatusPage : GtFormUiEx<MutableConfig> {
             referencePointOverride::get,
             referencePointOverride::set
           ).component
-          referencePointOverrideCheckBox.toolTipText = ResBundle.message("common.override.tooltip")
+          overrideCheckBoxes.register(referencePointOverrideCheckBox)
         }
       }
     }
-    referencePointOverrideCheckBox.isVisible = false
+    overrideCheckBoxes.hide()
+
     referencePointOverrideCheckBox.addItemListener { updateOverrideUi() }
     referencePointComboBox.addItemListener { updateUi() }
   }
@@ -87,17 +95,15 @@ internal class StatusPage : GtFormUiEx<MutableConfig> {
     uiItems.clear()
 
     if (hasProject) {
-      uiItems.add(
-        RefPropWithOverride(
+      uiItems.register(
+        ValuePropWithOverride(
           referencePointForStatus,
           referencePointOverride,
           state.app.referencePointForStatus::type,
           state.prj().referencePointForStatusOverride::enabled,
           state.prj().referencePointForStatusOverride.value::type
-        )
-      )
-      uiItems.add(
-        RefPropWithOverride(
+        ),
+        ValuePropWithOverride(
           referencePointName,
           referencePointOverride,
           state.app.referencePointForStatus::name,
@@ -108,8 +114,16 @@ internal class StatusPage : GtFormUiEx<MutableConfig> {
       updateUi()
       updateOverrideUi()
     } else {
-      referencePointForStatus.set(state.app.referencePointForStatus.type)
-      referencePointName.set(state.app.referencePointForStatus.name)
+      uiItems.register(
+        ValueProp(
+          referencePointForStatus,
+          state.app.referencePointForStatus::type
+        ),
+        ValueProp(
+          referencePointName,
+          state.app.referencePointForStatus::name
+        )
+      )
       updateUi()
     }
   }
@@ -125,12 +139,12 @@ internal class StatusPage : GtFormUiEx<MutableConfig> {
   override fun afterStateSet() {
     panel.reset()
     if (hasProject) {
-      referencePointOverrideCheckBox.isVisible = true
+      overrideCheckBoxes.show()
     }
   }
 
   override fun applyToState(state: MutableConfig) {
     panel.apply()
-    uiItems.forEach(UiItem::apply)
+    uiItems.apply()
   }
 }

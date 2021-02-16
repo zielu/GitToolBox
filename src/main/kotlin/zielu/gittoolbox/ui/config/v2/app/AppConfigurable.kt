@@ -13,7 +13,7 @@ internal class AppConfigurable : GtConfigurableBase<AppConfigForm, MutableConfig
   }
 
   override fun getDisplayName(): String {
-    return "Git Toolbox Global V2"
+    return "GitToolbox V2"
   }
 
   override fun setFormState(form: AppConfigForm, config: MutableConfig) {

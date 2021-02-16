@@ -28,7 +28,6 @@ import zielu.gittoolbox.util.GtUtil.name
 import zielu.gittoolbox.util.GtUtil.sort
 import zielu.intellij.ui.GtFormUi
 import zielu.intellij.ui.GtFormUiEx
-import java.util.Comparator
 import javax.swing.JComponent
 import javax.swing.event.TreeSelectionEvent
 import javax.swing.tree.TreeSelectionModel

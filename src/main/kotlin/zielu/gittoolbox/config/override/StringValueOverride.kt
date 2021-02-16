@@ -5,7 +5,7 @@ import zielu.gittoolbox.config.ConfigItem
 
 internal data class StringValueOverride(
   var enabled: Boolean = false,
-  var value: String? = null
+  var value: String = ""
 ) : ConfigItem<StringValueOverride> {
 
   @Transient

@@ -3,6 +3,7 @@ package zielu.gittoolbox.ui.config.v2.shared
 import com.intellij.openapi.observable.properties.AtomicBooleanProperty
 import com.intellij.openapi.observable.properties.AtomicLazyProperty
 import com.intellij.openapi.ui.DialogPanel
+import com.intellij.openapi.util.Disposer
 import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.layout.CCFlags
@@ -10,11 +11,11 @@ import com.intellij.ui.layout.panel
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.config.MutableConfig
 import zielu.gittoolbox.fetch.AutoFetchParams
-import zielu.gittoolbox.ui.config.v2.BoolProp
-import zielu.gittoolbox.ui.config.v2.BoolPropWithOverride
-import zielu.gittoolbox.ui.config.v2.IntPropWithOverride
-import zielu.gittoolbox.ui.config.v2.UiItem
-import zielu.gittoolbox.ui.config.v2.ValueProp
+import zielu.gittoolbox.ui.config.v2.props.BoolProp
+import zielu.gittoolbox.ui.config.v2.props.BoolPropWithOverride
+import zielu.gittoolbox.ui.config.v2.props.IntPropWithOverride
+import zielu.gittoolbox.ui.config.v2.props.UiItems
+import zielu.gittoolbox.ui.config.v2.props.ValueProp
 import zielu.intellij.ui.GtFormUiEx
 import java.awt.GridLayout
 import javax.swing.JComponent
@@ -29,14 +30,19 @@ internal class AutoFetchPage : GtFormUiEx<MutableConfig> {
   private val autoFetchOnBranchSwitch = AtomicBooleanProperty(true)
   private val autoFetchOnBranchSwitchOverride = AtomicBooleanProperty(false)
   private val exclusionsForm = AutoFetchExclusionsForm()
-  private val uiItems = mutableListOf<UiItem>()
+  private val uiItems = UiItems()
   private var hasProject: Boolean = false
+  private val overrideCheckBoxes = OverrideCheckBoxes()
   private lateinit var panel: DialogPanel
   private lateinit var autoFetchCheckBox: JBCheckBox
   private lateinit var autoFetchIntervalSpinner: JBIntSpinner
   private lateinit var autoFetchTimingOverrideCheckbox: JBCheckBox
   private lateinit var autoFetchOnBranchSwitchCheckbox: JBCheckBox
   private lateinit var autoFetchOnBranchSwitchOverrideCheckbox: JBCheckBox
+
+  init {
+    Disposer.register(this, uiItems)
+  }
 
   override fun init() {
     exclusionsForm.init()
@@ -65,7 +71,7 @@ internal class AutoFetchPage : GtFormUiEx<MutableConfig> {
             autoFetchOverride::get,
             autoFetchOverride::set
           ).component
-          autoFetchTimingOverrideCheckbox.toolTipText = ResBundle.message("common.override.tooltip")
+          overrideCheckBoxes.register(autoFetchTimingOverrideCheckbox)
         }
       }
       row {
@@ -81,15 +87,14 @@ internal class AutoFetchPage : GtFormUiEx<MutableConfig> {
             autoFetchOnBranchSwitchOverride::set
 
           ).component
-          autoFetchTimingOverrideCheckbox.toolTipText = ResBundle.message("common.override.tooltip")
+          overrideCheckBoxes.register(autoFetchTimingOverrideCheckbox)
         }
       }
       row {
         exclusionsPanel(CCFlags.growX)
       }
     }
-    autoFetchTimingOverrideCheckbox.isVisible = false
-    autoFetchOnBranchSwitchOverrideCheckbox.isVisible = false
+    overrideCheckBoxes.hide()
 
     autoFetchCheckBox.addItemListener { updateTimingUi() }
     autoFetchTimingOverrideCheckbox.addItemListener { updateTimingOverrideUi() }
@@ -101,23 +106,19 @@ internal class AutoFetchPage : GtFormUiEx<MutableConfig> {
     uiItems.clear()
 
     if (hasProject) {
-      uiItems.add(
+      uiItems.register(
         BoolPropWithOverride(
           autoFetchEnabled,
           autoFetchOverride,
           state.app::autoFetchEnabled,
           state.prj().autoFetchEnabledOverride
-        )
-      )
-      uiItems.add(
+        ),
         IntPropWithOverride(
           autoFetchInterval,
           autoFetchOverride,
           state.app::autoFetchIntervalMinutes,
           state.prj().autoFetchIntervalMinutesOverride
-        )
-      )
-      uiItems.add(
+        ),
         BoolPropWithOverride(
           autoFetchOnBranchSwitch,
           autoFetchOnBranchSwitchOverride,
@@ -130,10 +131,11 @@ internal class AutoFetchPage : GtFormUiEx<MutableConfig> {
       updateTimingOverrideUi()
       updateOnBranchSwitchOverrideUi()
     } else {
-      uiItems.add(BoolProp(autoFetchEnabled, state.app::autoFetchEnabled))
-      uiItems.add(ValueProp(autoFetchInterval, state.app::autoFetchIntervalMinutes))
-      autoFetchEnabled.set(state.app.autoFetchEnabled)
-      autoFetchOnBranchSwitch.set(state.app.autoFetchOnBranchSwitch)
+      uiItems.register(
+        BoolProp(autoFetchEnabled, state.app::autoFetchEnabled),
+        ValueProp(autoFetchInterval, state.app::autoFetchIntervalMinutes),
+        BoolProp(autoFetchOnBranchSwitch, state.app::autoFetchOnBranchSwitch)
+      )
       updateTimingUi()
     }
 
@@ -171,14 +173,13 @@ internal class AutoFetchPage : GtFormUiEx<MutableConfig> {
     exclusionsForm.setVisible(hasProject)
     if (hasProject) {
       exclusionsForm.afterStateSet()
-      autoFetchTimingOverrideCheckbox.isVisible = true
-      autoFetchOnBranchSwitchOverrideCheckbox.isVisible = true
+      overrideCheckBoxes.show()
     }
   }
 
   override fun applyToState(state: MutableConfig) {
     panel.apply()
     exclusionsForm.applyToState(state)
-    uiItems.forEach(UiItem::apply)
+    uiItems.apply()
   }
 }

@@ -1,14 +1,15 @@
-package zielu.gittoolbox.ui.config.v2
+package zielu.gittoolbox.ui.config.v2.props
 
 import com.intellij.openapi.observable.properties.AtomicBooleanProperty
-import zielu.gittoolbox.config.override.BoolValueOverride
+import com.intellij.openapi.observable.properties.AtomicLazyProperty
+import zielu.gittoolbox.config.override.IntValueOverride
 import kotlin.reflect.KMutableProperty0
 
-internal class BoolPropWithOverride(
-  private val valueProperty: AtomicBooleanProperty,
+internal class IntPropWithOverride(
+  private val valueProperty: AtomicLazyProperty<Int>,
   private val overrideProperty: AtomicBooleanProperty,
-  private val appValue: KMutableProperty0<Boolean>,
-  private val prjValue: BoolValueOverride
+  private val appValue: KMutableProperty0<Int>,
+  private val prjValue: IntValueOverride
 ) : UiItem {
   init {
     overrideProperty.afterChange { onOverrideChange(it) }

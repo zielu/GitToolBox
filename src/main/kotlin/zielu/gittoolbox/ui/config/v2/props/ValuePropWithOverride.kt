@@ -1,10 +1,10 @@
-package zielu.gittoolbox.ui.config.v2
+package zielu.gittoolbox.ui.config.v2.props
 
 import com.intellij.openapi.observable.properties.AtomicBooleanProperty
 import com.intellij.openapi.observable.properties.AtomicLazyProperty
 import kotlin.reflect.KMutableProperty0
 
-internal class RefPropWithOverride<T>(
+internal class ValuePropWithOverride<T>(
   private val valueProperty: AtomicLazyProperty<T>,
   private val overrideProperty: AtomicBooleanProperty,
   private val appValue: KMutableProperty0<T>,
@@ -12,7 +12,7 @@ internal class RefPropWithOverride<T>(
   private val prjValue: KMutableProperty0<T>
 ) : UiItem {
   init {
-    overrideProperty.afterChange { onOverrideChange(it) }
+    overrideProperty.afterChange({ onOverrideChange(it) }, this)
     overrideProperty.set(prjOverridden.get())
   }
 
@@ -28,8 +28,6 @@ internal class RefPropWithOverride<T>(
     prjOverridden.set(overrideProperty.get())
     if (prjOverridden.get()) {
       prjValue.set(valueProperty.get())
-    } else {
-      appValue.set(valueProperty.get())
     }
   }
 }

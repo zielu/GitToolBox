@@ -9,7 +9,7 @@ import zielu.intellij.ui.GtConfigurableBase
 
 internal class PrjConfigurable(private val project: Project) : GtConfigurableBase<PrjConfigForm, MutableConfig>() {
   override fun getDisplayName(): String {
-    return "Git Toolbox Project V2"
+    return "GitToolbox Project V2"
   }
 
   override fun createForm(): PrjConfigForm {

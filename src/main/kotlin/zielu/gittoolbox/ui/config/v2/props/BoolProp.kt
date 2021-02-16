@@ -1,4 +1,4 @@
-package zielu.gittoolbox.ui.config.v2
+package zielu.gittoolbox.ui.config.v2.props
 
 import com.intellij.openapi.observable.properties.AtomicBooleanProperty
 import kotlin.reflect.KMutableProperty0
