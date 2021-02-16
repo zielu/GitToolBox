@@ -12,7 +12,7 @@ internal class IntPropWithOverride(
   private val prjValue: IntValueOverride
 ) : UiItem {
   init {
-    overrideProperty.afterChange { onOverrideChange(it) }
+    overrideProperty.afterChange({ onOverrideChange(it) }, this)
     overrideProperty.set(prjValue.enabled)
   }
 
@@ -28,8 +28,6 @@ internal class IntPropWithOverride(
     prjValue.enabled = overrideProperty.get()
     if (prjValue.enabled) {
       prjValue.value = valueProperty.get()
-    } else {
-      appValue.set(valueProperty.get())
     }
   }
 }

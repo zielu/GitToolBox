@@ -11,7 +11,7 @@ internal class BoolPropWithOverride(
   private val prjValue: BoolValueOverride
 ) : UiItem {
   init {
-    overrideProperty.afterChange { onOverrideChange(it) }
+    overrideProperty.afterChange({ onOverrideChange(it) }, this)
     overrideProperty.set(prjValue.enabled)
   }
 
@@ -27,8 +27,6 @@ internal class BoolPropWithOverride(
     prjValue.enabled = overrideProperty.get()
     if (prjValue.enabled) {
       prjValue.value = valueProperty.get()
-    } else {
-      appValue.set(valueProperty.get())
     }
   }
 }

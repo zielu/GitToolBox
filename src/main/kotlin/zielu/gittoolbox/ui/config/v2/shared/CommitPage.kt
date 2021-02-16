@@ -11,6 +11,7 @@ import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBList
+import com.intellij.ui.components.JBTextField
 import com.intellij.ui.layout.CCFlags
 import com.intellij.ui.layout.Row
 import com.intellij.ui.layout.panel
@@ -26,6 +27,8 @@ import zielu.gittoolbox.ui.config.CommitCompletionConfigForm
 import zielu.gittoolbox.ui.config.GtPatternFormatterForm
 import zielu.gittoolbox.ui.config.v2.props.BoolProp
 import zielu.gittoolbox.ui.config.v2.props.BoolPropWithOverride
+import zielu.gittoolbox.ui.config.v2.props.ListValueProp
+import zielu.gittoolbox.ui.config.v2.props.ListValuePropWithOverride
 import zielu.gittoolbox.ui.config.v2.props.UiItems
 import zielu.gittoolbox.ui.config.v2.props.ValueProp
 import zielu.gittoolbox.ui.config.v2.props.ValuePropWithOverride
@@ -54,14 +57,19 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
   private val commitCompletionFormattersOverride = AtomicBooleanProperty(false)
 
   private val commitCompletionFormatters = CollectionListModel<CommitCompletionConfig>()
-  private var completionFormattersContent = listOf<CommitCompletionConfig>()
   private lateinit var panel: DialogPanel
   private lateinit var addSimpleFormatterAction: Action
   private lateinit var completionFormattersPatternForm: GtPatternFormatterForm
 
+  private lateinit var completionFormattersList: JBList<CommitCompletionConfig>
+
   private lateinit var commitCompletionModeRow: Row
+  private lateinit var commitDialogBranchCompletionCheckBox: JBCheckBox
   private lateinit var commitDialogBranchCompletionOverrideCheckBox: JBCheckBox
+  private lateinit var commitDialogGitmojiCompletionCheckBox: JBCheckBox
   private lateinit var commitDialogGitmojiCompletionOverrideCheckBox: JBCheckBox
+  private lateinit var commitMessageValidationCheckBox: JBCheckBox
+  private lateinit var commitMessageValidationRegexTextField: JBTextField
   private lateinit var commitMessageValidationOverrideCheckBox: JBCheckBox
   private lateinit var commitCompletionFormattersOverrideCheckBox: JBCheckBox
 
@@ -73,7 +81,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
   }
 
   override fun init() {
-    val completionFormattersList = JBList(commitCompletionFormatters)
+    completionFormattersList = JBList(commitCompletionFormatters)
     completionFormattersList.cellRenderer = SimpleListCellRenderer.create { label, value, _ ->
       label.text = value.presentableText
       if (value.type == CommitCompletionType.SIMPLE) {
@@ -124,11 +132,11 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
         )
       }
       row {
-        checkBox(
+        commitDialogBranchCompletionCheckBox = checkBox(
           message("commit.dialog.completion.branch.enabled.label"),
           commitDialogBranchCompletion::get,
           { commitDialogBranchCompletion.set(it) }
-        )
+        ).component
         right {
           commitDialogBranchCompletionOverrideCheckBox = checkBox(
             ResBundle.message("common.override"),
@@ -139,11 +147,11 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
         }
       }
       row {
-        checkBox(
+        commitDialogGitmojiCompletionCheckBox = checkBox(
           message("commit.dialog.completion.gitmoji.enabled.label"),
           commitDialogGitmojiCompletion::get,
           { commitDialogGitmojiCompletion.set(it) }
-        )
+        ).component
         right {
           commitDialogGitmojiCompletionOverrideCheckBox = checkBox(
             ResBundle.message("common.override"),
@@ -155,15 +163,15 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
       }
       row {
         cell {
-          checkBox(
+          commitMessageValidationCheckBox = checkBox(
             message("commit.message.validation.enabled.label"),
             commitMessageValidation::get,
             { commitMessageValidation.set(it) }
-          )
-          expandableTextField(
+          ).component
+          commitMessageValidationRegexTextField = expandableTextField(
             commitMessageValidationRegex::get,
             { commitMessageValidationRegex.set(it) }
-          )
+          ).component
         }
         right {
           commitMessageValidationOverrideCheckBox = checkBox(
@@ -188,6 +196,12 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
         }
       }
     }
+
+    commitDialogBranchCompletionOverrideCheckBox.addItemListener { updateBranchCompletionOverrideUi() }
+    commitDialogGitmojiCompletionOverrideCheckBox.addItemListener { updateGitmojiCompletionOverrideUi() }
+    commitMessageValidationCheckBox.addItemListener { updateCommitMessageValidationUi() }
+    commitMessageValidationOverrideCheckBox.addItemListener { updateCommitMessageValidationOverrideUi() }
+    commitCompletionFormattersOverrideCheckBox.addItemListener { updateCommitCompletionFormattersOverrideUi() }
 
     overrideCheckBoxes.hide()
   }
@@ -235,7 +249,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
   }
 
   private fun updateCompletionFormatterAddActions() {
-    addSimpleFormatterAction.isEnabled = commitCompletionFormatters.items.any {
+    addSimpleFormatterAction.isEnabled = commitCompletionFormatters.items.none {
       it.type == CommitCompletionType.SIMPLE
     }
   }
@@ -244,6 +258,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
     val index = list.selectedIndex
     if (index >= 0) {
       commitCompletionFormatters.removeRow(index)
+      updateCompletionFormatterAddActions()
     }
   }
 
@@ -288,8 +303,21 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
           state.app::commitMessageValidationRegex,
           state.prj().commitMessageValidationRegexOverride::enabled,
           state.prj().commitMessageValidationRegexOverride::value
+        ),
+        ListValuePropWithOverride(
+          commitCompletionFormatters,
+          commitCompletionFormattersOverride,
+          state.app::completionConfigs,
+          state.prj().completionConfigsOverride
         )
       )
+
+      updateCommitMessageValidationUi()
+
+      updateBranchCompletionOverrideUi()
+      updateGitmojiCompletionOverrideUi()
+      updateCommitMessageValidationOverrideUi()
+      updateCommitCompletionFormattersOverrideUi()
     } else {
       uiItems.register(
         ValueProp(
@@ -311,17 +339,48 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
         ValueProp(
           commitMessageValidationRegex,
           state.app::commitMessageValidationRegex
+        ),
+        ListValueProp(
+          commitCompletionFormatters,
+          state.app::completionConfigs
         )
       )
-      completionFormattersContent = state.app.completionConfigs.map { it.copy() }
+      updateCommitMessageValidationUi()
     }
 
-    commitCompletionFormatters.replaceAll(completionFormattersContent)
+    updateCompletionFormatterAddActions()
     onCompletionFormatterSelected(null)
   }
 
+  private fun updateBranchCompletionOverrideUi() {
+    commitDialogBranchCompletionCheckBox.isEnabled = commitDialogBranchCompletionOverrideCheckBox.isSelected
+  }
+
+  private fun updateGitmojiCompletionOverrideUi() {
+    commitDialogGitmojiCompletionCheckBox.isEnabled = commitDialogGitmojiCompletionOverrideCheckBox.isSelected
+  }
+
+  private fun updateCommitMessageValidationUi() {
+    commitMessageValidationRegexTextField.isEnabled = commitMessageValidationCheckBox.isSelected
+  }
+
+  private fun updateCommitMessageValidationOverrideUi() {
+    val override = commitMessageValidationOverrideCheckBox.isSelected
+    commitMessageValidationCheckBox.isEnabled = override
+    if (override) {
+      updateCommitMessageValidationUi()
+    } else {
+      commitMessageValidationRegexTextField.isEnabled = false
+    }
+  }
+
+  private fun updateCommitCompletionFormattersOverrideUi() {
+    val override = commitCompletionFormattersOverrideCheckBox.isSelected
+    completionFormattersList.isEnabled = override
+  }
+
   override fun isModified(): Boolean {
-    return panel.isModified() || commitCompletionFormatters.items != completionFormattersContent
+    return panel.isModified() || uiItems.isModified()
   }
 
   override fun getContent(): JComponent {
