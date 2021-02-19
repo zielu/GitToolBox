@@ -17,7 +17,7 @@ internal class MergedProjectConfig(
     return if (projectConfig.autoFetchIntervalMinutesOverride.enabled) {
       projectConfig.autoFetchIntervalMinutesOverride.value
     } else {
-      return appConfig.autoFetchIntervalMinutes
+      appConfig.autoFetchIntervalMinutes
     }
   }
 
@@ -25,11 +25,55 @@ internal class MergedProjectConfig(
     return if (projectConfig.autoFetchOnBranchSwitchOverride.enabled) {
       projectConfig.autoFetchOnBranchSwitchOverride.value
     } else {
-      return appConfig.autoFetchOnBranchSwitch
+      appConfig.autoFetchOnBranchSwitch
     }
   }
 
-  fun autoFetchExclusionConfigs(): List<AutoFetchExclusionConfig> {
-    return projectConfig.autoFetchExclusionConfigs
+  fun commitDialogBranchCompletion(): Boolean {
+    return if (projectConfig.commitDialogBranchCompletionOverride.enabled) {
+      projectConfig.commitDialogBranchCompletionOverride.value
+    } else {
+      appConfig.commitDialogCompletion
+    }
+  }
+
+  fun commitDialogGitmojiCompletion(): Boolean {
+    return if (projectConfig.commitDialogGitmojiCompletionOverride.enabled) {
+      projectConfig.commitDialogGitmojiCompletionOverride.value
+    } else {
+      appConfig.commitDialogGitmojiCompletion
+    }
+  }
+
+  fun commitDialogCompletionConfigs(): List<CommitCompletionConfig> {
+    return if (projectConfig.completionConfigsOverride.enabled) {
+      projectConfig.completionConfigsOverride.values
+    } else {
+      appConfig.completionConfigs
+    }
+  }
+
+  fun referencePointForStatus(): ReferencePointForStatusConfig {
+    return if (projectConfig.referencePointForStatusOverride.enabled) {
+      projectConfig.referencePointForStatusOverride.value
+    } else {
+      appConfig.referencePointForStatus
+    }
+  }
+
+  fun commitMessageValidation(): Boolean {
+    return if (projectConfig.commitMessageValidationOverride.enabled) {
+      projectConfig.commitMessageValidationOverride.value
+    } else {
+      appConfig.commitMessageValidationEnabled
+    }
+  }
+
+  fun commitMessageValidationRegex(): String {
+    return if (projectConfig.commitMessageValidationRegexOverride.enabled) {
+      projectConfig.commitMessageValidationRegexOverride.value
+    } else {
+      appConfig.commitMessageValidationRegex
+    }
   }
 }
