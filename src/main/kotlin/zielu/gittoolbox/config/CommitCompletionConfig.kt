@@ -21,7 +21,7 @@ internal data class CommitCompletionConfig(
 
   @Transient
   fun getFormatter(): Formatter {
-    return when(type) {
+    return when (type) {
       CommitCompletionType.SIMPLE -> {
         SimpleFormatter
       }
@@ -33,7 +33,7 @@ internal data class CommitCompletionConfig(
 
   @Transient
   fun getPresentableText(): String {
-    return when(type) {
+    return when (type) {
       CommitCompletionType.SIMPLE -> {
         "Branch name"
       }

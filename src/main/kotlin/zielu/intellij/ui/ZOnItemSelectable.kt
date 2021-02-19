@@ -8,7 +8,7 @@ import java.awt.event.ItemListener
 internal class ZOnItemSelectable(
   itemSelectable: ItemSelectable,
   private val action: (Boolean) -> Unit
-) :ItemListener, Disposable {
+) : ItemListener, Disposable {
   private val onDispose = { itemSelectable.removeItemListener(this) }
 
   init {
