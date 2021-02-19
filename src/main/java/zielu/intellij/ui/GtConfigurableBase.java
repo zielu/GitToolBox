@@ -5,7 +5,6 @@ import com.intellij.openapi.options.BaseConfigurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.util.ui.UIUtil;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.JComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class GtConfigurableBase<F extends GtFormUi, C> extends
     BaseConfigurable implements Disposable {
 
-  private final AtomicReference<F> form = new AtomicReference<>();
+  private volatile F form;
 
   @NotNull
   protected abstract F createForm();
@@ -23,6 +22,7 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C> extends
 
   protected abstract void setFormState(@NotNull F form, @NotNull C config);
 
+  @Deprecated(forRemoval = true)
   protected C prepareConfigBeforeFormFill(@NotNull C config) {
     return config;
   }
@@ -40,25 +40,25 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C> extends
   }
 
   private synchronized F getForm() {
-    return form.get();
-  }
-
-  private synchronized void initComponent() {
-    if (form.get() == null) {
-      form.compareAndSet(null, UIUtil.invokeAndWaitIfNeeded(() -> {
-        F newForm = createForm();
-        newForm.init();
-        afterInit(newForm);
-        Disposer.register(this, newForm);
-        return newForm;
-      }));
+    if (form == null) {
+      synchronized (this) {
+        if (form == null) {
+          form = UIUtil.invokeAndWaitIfNeeded(() -> {
+            F newForm = createForm();
+            newForm.init();
+            afterInit(newForm);
+            Disposer.register(this, newForm);
+            return newForm;
+          });
+        }
+      }
     }
+    return form;
   }
 
   @Nullable
   @Override
   public final JComponent createComponent() {
-    initComponent();
     F currentForm = fillFormFromConfig();
     return currentForm.getContent();
   }
@@ -79,18 +79,17 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C> extends
 
   @Override
   public final void apply() throws ConfigurationException {
-    initComponent();
     doApply(getForm(), getConfig());
   }
 
   @Override
   public final void reset() {
-    initComponent();
     fillFormFromConfig();
   }
 
   @Override
   public synchronized void disposeUIResources() {
     Disposer.dispose(this);
+    form = null;
   }
 }

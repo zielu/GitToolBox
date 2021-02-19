@@ -35,6 +35,7 @@ public class GtPatternFormatterForm implements GtFormUi {
 
   @Override
   public void init() {
+    Disposer.register(this, patternField);
     patternField.addTextConsumer((text, error) -> {
       updateCommitCompletionStatus(error);
       updateCommitCompletionOutput();
@@ -110,7 +111,6 @@ public class GtPatternFormatterForm implements GtFormUi {
 
   @Override
   public void dispose() {
-    Disposer.dispose(patternField);
     data = null;
     patternUpdates.clear();
   }

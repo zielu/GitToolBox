@@ -10,6 +10,9 @@ import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.config.AuthorNameType
 import zielu.gittoolbox.config.DateType
 import zielu.gittoolbox.config.MutableConfig
+import zielu.gittoolbox.ui.config.v2.props.BoolProp
+import zielu.gittoolbox.ui.config.v2.props.UiItems
+import zielu.gittoolbox.ui.config.v2.props.ValueProp
 import zielu.intellij.ui.GtFormUiEx
 import javax.swing.JComponent
 import javax.swing.ListCellRenderer
@@ -27,6 +30,7 @@ internal class BlamePage : GtFormUiEx<MutableConfig> {
     AuthorNameType.LASTNAME
   }
   private lateinit var panel: DialogPanel
+  private val uiItems = UiItems()
 
   override fun init() {
     val authorNameRenderer: ListCellRenderer<AuthorNameType?> = SimpleListCellRenderer.create("") {
@@ -82,12 +86,30 @@ internal class BlamePage : GtFormUiEx<MutableConfig> {
   }
 
   override fun fillFromState(state: MutableConfig) {
-    inlineAuthorNameType.set(state.app.blameInlineAuthorNameType)
-    inlineDateType.set(state.app.blameInlineDateType)
-    inlineShowSubject.set(state.app.blameInlineShowSubject)
-    inlineAlwaysShowBlameWhileDebugging.set(state.app.alwaysShowInlineBlameWhileDebugging)
-    statusAuthorNameType.set(state.app.blameStatusAuthorNameType)
-    // TODO: fill from state
+    uiItems.clear()
+
+    uiItems.register(
+      ValueProp(
+        inlineAuthorNameType,
+        state.app::blameInlineAuthorNameType
+      ),
+      ValueProp(
+        inlineDateType,
+        state.app::blameInlineDateType
+      ),
+      BoolProp(
+        inlineShowSubject,
+        state.app::blameInlineShowSubject
+      ),
+      BoolProp(
+        inlineAlwaysShowBlameWhileDebugging,
+        state.app::alwaysShowInlineBlameWhileDebugging
+      ),
+      ValueProp(
+        statusAuthorNameType,
+        state.app::blameStatusAuthorNameType
+      )
+    )
   }
 
   override fun isModified(): Boolean {
@@ -104,6 +126,6 @@ internal class BlamePage : GtFormUiEx<MutableConfig> {
 
   override fun applyToState(state: MutableConfig) {
     panel.apply()
-    // TODO: apply to state
+    uiItems.apply()
   }
 }

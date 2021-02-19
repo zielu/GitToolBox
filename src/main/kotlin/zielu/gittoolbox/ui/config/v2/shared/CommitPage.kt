@@ -27,11 +27,12 @@ import zielu.gittoolbox.ui.config.CommitCompletionConfigForm
 import zielu.gittoolbox.ui.config.GtPatternFormatterForm
 import zielu.gittoolbox.ui.config.v2.props.BoolProp
 import zielu.gittoolbox.ui.config.v2.props.BoolPropWithOverride
+import zielu.gittoolbox.ui.config.v2.props.CommitCompletionConfigListWithOverride
 import zielu.gittoolbox.ui.config.v2.props.ListValueProp
-import zielu.gittoolbox.ui.config.v2.props.ListValuePropWithOverride
 import zielu.gittoolbox.ui.config.v2.props.UiItems
 import zielu.gittoolbox.ui.config.v2.props.ValueProp
 import zielu.gittoolbox.ui.config.v2.props.ValuePropWithOverride
+import zielu.gittoolbox.ui.util.ListDataAnyChangeAdapter
 import zielu.intellij.ui.GtFormUiEx
 import java.awt.GridLayout
 import java.awt.event.ActionEvent
@@ -40,6 +41,7 @@ import javax.swing.DefaultComboBoxModel
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.ListCellRenderer
+import javax.swing.event.ListDataEvent
 
 internal class CommitPage : GtFormUiEx<MutableConfig> {
   private val commitDialogCompletionMode = AtomicLazyProperty {
@@ -83,7 +85,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
   override fun init() {
     completionFormattersList = JBList(commitCompletionFormatters)
     completionFormattersList.cellRenderer = SimpleListCellRenderer.create { label, value, _ ->
-      label.text = value.presentableText
+      label.text = value.getPresentableText()
       if (value.type == CommitCompletionType.SIMPLE) {
         label.icon = FormatterIcons.Simple
       } else if (value.type == CommitCompletionType.PATTERN) {
@@ -204,6 +206,12 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
     commitCompletionFormattersOverrideCheckBox.addItemListener { updateCommitCompletionFormattersOverrideUi() }
 
     overrideCheckBoxes.hide()
+
+    commitCompletionFormatters.addListDataListener(object : ListDataAnyChangeAdapter() {
+      override fun changed(e: ListDataEvent) {
+        updateCompletionFormatterAddActions()
+      }
+    })
   }
 
   private fun createAddSimpleCompletionAction(): Action {
@@ -214,8 +222,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
       }
 
       override fun actionPerformed(e: ActionEvent) {
-        commitCompletionFormatters.add(CommitCompletionConfig.create(CommitCompletionType.SIMPLE))
-        updateCompletionFormatterAddActions()
+        commitCompletionFormatters.add(CommitCompletionConfig.createDefault(CommitCompletionType.SIMPLE))
       }
     }
   }
@@ -228,8 +235,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
       }
 
       override fun actionPerformed(e: ActionEvent) {
-        commitCompletionFormatters.add(CommitCompletionConfig.createIssue())
-        updateCompletionFormatterAddActions()
+        commitCompletionFormatters.add(CommitCompletionConfig.createIssuePattern())
       }
     }
   }
@@ -242,8 +248,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
       }
 
       override fun actionPerformed(e: ActionEvent) {
-        commitCompletionFormatters.add(CommitCompletionConfig.create(CommitCompletionType.PATTERN))
-        updateCompletionFormatterAddActions()
+        commitCompletionFormatters.add(CommitCompletionConfig.createDefault(CommitCompletionType.PATTERN))
       }
     }
   }
@@ -258,7 +263,6 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
     val index = list.selectedIndex
     if (index >= 0) {
       commitCompletionFormatters.removeRow(index)
-      updateCompletionFormatterAddActions()
     }
   }
 
@@ -283,32 +287,41 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
           commitDialogBranchCompletion,
           commitDialogBranchCompletionOverride,
           state.app::commitDialogCompletion,
-          state.prj().commitDialogBranchCompletionOverride
+          state.prj().commitDialogBranchCompletionOverride,
+          commitDialogBranchCompletionCheckBox::setSelected,
+          commitDialogBranchCompletionOverrideCheckBox
         ),
         BoolPropWithOverride(
           commitDialogGitmojiCompletion,
           commitDialogGitmojiCompletionOverride,
           state.app::commitDialogGitmojiCompletion,
-          state.prj().commitDialogGitmojiCompletionOverride
+          state.prj().commitDialogGitmojiCompletionOverride,
+          commitDialogGitmojiCompletionCheckBox::setSelected,
+          commitDialogGitmojiCompletionOverrideCheckBox
         ),
         BoolPropWithOverride(
           commitMessageValidation,
           commitMessageValidationOverride,
           state.app::commitMessageValidationEnabled,
-          state.prj().commitMessageValidationOverride
+          state.prj().commitMessageValidationOverride,
+          commitMessageValidationCheckBox::setSelected,
+          commitMessageValidationOverrideCheckBox
         ),
         ValuePropWithOverride(
           commitMessageValidationRegex,
           commitMessageValidationOverride,
           state.app::commitMessageValidationRegex,
           state.prj().commitMessageValidationRegexOverride::enabled,
-          state.prj().commitMessageValidationRegexOverride::value
+          state.prj().commitMessageValidationRegexOverride::value,
+          commitMessageValidationRegexTextField::setText,
+          commitMessageValidationOverrideCheckBox
         ),
-        ListValuePropWithOverride(
+        CommitCompletionConfigListWithOverride(
           commitCompletionFormatters,
           commitCompletionFormattersOverride,
           state.app::completionConfigs,
-          state.prj().completionConfigsOverride
+          state.prj()::completionConfigsOverride,
+          commitCompletionFormattersOverrideCheckBox
         )
       )
 

@@ -5,13 +5,23 @@ import kotlin.reflect.KMutableProperty0
 
 internal class ValueProp<T>(
   private val valueProperty: AtomicLazyProperty<T>,
-  private val value: KMutableProperty0<T>
+  getVal: () -> T,
+  private val setVal: (T) -> Unit
 ) : UiItem {
   init {
-    valueProperty.set(value.invoke())
+    valueProperty.set(getVal.invoke())
   }
 
+  constructor(
+    valueProperty: AtomicLazyProperty<T>,
+    value: KMutableProperty0<T>
+  ) : this(
+    valueProperty,
+    value::get,
+    value::set
+  )
+
   override fun apply() {
-    value.set(valueProperty.get())
+    setVal.invoke(valueProperty.get())
   }
 }

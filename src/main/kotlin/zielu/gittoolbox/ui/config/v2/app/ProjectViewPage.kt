@@ -19,6 +19,8 @@ import zielu.gittoolbox.config.DecorationPartConfig
 import zielu.gittoolbox.config.DecorationPartType
 import zielu.gittoolbox.config.MutableConfig
 import zielu.gittoolbox.ui.config.v2.DecorationPartPreview
+import zielu.gittoolbox.ui.config.v2.props.ListValueProp
+import zielu.gittoolbox.ui.config.v2.props.UiItems
 import zielu.gittoolbox.ui.util.ListDataAnyChangeAdapter
 import zielu.intellij.ui.GtFormUiEx
 import java.awt.Component
@@ -40,6 +42,7 @@ internal class ProjectViewPage(
   private val decorationLayoutModel = CollectionListModel<DecorationPartConfig>()
   private val layoutPreviewTextField = JBTextField()
   private lateinit var panel: DialogPanel
+  private val uiItems = UiItems()
 
   init {
     layoutPreviewTextField.isEditable = false
@@ -172,7 +175,14 @@ internal class ProjectViewPage(
   }
 
   override fun fillFromState(state: MutableConfig) {
-    decorationLayoutModel.replaceAll(state.app.decorationParts.map { it.copy() })
+    uiItems.clear()
+
+    uiItems.register(
+      ListValueProp(
+        decorationLayoutModel,
+        state.app::decorationParts
+      )
+    )
   }
 
   override fun isModified(): Boolean {
@@ -185,6 +195,6 @@ internal class ProjectViewPage(
 
   override fun applyToState(state: MutableConfig) {
     panel.apply()
-    // TODO: apply to state
+    uiItems.apply()
   }
 }

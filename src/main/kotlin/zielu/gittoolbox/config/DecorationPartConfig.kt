@@ -6,7 +6,7 @@ internal data class DecorationPartConfig(
   var type: DecorationPartType,
   var prefix: String,
   var postfix: String
-) {
+) : ConfigItem<DecorationPartConfig> {
   constructor() : this(DecorationPartType.UNKNOWN)
 
   constructor(type: DecorationPartType) : this(type, "", "")
@@ -14,7 +14,7 @@ internal data class DecorationPartConfig(
   constructor(type: DecorationPartType, prefix: String) : this(type, prefix, "")
 
   @Transient
-  fun copy(): DecorationPartConfig {
+  override fun copy(): DecorationPartConfig {
     return DecorationPartConfig(
       type,
       prefix,

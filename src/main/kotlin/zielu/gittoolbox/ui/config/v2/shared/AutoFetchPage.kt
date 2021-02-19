@@ -111,19 +111,25 @@ internal class AutoFetchPage : GtFormUiEx<MutableConfig> {
           autoFetchEnabled,
           autoFetchOverride,
           state.app::autoFetchEnabled,
-          state.prj().autoFetchEnabledOverride
+          state.prj().autoFetchEnabledOverride,
+          autoFetchCheckBox::setSelected,
+          autoFetchTimingOverrideCheckbox
         ),
         IntPropWithOverride(
           autoFetchInterval,
           autoFetchOverride,
           state.app::autoFetchIntervalMinutes,
-          state.prj().autoFetchIntervalMinutesOverride
+          state.prj().autoFetchIntervalMinutesOverride,
+          autoFetchIntervalSpinner::setValue,
+          autoFetchTimingOverrideCheckbox
         ),
         BoolPropWithOverride(
           autoFetchOnBranchSwitch,
           autoFetchOnBranchSwitchOverride,
           state.app::autoFetchOnBranchSwitch,
-          state.prj().autoFetchOnBranchSwitchOverride
+          state.prj().autoFetchOnBranchSwitchOverride,
+          autoFetchOnBranchSwitchCheckbox::setSelected,
+          autoFetchOnBranchSwitchOverrideCheckbox
         )
       )
 

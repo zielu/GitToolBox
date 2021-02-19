@@ -16,6 +16,9 @@ import zielu.gittoolbox.ui.StatusPresenter
 import zielu.gittoolbox.ui.StatusPresenters
 import zielu.gittoolbox.ui.config.AbsoluteDateTimeStyleRenderer
 import zielu.gittoolbox.ui.config.v2.PresenterPreview
+import zielu.gittoolbox.ui.config.v2.props.BoolProp
+import zielu.gittoolbox.ui.config.v2.props.UiItems
+import zielu.gittoolbox.ui.config.v2.props.ValueProp
 import zielu.gittoolbox.ui.update.UpdateProjectActionService
 import zielu.intellij.ui.GtFormUiEx
 import java.util.Vector
@@ -40,6 +43,7 @@ internal class GeneralPage(
   private val absoluteDateTypeStyle = AtomicLazyProperty {
     AbsoluteDateTimeStyle.FROM_LOCALE
   }
+  private val uiItems = UiItems()
 
   override fun getContent(): JComponent {
     return panel
@@ -152,15 +156,48 @@ internal class GeneralPage(
   }
 
   override fun fillFromState(state: MutableConfig) {
-    presentationMode.set(state.app.getPresenter())
-    showStatusWidget.set(state.app.showStatusWidget)
-    showChangesInStatusBar.set(state.app.showChangesInStatusBar)
-    showBlameWidget.set(state.app.showBlameWidget)
-    showEditorInlineBlame.set(state.app.showEditorInlineBlame)
-    showProjectViewDecoration.set(state.app.showProjectViewStatus)
-    behindTracker.set(state.app.behindTracker)
-    updateProjectAction.set(state.app.getUpdateProjectAction())
-    absoluteDateTypeStyle.set(state.app.absoluteDateTimeStyle)
+    uiItems.clear()
+
+    uiItems.register(
+      ValueProp(
+        presentationMode,
+        state.app::getPresenter,
+        state.app::setPresenter
+      ),
+      BoolProp(
+        showStatusWidget,
+        state.app::showStatusWidget
+      ),
+      BoolProp(
+        showChangesInStatusBar,
+        state.app::showChangesInStatusBar
+      ),
+      BoolProp(
+        showBlameWidget,
+        state.app::showBlameWidget
+      ),
+      BoolProp(
+        showEditorInlineBlame,
+        state.app::showEditorInlineBlame
+      ),
+      BoolProp(
+        showProjectViewDecoration,
+        state.app::showProjectViewStatus
+      ),
+      BoolProp(
+        behindTracker,
+        state.app::behindTracker
+      ),
+      ValueProp(
+        updateProjectAction,
+        state.app::getUpdateProjectAction,
+        state.app::setUpdateProjectAction
+      ),
+      ValueProp(
+        absoluteDateTypeStyle,
+        state.app::absoluteDateTimeStyle
+      )
+    )
   }
 
   override fun afterStateSet() {
@@ -173,6 +210,6 @@ internal class GeneralPage(
 
   override fun applyToState(state: MutableConfig) {
     panel.apply()
-    // TODO: copy to state
+    uiItems.apply()
   }
 }

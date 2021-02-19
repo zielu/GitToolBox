@@ -1,7 +1,11 @@
 package zielu.gittoolbox.ui.config.v2.props
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.observable.properties.AtomicBooleanProperty
 import com.intellij.openapi.observable.properties.AtomicLazyProperty
+import com.intellij.openapi.util.Disposer
+import zielu.intellij.ui.ZOnItemSelectable
+import java.awt.ItemSelectable
 import kotlin.reflect.KMutableProperty0
 
 internal class ValuePropWithOverride<T>(
@@ -9,18 +13,22 @@ internal class ValuePropWithOverride<T>(
   private val overrideProperty: AtomicBooleanProperty,
   private val appValue: KMutableProperty0<T>,
   private val prjOverridden: KMutableProperty0<Boolean>,
-  private val prjValue: KMutableProperty0<T>
+  private val prjValue: KMutableProperty0<T>,
+  private val valueUi: (T) -> Unit,
+  overrideUi: ItemSelectable
 ) : UiItem {
+  private val binding: Disposable
+
   init {
-    overrideProperty.afterChange({ onOverrideChange(it) }, this)
     overrideProperty.set(prjOverridden.get())
+    binding = ZOnItemSelectable(overrideUi) { onOverrideChange(it) }
   }
 
   private fun onOverrideChange(overridden: Boolean) {
     if (overridden) {
-      valueProperty.set(prjValue.get())
+      valueUi.invoke(prjValue.get())
     } else {
-      valueProperty.set(appValue.invoke())
+      valueUi.invoke(appValue.invoke())
     }
   }
 
@@ -29,5 +37,9 @@ internal class ValuePropWithOverride<T>(
     if (prjOverridden.get()) {
       prjValue.set(valueProperty.get())
     }
+  }
+
+  override fun dispose() {
+    Disposer.dispose(binding)
   }
 }

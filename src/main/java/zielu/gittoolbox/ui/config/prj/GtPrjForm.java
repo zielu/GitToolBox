@@ -93,7 +93,7 @@ public class GtPrjForm implements GtFormUi {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-        completionItemModel.add(CommitCompletionConfig.create(CommitCompletionType.SIMPLE));
+        completionItemModel.add(CommitCompletionConfig.createDefault(CommitCompletionType.SIMPLE));
         updateCompletionItemActions();
       }
     };
@@ -106,7 +106,7 @@ public class GtPrjForm implements GtFormUi {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-        completionItemModel.add(CommitCompletionConfig.create(CommitCompletionType.PATTERN));
+        completionItemModel.add(CommitCompletionConfig.createDefault(CommitCompletionType.PATTERN));
         updateCompletionItemActions();
       }
     };
@@ -119,7 +119,7 @@ public class GtPrjForm implements GtFormUi {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-        completionItemModel.add(CommitCompletionConfig.createIssue());
+        completionItemModel.add(CommitCompletionConfig.createIssuePattern());
         updateCompletionItemActions();
       }
     };
@@ -191,7 +191,7 @@ public class GtPrjForm implements GtFormUi {
   private void onCompletionItemSelected(CommitCompletionConfig config) {
     if (config == null) {
       completionItemPatternForm.getContent().setVisible(false);
-    } else if (config.type == CommitCompletionType.PATTERN) {
+    } else if (config.getType() == CommitCompletionType.PATTERN) {
       completionItemPatternForm.setData(new CommitCompletionConfigForm(config));
       completionItemPatternForm.afterStateSet();
       completionItemPatternForm.getContent().setVisible(true);
@@ -205,7 +205,7 @@ public class GtPrjForm implements GtFormUi {
   }
 
   private CommitCompletionConfig getSimpleCompletion() {
-    return CommitCompletionConfig.create(CommitCompletionType.SIMPLE);
+    return CommitCompletionConfig.createDefault(CommitCompletionType.SIMPLE);
   }
 
   private void onCommitCompletionItemRemove() {
@@ -408,7 +408,7 @@ public class GtPrjForm implements GtFormUi {
     }
 
     private Icon getIconForCompletion(CommitCompletionConfig config) {
-      return completionIcons.get(config.type);
+      return completionIcons.get(config.getType());
     }
   }
 }

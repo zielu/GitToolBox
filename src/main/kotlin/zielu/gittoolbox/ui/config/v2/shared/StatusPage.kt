@@ -101,14 +101,18 @@ internal class StatusPage : GtFormUiEx<MutableConfig> {
           referencePointOverride,
           state.app.referencePointForStatus::type,
           state.prj().referencePointForStatusOverride::enabled,
-          state.prj().referencePointForStatusOverride.value::type
+          state.prj().referencePointForStatusOverride.value::type,
+          referencePointComboBox::setSelectedItem,
+          referencePointOverrideCheckBox
         ),
         ValuePropWithOverride(
           referencePointName,
           referencePointOverride,
           state.app.referencePointForStatus::name,
           state.prj().referencePointForStatusOverride::enabled,
-          state.prj().referencePointForStatusOverride.value::name
+          state.prj().referencePointForStatusOverride.value::name,
+          referencePointNameTextField::setText,
+          referencePointOverrideCheckBox
         )
       )
       updateUi()
