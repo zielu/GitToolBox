@@ -10,6 +10,7 @@ import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.config.CommitCompletionMode
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
 import zielu.gittoolbox.config.ProjectConfig
+import zielu.gittoolbox.config.ProjectConfig.Companion.getMerged
 
 internal abstract class CompletionProviderBase : CompletionProvider<CompletionParameters>() {
   private val modeHandlers: Map<CommitCompletionMode, (parameters: CompletionParameters) -> Boolean> = ImmutableMap
@@ -31,10 +32,9 @@ internal abstract class CompletionProviderBase : CompletionProvider<CompletionPa
   protected abstract fun setupCompletions(project: Project, result: CompletionResultSet)
 
   private fun shouldComplete(parameters: CompletionParameters): Boolean {
-    val config = getConfig(getProject(parameters))
-    if (config.commitDialogCompletion) {
+    if (getMerged(getProject(parameters)).commitDialogBranchCompletion()) {
       val mode = AppConfig.getConfig().commitDialogCompletionMode
-      val modeHandler = modeHandlers.getOrDefault(mode) { _: CompletionParameters -> true }
+      val modeHandler = modeHandlers.getOrDefault(mode) { true }
       return modeHandler.invoke(parameters)
     }
     return false

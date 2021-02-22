@@ -11,7 +11,7 @@ import java.io.File
 
 internal class CompletionFacade(private val project: Project) : BaseFacade(project) {
   fun getFormatters(): ImmutableList<Formatter> {
-    return ImmutableList.copyOf(ProjectConfig.getConfig(project).getCompletionFormatters())
+    return ImmutableList.copyOf(ProjectConfig.getMerged(project).commitDialogCompletionFormatters())
   }
 
   fun getRepositories(files: Collection<File>): Collection<GitRepository> {

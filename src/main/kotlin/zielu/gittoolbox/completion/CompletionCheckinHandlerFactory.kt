@@ -9,8 +9,8 @@ import zielu.gittoolbox.config.ProjectConfig
 internal class CompletionCheckinHandlerFactory : GitBaseCheckinHandlerFactory() {
 
   override fun createVcsHandler(panel: CheckinProjectPanel, commitContext: CommitContext): CheckinHandler {
-    val config = ProjectConfig.getConfig(panel.project)
-    if (config.commitDialogCompletion) {
+    val config = ProjectConfig.getMerged(panel.project)
+    if (config.commitDialogBranchCompletion()) {
       val checkinHandler = CompletionCheckinHandler(panel)
       CompletionService.getInstance(panel.project).setScopeProvider(checkinHandler)
       return checkinHandler

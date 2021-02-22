@@ -25,7 +25,9 @@ class CompletionServiceImpl implements CompletionService, Disposable {
 
   @Override
   public void onConfigChanged(@NotNull GitToolBoxConfigPrj config) {
-    formatters = ImmutableList.copyOf(config.getCompletionFormatters());
+    synchronized (this) {
+      formatters = null;
+    }
   }
 
   @Override

@@ -61,6 +61,7 @@ internal data class GitToolBoxConfigPrj(
   }
 
   @Transient
+  @Deprecated(message = "Use MergedProjectConfig", replaceWith = ReplaceWith("MergedProjectConfig"))
   fun getCompletionFormatters(): List<Formatter> {
     return completionConfigs.map { it.getFormatter() }
   }

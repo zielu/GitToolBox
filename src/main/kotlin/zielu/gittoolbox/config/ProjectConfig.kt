@@ -77,6 +77,7 @@ internal class ProjectConfig(
       return getInstance(project).state
     }
 
+    @JvmStatic
     fun getMerged(project: Project): MergedProjectConfig {
       return MergedProjectConfig(AppConfig.getConfig(), getConfig(project))
     }

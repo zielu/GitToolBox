@@ -1,5 +1,7 @@
 package zielu.gittoolbox.config
 
+import zielu.gittoolbox.formatter.Formatter
+
 internal class MergedProjectConfig(
   private val appConfig: GitToolBoxConfig2,
   private val projectConfig: GitToolBoxConfigPrj
@@ -45,11 +47,11 @@ internal class MergedProjectConfig(
     }
   }
 
-  fun commitDialogCompletionConfigs(): List<CommitCompletionConfig> {
+  fun commitDialogCompletionFormatters(): List<Formatter> {
     return if (projectConfig.completionConfigsOverride.enabled) {
-      projectConfig.completionConfigsOverride.values
+      projectConfig.completionConfigsOverride.values.map { it.getFormatter() }
     } else {
-      appConfig.completionConfigs
+      appConfig.completionConfigs.map { it.getFormatter() }
     }
   }
 
