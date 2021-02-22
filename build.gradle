@@ -1,26 +1,15 @@
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 
-buildscript {
-    repositories {
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
-    }
-}
-
 plugins {
-    id 'org.jetbrains.intellij' version '0.6.5'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.30'
+    id 'org.jetbrains.intellij' version '0.7.1'
     id 'com.palantir.git-version' version '0.12.3'
     id 'ch.netzwerg.release' version '1.2.5'
     id 'org.jlleitschuh.gradle.ktlint' version '9.4.1'
 }
 
 repositories {
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     mavenCentral()
 }
 
@@ -293,8 +282,6 @@ dependencies {
     implementation("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     testImplementation("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
 
