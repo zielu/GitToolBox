@@ -2,7 +2,7 @@ package zielu.gittoolbox
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 
-object GitToolBox {
+internal object GitToolBox {
   const val PLUGIN_ID = "zielu.gittoolbox"
 
   fun isItMe(pluginDescriptor: IdeaPluginDescriptor): Boolean {
