@@ -71,6 +71,14 @@ internal class MergedProjectConfig(
     }
   }
 
+  fun setCommitMessageValidation(value: Boolean) {
+    if (projectConfig.commitMessageValidationOverride.enabled) {
+      projectConfig.commitMessageValidationOverride.value = value
+    } else {
+      appConfig.commitMessageValidationEnabled = value
+    }
+  }
+
   fun commitMessageValidationRegex(): String {
     return if (projectConfig.commitMessageValidationRegexOverride.enabled) {
       projectConfig.commitMessageValidationRegexOverride.value

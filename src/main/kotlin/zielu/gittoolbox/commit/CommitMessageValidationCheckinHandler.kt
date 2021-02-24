@@ -7,21 +7,23 @@ import com.intellij.openapi.vcs.ui.RefreshableOnComponent
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.compat.GitCompatUtil
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
+import zielu.gittoolbox.config.MergedProjectConfig
 import zielu.gittoolbox.config.ProjectConfig
 import zielu.intellij.ui.YesNoDialog
 
 internal class CommitMessageValidationCheckinHandler(
   private val checkinPanel: CheckinProjectPanel
 ) : CheckinHandler() {
-  private val config: GitToolBoxConfigPrj
-    get() = ProjectConfig.getConfig(checkinPanel.project)
+  private val config: MergedProjectConfig
+    get() = ProjectConfig.getMerged(checkinPanel.project)
 
   override fun getBeforeCheckinConfigurationPanel(): RefreshableOnComponent {
     return BooleanCommitOption(
       checkinPanel,
       ResBundle.message("commit.message.validation.label"),
       false,
-      config::commitMessageValidation
+      { config.commitMessageValidation() },
+      { config.setCommitMessageValidation(it) }
     )
   }
 
@@ -34,7 +36,7 @@ internal class CommitMessageValidationCheckinHandler(
   }
 
   private fun shouldValidate(): Boolean {
-    return config.commitMessageValidation && hasModificationsUnderGit()
+    return config.commitMessageValidation() && hasModificationsUnderGit()
   }
 
   private fun hasModificationsUnderGit(): Boolean {
@@ -42,7 +44,7 @@ internal class CommitMessageValidationCheckinHandler(
   }
 
   private fun validate(): ReturnResult {
-    if (checkinPanel.commitMessage.matches(Regex(config.commitMessageValidationRegex))) {
+    if (checkinPanel.commitMessage.matches(Regex(config.commitMessageValidationRegex()))) {
       return ReturnResult.COMMIT
     }
     val confirmationDialog = YesNoDialog(

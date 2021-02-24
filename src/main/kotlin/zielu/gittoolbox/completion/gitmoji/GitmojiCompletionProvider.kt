@@ -11,6 +11,7 @@ import com.intellij.openapi.util.TextRange
 import zielu.gittoolbox.completion.CompletionProviderBase
 import zielu.gittoolbox.completion.CompletionService
 import zielu.gittoolbox.config.AppConfig
+import zielu.gittoolbox.config.ProjectConfig
 
 internal class GitmojiCompletionProvider : CompletionProviderBase() {
 
@@ -23,7 +24,9 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
     }
   }
 
-  private fun isEnabled(): Boolean = AppConfig.getConfig().commitDialogGitmojiCompletion
+  private fun isEnabled(project: Project): Boolean {
+    return ProjectConfig.getMerged(project).commitDialogGitmojiCompletion()
+  }
 
   private fun addCompletions(result: CompletionResultSet) {
     GitmojiResBundle.keySet().forEach { gitmoji ->
