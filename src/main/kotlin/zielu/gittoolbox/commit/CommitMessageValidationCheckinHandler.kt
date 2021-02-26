@@ -6,7 +6,6 @@ import com.intellij.openapi.vcs.checkin.CheckinHandler
 import com.intellij.openapi.vcs.ui.RefreshableOnComponent
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.compat.GitCompatUtil
-import zielu.gittoolbox.config.GitToolBoxConfigPrj
 import zielu.gittoolbox.config.MergedProjectConfig
 import zielu.gittoolbox.config.ProjectConfig
 import zielu.intellij.ui.YesNoDialog

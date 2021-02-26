@@ -49,7 +49,7 @@ internal class ConfigForProjectMigrator2to3(
       migrated.add(true)
     }
     migrated.add(
-        applyBoolOverride(
+      applyBoolOverride(
         config::commitMessageValidation,
         appConfig::commitMessageValidationEnabled,
         config.commitMessageValidationOverride

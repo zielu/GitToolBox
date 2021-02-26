@@ -18,6 +18,37 @@ class ConfigMigrator {
     return migrated;
   }
 
+  boolean migrate(@NotNull Project project,
+                  @NotNull GitToolBoxConfig2 appConfig,
+                  @NotNull GitToolBoxConfigPrj prjConfig) {
+    WorkspaceState workspaceState = WorkspaceStore.get(project);
+    boolean migrationPerformed = false;
+    if (workspaceState.getProjectConfigVersion() == 1) {
+      migrationPerformed = migrate(
+          2,
+          new ConfigForProjectMigrator1to2(prjConfig)::migrate,
+          workspaceState::setProjectConfigVersion
+      );
+    }
+    if (workspaceState.getProjectConfigVersion() == 2) {
+      migrationPerformed = migrate(
+          3,
+          new ConfigForProjectMigrator2to3(appConfig, prjConfig)::migrate,
+          workspaceState::setProjectConfigVersion
+      );
+    }
+    return migrationPerformed;
+  }
+
+  private boolean migrate(int version, BooleanSupplier migrator, IntConsumer setVersion) {
+    boolean migrated = migrator.getAsBoolean();
+    if (migrated) {
+      log.info("Project config migrated to version " + version);
+    }
+    setVersion.accept(version);
+    return migrated;
+  }
+
   private boolean migrateAppV1toV2(@NotNull GitToolBoxConfig2 v2) {
     if (!v2.getPreviousVersionMigrated()) {
       ConfigMigratorV1toV2 migrator = new ConfigMigratorV1toV2();
@@ -50,36 +81,5 @@ class ConfigMigrator {
     migrator.accept(config);
     config.setVersion(version);
     log.info("V2 config migrated to version " + version);
-  }
-
-  boolean migrate(@NotNull Project project,
-                  @NotNull GitToolBoxConfig2 appConfig,
-                  @NotNull GitToolBoxConfigPrj prjConfig) {
-    WorkspaceState workspaceState = WorkspaceStore.get(project);
-    boolean migrationPerformed = false;
-    if (workspaceState.getProjectConfigVersion() == 1) {
-      migrationPerformed = migrate(
-          2,
-          new ConfigForProjectMigrator1to2(prjConfig)::migrate,
-          workspaceState::setProjectConfigVersion
-      );
-    }
-    if (workspaceState.getProjectConfigVersion() == 2) {
-      migrationPerformed = migrate(
-          3,
-          new ConfigForProjectMigrator2to3(appConfig, prjConfig)::migrate,
-          workspaceState::setProjectConfigVersion
-      );
-    }
-    return migrationPerformed;
-  }
-
-  private boolean migrate(int version, BooleanSupplier migrator, IntConsumer setVersion) {
-    boolean migrated = migrator.getAsBoolean();
-    if (migrated) {
-      log.info("Project config migrated to version " + version);
-    }
-    setVersion.accept(version);
-    return migrated;
   }
 }

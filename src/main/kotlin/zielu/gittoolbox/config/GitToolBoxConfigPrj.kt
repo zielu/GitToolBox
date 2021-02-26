@@ -7,7 +7,6 @@ import zielu.gittoolbox.config.override.IntValueOverride
 import zielu.gittoolbox.config.override.ReferencePointForStatusOverride
 import zielu.gittoolbox.config.override.StringValueOverride
 import zielu.gittoolbox.fetch.AutoFetchParams
-import zielu.gittoolbox.formatter.Formatter
 
 internal data class GitToolBoxConfigPrj(
   @Deprecated("Since 201.4.0") var autoFetch: Boolean = true,
