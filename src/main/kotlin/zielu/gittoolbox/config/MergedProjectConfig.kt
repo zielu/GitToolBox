@@ -86,4 +86,8 @@ internal class MergedProjectConfig(
       appConfig.commitMessageValidationRegex
     }
   }
+
+  fun isReferencePointForStatusChanged(previous: MergedProjectConfig): Boolean {
+    return previous.referencePointForStatus() != referencePointForStatus()
+  }
 }

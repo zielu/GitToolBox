@@ -23,17 +23,12 @@ internal class AppConfig : PersistentStateComponent<GitToolBoxConfig2> {
   override fun loadState(state: GitToolBoxConfig2) {
     lock.withLock {
       log.debug("App config state loaded: ", state)
+      migrate(state)
       this.state = state
     }
   }
 
-  override fun initializeComponent() {
-    lock.withLock {
-      migrate()
-    }
-  }
-
-  private fun migrate() {
+  private fun migrate(state: GitToolBoxConfig2) {
     val migrated = ConfigMigrator().migrate(state)
     if (migrated) {
       log.info("Migration done")

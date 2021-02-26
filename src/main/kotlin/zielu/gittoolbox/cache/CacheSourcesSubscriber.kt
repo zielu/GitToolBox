@@ -4,6 +4,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import git4idea.repo.GitRepository
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
+import zielu.gittoolbox.config.MergedProjectConfig
 import zielu.gittoolbox.util.AppUtil
 import zielu.gittoolbox.util.GtUtil
 
@@ -38,7 +39,7 @@ internal class CacheSourcesSubscriber(private val project: Project) {
     log.debug("Dir mappings change notification done")
   }
 
-  fun onConfigChanged(previous: GitToolBoxConfigPrj, current: GitToolBoxConfigPrj) {
+  fun onConfigChanged(previous: MergedProjectConfig, current: MergedProjectConfig) {
     if (previous.isReferencePointForStatusChanged(current)) {
       GtUtil.getRepositories(project).forEach { repo ->
         repoChangeAwares.forEach { aware: RepoChangeAware ->

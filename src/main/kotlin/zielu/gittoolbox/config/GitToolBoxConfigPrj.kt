@@ -59,14 +59,4 @@ internal data class GitToolBoxConfigPrj(
       commitMessageValidationRegexOverride.copy()
     )
   }
-
-  @Transient
-  @Deprecated(message = "Use MergedProjectConfig", replaceWith = ReplaceWith("MergedProjectConfig"))
-  fun getCompletionFormatters(): List<Formatter> {
-    return completionConfigs.map { it.getFormatter() }
-  }
-
-  fun isReferencePointForStatusChanged(other: GitToolBoxConfigPrj): Boolean {
-    return referencePointForStatus != other.referencePointForStatus
-  }
 }

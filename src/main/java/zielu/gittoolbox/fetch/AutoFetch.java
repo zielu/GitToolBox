@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxRegistry;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.config.MergedProjectConfig;
 import zielu.gittoolbox.config.ProjectConfig;
 
 class AutoFetch implements AutoFetchComponent, Disposable {
@@ -21,12 +22,12 @@ class AutoFetch implements AutoFetchComponent, Disposable {
     this.project = project;
   }
 
-  private GitToolBoxConfigPrj getConfig() {
-    return ProjectConfig.getConfig(project());
+  private MergedProjectConfig getConfig() {
+    return ProjectConfig.getMerged(project());
   }
 
-  private void updateAutoFetchEnabled(GitToolBoxConfigPrj config) {
-    autoFetchEnabled.set(config.getAutoFetch());
+  private void updateAutoFetchEnabled(MergedProjectConfig config) {
+    autoFetchEnabled.set(config.autoFetchEnabled());
     executor().setAutoFetchEnabled(autoFetchEnabled.get());
   }
 
@@ -51,29 +52,31 @@ class AutoFetch implements AutoFetchComponent, Disposable {
   @Override
   public void configChanged(@NotNull GitToolBoxConfigPrj previous,
                             @NotNull GitToolBoxConfigPrj current) {
-    updateAutoFetchEnabled(current);
+    MergedProjectConfig previousConfig = ProjectConfig.getMerged(previous);
+    MergedProjectConfig currentConfig = ProjectConfig.getMerged(current);
+    updateAutoFetchEnabled(currentConfig);
     if (autoFetchEnabled.get()) {
       log.debug("Auto-fetch enabled");
-      autoFetchEnabled(previous, current);
+      autoFetchEnabled(previousConfig, currentConfig);
     } else {
       log.debug("Auto-fetch disabled");
       autoFetchDisabled();
     }
   }
 
-  private void autoFetchEnabled(@NotNull GitToolBoxConfigPrj previous,
-                                @NotNull GitToolBoxConfigPrj current) {
-    if (current.getAutoFetchIntervalMinutes() != previous.getAutoFetchIntervalMinutes()) {
+  private void autoFetchEnabled(@NotNull MergedProjectConfig previous,
+                                @NotNull MergedProjectConfig current) {
+    if (current.autoFetchIntervalMinutes() != previous.autoFetchIntervalMinutes()) {
       autoFetchIntervalChanged(current);
     } else {
-      log.debug("Auto-fetch interval did not change: interval=", current.getAutoFetchIntervalMinutes());
+      log.debug("Auto-fetch interval did not change: interval=", current.autoFetchIntervalMinutes());
     }
   }
 
-  private void autoFetchIntervalChanged(@NotNull GitToolBoxConfigPrj config) {
-    log.debug("Auto-fetch interval or state changed: enabled=", config.getAutoFetch(),
-        ", interval=", config.getAutoFetchIntervalMinutes());
-    Duration taskDelay = schedule().updateAutoFetchIntervalMinutes(config.getAutoFetchIntervalMinutes());
+  private void autoFetchIntervalChanged(@NotNull MergedProjectConfig config) {
+    log.debug("Auto-fetch interval or state changed: enabled=", config.autoFetchEnabled(),
+        ", interval=", config.autoFetchIntervalMinutes());
+    Duration taskDelay = schedule().updateAutoFetchIntervalMinutes(config.autoFetchIntervalMinutes());
     executor().rescheduleTask(taskDelay);
   }
 

@@ -97,6 +97,7 @@ compileTestKotlin {
         freeCompilerArgs = [
             "-Xjvm-default=enable"
         ]
+        useIR = true
     }
 }
 

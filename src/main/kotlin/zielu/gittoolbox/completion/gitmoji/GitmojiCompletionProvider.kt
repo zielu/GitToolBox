@@ -16,7 +16,7 @@ import zielu.gittoolbox.config.ProjectConfig
 internal class GitmojiCompletionProvider : CompletionProviderBase() {
 
   override fun setupCompletions(project: Project, result: CompletionResultSet) {
-    if (isEnabled()) {
+    if (isEnabled(project)) {
       val completionService = CompletionService.getInstance(project)
       if (completionService.affected.isNotEmpty()) {
         addCompletions(result)

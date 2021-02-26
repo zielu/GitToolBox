@@ -1,6 +1,6 @@
 package zielu.gittoolbox.config
 
-internal class ConfigForProjectMigrator(private val config: GitToolBoxConfigPrj) {
+internal class ConfigForProjectMigrator1to2(private val config: GitToolBoxConfigPrj) {
   fun migrate(): Boolean {
     var migrated = false
     migrated = migrateAutoFetchExclusions() || migrated

@@ -28,6 +28,7 @@ internal class ProjectConfig(
   override fun loadState(state: GitToolBoxConfigPrj) {
     lock.withLock {
       log.debug("Project config state loaded: ", state)
+      migrate(state)
       this.state = state
     }
   }
@@ -36,16 +37,10 @@ internal class ProjectConfig(
     log.info("No persisted state of project configuration")
   }
 
-  override fun initializeComponent() {
-    lock.withLock {
-      migrate()
-    }
-  }
-
-  private fun migrate() {
+  private fun migrate(state: GitToolBoxConfigPrj) {
     val appConfig = AppConfig.getConfig()
     val timer = ProjectMetrics.getInstance(project).timer("project-config.migrate")
-    val result = timer.timeSupplierKt { ConfigMigrator().migrate(project, state, appConfig) }
+    val result = timer.timeSupplierKt { ConfigMigrator().migrate(project, appConfig, state) }
     if (result) {
       log.info("Migration done")
     } else {
@@ -78,6 +73,11 @@ internal class ProjectConfig(
     @JvmStatic
     fun getMerged(project: Project): MergedProjectConfig {
       return MergedProjectConfig(AppConfig.getConfig(), getConfig(project))
+    }
+
+    @JvmStatic
+    fun getMerged(config: GitToolBoxConfigPrj): MergedProjectConfig {
+      return MergedProjectConfig(AppConfig.getConfig(), config)
     }
 
     @JvmStatic
