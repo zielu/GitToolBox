@@ -25,7 +25,7 @@ internal data class GitToolBoxConfig2(
   var showChangesInStatusBar: Boolean = true,
   var previousVersionMigrated: Boolean = false,
   var version: Int = 1,
-  var decorationParts: List<DecorationPartConfig> = ConfigDefaults.decorationParts,
+  var decorationParts: List<DecorationPartConfig> = ConfigDefaults.decorationParts(),
   @Deprecated("Since 201.4.0") var extrasConfig: ExtrasConfig = ExtrasConfig(),
   var commitDialogGitmojiCompletion: Boolean = false,
   var commitDialogGitmojiCompletionUnicode: Boolean = false,

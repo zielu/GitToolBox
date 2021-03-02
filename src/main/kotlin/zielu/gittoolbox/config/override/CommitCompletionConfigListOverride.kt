@@ -5,7 +5,7 @@ import zielu.gittoolbox.config.ConfigItem
 
 internal data class CommitCompletionConfigListOverride(
   var enabled: Boolean = false,
-  var values: List<CommitCompletionConfig> = listOf()
+  var values: List<CommitCompletionConfig> = arrayListOf()
 ) : ConfigItem<CommitCompletionConfigListOverride> {
 
   override fun copy(): CommitCompletionConfigListOverride {

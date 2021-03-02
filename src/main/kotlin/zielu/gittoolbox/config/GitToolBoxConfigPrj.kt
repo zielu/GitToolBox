@@ -11,17 +11,17 @@ import zielu.gittoolbox.fetch.AutoFetchParams
 internal data class GitToolBoxConfigPrj(
   @Deprecated("Since 201.4.0") var autoFetch: Boolean = true,
   @Deprecated("Since 201.4.0") var autoFetchIntervalMinutes: Int = AutoFetchParams.DEFAULT_INTERVAL_MINUTES,
-  @Deprecated("Since 192.3.1") var autoFetchExclusions: List<String> = listOf(),
+  @Deprecated("Since 192.3.1") var autoFetchExclusions: List<String> = arrayListOf(),
   @Deprecated("Since 201.4.0") var autoFetchOnBranchSwitch: Boolean = true,
   @Deprecated("Since 201.4.0") var commitDialogCompletion: Boolean = true,
   @Deprecated("Since 201.4.0") var completionConfigs: List<CommitCompletionConfig> =
-    listOf(CommitCompletionConfig()),
+    arrayListOf(CommitCompletionConfig()),
   @Deprecated("Since 201.4.0") var referencePointForStatus: ReferencePointForStatusConfig =
     ReferencePointForStatusConfig(),
   @Deprecated("Since 201.4.0") var commitMessageValidation: Boolean = false,
   @Deprecated("Since 201.4.0") var commitMessageValidationRegex: String =
     "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+",
-  var autoFetchExclusionConfigs: List<AutoFetchExclusionConfig> = listOf(),
+  var autoFetchExclusionConfigs: List<AutoFetchExclusionConfig> = arrayListOf(),
   var autoFetchEnabledOverride: BoolValueOverride = BoolValueOverride(),
   var autoFetchIntervalMinutesOverride: IntValueOverride =
     IntValueOverride(false, AutoFetchParams.DEFAULT_INTERVAL_MINUTES),
