@@ -6,6 +6,7 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Transient
+import zielu.gittoolbox.GitToolBoxRegistry
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.util.AppUtil
 import java.util.concurrent.locks.ReentrantLock
@@ -72,12 +73,12 @@ internal class ProjectConfig(
 
     @JvmStatic
     fun getMerged(project: Project): MergedProjectConfig {
-      return MergedProjectConfig(AppConfig.getConfig(), getConfig(project))
+      return MergedProjectConfig(AppConfig.getConfig(), getConfig(project), GitToolBoxRegistry.useLegacyConfig())
     }
 
     @JvmStatic
     fun getMerged(config: GitToolBoxConfigPrj): MergedProjectConfig {
-      return MergedProjectConfig(AppConfig.getConfig(), config)
+      return MergedProjectConfig(AppConfig.getConfig(), config, GitToolBoxRegistry.useLegacyConfig())
     }
 
     @JvmStatic

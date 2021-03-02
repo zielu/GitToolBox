@@ -4,6 +4,7 @@ import com.intellij.dvcs.repo.VcsRepositoryMappingListener
 import com.intellij.openapi.project.Project
 import git4idea.repo.GitRepository
 import git4idea.repo.GitRepositoryChangeListener
+import zielu.gittoolbox.GitToolBoxRegistry
 import zielu.gittoolbox.config.AppConfigNotifier
 import zielu.gittoolbox.config.GitToolBoxConfig2
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
@@ -24,8 +25,8 @@ internal class CacheSourcesSubscriberPrjConfigListener(private val project: Proj
 internal class CacheSourcesSubscriberAppConfigListener(private val project: Project) : AppConfigNotifier {
   override fun configChanged(previous: GitToolBoxConfig2, current: GitToolBoxConfig2) {
     val projectConfig = ProjectConfig.getConfig(project)
-    val previousMerged = MergedProjectConfig(previous, projectConfig)
-    val currentMerged = MergedProjectConfig(current, projectConfig)
+    val previousMerged = MergedProjectConfig(previous, projectConfig, GitToolBoxRegistry.useLegacyConfig())
+    val currentMerged = MergedProjectConfig(current, projectConfig, GitToolBoxRegistry.useLegacyConfig())
     CacheSourcesSubscriber.getInstance(project).onConfigChanged(previousMerged, currentMerged)
   }
 }

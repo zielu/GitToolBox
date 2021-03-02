@@ -16,7 +16,7 @@ public class GtProjectConfigurable extends GtBinderConfigurableBase<GtPrjForm, G
     SearchableConfigurable {
   private final Project project;
 
-  protected GtProjectConfigurable(@NotNull Project project) {
+  public GtProjectConfigurable(@NotNull Project project) {
     this.project = project;
   }
 

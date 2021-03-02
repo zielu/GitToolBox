@@ -25,4 +25,10 @@ internal object GitToolBoxRegistry {
   fun diagnosticMode(): Boolean {
     return Registry.`is`("zielu.gittoolbox.diagnostic.mode", false)
   }
+
+  fun useLegacyConfig(): Boolean {
+    return Registry.`is`("zielu.gittoolbox.config.legacy", false)
+  }
+
+  fun useNewConfig(): Boolean = !useLegacyConfig()
 }

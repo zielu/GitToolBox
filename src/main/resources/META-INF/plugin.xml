@@ -53,16 +53,16 @@
                         serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService" />
 
     <!-- legacy config pages -->
-    <applicationConfigurable instance="zielu.gittoolbox.ui.config.app.GtConfigurable"
+    <applicationConfigurable provider="zielu.gittoolbox.ui.config.v1.AppV1ConfigurableProvider"
                              id="zielu.gittoolbox.app.config" />
-    <projectConfigurable instance="zielu.gittoolbox.ui.config.prj.GtProjectConfigurable"
+    <projectConfigurable provider="zielu.gittoolbox.ui.config.v1.PrjV1ConfigurableProvider"
                           id="zielu.gittoolbox.prj.config" />
 
     <!-- new config pages -->
-    <applicationConfigurable instance="zielu.gittoolbox.ui.config.v2.app.AppConfigurable"
+    <applicationConfigurable provider="zielu.gittoolbox.ui.config.v2.app.AppConfigurableProvider"
                              id="zielu.gittoolbox.app.config.v2"
                              parentId="vcs.Git"/>
-    <projectConfigurable instance="zielu.gittoolbox.ui.config.v2.prj.PrjConfigurable"
+    <projectConfigurable provider="zielu.gittoolbox.ui.config.v2.prj.PrjConfigurableProvider"
                          id="zielu.gittoolbox.prj.config.v2"
                          parentId="vcs.Git"/>
 
@@ -157,6 +157,7 @@
     <registryKey defaultValue="true" description="Debounce first auto-fetch" key="zielu.gittoolbox.fetch.auto.debounce.first" />
     <registryKey defaultValue="false" description="Auto-fetch in background" key="zielu.gittoolbox.fetch.auto.in.background" />
     <registryKey defaultValue="false" description="Diagnostic mode" key="zielu.gittoolbox.diagnostic.mode" />
+    <registryKey defaultValue="false" description="Legacy configuration" key="zielu.gittoolbox.config.legacy" />
 
     <notificationGroup
         id="gittoolbox.behind.tracker"

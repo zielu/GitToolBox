@@ -1,89 +1,136 @@
 package zielu.gittoolbox.config
 
+import zielu.gittoolbox.config.override.BoolValueOverride
 import zielu.gittoolbox.formatter.Formatter
+import kotlin.reflect.KProperty0
 
 internal class MergedProjectConfig(
   private val appConfig: GitToolBoxConfig2,
-  private val projectConfig: GitToolBoxConfigPrj
+  private val projectConfig: GitToolBoxConfigPrj,
+  private val useLegacy: Boolean
 ) {
 
   fun autoFetchEnabled(): Boolean {
-    return if (projectConfig.autoFetchEnabledOverride.enabled) {
-      projectConfig.autoFetchEnabledOverride.value
-    } else {
-      appConfig.autoFetchEnabled
+    return getBool(
+      projectConfig::autoFetch,
+      appConfig::autoFetchEnabled,
+      projectConfig.autoFetchEnabledOverride
+    )
+  }
+
+  private fun getBool(legacy: KProperty0<Boolean>, app: KProperty0<Boolean>, override: BoolValueOverride): Boolean {
+    return when {
+      useLegacy -> {
+        legacy.get()
+      }
+      override.enabled -> {
+        override.value
+      }
+      else -> {
+        app.get()
+      }
     }
   }
 
   fun autoFetchIntervalMinutes(): Int {
-    return if (projectConfig.autoFetchIntervalMinutesOverride.enabled) {
-      projectConfig.autoFetchIntervalMinutesOverride.value
-    } else {
-      appConfig.autoFetchIntervalMinutes
+    return when {
+      useLegacy -> {
+        projectConfig.autoFetchIntervalMinutes
+      }
+      projectConfig.autoFetchIntervalMinutesOverride.enabled -> {
+        projectConfig.autoFetchIntervalMinutesOverride.value
+      }
+      else -> {
+        appConfig.autoFetchIntervalMinutes
+      }
     }
   }
 
   fun autoFetchOnBranchSwitch(): Boolean {
-    return if (projectConfig.autoFetchOnBranchSwitchOverride.enabled) {
-      projectConfig.autoFetchOnBranchSwitchOverride.value
-    } else {
-      appConfig.autoFetchOnBranchSwitch
-    }
+    return getBool(
+      projectConfig::autoFetchOnBranchSwitch,
+      appConfig::autoFetchOnBranchSwitch,
+      projectConfig.autoFetchOnBranchSwitchOverride
+    )
   }
 
   fun commitDialogBranchCompletion(): Boolean {
-    return if (projectConfig.commitDialogBranchCompletionOverride.enabled) {
-      projectConfig.commitDialogBranchCompletionOverride.value
-    } else {
-      appConfig.commitDialogCompletion
-    }
+    return getBool(
+      projectConfig::commitDialogCompletion,
+      appConfig::commitDialogCompletion,
+      projectConfig.commitDialogBranchCompletionOverride
+    )
   }
 
   fun commitDialogGitmojiCompletion(): Boolean {
-    return if (projectConfig.commitDialogGitmojiCompletionOverride.enabled) {
-      projectConfig.commitDialogGitmojiCompletionOverride.value
-    } else {
-      appConfig.commitDialogGitmojiCompletion
-    }
+    return getBool(
+      appConfig::commitDialogGitmojiCompletion,
+      appConfig::commitDialogGitmojiCompletion,
+      projectConfig.commitDialogGitmojiCompletionOverride
+    )
   }
 
   fun commitDialogCompletionFormatters(): List<Formatter> {
-    return if (projectConfig.completionConfigsOverride.enabled) {
-      projectConfig.completionConfigsOverride.values.map { it.getFormatter() }
-    } else {
-      appConfig.completionConfigs.map { it.getFormatter() }
+    return when {
+      useLegacy -> {
+        projectConfig.completionConfigs.map { it.getFormatter() }
+      }
+      projectConfig.completionConfigsOverride.enabled -> {
+        projectConfig.completionConfigsOverride.values.map { it.getFormatter() }
+      }
+      else -> {
+        appConfig.completionConfigs.map { it.getFormatter() }
+      }
     }
   }
 
   fun referencePointForStatus(): ReferencePointForStatusConfig {
-    return if (projectConfig.referencePointForStatusOverride.enabled) {
-      projectConfig.referencePointForStatusOverride.value
-    } else {
-      appConfig.referencePointForStatus
+    return when {
+      useLegacy -> {
+        projectConfig.referencePointForStatus
+      }
+      projectConfig.referencePointForStatusOverride.enabled -> {
+        projectConfig.referencePointForStatusOverride.value
+      }
+      else -> {
+        appConfig.referencePointForStatus
+      }
     }
   }
 
   fun commitMessageValidation(): Boolean {
-    return if (projectConfig.commitMessageValidationOverride.enabled) {
-      projectConfig.commitMessageValidationOverride.value
-    } else {
-      appConfig.commitMessageValidationEnabled
-    }
+    return getBool(
+      projectConfig::commitMessageValidation,
+      appConfig::commitMessageValidationEnabled,
+      projectConfig.commitMessageValidationOverride
+    )
   }
 
   fun setCommitMessageValidation(value: Boolean) {
-    if (projectConfig.commitMessageValidationOverride.enabled) {
-      projectConfig.commitMessageValidationOverride.value = value
-    } else {
-      appConfig.commitMessageValidationEnabled = value
+    return when {
+      useLegacy -> {
+        projectConfig.commitMessageValidation = value
+      }
+      projectConfig.commitMessageValidationOverride.enabled -> {
+        projectConfig.commitMessageValidationOverride.value = value
+      }
+      else -> {
+        appConfig.commitMessageValidationEnabled = value
+      }
     }
   }
 
   fun commitMessageValidationRegex(): String {
-    return if (projectConfig.commitMessageValidationRegexOverride.enabled) {
-      projectConfig.commitMessageValidationRegexOverride.value
-    } else {
-      appConfig.commitMessageValidationRegex
+    return when {
+      useLegacy -> {
+        projectConfig.commitMessageValidationRegex
+      }
+      projectConfig.commitMessageValidationRegexOverride.enabled -> {
+        projectConfig.commitMessageValidationRegexOverride.value
+      }
+      else -> {
+        appConfig.commitMessageValidationRegex
+      }
     }
   }
 
