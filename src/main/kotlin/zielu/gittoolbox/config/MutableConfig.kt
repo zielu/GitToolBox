@@ -19,4 +19,12 @@ internal data class MutableConfig(
   fun project(): Project {
     return project!!
   }
+
+  fun copy(): MutableConfig {
+    return MutableConfig(
+      app.copy(),
+      prj?.copy(),
+      project
+    )
+  }
 }

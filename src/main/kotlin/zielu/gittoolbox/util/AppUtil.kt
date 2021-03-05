@@ -63,7 +63,7 @@ internal object AppUtil {
         WriteAction.runAndWait<RuntimeException> {
           val current = AppConfig.getConfig()
           modify.invoke(current)
-          AppConfig.getInstance().updateState(current)
+          AppConfig.getInstance().stateUpdated(current)
           application.saveSettings()
         }
       } catch (exception: java.lang.Exception) {

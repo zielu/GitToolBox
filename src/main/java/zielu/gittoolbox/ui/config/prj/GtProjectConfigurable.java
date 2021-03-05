@@ -21,7 +21,7 @@ public class GtProjectConfigurable extends GtBinderConfigurableBase<GtPrjForm, G
   }
 
   @Override
-  protected void bind(ConfigUiBinder<GitToolBoxConfigPrj, GtPrjForm> binder) {
+  protected void bind(@NotNull ConfigUiBinder<GitToolBoxConfigPrj, GtPrjForm> binder) {
     binder.bind(GitToolBoxConfigPrj::getAutoFetch,
         GitToolBoxConfigPrj::setAutoFetch,
         GtPrjForm::getAutoFetchEnabled,
@@ -90,13 +90,13 @@ public class GtProjectConfigurable extends GtBinderConfigurableBase<GtPrjForm, G
 
   @NotNull
   @Override
-  protected GitToolBoxConfigPrj copy(@NotNull GitToolBoxConfigPrj config) {
+  protected GitToolBoxConfigPrj copyConfig(@NotNull GitToolBoxConfigPrj config) {
     return config.copy();
   }
 
   @Override
-  protected void storeConfig(@NotNull GitToolBoxConfigPrj existing, @NotNull GitToolBoxConfigPrj updated) {
-    ProjectConfig.getInstance(project).updateState(updated);
+  protected void afterApply(@NotNull GitToolBoxConfigPrj before, @NotNull GitToolBoxConfigPrj updated) {
+    ProjectConfig.getInstance(project).stateUpdated(before);
   }
 
   @NotNull

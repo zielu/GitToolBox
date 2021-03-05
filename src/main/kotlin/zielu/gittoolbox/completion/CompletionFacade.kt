@@ -6,10 +6,10 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.compat.GitCompatUtil
 import zielu.gittoolbox.config.ProjectConfig
 import zielu.gittoolbox.formatter.Formatter
-import zielu.gittoolbox.util.BaseFacade
+import zielu.gittoolbox.util.PrjBaseFacade
 import java.io.File
 
-internal class CompletionFacade(private val project: Project) : BaseFacade(project) {
+internal class CompletionFacade(private val project: Project) : PrjBaseFacade(project) {
   fun getFormatters(): ImmutableList<Formatter> {
     return ImmutableList.copyOf(ProjectConfig.getMerged(project).commitDialogCompletionFormatters())
   }

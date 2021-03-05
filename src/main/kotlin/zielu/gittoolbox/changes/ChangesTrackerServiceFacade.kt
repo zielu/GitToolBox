@@ -6,12 +6,12 @@ import com.intellij.openapi.vcs.FilePath
 import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.changes.ChangesTrackerService.Companion.CHANGES_TRACKER_TOPIC
-import zielu.gittoolbox.util.BaseFacade
+import zielu.gittoolbox.util.PrjBaseFacade
 import zielu.intellij.metrics.GtTimer
 
 internal open class ChangesTrackerServiceFacade(
   private val project: Project
-) : BaseFacade(project), Disposable {
+) : PrjBaseFacade(project), Disposable {
 
   fun fireChangeCountsUpdated() {
     publishAsync(this) { it.syncPublisher(CHANGES_TRACKER_TOPIC).changeCountsUpdated() }

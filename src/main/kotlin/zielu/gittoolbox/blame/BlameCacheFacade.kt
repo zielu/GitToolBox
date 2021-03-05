@@ -7,13 +7,13 @@ import com.intellij.openapi.vfs.VirtualFile
 import git4idea.repo.GitRepository
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.util.ExecutableTask
-import zielu.gittoolbox.util.BaseFacade
+import zielu.gittoolbox.util.PrjBaseFacade
 import zielu.intellij.util.ZDisposeGuard
 import java.util.concurrent.TimeUnit
 
 internal class BlameCacheFacade(
   private val project: Project
-) : Disposable, BaseFacade(
+) : Disposable, PrjBaseFacade(
   project
 ) {
   private val disposeGuard = ZDisposeGuard()

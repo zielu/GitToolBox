@@ -31,4 +31,12 @@ internal class AppConfigurable : GtConfigurableBase<AppConfigForm, MutableConfig
   override fun doApply(form: AppConfigForm, config: MutableConfig) {
     form.applyToState(config)
   }
+
+  override fun afterApply(before: MutableConfig, updated: MutableConfig) {
+    AppConfig.getInstance().stateUpdated(before.app)
+  }
+
+  override fun copyConfig(config: MutableConfig): MutableConfig {
+    return config.copy()
+  }
 }

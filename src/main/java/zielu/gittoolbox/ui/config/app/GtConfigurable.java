@@ -27,17 +27,17 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
   }
 
   @Override
-  protected GtForm createForm() {
+  protected @NotNull GtForm createForm() {
     return new GtForm();
   }
 
   @Override
-  protected GitToolBoxConfig2 getConfig() {
+  protected @NotNull GitToolBoxConfig2 getConfig() {
     return AppConfig.getConfig();
   }
 
   @Override
-  protected void bind(ConfigUiBinder<GitToolBoxConfig2, GtForm> binder) {
+  protected void bind(@NotNull ConfigUiBinder<GitToolBoxConfig2, GtForm> binder) {
     binder.bind(GitToolBoxConfig2::getPresenter,
         GitToolBoxConfig2::setPresenter,
         GtForm::getPresenter,
@@ -141,13 +141,13 @@ public class GtConfigurable extends GtBinderConfigurableBase<GtForm, GitToolBoxC
 
   @NotNull
   @Override
-  protected GitToolBoxConfig2 copy(@NotNull GitToolBoxConfig2 config) {
+  protected GitToolBoxConfig2 copyConfig(@NotNull GitToolBoxConfig2 config) {
     return config.copy();
   }
 
   @Override
-  protected void storeConfig(@NotNull GitToolBoxConfig2 existing, @NotNull GitToolBoxConfig2 updated) {
-    AppConfig.getInstance().updateState(updated);
+  protected void afterApply(@NotNull GitToolBoxConfig2 before, @NotNull GitToolBoxConfig2 updated) {
+    AppConfig.getInstance().stateUpdated(before);
   }
 
   @NotNull

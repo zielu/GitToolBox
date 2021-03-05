@@ -7,9 +7,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.vcs.log.impl.HashImpl
 import com.intellij.vcs.log.impl.VcsProjectLog
 import zielu.gittoolbox.cache.VirtualFileRepoCache
-import zielu.gittoolbox.util.BaseFacade
+import zielu.gittoolbox.util.PrjBaseFacade
 
-internal class RevisionServiceFacade(private val project: Project) : BaseFacade(project) {
+internal class RevisionServiceFacade(private val project: Project) : PrjBaseFacade(project) {
   fun loadCommitMessage(vFile: VirtualFile, revisionNumber: VcsRevisionNumber): String {
     val timer = getMetrics().timer("commit-message-cache.load")
     return timer.timeSupplierKt { loadCommitMessageImpl(vFile, revisionNumber) }

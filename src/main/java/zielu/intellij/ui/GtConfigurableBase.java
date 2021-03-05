@@ -34,6 +34,11 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C> extends
   protected void afterInit(@NotNull F form) {
   }
 
+  @NotNull
+  protected abstract C copyConfig(@NotNull C config);
+
+  protected abstract void afterApply(@NotNull C before, @NotNull C updated);
+
   @Override
   public final void dispose() {
     //do nothing
@@ -79,7 +84,10 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C> extends
 
   @Override
   public final void apply() throws ConfigurationException {
-    doApply(getForm(), getConfig());
+    C config = getConfig();
+    C before = copyConfig(config);
+    doApply(getForm(), config);
+    afterApply(before, config);
   }
 
   @Override

@@ -33,4 +33,12 @@ internal class PrjConfigurable(private val project: Project) : GtConfigurableBas
   override fun doApply(form: PrjConfigForm, config: MutableConfig) {
     form.applyToState(config)
   }
+
+  override fun afterApply(before: MutableConfig, updated: MutableConfig) {
+    ProjectConfig.getInstance(project).stateUpdated(before.prj())
+  }
+
+  override fun copyConfig(config: MutableConfig): MutableConfig {
+    return config.copy()
+  }
 }

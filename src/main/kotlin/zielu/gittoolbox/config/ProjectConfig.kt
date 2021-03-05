@@ -5,20 +5,22 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.util.xmlb.annotations.Transient
+import com.intellij.serviceContainer.NonInjectable
 import zielu.gittoolbox.GitToolBoxRegistry
-import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.util.AppUtil
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 @State(name = "GitToolBoxProjectSettings", storages = [Storage("git_toolbox_prj.xml")])
-internal class ProjectConfig(
-  @Transient
-  private val project: Project
+internal class ProjectConfig
+@NonInjectable
+constructor(
+  private val facade: ProjectConfigFacade,
 ) : PersistentStateComponent<GitToolBoxConfigPrj> {
   private val lock = ReentrantLock()
   private var state: GitToolBoxConfigPrj = GitToolBoxConfigPrj()
+
+  constructor(project: Project) : this(ProjectConfigFacade(project))
 
   override fun getState(): GitToolBoxConfigPrj {
     lock.withLock {
@@ -39,9 +41,7 @@ internal class ProjectConfig(
   }
 
   private fun migrate(state: GitToolBoxConfigPrj) {
-    val appConfig = AppConfig.getConfig()
-    val timer = ProjectMetrics.getInstance(project).timer("project-config.migrate")
-    val result = timer.timeSupplierKt { ConfigMigrator().migrate(project, appConfig, state) }
+    val result = facade.migrate(AppConfig.getConfig(), state)
     if (result) {
       log.info("Migration done")
     } else {
@@ -49,18 +49,12 @@ internal class ProjectConfig(
     }
   }
 
-  fun updateState(updated: GitToolBoxConfigPrj) {
+  fun stateUpdated(before: GitToolBoxConfigPrj) {
     lock.withLock {
-      val current = state
-      if (updated != current) {
-        state = updated
-        fireChanged(current, updated)
+      if (before != state) {
+        facade.publishUpdated(before, state)
       }
     }
-  }
-
-  private fun fireChanged(previous: GitToolBoxConfigPrj, current: GitToolBoxConfigPrj) {
-    project.messageBus.syncPublisher(ProjectConfigNotifier.CONFIG_TOPIC).configChanged(previous, current)
   }
 
   companion object {

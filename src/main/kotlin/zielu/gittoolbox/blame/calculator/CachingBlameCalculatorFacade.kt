@@ -9,9 +9,9 @@ import zielu.gittoolbox.blame.calculator.persistence.BlameCalculationPersistence
 import zielu.gittoolbox.metrics.CacheMetrics
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.revision.RevisionDataProvider
-import zielu.gittoolbox.util.BaseFacade
+import zielu.gittoolbox.util.PrjBaseFacade
 
-internal class CachingBlameCalculatorFacade(private val project: Project) : BaseFacade(project) {
+internal class CachingBlameCalculatorFacade(private val project: Project) : PrjBaseFacade(project) {
   private val incrementalCalculator = IncrementalBlameCalculator(project)
 
   fun calculator(): BlameCalculator = incrementalCalculator

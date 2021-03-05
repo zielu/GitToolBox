@@ -5,12 +5,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.ChangeListManager
 import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.util.AppUtil
-import zielu.gittoolbox.util.BaseFacade
+import zielu.gittoolbox.util.PrjBaseFacade
 import zielu.intellij.util.ZDisposeGuard
 
 internal class ChangeListSubscriberFacade(
   private val project: Project
-) : Disposable, BaseFacade(project) {
+) : Disposable, PrjBaseFacade(project) {
   private val disposeGuard = ZDisposeGuard()
 
   fun changeListRemoved(id: String) {

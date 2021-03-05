@@ -2,13 +2,13 @@ package zielu.gittoolbox.cache
 
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.GitToolBoxApp
-import zielu.gittoolbox.util.BaseFacade
+import zielu.gittoolbox.util.PrjBaseFacade
 import zielu.intellij.metrics.GtCounter
 import java.util.concurrent.TimeUnit
 
 internal open class CacheTaskSchedulerFacade(
   project: Project
-) : BaseFacade(project) {
+) : PrjBaseFacade(project) {
   fun queueSizeCounterInc() {
     getQueueSizeCounter().inc()
   }

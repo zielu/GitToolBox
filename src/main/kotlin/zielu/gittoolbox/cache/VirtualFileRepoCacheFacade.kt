@@ -3,12 +3,12 @@ package zielu.gittoolbox.cache
 import com.google.common.cache.Cache
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.cache.VirtualFileRepoCache.CACHE_CHANGE
-import zielu.gittoolbox.util.BaseFacade
+import zielu.gittoolbox.util.PrjBaseFacade
 import java.util.function.Supplier
 
 internal class VirtualFileRepoCacheFacade(
   project: Project
-) : BaseFacade(project) {
+) : PrjBaseFacade(project) {
 
   fun fireCacheChanged() {
     publishSync { it.syncPublisher(CACHE_CHANGE).updated() }

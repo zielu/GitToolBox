@@ -10,9 +10,9 @@ import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.metrics.ProjectMetrics
 import zielu.gittoolbox.revision.RevisionService
 import zielu.gittoolbox.util.GtUtil
-import zielu.gittoolbox.util.BaseFacade
+import zielu.gittoolbox.util.PrjBaseFacade
 
-internal class BlameLoaderFacade(private val project: Project) : BaseFacade(project) {
+internal class BlameLoaderFacade(private val project: Project) : PrjBaseFacade(project) {
   fun getRepoForFile(vFile: VirtualFile): GitRepository? {
     return VirtualFileRepoCache.getInstance(project).getRepoForFile(vFile)
   }
