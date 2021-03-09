@@ -41,7 +41,7 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C> extends
 
   @Override
   public final void dispose() {
-    //do nothing
+    form = null;
   }
 
   private synchronized F getForm() {
@@ -50,9 +50,9 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C> extends
         if (form == null) {
           form = UIUtil.invokeAndWaitIfNeeded(() -> {
             F newForm = createForm();
+            Disposer.register(this, newForm);
             newForm.init();
             afterInit(newForm);
-            Disposer.register(this, newForm);
             return newForm;
           });
         }
@@ -98,6 +98,5 @@ public abstract class GtConfigurableBase<F extends GtFormUi, C> extends
   @Override
   public synchronized void disposeUIResources() {
     Disposer.dispose(this);
-    form = null;
   }
 }
