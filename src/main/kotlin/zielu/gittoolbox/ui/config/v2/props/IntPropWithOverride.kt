@@ -20,6 +20,10 @@ internal class IntPropWithOverride(
 
   init {
     overrideProperty.set(prjValue.enabled)
+    when (prjValue.enabled) {
+      true -> valueProperty.set(prjValue.value)
+      false -> valueProperty.set(appValue.get())
+    }
     binding = ZOnItemSelectable(overrideUi) { onOverrideChange(it) }
   }
 
