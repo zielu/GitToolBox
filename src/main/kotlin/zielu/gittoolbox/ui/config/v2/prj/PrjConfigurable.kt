@@ -1,7 +1,7 @@
 package zielu.gittoolbox.ui.config.v2.prj
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
+import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.config.MutableConfig
 import zielu.gittoolbox.config.ProjectConfig
@@ -9,13 +9,11 @@ import zielu.intellij.ui.GtConfigurableBase
 
 internal class PrjConfigurable(private val project: Project) : GtConfigurableBase<PrjConfigForm, MutableConfig>() {
   override fun getDisplayName(): String {
-    return "GitToolbox Project V2"
+    return ResBundle.message("configurable.prj.displayName")
   }
 
   override fun createForm(): PrjConfigForm {
-    val form = PrjConfigForm()
-    Disposer.register(this, form)
-    return form
+    return PrjConfigForm()
   }
 
   override fun getConfig(): MutableConfig {

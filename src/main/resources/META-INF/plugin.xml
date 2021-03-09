@@ -54,17 +54,29 @@
 
     <!-- legacy config pages -->
     <applicationConfigurable provider="zielu.gittoolbox.ui.config.v1.AppV1ConfigurableProvider"
-                             id="zielu.gittoolbox.app.config" />
+                             id="zielu.gittoolbox.app.config"
+                             bundle="zielu.gittoolbox.ResourceBundle"
+                             key="configurable.app.displayName"
+    />
     <projectConfigurable provider="zielu.gittoolbox.ui.config.v1.PrjV1ConfigurableProvider"
-                          id="zielu.gittoolbox.prj.config" />
+                          id="zielu.gittoolbox.prj.config"
+                          bundle="zielu.gittoolbox.ResourceBundle"
+                          key="configurable.prj.displayName"
+    />
 
     <!-- new config pages -->
     <applicationConfigurable provider="zielu.gittoolbox.ui.config.v2.app.AppConfigurableProvider"
                              id="zielu.gittoolbox.app.config.v2"
-                             parentId="vcs.Git"/>
+                             parentId="vcs.Git"
+                             bundle="zielu.gittoolbox.ResourceBundle"
+                             key="configurable.app.displayName"
+    />
     <projectConfigurable provider="zielu.gittoolbox.ui.config.v2.prj.PrjConfigurableProvider"
                          id="zielu.gittoolbox.prj.config.v2"
-                         parentId="vcs.Git"/>
+                         parentId="vcs.Git"
+                         bundle="zielu.gittoolbox.ResourceBundle"
+                         key="configurable.prj.displayName"
+    />
 
     <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator" />
 
