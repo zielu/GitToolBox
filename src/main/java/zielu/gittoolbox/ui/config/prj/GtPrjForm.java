@@ -46,7 +46,7 @@ import zielu.gittoolbox.config.ReferencePointForStatusConfig;
 import zielu.gittoolbox.config.ReferencePointForStatusType;
 import zielu.gittoolbox.config.RemoteConfig;
 import zielu.gittoolbox.fetch.AutoFetchParams;
-import zielu.gittoolbox.ui.config.CommitCompletionConfigForm;
+import zielu.gittoolbox.ui.config.CommitCompletionConfigFormData;
 import zielu.gittoolbox.ui.config.GtPatternFormatterForm;
 import zielu.gittoolbox.ui.config.ReferencePointForStatusTypeRenderer;
 import zielu.gittoolbox.ui.config.common.AutoFetchExclusionTreeRenderer;
@@ -192,7 +192,7 @@ public class GtPrjForm implements GtFormUi {
     if (config == null) {
       completionItemPatternForm.getContent().setVisible(false);
     } else if (config.getType() == CommitCompletionType.PATTERN) {
-      completionItemPatternForm.setData(new CommitCompletionConfigForm(config));
+      completionItemPatternForm.setData(new CommitCompletionConfigFormData(config));
       completionItemPatternForm.afterStateSet();
       completionItemPatternForm.getContent().setVisible(true);
     } else {

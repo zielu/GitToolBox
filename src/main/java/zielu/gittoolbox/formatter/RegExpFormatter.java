@@ -30,13 +30,13 @@ public class RegExpFormatter implements Formatter {
   @Override
   public Formatted format(String input) {
     if (pattern == null) {
-      return new Formatted(input, false);
+      return new Formatted(input, false, "no pattern");
     } else {
       Matcher matcher = pattern.matcher(input);
       if (matcher.matches()) {
-        return new Formatted(format(matcher), true);
+        return new Formatted(format(matcher), true, null);
       } else {
-        return new Formatted(input, false);
+        return new Formatted(input, false, "pattern: " + pattern.pattern());
       }
     }
   }

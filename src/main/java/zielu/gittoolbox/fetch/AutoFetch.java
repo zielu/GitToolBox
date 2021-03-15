@@ -7,7 +7,6 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.GitToolBoxRegistry;
-import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.config.MergedProjectConfig;
 import zielu.gittoolbox.config.ProjectConfig;
 
@@ -50,14 +49,12 @@ class AutoFetch implements AutoFetchComponent, Disposable {
   }
 
   @Override
-  public void configChanged(@NotNull GitToolBoxConfigPrj previous,
-                            @NotNull GitToolBoxConfigPrj current) {
-    MergedProjectConfig previousConfig = ProjectConfig.getMerged(previous);
-    MergedProjectConfig currentConfig = ProjectConfig.getMerged(current);
-    updateAutoFetchEnabled(currentConfig);
+  public void configChanged(@NotNull MergedProjectConfig previous,
+                            @NotNull MergedProjectConfig current) {
+    updateAutoFetchEnabled(current);
     if (autoFetchEnabled.get()) {
       log.debug("Auto-fetch enabled");
-      autoFetchEnabled(previousConfig, currentConfig);
+      autoFetchEnabled(previous, current);
     } else {
       log.debug("Auto-fetch disabled");
       autoFetchDisabled();

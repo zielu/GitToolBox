@@ -50,7 +50,9 @@ constructor(
 
   fun stateUpdated(before: GitToolBoxConfig2) {
     lock.withLock {
+      log.info("Config updated")
       if (before != state) {
+        log.info("Current different than previous")
         facade.publishUpdated(before, state)
       }
     }

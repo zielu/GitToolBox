@@ -2,7 +2,7 @@ package zielu.gittoolbox.ui.config
 
 import zielu.gittoolbox.config.CommitCompletionConfig
 
-internal class CommitCompletionConfigForm(
+internal class CommitCompletionConfigFormData(
   private val config: CommitCompletionConfig
 ) : GtPatternFormatterData {
   override var pattern: String

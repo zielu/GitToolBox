@@ -6,7 +6,9 @@ import git4idea.repo.GitRepository;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 import zielu.gittoolbox.cache.RepoInfo;
+import zielu.gittoolbox.config.GitToolBoxConfig2;
 import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.config.MergedProjectConfig;
 import zielu.gittoolbox.config.ProjectConfig;
 import zielu.gittoolbox.util.AppUtil;
 
@@ -50,7 +52,15 @@ class AutoFetchSubscriber {
   }
 
   void onConfigChanged(@NotNull GitToolBoxConfigPrj previous, @NotNull GitToolBoxConfigPrj current) {
-    AutoFetchComponent.getInstance(project).configChanged(previous, current);
+    MergedProjectConfig previousMerged = ProjectConfig.getMerged(previous);
+    MergedProjectConfig currentMerged = ProjectConfig.getMerged(current);
+    AutoFetchComponent.getInstance(project).configChanged(previousMerged, currentMerged);
+  }
+
+  void onConfigChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
+    MergedProjectConfig previousMerged = ProjectConfig.getMerged(previous, project);
+    MergedProjectConfig currentMerged = ProjectConfig.getMerged(current, project);
+    AutoFetchComponent.getInstance(project).configChanged(previousMerged, currentMerged);
   }
 
   void onStateChanged(@NotNull AutoFetchState state) {

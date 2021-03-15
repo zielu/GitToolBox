@@ -9,7 +9,7 @@ internal class ListValueProp<T : ConfigItem<T>>(
   private val value: KMutableProperty0<List<T>>
 ) : UiItem, ModifyTracker {
   init {
-    valueModel.replaceAll(value.invoke())
+    valueModel.replaceAll(value.invoke().map { it.copy() })
   }
 
   override fun apply() {

@@ -23,7 +23,7 @@ import zielu.gittoolbox.config.CommitCompletionConfig
 import zielu.gittoolbox.config.CommitCompletionMode
 import zielu.gittoolbox.config.CommitCompletionType
 import zielu.gittoolbox.config.MutableConfig
-import zielu.gittoolbox.ui.config.CommitCompletionConfigForm
+import zielu.gittoolbox.ui.config.CommitCompletionConfigFormData
 import zielu.gittoolbox.ui.config.GtPatternFormatterForm
 import zielu.gittoolbox.ui.config.v2.props.BoolProp
 import zielu.gittoolbox.ui.config.v2.props.BoolPropWithOverride
@@ -119,6 +119,8 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
         onCompletionFormatterSelected(completionFormattersList.selectedValue)
       }
     }
+    completionFormattersPatternForm.addPatternUpdate { completionFormattersList.repaint() }
+
     val completionFormattersPanel = JPanel(GridLayout(1, 2, 5, 0))
     completionFormattersPanel.add(completionDecoratorPanel)
     completionFormattersPanel.add(completionFormattersPatternForm.content)
@@ -271,7 +273,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
       completionFormattersPatternForm.content.isVisible = false
     } else {
       completionFormattersPatternForm.content.isVisible = true
-      completionFormattersPatternForm.setData(CommitCompletionConfigForm(config))
+      completionFormattersPatternForm.setData(CommitCompletionConfigFormData(config))
       completionFormattersPatternForm.afterStateSet()
     }
   }

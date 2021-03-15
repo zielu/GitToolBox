@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.formatter.Formatter;
 import zielu.gittoolbox.util.AppUtil;
 
@@ -19,8 +18,6 @@ public interface CompletionService {
 
   @NotNull
   List<Formatter> getFormatters();
-
-  void onConfigChanged(@NotNull GitToolBoxConfigPrj config);
 
   static CompletionService getInstance(@NotNull Project project) {
     return AppUtil.getServiceInstance(project, CompletionService.class);

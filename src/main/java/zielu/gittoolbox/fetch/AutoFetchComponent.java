@@ -2,13 +2,13 @@ package zielu.gittoolbox.fetch;
 
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.GitToolBoxConfigPrj;
+import zielu.gittoolbox.config.MergedProjectConfig;
 import zielu.gittoolbox.util.AppUtil;
 
 public interface AutoFetchComponent {
 
-  void configChanged(@NotNull GitToolBoxConfigPrj previous,
-                     @NotNull GitToolBoxConfigPrj current);
+  void configChanged(@NotNull MergedProjectConfig previous,
+                     @NotNull MergedProjectConfig current);
 
   void stateChanged(AutoFetchState state);
 

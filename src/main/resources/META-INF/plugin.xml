@@ -214,8 +214,8 @@
     <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberMappingListener"
               topic="com.intellij.dvcs.repo.VcsRepositoryMappingListener" />
 
-        <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberAppConfigListener"
-                  topic="zielu.gittoolbox.config.AppConfigNotifier" />
+    <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberAppConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
     <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberPrjConfigListener"
               topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
 
@@ -224,11 +224,11 @@
     <listener class="zielu.gittoolbox.changes.ChangeListSubscriberConfigListener"
               topic="zielu.gittoolbox.config.AppConfigNotifier" />
 
-    <listener class="zielu.gittoolbox.completion.CompletionConfigListener"
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberPrjConfigListener"
               topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberAppConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
 
-    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberConfigListener"
-              topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
     <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberFetchStateListener"
               topic="zielu.gittoolbox.fetch.AutoFetchNotifier" />
     <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberInfoCacheListener"

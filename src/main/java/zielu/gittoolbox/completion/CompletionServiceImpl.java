@@ -10,7 +10,6 @@ import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.config.GitToolBoxConfigPrj;
 import zielu.gittoolbox.formatter.Formatter;
 
 class CompletionServiceImpl implements CompletionService, Disposable {
@@ -24,16 +23,17 @@ class CompletionServiceImpl implements CompletionService, Disposable {
   }
 
   @Override
-  public void onConfigChanged(@NotNull GitToolBoxConfigPrj config) {
-    synchronized (this) {
-      formatters = null;
-    }
-  }
-
-  @Override
   public void setScopeProvider(@NotNull CompletionScopeProvider scopeProvider) {
     log.debug("Set scope provider: ", scopeProvider);
     scopeProviderRef = new WeakReference<>(scopeProvider);
+    clearFormatters();
+  }
+
+  private void clearFormatters() {
+    synchronized (this) {
+      formatters = null;
+      log.info("Clear formatters");
+    }
   }
 
   @Override
@@ -68,6 +68,7 @@ class CompletionServiceImpl implements CompletionService, Disposable {
       synchronized (this) {
         if (formatters == null) {
           formatters = facade.getFormatters();
+          log.debug("Current formatters: ", formatters);
         }
       }
     }
@@ -76,7 +77,7 @@ class CompletionServiceImpl implements CompletionService, Disposable {
 
   @Override
   public void dispose() {
-    formatters = null;
+    clearFormatters();
     scopeProviderRef = null;
   }
 }
