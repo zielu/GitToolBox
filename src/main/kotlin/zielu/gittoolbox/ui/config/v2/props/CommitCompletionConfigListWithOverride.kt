@@ -30,11 +30,12 @@ internal class CommitCompletionConfigListWithOverride(
   }
 
   private fun onOverrideChange(overridden: Boolean) {
-    if (overridden) {
-      valueModel.replaceAll(prjValue.invoke().values)
+    val values: List<CommitCompletionConfig> = if (overridden) {
+      prjValue.invoke().values
     } else {
-      valueModel.replaceAll(appValue.invoke())
+      appValue.invoke()
     }
+    valueModel.replaceAll(values.map { it.copy() })
   }
 
   override fun apply() {
