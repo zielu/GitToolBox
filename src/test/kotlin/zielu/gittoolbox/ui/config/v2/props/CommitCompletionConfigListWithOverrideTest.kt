@@ -4,6 +4,7 @@ import com.intellij.openapi.observable.properties.AtomicBooleanProperty
 import com.intellij.ui.CollectionListModel
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
 import zielu.gittoolbox.config.CommitCompletionConfig
 import zielu.gittoolbox.config.CommitCompletionType
 import zielu.gittoolbox.config.override.CommitCompletionConfigListOverride
@@ -31,11 +32,13 @@ internal class CommitCompletionConfigListWithOverrideTest {
     // given
     itemSelectableMock.selectedObjects = arrayOf(true)
     prjOverride.enabled = true
-    prjOverride.values = listOf(CommitCompletionConfig(
-      CommitCompletionType.PATTERN,
-      ".*",
-      "test"
-    ))
+    prjOverride.values = listOf(
+      CommitCompletionConfig(
+        CommitCompletionType.PATTERN,
+        ".*",
+        "test"
+      )
+    )
     val prop = createProp()
 
     // when
@@ -43,5 +46,27 @@ internal class CommitCompletionConfigListWithOverrideTest {
 
     // then
     assertThat(prop.isModified()).isTrue
+  }
+
+  @Test
+  fun `should apply value to project when project overrides app`() {
+    // given
+    val prop = createProp()
+    override.set(true)
+    val item = CommitCompletionConfig(
+      CommitCompletionType.PATTERN,
+      ".*",
+      "test"
+    )
+    model.add(item)
+
+    // when
+    prop.apply()
+
+    // then
+    assertAll(
+      { assertThat(prjOverride.enabled).isTrue },
+      { assertThat(prjOverride.values).containsExactly(item) }
+    )
   }
 }
