@@ -50,7 +50,7 @@ internal class ProjectViewPage(
 
   override fun init() {
     val decorationPartsPreview: () -> String = {
-      decorationLayoutModel.items.map { getDecorationPartPreview(it) }.joinToString(" ")
+      decorationLayoutModel.items.joinToString(" ") { getDecorationPartPreview(it) }
     }
 
     val updateDecorationPreview: () -> Unit = {
@@ -158,10 +158,16 @@ internal class ProjectViewPage(
         updateDecorationPreview()
       }
     })
+
+    appPages.addListener(object : AppPagesNotifier {
+      override fun appPagesChanged(appPages: AppPages) {
+        updateDecorationPreview()
+      }
+    })
   }
 
-  private fun getDecorationPartPreview(config: DecorationPartConfig): String? {
-    return appPages.statusPresenter?.let {
+  private fun getDecorationPartPreview(config: DecorationPartConfig): String {
+    return appPages.statusPresenter.let {
       val preview = StringBand(config.prefix)
       DecorationPartPreview
         .appendPreview(it, config.type, preview)
