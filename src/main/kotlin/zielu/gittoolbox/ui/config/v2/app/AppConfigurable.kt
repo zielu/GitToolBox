@@ -11,7 +11,7 @@ internal class AppConfigurable : GtConfigurableBase<AppConfigForm, MutableConfig
   }
 
   override fun getDisplayName(): String {
-    return ResBundle.message("configurable.app.displayName")
+    return ResBundle.message("configurable.app.v2.displayName")
   }
 
   override fun setFormState(form: AppConfigForm, config: MutableConfig) {
