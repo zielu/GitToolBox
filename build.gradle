@@ -11,6 +11,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 apply plugin: 'org.jetbrains.intellij'
