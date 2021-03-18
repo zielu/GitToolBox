@@ -141,7 +141,7 @@ class AutoFetchTask implements ZDisposableRunnable {
       indicator.setText(title);
       log.debug("Auto-fetching...");
       executeIdeaFetch(repos, indicator);
-      log.debug("Finished auto-fetch");
+      log.info("Finished auto-fetch");
       state.fetchFinish();
     } else {
       log.info("Auto-fetch already in progress");
