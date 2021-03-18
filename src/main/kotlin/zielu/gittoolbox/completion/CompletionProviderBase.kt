@@ -8,8 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.ProcessingContext
 import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.config.CommitCompletionMode
-import zielu.gittoolbox.config.GitToolBoxConfigPrj
-import zielu.gittoolbox.config.ProjectConfig
 import zielu.gittoolbox.config.ProjectConfig.Companion.getMerged
 
 internal abstract class CompletionProviderBase : CompletionProvider<CompletionParameters>() {
@@ -38,10 +36,6 @@ internal abstract class CompletionProviderBase : CompletionProvider<CompletionPa
       return modeHandler.invoke(parameters)
     }
     return false
-  }
-
-  private fun getConfig(project: Project): GitToolBoxConfigPrj {
-    return ProjectConfig.getConfig(project)
   }
 
   private fun getProject(parameters: CompletionParameters): Project {

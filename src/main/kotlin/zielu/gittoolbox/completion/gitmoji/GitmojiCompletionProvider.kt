@@ -18,7 +18,7 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
   override fun setupCompletions(project: Project, result: CompletionResultSet) {
     if (isEnabled(project)) {
       val completionService = CompletionService.getInstance(project)
-      if (completionService.affected.isNotEmpty()) {
+      if (completionService.getAffected().isNotEmpty()) {
         addCompletions(result)
       }
     }

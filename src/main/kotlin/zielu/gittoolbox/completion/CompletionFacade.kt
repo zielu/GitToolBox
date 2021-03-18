@@ -10,8 +10,8 @@ import zielu.gittoolbox.util.PrjBaseFacade
 import java.io.File
 
 internal class CompletionFacade(private val project: Project) : PrjBaseFacade(project) {
-  fun getFormatters(): ImmutableList<Formatter> {
-    return ImmutableList.copyOf(ProjectConfig.getMerged(project).commitDialogCompletionFormatters())
+  fun getFormatters(): List<Formatter> {
+    return ProjectConfig.getMerged(project).commitDialogCompletionFormatters()
   }
 
   fun getRepositories(files: Collection<File>): Collection<GitRepository> {
