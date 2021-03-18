@@ -8,7 +8,6 @@ import zielu.gittoolbox.config.AppConfigNotifier
 import zielu.gittoolbox.config.GitToolBoxConfig2
 import zielu.gittoolbox.config.GitToolBoxConfigPrj
 import zielu.gittoolbox.config.ProjectConfigNotifier
-import zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier
 
 internal class AutoFetchSubscriberPrjConfigListener(private val project: Project) : ProjectConfigNotifier {
   override fun configChanged(previous: GitToolBoxConfigPrj, current: GitToolBoxConfigPrj) {
@@ -39,11 +38,5 @@ internal class AutoFetchSubscriberInfoCacheListener(private val project: Project
 
   override fun allRepositoriesInitialized(repositories: Collection<GitRepository>) {
     AutoFetchSubscriber.getInstance(project).onAllReposInitialized(repositories)
-  }
-}
-
-internal class AutoFetchSubscriberProjectListener : ProjectLifecycleNotifier {
-  override fun projectReady(project: Project) {
-    AutoFetchSubscriber.getInstance(project).onProjectReady()
   }
 }

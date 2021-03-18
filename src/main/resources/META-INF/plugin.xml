@@ -166,7 +166,6 @@
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
 
     <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
-    <registryKey defaultValue="true" description="Debounce first auto-fetch" key="zielu.gittoolbox.fetch.auto.debounce.first" />
     <registryKey defaultValue="false" description="Auto-fetch in background" key="zielu.gittoolbox.fetch.auto.in.background" />
     <registryKey defaultValue="false" description="Diagnostic mode" key="zielu.gittoolbox.diagnostic.mode" />
     <registryKey defaultValue="false" description="Legacy configuration" key="zielu.gittoolbox.config.legacy" />
@@ -235,8 +234,6 @@
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
     <listener class="zielu.gittoolbox.fetch.AutoFetchStateAllowedListener"
               topic="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedNotifier" />
-    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberProjectListener"
-              topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
     <listener class="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeListener"
               topic="com.intellij.openapi.project.DumbService$DumbModeListener" />
 

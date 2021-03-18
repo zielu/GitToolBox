@@ -8,18 +8,8 @@ internal object GitToolBoxRegistry {
   }
 
   @JvmStatic
-  fun shouldDebounceFirstAutoFetch(): Boolean {
-    return Registry.`is`("zielu.gittoolbox.fetch.auto.debounce.first", false)
-  }
-
-  @JvmStatic
   fun runAutoFetchInBackground(): Boolean {
     return Registry.`is`("zielu.gittoolbox.fetch.auto.in.background", false)
-  }
-
-  @JvmStatic
-  fun shouldNotDebounceFirstAutoFetch(): Boolean {
-    return !shouldDebounceFirstAutoFetch()
   }
 
   fun diagnosticMode(): Boolean {

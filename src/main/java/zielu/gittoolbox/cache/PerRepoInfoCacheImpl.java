@@ -17,7 +17,6 @@ import java.util.function.Supplier;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxRegistry;
 import zielu.gittoolbox.metrics.ProjectMetrics;
 import zielu.gittoolbox.status.GitStatusCalculator;
 import zielu.gittoolbox.util.GtUtil;
@@ -75,17 +74,15 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
   }
 
   private void checkAndNotifyAllRepositoriesInitialized() {
-    if (GitToolBoxRegistry.shouldDebounceFirstAutoFetch()) {
-      Map<GitRepository, RepoInfo> statusMap = Map.copyOf(behindStatuses.get());
-      if (!statusMap.isEmpty()) {
-        boolean allRepositoriesInitialized = statusMap.values().stream().noneMatch(RepoInfo::isEmpty);
-        log.debug("All repositories initialized: ", allRepositoriesInitialized);
-        if (allRepositoriesInitialized) {
-          publisher.notifyAllRepositoriesInitialized(List.copyOf(statusMap.keySet()));
-        }
-      } else {
-        log.debug("No repositories to check for all initialized");
+    Map<GitRepository, RepoInfo> statusMap = Map.copyOf(behindStatuses.get());
+    if (!statusMap.isEmpty()) {
+      boolean allRepositoriesInitialized = statusMap.values().stream().noneMatch(RepoInfo::isEmpty);
+      log.debug("All repositories initialized: ", allRepositoriesInitialized);
+      if (allRepositoriesInitialized) {
+        publisher.notifyAllRepositoriesInitialized(List.copyOf(statusMap.keySet()));
       }
+    } else {
+      log.debug("No repositories to check for all initialized");
     }
   }
 

@@ -27,10 +27,6 @@ class AutoFetchSubscriber {
     return AppUtil.getServiceInstance(project, AutoFetchSubscriber.class);
   }
 
-  void onProjectReady() {
-    AutoFetchComponent.getInstance(project).projectReady();
-  }
-
   public void onAllReposInitialized(@NotNull Collection<? extends GitRepository> repositories) {
     AutoFetchComponent.getInstance(project).allRepositoriesInitialized(repositories.size());
   }
@@ -51,15 +47,15 @@ class AutoFetchSubscriber {
     }
   }
 
-  void onConfigChanged(@NotNull GitToolBoxConfigPrj previous, @NotNull GitToolBoxConfigPrj current) {
-    MergedProjectConfig previousMerged = ProjectConfig.getMerged(previous);
-    MergedProjectConfig currentMerged = ProjectConfig.getMerged(current);
-    AutoFetchComponent.getInstance(project).configChanged(previousMerged, currentMerged);
-  }
-
   void onConfigChanged(@NotNull GitToolBoxConfig2 previous, @NotNull GitToolBoxConfig2 current) {
     MergedProjectConfig previousMerged = ProjectConfig.getMerged(previous, project);
     MergedProjectConfig currentMerged = ProjectConfig.getMerged(current, project);
+    AutoFetchComponent.getInstance(project).configChanged(previousMerged, currentMerged);
+  }
+
+  void onConfigChanged(@NotNull GitToolBoxConfigPrj previous, @NotNull GitToolBoxConfigPrj current) {
+    MergedProjectConfig previousMerged = ProjectConfig.getMerged(previous);
+    MergedProjectConfig currentMerged = ProjectConfig.getMerged(current);
     AutoFetchComponent.getInstance(project).configChanged(previousMerged, currentMerged);
   }
 

@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
-import zielu.gittoolbox.GitToolBoxRegistry;
 import zielu.gittoolbox.config.MergedProjectConfig;
 import zielu.gittoolbox.config.ProjectConfig;
 
@@ -106,23 +105,14 @@ class AutoFetch implements AutoFetchComponent, Disposable {
   }
 
   @Override
-  public void projectReady() {
-    if (GitToolBoxRegistry.shouldNotDebounceFirstAutoFetch()) {
-      activate(1);
-    }
+  public void allRepositoriesInitialized(int reposCount) {
+    log.info("All " + reposCount + " repositories initialized");
+    activate(reposCount);
   }
 
   private void activate(int reposCount) {
     if (active.compareAndSet(false, true)) {
       initializeFirstTask(reposCount);
-    }
-  }
-
-  @Override
-  public void allRepositoriesInitialized(int reposCount) {
-    if (GitToolBoxRegistry.shouldDebounceFirstAutoFetch()) {
-      log.info("All " + reposCount + " repositories initialized");
-      activate(reposCount);
     }
   }
 
