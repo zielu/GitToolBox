@@ -3,7 +3,7 @@ import java.text.SimpleDateFormat
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.30'
-    id 'org.jetbrains.intellij' version '0.7.1'
+    id 'org.jetbrains.intellij' version '0.7.2'
     id 'com.palantir.git-version' version '0.12.3'
     id 'ch.netzwerg.release' version '1.2.5'
     id 'org.jlleitschuh.gradle.ktlint' version '9.4.1'
