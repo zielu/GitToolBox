@@ -42,6 +42,7 @@ internal class ProjectViewPage(
   private val decorationLayoutModel = CollectionListModel<DecorationPartConfig>()
   private val layoutPreviewTextField = JBTextField()
   private lateinit var panel: DialogPanel
+  private lateinit var addDecorationLayoutPartPopup: JBPopupMenu
   private val uiItems = UiItems()
 
   init {
@@ -57,7 +58,7 @@ internal class ProjectViewPage(
       layoutPreviewTextField.text = decorationPartsPreview()
     }
 
-    val addDecorationLayoutPartPopup = JBPopupMenu()
+    addDecorationLayoutPartPopup = JBPopupMenu()
     val decorationLayoutList = JBList(decorationLayoutModel)
     decorationLayoutList.cellRenderer = SimpleListCellRenderer.create("") {
       it.prefix + it.type.placeholder + it.postfix
@@ -65,6 +66,7 @@ internal class ProjectViewPage(
     val toolbarDecorator = ToolbarDecorator.createDecorator(decorationLayoutList)
     toolbarDecorator.setAddAction {
       it.preferredPopupPoint?.let { relativePoint: RelativePoint ->
+
         addDecorationLayoutPartPopup.show(relativePoint.component, relativePoint.point.x, relativePoint.point.y)
       }
     }
@@ -176,10 +178,6 @@ internal class ProjectViewPage(
     }
   }
 
-  override fun afterStateSet() {
-    panel.reset()
-  }
-
   override fun fillFromState(state: MutableConfig) {
     uiItems.clear()
 
@@ -189,6 +187,19 @@ internal class ProjectViewPage(
         state.app::decorationParts
       )
     )
+  }
+
+  override fun afterStateSet() {
+    panel.reset()
+    fillDecorationsPopup()
+  }
+
+  private fun fillDecorationsPopup() {
+    val usedTypes = decorationLayoutModel.items.map { it.type }.toSet()
+    DecorationPartType.getValues()
+      .filterNot { usedTypes.contains(it) }
+      .map { decorationPartActions[it] }
+      .forEach { addDecorationLayoutPartPopup.add(it) }
   }
 
   override fun isModified(): Boolean {
