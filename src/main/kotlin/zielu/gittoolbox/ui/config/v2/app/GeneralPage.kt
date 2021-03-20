@@ -205,7 +205,7 @@ internal class GeneralPage(
   }
 
   override fun isModified(): Boolean {
-    return panel.isModified()
+    return panel.isModified() || uiItems.isModified()
   }
 
   override fun applyToState(state: MutableConfig) {

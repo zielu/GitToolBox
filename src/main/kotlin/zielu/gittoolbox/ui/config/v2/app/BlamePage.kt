@@ -113,7 +113,7 @@ internal class BlamePage : GtFormUiEx<MutableConfig> {
   }
 
   override fun isModified(): Boolean {
-    return panel.isModified()
+    return panel.isModified() || uiItems.isModified()
   }
 
   override fun getContent(): JComponent {

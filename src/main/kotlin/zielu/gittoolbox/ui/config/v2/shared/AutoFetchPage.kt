@@ -167,7 +167,7 @@ internal class AutoFetchPage : GtFormUiEx<MutableConfig> {
   }
 
   override fun isModified(): Boolean {
-    return panel.isModified() || exclusionsForm.isModified()
+    return panel.isModified() || exclusionsForm.isModified() || uiItems.isModified()
   }
 
   override fun getContent(): JComponent {

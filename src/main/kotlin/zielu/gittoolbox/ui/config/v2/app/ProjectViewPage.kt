@@ -192,7 +192,7 @@ internal class ProjectViewPage(
   }
 
   override fun isModified(): Boolean {
-    return panel.isModified()
+    return panel.isModified() || uiItems.isModified()
   }
 
   override fun getContent(): JComponent {
