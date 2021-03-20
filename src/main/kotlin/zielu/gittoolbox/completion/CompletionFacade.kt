@@ -1,6 +1,5 @@
 package zielu.gittoolbox.completion
 
-import com.google.common.collect.ImmutableList
 import com.intellij.openapi.project.Project
 import git4idea.repo.GitRepository
 import zielu.gittoolbox.compat.GitCompatUtil
