@@ -87,7 +87,7 @@ internal class AutoFetchPage : GtFormUiEx<MutableConfig> {
             autoFetchOnBranchSwitchOverride::set
 
           ).component
-          overrideCheckBoxes.register(autoFetchTimingOverrideCheckbox)
+          overrideCheckBoxes.register(autoFetchOnBranchSwitchOverrideCheckbox)
         }
       }
       row {
