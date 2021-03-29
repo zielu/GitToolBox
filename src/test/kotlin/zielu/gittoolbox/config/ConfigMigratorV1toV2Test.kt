@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 internal class ConfigMigratorV1toV2Test {
+
   @Test
   fun `should migrate location before status`() {
     // given
