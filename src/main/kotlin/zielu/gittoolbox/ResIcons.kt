@@ -39,13 +39,13 @@ internal object ResIcons {
     get() = getIcon("/zielu/gittoolbox/changes-none.svg")
   @JvmStatic
   val Logo: Icon
-    get() = IconLoader.getIcon("/META-INF/pluginIcon.svg")
+    get() = getIcon("/META-INF/pluginIcon.svg")
   @JvmStatic
   val Plus: Icon
-    get() = IconLoader.getIcon("/zielu/gittoolbox/plus-button.png")
+    get() = getIcon("/zielu/gittoolbox/plus-button.png")
   @JvmStatic
   val Minus: Icon
-    get() = IconLoader.getIcon("/zielu/gittoolbox/minus-button.png")
+    get() = getIcon("/zielu/gittoolbox/minus-button.png")
 
   private fun getIcon(path: String) = IconLoader.getIcon(path, javaClass)
 }
