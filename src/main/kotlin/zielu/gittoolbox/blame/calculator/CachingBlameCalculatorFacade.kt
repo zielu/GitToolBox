@@ -34,4 +34,8 @@ internal class CachingBlameCalculatorFacade(private val project: Project) : PrjB
   fun storeInPersistence(dataProvider: RevisionDataProvider) {
     BlameCalculationPersistence.getInstance(project).storeBlame(dataProvider)
   }
+
+  fun maxEntries(): Long {
+    return GitToolBoxRegistry.blameCacheCalculatorEntriesCount()
+  }
 }

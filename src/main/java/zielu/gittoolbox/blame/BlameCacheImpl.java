@@ -30,15 +30,17 @@ class BlameCacheImpl implements BlameCache, Disposable {
   private static final Logger LOG = Logger.getInstance(BlameCacheImpl.class);
   private final ZDisposeGuard disposeGuard = new ZDisposeGuard();
   private final BlameCacheFacade facade;
-  private final LoadingCache<VirtualFile, Cached<Blamed>> annotations = CacheBuilder.newBuilder()
-      .maximumSize(75)
-      .expireAfterAccess(Duration.ofMinutes(45))
-      .recordStats()
-      .build(CacheLoader.from((Supplier<Cached<Blamed>>) CachedFactory::loading));
+  private final LoadingCache<VirtualFile, Cached<Blamed>> annotations;
   private final Set<VirtualFile> queued = ContainerUtil.newConcurrentSet();
 
   BlameCacheImpl(@NotNull Project project) {
     facade = new BlameCacheFacade(project);
+    annotations = CacheBuilder.newBuilder()
+                      .weakKeys()
+                      .maximumSize(facade.maxEntries())
+                      .expireAfterAccess(Duration.ofMinutes(45))
+                      .recordStats()
+                      .build(CacheLoader.from((Supplier<Cached<Blamed>>) CachedFactory::loading));
     facade.exposeCacheMetrics(annotations, "blame-cache");
     facade.registerQueuedGauge(queued::size);
     facade.registerDisposable(this, facade);

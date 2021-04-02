@@ -166,6 +166,9 @@
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
 
     <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
+    <registryKey defaultValue="15" description="Blame calculator cache size" key="zielu.gittoolbox.blame.calculator.cache.size" />
+    <registryKey defaultValue="30" description="Blame cache size" key="zielu.gittoolbox.blame.cache.size" />
+
     <registryKey defaultValue="false" description="Auto-fetch in background" key="zielu.gittoolbox.fetch.auto.in.background" />
     <registryKey defaultValue="false" description="Diagnostic mode" key="zielu.gittoolbox.diagnostic.mode" />
     <registryKey defaultValue="false" description="Legacy configuration" key="zielu.gittoolbox.config.legacy" />

@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
 import git4idea.repo.GitRepository
+import zielu.gittoolbox.GitToolBoxRegistry
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.util.ExecutableTask
 import zielu.gittoolbox.util.PrjBaseFacade
@@ -17,6 +18,10 @@ internal class BlameCacheFacade(
   project
 ) {
   private val disposeGuard = ZDisposeGuard()
+
+  fun maxEntries(): Long {
+    return GitToolBoxRegistry.blameCacheEntriesCount()
+  }
 
   fun timeCacheGet(get: () -> BlameAnnotation): BlameAnnotation {
     return if (disposeGuard.isActive()) {

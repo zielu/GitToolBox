@@ -26,7 +26,7 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator, Dispo
     }
   }
   private val dataProviders: LoadingCache<Key, RevisionDataProvider> = CacheBuilder.newBuilder()
-    .maximumSize(50)
+    .maximumSize(facade.maxEntries())
     .recordStats()
     .build(loader)
 
