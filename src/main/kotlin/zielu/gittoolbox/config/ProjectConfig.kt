@@ -67,7 +67,7 @@ constructor(
 
     @JvmStatic
     fun getMerged(project: Project): MergedProjectConfig {
-      return MergedProjectConfig(AppConfig.getConfig(), getConfig(project), GitToolBoxRegistry.useLegacyConfig())
+      return getMerged(AppConfig.getConfig(), project)
     }
 
     @JvmStatic
@@ -77,7 +77,7 @@ constructor(
 
     @JvmStatic
     fun getMerged(appConfig: GitToolBoxConfig2, project: Project): MergedProjectConfig {
-      return MergedProjectConfig(AppConfig.getConfig(), getConfig(project), GitToolBoxRegistry.useLegacyConfig())
+      return MergedProjectConfig(appConfig, getConfig(project), GitToolBoxRegistry.useLegacyConfig())
     }
 
     @JvmStatic
