@@ -107,15 +107,16 @@ internal class MergedProjectConfig(
   }
 
   fun setCommitMessageValidation(value: Boolean) {
-    return when {
-      useLegacy -> {
-        projectConfig.commitMessageValidation = value
-      }
-      projectConfig.commitMessageValidationOverride.enabled -> {
-        projectConfig.commitMessageValidationOverride.value = value
-      }
-      else -> {
-        appConfig.commitMessageValidationEnabled = value
+    if (useLegacy) {
+      projectConfig.commitMessageValidation = value
+    } else {
+      if (value != commitMessageValidation()) {
+        if (value == appConfig.commitMessageValidationEnabled) {
+          projectConfig.commitMessageValidationOverride.enabled = false
+        } else {
+          projectConfig.commitMessageValidationOverride.enabled = true
+          projectConfig.commitMessageValidationOverride.value = value
+        }
       }
     }
   }
