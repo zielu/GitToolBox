@@ -3,14 +3,11 @@ package zielu.gittoolbox.ui.statusbar
 import com.intellij.dvcs.ui.LightActionGroup
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Condition
-import com.intellij.openapi.wm.IdeFocusManager
+import com.intellij.openapi.util.Conditions
 import com.intellij.ui.popup.PopupFactoryImpl.ActionGroupPopup
 import zielu.gittoolbox.ResBundle.message
 import zielu.gittoolbox.ui.statusbar.StatusBarActions.actionsFor
@@ -22,8 +19,7 @@ import zielu.gittoolbox.util.GtUtil.sort
 
 internal class StatusActionGroupPopup(
   title: String,
-  myProject: Project,
-  preselectActionCondition: Condition<AnAction>
+  myProject: Project
 ) : ActionGroupPopup(
   title,
   createActions(myProject),
@@ -34,18 +30,13 @@ internal class StatusActionGroupPopup(
   false,
   null,
   -1,
-  preselectActionCondition,
+  Conditions.alwaysTrue(),
   null
 ) {
 
   private companion object {
     fun createDataContext(project: Project): DataContext {
-      // TODO: should be using SimpleDataContext.builder() since 211
-      val entries = mapOf(
-        CommonDataKeys.PROJECT.name to project,
-        PlatformDataKeys.CONTEXT_COMPONENT.name to IdeFocusManager.getInstance(project).focusOwner
-      )
-      return SimpleDataContext.getSimpleContext(entries, null)
+      return SimpleDataContext.getProjectContext(project)
     }
 
     fun createActions(project: Project): ActionGroup {
