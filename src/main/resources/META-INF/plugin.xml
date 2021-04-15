@@ -165,6 +165,8 @@
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.GitStatStatusBarWidgetFactory" />
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
 
+    <projectService serviceImplementation="zielu.gittoolbox.branch.OutdatedBranchesService" />
+
     <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
     <registryKey defaultValue="15" description="Blame calculator cache size" key="zielu.gittoolbox.blame.calculator.cache.size" />
     <registryKey defaultValue="30" description="Blame cache size" key="zielu.gittoolbox.blame.cache.size" />
@@ -186,6 +188,13 @@
         toolWindowId="Version Control"
         bundle="zielu.gittoolbox.ResourceBundle"
         key="notification.group.fetch"
+    />
+    <notificationGroup
+        id="gittoolbox.branch.cleanup"
+        displayType="TOOL_WINDOW"
+        toolWindowId="Version Control"
+        bundle="zielu.gittoolbox.ResourceBundle"
+        key="notification.group.branch.cleanup"
     />
   </extensions>
 
@@ -293,10 +302,14 @@
             text="Open Branch Issue"
             popup="true"
     />
+    <action class="zielu.gittoolbox.ui.actions.BranchesCleanupAction" id="GitToolBox.CleanBranches"
+            text="Branches Cleanup">
+    </action>
 
     <group id="GitToolBox.Menu" text="GitToolBox" popup="true">
       <reference id="GitToolBox.PushTags" />
       <reference id="GitToolBox.RefreshBlame" />
+      <reference id="GitToolBox.CleanBranches" />
       <add-to-group group-id="Git.MainMenu" anchor="last"/>
       <group class="zielu.gittoolbox.ui.actions.diagnostic.DiagnosticGroup" id="GitToolBox.DiagnosticGroup"
              text="GitToolBox Diagnostic"

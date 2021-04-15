@@ -15,12 +15,14 @@ class GtNotifierImpl implements GtNotifier {
   private final Project project;
   private final NotificationGroup behindTrackerGroup;
   private final NotificationGroup fetchGroup;
+  private final NotificationGroup cleanupGroup;
 
   GtNotifierImpl(@NotNull Project project) {
     this.project = project;
     var groupManager = NotificationGroupManager.getInstance();
     behindTrackerGroup = groupManager.getNotificationGroup("gittoolbox.behind.tracker");
     fetchGroup = groupManager.getNotificationGroup("gittoolbox.fetch");
+    cleanupGroup = groupManager.getNotificationGroup("gittoolbox.branch.cleanup");
   }
 
   @NotNull
@@ -70,6 +72,11 @@ class GtNotifierImpl implements GtNotifier {
   @Override
   public Notification autoFetchInfo(@NotNull String title, @NotNull String message) {
     return notify(VcsNotifier.SILENT_NOTIFICATION, title, message, NotificationType.INFORMATION, null);
+  }
+
+  @Override
+  public Notification branchCleanupSuccess(@NotNull String title, @NotNull String message) {
+    return notify(cleanupGroup, title, message, NotificationType.INFORMATION, null);
   }
 
   @NotNull

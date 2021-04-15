@@ -12,6 +12,7 @@ import zielu.intellij.concurrent.ZThreadFactory
 import java.util.Collections
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.SynchronousQueue
@@ -90,6 +91,8 @@ internal class GitToolBoxApp : Disposable {
       CompletableFuture.completedFuture(fallbackSupplier.get())
     }
   }
+
+  fun asyncExecutor(): Executor = asyncExecutor
 
   fun schedule(task: Runnable, delay: Long, unit: TimeUnit): ScheduledFuture<*>? {
     return if (active.get()) {
