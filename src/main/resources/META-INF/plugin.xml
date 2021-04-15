@@ -302,7 +302,7 @@
             text="Open Branch Issue"
             popup="true"
     />
-    <action class="zielu.gittoolbox.ui.actions.BranchesCleanupAction" id="GitToolBox.CleanBranches"
+    <action class="zielu.gittoolbox.ui.actions.OutdatedBranchesCleanupAction" id="GitToolBox.CleanBranches"
             text="Branches Cleanup">
     </action>
 

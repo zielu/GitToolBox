@@ -16,7 +16,7 @@ import javax.swing.JPanel
 import javax.swing.JTree
 import javax.swing.tree.DefaultTreeModel
 
-internal class CleanBranchesDialog(
+internal class OutdatedBranchesDialog(
   project: Project
 ) : DialogWrapper(
   project,
