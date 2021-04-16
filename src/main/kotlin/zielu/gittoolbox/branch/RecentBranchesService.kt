@@ -9,7 +9,6 @@ import zielu.gittoolbox.util.AppUtil
 import java.time.Instant
 
 internal class RecentBranchesService
-
 @NonInjectable
 constructor(
   private val facade: RecentBranchesFacade
