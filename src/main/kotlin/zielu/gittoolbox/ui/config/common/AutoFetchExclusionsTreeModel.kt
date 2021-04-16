@@ -117,6 +117,7 @@ internal class AutoFetchExclusionsTreeModel : DefaultTreeModel(DefaultMutableTre
     getNodeFor(config)?.let { configNode ->
       remotes.forEach {
         configNode.add(remoteNode(it))
+        config.excludedRemotes.add(it)
       }
       if (remotes.isNotEmpty()) {
         nodeStructureChanged(configNode)

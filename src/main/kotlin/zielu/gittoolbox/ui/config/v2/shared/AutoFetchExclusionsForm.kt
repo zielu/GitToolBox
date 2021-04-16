@@ -7,6 +7,7 @@ import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.AnActionButton
 import com.intellij.ui.ToolbarDecorator
+import com.intellij.ui.TreeExpandCollapse
 import com.intellij.ui.layout.CCFlags
 import com.intellij.ui.layout.LCFlags
 import com.intellij.ui.layout.panel
@@ -29,7 +30,6 @@ import zielu.gittoolbox.util.GtUtil.sort
 import zielu.intellij.ui.GtFormUi
 import zielu.intellij.ui.GtFormUiEx
 import javax.swing.JComponent
-import javax.swing.event.TreeSelectionEvent
 import javax.swing.tree.TreeSelectionModel
 
 internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
@@ -52,6 +52,7 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
     decorator.setAddAction { onAddExclusion() }
     decorator.setRemoveActionName(message("configurable.prj.autoFetch.exclusions.remove.label"))
     decorator.setRemoveAction { onRemoveExclusion() }
+    decorator.setRemoveActionUpdater { getRemoveExclusionEnabled() }
     addRemoteButton = object : AnActionButton("Add remote", ResIcons.Plus) {
       init {
         isEnabled = false
@@ -71,7 +72,7 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
       }
     }
     decorator.addExtraActions(addRemoteButton, removeRemoteButton)
-    autoFetchExclusions.addTreeSelectionListener { onTreeSelection(it) }
+    autoFetchExclusions.addTreeSelectionListener { onTreeSelection() }
 
     val decoratorPanel = decorator.createPanel()
 
@@ -84,10 +85,14 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
     }
   }
 
-  private fun onTreeSelection(event: TreeSelectionEvent) {
-    val treePath = event.path
+  private fun onTreeSelection() {
+    val treePath = autoFetchExclusions.selectionPath
     log.debug("Selection ", treePath)
     when {
+      treePath == null -> {
+        removeRemoteButton.isEnabled = false
+        addRemoteButton.isEnabled = false
+      }
       autoFetchExclusionsModel.hasConfigAt(treePath) -> {
         removeRemoteButton.isEnabled = false
         addRemoteButton.isEnabled = true
@@ -96,11 +101,11 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
         removeRemoteButton.isEnabled = true
         addRemoteButton.isEnabled = false
       }
-      else -> {
-        removeRemoteButton.isEnabled = false
-        addRemoteButton.isEnabled = false
-      }
     }
+  }
+
+  private fun getRemoveExclusionEnabled(): Boolean {
+    return autoFetchExclusions.selectionPath?.let { autoFetchExclusionsModel.hasConfigAt(it) } ?: false
   }
 
   private fun onAddExclusion() {
@@ -150,8 +155,8 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
       val config = autoFetchExclusionsModel.getConfigAt(it)!!
       val addedRemotes = addRemotes(config)
       autoFetchExclusionsModel.addRemotes(config, addedRemotes)
-      autoFetchExclusionsModel.getPathFor(config)?.let { path ->
-        autoFetchExclusions.expandPath(path)
+      autoFetchExclusionsModel.getPathFor(config)?.let { _ ->
+        TreeExpandCollapse.expand(autoFetchExclusions)
       }
     }
   }
@@ -202,15 +207,20 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
 
   override fun fillFromState(state: MutableConfig) {
     config = state
-    if (state.hasProject()) {
+    if (config.hasProject()) {
       autoFetchExclusions.cellRenderer = AutoFetchExclusionTreeRenderer(project())
-      autoFetchExclusionsModel.setConfigs(state.prj().autoFetchExclusionConfigs.map { it.copy() })
+      autoFetchExclusionsModel.setConfigs(getExclusionsFromConfig().map { it.copy() })
+      TreeExpandCollapse.expandAll(autoFetchExclusions)
     }
+  }
+
+  private fun getExclusionsFromConfig(): List<AutoFetchExclusionConfig> {
+    return config.prj().autoFetchExclusionConfigs
   }
 
   override fun isModified(): Boolean {
     if (config.hasProject()) {
-      return autoFetchExclusionsModel.getConfigs() != config.prj().autoFetchExclusionConfigs
+      return autoFetchExclusionsModel.getConfigs() != getExclusionsFromConfig()
     }
     return false
   }
