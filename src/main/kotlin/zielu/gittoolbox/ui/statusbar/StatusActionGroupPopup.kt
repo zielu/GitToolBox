@@ -4,10 +4,14 @@ import com.intellij.dvcs.ui.LightActionGroup
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Conditions
+import com.intellij.openapi.wm.IdeFocusManager
+import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.popup.PopupFactoryImpl.ActionGroupPopup
 import zielu.gittoolbox.ResBundle.message
 import zielu.gittoolbox.ui.statusbar.StatusBarActions.actionsFor
@@ -16,6 +20,7 @@ import zielu.gittoolbox.ui.statusbar.actions.UpdateAction
 import zielu.gittoolbox.util.GtUtil
 import zielu.gittoolbox.util.GtUtil.getRepositories
 import zielu.gittoolbox.util.GtUtil.sort
+import java.awt.Component
 
 internal class StatusActionGroupPopup(
   title: String,
@@ -35,8 +40,39 @@ internal class StatusActionGroupPopup(
 ) {
 
   private companion object {
+    private val log = Logger.getInstance(StatusActionGroupPopup::class.java)
+
     fun createDataContext(project: Project): DataContext {
-      return SimpleDataContext.getProjectContext(project)
+      val projectContext = SimpleDataContext.getProjectContext(project)
+      if (PlatformDataKeys.CONTEXT_COMPONENT.getData(projectContext) == null) {
+        log.warn("Missing context component, attempting a find it in project IdeFocusManager")
+        val prjFocusManager = IdeFocusManager.getInstance(project)
+        val prjComponent: Component? = prjFocusManager.focusOwner
+
+        return if (prjComponent != null) {
+          wrapComponentIntoContext(prjComponent, projectContext)
+        } else {
+          log.warn("Missing project focus owner, use project frame")
+          val projectFrame: Component? = WindowManager.getInstance().getFrame(project)
+          if (projectFrame != null) {
+            wrapComponentIntoContext(projectFrame, projectContext)
+          } else {
+            log.warn("Missing context component")
+            projectContext
+          }
+        }
+      } else {
+        return projectContext
+      }
+    }
+
+    private fun wrapComponentIntoContext(component: Component, parent: DataContext): DataContext {
+      return SimpleDataContext.getSimpleContext(
+        mapOf(
+          PlatformDataKeys.CONTEXT_COMPONENT.name to component
+        ),
+        parent
+      )
     }
 
     fun createActions(project: Project): ActionGroup {
