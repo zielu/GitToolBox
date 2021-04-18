@@ -137,7 +137,7 @@ class PerRepoInfoCacheImpl implements PerRepoInfoCache, Disposable {
       log.debug("Updated repo list: ", repositories);
       ConcurrentMap<GitRepository, RepoInfo> statusMap = behindStatuses.get();
       Set<GitRepository> removed = new HashSet<>(statusMap.keySet());
-      removed.removeAll(repositories);
+      repositories.forEach(removed::remove);
       purgeRepositories(removed);
       repositories.forEach(repo -> statusMap.putIfAbsent(repo, RepoInfo.empty()));
     }

@@ -30,11 +30,9 @@ public class GitStatusCalculator {
 
   @NotNull
   public RevListCount behindStatus(GitRepository repository) {
-    Optional<GitBranchTrackInfo> trackInfo = trackInfoForCurrentBranch(repository);
-    if (trackInfo.isPresent()) {
-      return behindStatus(trackInfo.get(), repository);
-    }
-    return RevListCount.noRemote();
+    return trackInfoForCurrentBranch(repository)
+               .map(gitBranchTrackInfo -> behindStatus(gitBranchTrackInfo, repository))
+               .orElseGet(RevListCount::noRemote);
   }
 
   private RevListCount behindStatus(GitBranchTrackInfo trackInfo, GitRepository repository) {
