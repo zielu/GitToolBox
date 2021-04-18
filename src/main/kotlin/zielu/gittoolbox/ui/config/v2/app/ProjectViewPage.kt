@@ -206,9 +206,8 @@ internal class ProjectViewPage(
     return panel.isModified() || uiItems.isModified()
   }
 
-  override fun getContent(): JComponent {
-    return panel
-  }
+  override val content: JComponent
+    get() = panel
 
   override fun applyToState(state: MutableConfig) {
     panel.apply()

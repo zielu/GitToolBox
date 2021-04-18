@@ -19,9 +19,8 @@ internal class CompositeGtFormUiEx<T> : GtFormUiEx<T> {
     return forms.any { it.isModified() }
   }
 
-  override fun getContent(): JComponent {
-    TODO("not implemented - should never be called")
-  }
+  override val content: JComponent
+    get() = TODO("not implemented - should never be called")
 
   override fun afterStateSet() {
     forms.forEach { it.afterStateSet() }

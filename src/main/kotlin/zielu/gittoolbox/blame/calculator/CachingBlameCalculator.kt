@@ -21,7 +21,7 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator, Dispo
       return if (disposeGuard.isActive()) {
         calculate(context.repository, context.file, key.revision)
       } else {
-        RevisionDataProvider.EMPTY
+        RevisionDataProvider.empty
       }
     }
   }
@@ -46,23 +46,23 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator, Dispo
     val key = Key(file.url, revision)
     loader.setContext(LoadContext(repository, file))
     val presentProvider = dataProviders.getIfPresent(key)
-    if (presentProvider == RevisionDataProvider.EMPTY) {
+    if (presentProvider == RevisionDataProvider.empty) {
       dataProviders.invalidate(key)
     } else if (presentProvider != null) {
       loader.clearContext()
       return presentProvider
     }
     val provider = if (disposeGuard.isActive()) {
-      dataProviders.getSafe(key, RevisionDataProvider.EMPTY)
+      dataProviders.getSafe(key, RevisionDataProvider.empty)
     } else {
-      RevisionDataProvider.EMPTY
+      RevisionDataProvider.empty
     }
     loader.clearContext()
     return toResult(provider)
   }
 
   private fun toResult(provider: RevisionDataProvider): RevisionDataProvider? {
-    return if (provider == RevisionDataProvider.EMPTY) {
+    return if (provider == RevisionDataProvider.empty) {
       null
     } else {
       provider
@@ -79,7 +79,7 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator, Dispo
     } ?: facade.calculator().annotate(repository, file, revision)?.apply {
       log.debug("Calculated blame for ", file, " at ", revision)
       storeInPersistence(this)
-    } ?: RevisionDataProvider.EMPTY
+    } ?: RevisionDataProvider.empty
   }
 
   private fun getFromPersistence(file: VirtualFile, revision: VcsRevisionNumber): RevisionDataProvider? {
@@ -93,7 +93,7 @@ internal class CachingBlameCalculator(project: Project) : BlameCalculator, Dispo
   private fun storeInPersistence(dataProvider: RevisionDataProvider?) {
     if (disposeGuard.isActive() && facade.shouldLoadFromPersistence()) {
       dataProvider?.apply {
-        if (this != RevisionDataProvider.EMPTY) {
+        if (this != RevisionDataProvider.empty) {
           facade.storeInPersistence(this)
         }
       }

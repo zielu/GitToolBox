@@ -45,9 +45,8 @@ internal class GeneralPage(
   }
   private val uiItems = UiItems()
 
-  override fun getContent(): JComponent {
-    return panel
-  }
+  override val content: JComponent
+    get() = panel
 
   override fun init() {
     val presentationStatusBarPreview = JBLabel()

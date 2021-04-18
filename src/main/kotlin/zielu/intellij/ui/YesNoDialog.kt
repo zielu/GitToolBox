@@ -11,7 +11,7 @@ import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
 
-class YesNoDialog(
+internal class YesNoDialog(
   project: Project,
   parent: Component,
   title: String,

@@ -193,7 +193,8 @@ internal class AutoFetchExclusionsForm : GtFormUi, GtFormUiEx<MutableConfig> {
     panel.isVisible = visible
   }
 
-  override fun getContent(): JComponent = panel
+  override val content: JComponent
+    get() = panel
 
   override fun afterStateSet() {
     if (config.hasProject()) {

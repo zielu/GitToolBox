@@ -6,10 +6,12 @@ import zielu.gittoolbox.revision.RevisionDataProvider
 import java.time.ZonedDateTime
 
 internal class RestoredRevisionDataProvider(
-  private val revision: VcsRevisionNumber,
-  private val file: VirtualFile,
-  private val lines: List<LineData>
+  override val baseRevision: VcsRevisionNumber,
+  override val file: VirtualFile,
+  private val lines: List<LineData>,
 ) : RevisionDataProvider {
+  override val lineCount: Int = lines.size
+
   override fun getAuthorDateTime(lineIndex: Int): ZonedDateTime? {
     return lines[lineIndex].authorDateTime
   }
@@ -29,10 +31,4 @@ internal class RestoredRevisionDataProvider(
   override fun getRevisionNumber(lineIndex: Int): VcsRevisionNumber {
     return lines[lineIndex].revision
   }
-
-  override fun getBaseRevision(): VcsRevisionNumber = revision
-
-  override fun getFile(): VirtualFile = file
-
-  override fun getLineCount(): Int = lines.size
 }

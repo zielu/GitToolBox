@@ -7,15 +7,11 @@ import java.time.ZonedDateTime
 
 internal class BlameRevisionDataProvider(
   private val lineInfos: List<CommitInfo>,
-  private val file: VirtualFile,
-  private val baseRevision: VcsRevisionNumber
+  override val file: VirtualFile,
+  override val baseRevision: VcsRevisionNumber,
 ) : RevisionDataProvider {
 
-  override fun getFile(): VirtualFile = file
-
-  override fun getBaseRevision(): VcsRevisionNumber = baseRevision
-
-  override fun getLineCount(): Int = lineInfos.size
+  override val lineCount: Int = lineInfos.size
 
   override fun getSubject(lineIndex: Int): String? {
     return lineInfos[lineIndex].summary

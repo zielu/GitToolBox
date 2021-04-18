@@ -103,7 +103,8 @@ internal class GtRegexForm : GtFormUiEx<GtPatternFormatterData> {
     panel.reset()
   }
 
-  override fun getContent(): JComponent = panel
+  override val content: JComponent
+    get() = panel
 }
 
 private typealias UpdateListener = (String) -> Unit

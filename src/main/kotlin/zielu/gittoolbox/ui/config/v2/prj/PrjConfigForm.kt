@@ -19,9 +19,8 @@ internal class PrjConfigForm : GtFormUiEx<MutableConfig> {
     Disposer.register(this, pages)
   }
 
-  override fun getContent(): JComponent {
-    return tabs
-  }
+  override val content: JComponent
+    get() = tabs
 
   override fun afterStateSet() {
     pages.afterStateSet()

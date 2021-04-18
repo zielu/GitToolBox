@@ -36,7 +36,7 @@ internal class CurrentBranchCompletionProvider : CompletionProviderBase() {
       result.addElement(
         LookupElementBuilder.create(formatted.text)
           .withTypeText(repoName, true)
-          .withIcon(formatter.icon)
+          .withIcon(formatter.getIcon())
       )
     } else {
       log.debug("Skipped completion: ", formatted)

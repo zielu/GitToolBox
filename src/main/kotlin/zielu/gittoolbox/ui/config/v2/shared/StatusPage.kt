@@ -136,9 +136,8 @@ internal class StatusPage : GtFormUiEx<MutableConfig> {
     return panel.isModified() || uiItems.isModified()
   }
 
-  override fun getContent(): JComponent {
-    return panel
-  }
+  override val content: JComponent
+    get() = panel
 
   override fun afterStateSet() {
     panel.reset()
