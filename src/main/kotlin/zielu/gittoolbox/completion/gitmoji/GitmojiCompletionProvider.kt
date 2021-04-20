@@ -10,7 +10,6 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.util.TextRange
 import zielu.gittoolbox.completion.CompletionProviderBase
 import zielu.gittoolbox.completion.CompletionService
-import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.config.ProjectConfig
 
 internal class GitmojiCompletionProvider : CompletionProviderBase() {
@@ -19,7 +18,7 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
     if (isEnabled(project)) {
       val completionService = CompletionService.getInstance(project)
       if (completionService.getAffected().isNotEmpty()) {
-        addCompletions(result)
+        addCompletions(project, result)
       }
     }
   }
@@ -28,14 +27,14 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
     return ProjectConfig.getMerged(project).commitDialogGitmojiCompletion()
   }
 
-  private fun addCompletions(result: CompletionResultSet) {
+  private fun addCompletions(project: Project, result: CompletionResultSet) {
     GitmojiResBundle.keySet().forEach { gitmoji ->
       val description = GitmojiResBundle.message(gitmoji)
       val icon = IconLoader.findIcon("/zielu/gittoolbox/gitmoji/$gitmoji.png", javaClass, true, false)
       var builder = LookupElementBuilder.create(":$gitmoji:")
         .withTypeText(description)
         .withIcon(icon)
-        .withInsertHandler(PrefixCompletionInsertHandler(gitmoji))
+        .withInsertHandler(PrefixCompletionInsertHandler(gitmoji, project))
 
       val wordsList = GitmojiMetadata.getKeywords(gitmoji)
       if (wordsList.isNotEmpty()) {
@@ -46,14 +45,17 @@ internal class GitmojiCompletionProvider : CompletionProviderBase() {
   }
 }
 
-private class PrefixCompletionInsertHandler(private val gitmoji: String) : InsertHandler<LookupElement> {
+private class PrefixCompletionInsertHandler(
+  private val gitmoji: String,
+  private val project: Project,
+) : InsertHandler<LookupElement> {
   override fun handleInsert(context: InsertionContext, item: LookupElement) {
     val gitmojiLookup = item.lookupString
     var startOffset = context.startOffset - 1
     if (startOffset < 0) {
       startOffset = 0
     }
-    val useUnicode = AppConfig.getConfig().commitDialogGitmojiCompletionUnicode
+    val useUnicode = ProjectConfig.getMerged(project).commitDialogGitmojiUnicodeCompletion()
     val textBeforeOffsets = context.document.getText(TextRange(startOffset, context.tailOffset))
     if (textBeforeOffsets.startsWith(":$gitmojiLookup")) {
       context.document.replaceString(startOffset, context.tailOffset, replacement(gitmojiLookup, useUnicode))

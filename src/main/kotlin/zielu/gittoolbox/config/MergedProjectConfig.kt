@@ -70,6 +70,14 @@ internal class MergedProjectConfig(
     )
   }
 
+  fun commitDialogGitmojiUnicodeCompletion(): Boolean {
+    return getBool(
+      appConfig::commitDialogGitmojiCompletionUnicode,
+      appConfig::commitDialogGitmojiCompletionUnicode,
+      projectConfig.commitDialogGitmojiUnicodeCompletionOverride
+    )
+  }
+
   fun commitDialogCompletionFormatters(): List<Formatter> {
     return when {
       useLegacy -> {

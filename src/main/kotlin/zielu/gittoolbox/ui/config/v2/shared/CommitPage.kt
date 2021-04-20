@@ -16,7 +16,6 @@ import com.intellij.ui.layout.CCFlags
 import com.intellij.ui.layout.Row
 import com.intellij.ui.layout.panel
 import org.jdesktop.swingx.action.AbstractActionExt
-import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.ResBundle.message
 import zielu.gittoolbox.completion.FormatterIcons
 import zielu.gittoolbox.config.CommitCompletionConfig
@@ -49,6 +48,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
   }
   private val commitDialogBranchCompletion = AtomicBooleanProperty(true)
   private val commitDialogGitmojiCompletion = AtomicBooleanProperty(false)
+  private val commitDialogGitmojiUnicodeCompletion = AtomicBooleanProperty(false)
   private val commitMessageValidation = AtomicBooleanProperty(false)
   private val commitMessageValidationRegex = AtomicLazyProperty {
     ""
@@ -69,6 +69,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
   private lateinit var commitDialogBranchCompletionCheckBox: JBCheckBox
   private lateinit var commitDialogBranchCompletionOverrideCheckBox: JBCheckBox
   private lateinit var commitDialogGitmojiCompletionCheckBox: JBCheckBox
+  private lateinit var commitDialogGitmojiUnicodeCompletionCheckBox: JBCheckBox
   private lateinit var commitDialogGitmojiCompletionOverrideCheckBox: JBCheckBox
   private lateinit var commitMessageValidationCheckBox: JBCheckBox
   private lateinit var commitMessageValidationRegexTextField: JBTextField
@@ -103,12 +104,12 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
         completionAddPopup.show(relativePoint.component, relativePoint.point.x, relativePoint.point.y)
       }
     }
-    completionDecorator.setAddActionName(ResBundle.message("commit.dialog.completion.formatters.add.tooltip"))
+    completionDecorator.setAddActionName(message("commit.dialog.completion.formatters.add.tooltip"))
     completionDecorator.setRemoveAction {
       onRemoveCompletionFormatter(completionFormattersList)
       updateCompletionFormatterAddActions()
     }
-    completionDecorator.setRemoveActionName(ResBundle.message("commit.dialog.completion.formatters.remove.tooltip"))
+    completionDecorator.setRemoveActionName(message("commit.dialog.completion.formatters.remove.tooltip"))
 
     val completionDecoratorPanel = completionDecorator.createPanel()
     completionFormattersPatternForm = GtPatternFormatterForm()
@@ -143,7 +144,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
         ).component
         right {
           commitDialogBranchCompletionOverrideCheckBox = checkBox(
-            ResBundle.message("common.override"),
+            message("common.override"),
             commitDialogBranchCompletionOverride::get,
             commitDialogBranchCompletionOverride::set
           ).component
@@ -158,11 +159,18 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
         ).component
         right {
           commitDialogGitmojiCompletionOverrideCheckBox = checkBox(
-            ResBundle.message("common.override"),
+            message("common.override"),
             commitDialogGitmojiCompletionOverride::get,
             commitDialogGitmojiCompletionOverride::set
           ).component
           overrideCheckBoxes.register(commitDialogGitmojiCompletionOverrideCheckBox)
+        }
+        row {
+          commitDialogGitmojiUnicodeCompletionCheckBox = checkBox(
+            message("commit.dialog.completion.gitmoji.unicode.label"),
+            commitDialogGitmojiUnicodeCompletion::get,
+            { commitDialogGitmojiUnicodeCompletion.set(it) }
+          ).component
         }
       }
       row {
@@ -179,7 +187,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
         }
         right {
           commitMessageValidationOverrideCheckBox = checkBox(
-            ResBundle.message("common.override"),
+            message("common.override"),
             commitMessageValidationOverride::get,
             commitMessageValidationOverride::set
           ).component
@@ -189,7 +197,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
       titledRow(message("commit.dialog.completion.formatters.label")) {
         row {
           commitCompletionFormattersOverrideCheckBox = checkBox(
-            ResBundle.message("common.override"),
+            message("common.override"),
             commitCompletionFormattersOverride::get,
             commitCompletionFormattersOverride::set
           ).component
@@ -203,6 +211,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
 
     commitDialogBranchCompletionOverrideCheckBox.addItemListener { updateBranchCompletionOverrideUi() }
     commitDialogGitmojiCompletionOverrideCheckBox.addItemListener { updateGitmojiCompletionOverrideUi() }
+    commitDialogGitmojiCompletionCheckBox.addItemListener { updateGitmojiCompletionUi() }
     commitMessageValidationCheckBox.addItemListener { updateCommitMessageValidationUi() }
     commitMessageValidationOverrideCheckBox.addItemListener { updateCommitMessageValidationOverrideUi() }
     commitCompletionFormattersOverrideCheckBox.addItemListener { updateCommitCompletionFormattersOverrideUi() }
@@ -302,6 +311,14 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
           commitDialogGitmojiCompletionOverrideCheckBox
         ),
         BoolPropWithOverride(
+          commitDialogGitmojiUnicodeCompletion,
+          commitDialogGitmojiCompletionOverride,
+          state.app::commitDialogGitmojiCompletionUnicode,
+          state.prj().commitDialogGitmojiUnicodeCompletionOverride,
+          commitDialogGitmojiUnicodeCompletionCheckBox::setSelected,
+          commitDialogGitmojiCompletionOverrideCheckBox
+        ),
+        BoolPropWithOverride(
           commitMessageValidation,
           commitMessageValidationOverride,
           state.app::commitMessageValidationEnabled,
@@ -348,6 +365,10 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
           state.app::commitDialogGitmojiCompletion
         ),
         BoolProp(
+          commitDialogGitmojiUnicodeCompletion,
+          state.app::commitDialogGitmojiCompletionUnicode
+        ),
+        BoolProp(
           commitMessageValidation,
           state.app::commitMessageValidationEnabled
         ),
@@ -361,6 +382,7 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
         )
       )
       updateCommitMessageValidationUi()
+      updateGitmojiCompletionUi()
     }
 
     updateCompletionFormatterAddActions()
@@ -372,7 +394,14 @@ internal class CommitPage : GtFormUiEx<MutableConfig> {
   }
 
   private fun updateGitmojiCompletionOverrideUi() {
-    commitDialogGitmojiCompletionCheckBox.isEnabled = commitDialogGitmojiCompletionOverrideCheckBox.isSelected
+    val overridden = commitDialogGitmojiCompletionOverrideCheckBox.isSelected
+    commitDialogGitmojiCompletionCheckBox.isEnabled = overridden
+    commitDialogGitmojiUnicodeCompletionCheckBox.isEnabled =
+      overridden && commitDialogGitmojiCompletionCheckBox.isSelected
+  }
+
+  private fun updateGitmojiCompletionUi() {
+    commitDialogGitmojiUnicodeCompletionCheckBox.isEnabled = commitDialogGitmojiCompletionCheckBox.isSelected
   }
 
   private fun updateCommitMessageValidationUi() {
