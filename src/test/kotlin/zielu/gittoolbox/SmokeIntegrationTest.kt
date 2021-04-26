@@ -76,7 +76,6 @@ internal class SmokeIntegrationTest {
     assertThat(RevisionIndexService.getInstance(project)).isNotNull
   }
 
-
   @Test
   fun `should return AutoFetchState`(project: Project) {
     assertThat(AutoFetchState.getInstance(project)).isNotNull

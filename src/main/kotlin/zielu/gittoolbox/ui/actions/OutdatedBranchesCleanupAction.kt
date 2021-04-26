@@ -26,7 +26,7 @@ internal class OutdatedBranchesCleanupAction : AnAction("Git Branches Cleanup") 
         } else {
           handleOutdated(project, outdatedBranches)
         }
-    }
+      }
   }
 
   private fun handleOutdated(project: Project, outdatedBranches: Map<GitRepository, List<OutdatedBranch>>) {

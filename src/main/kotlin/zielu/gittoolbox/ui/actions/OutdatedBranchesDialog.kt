@@ -10,7 +10,6 @@ import com.intellij.ui.components.JBScrollPane
 import git4idea.repo.GitRepository
 import jodd.util.StringBand
 import zielu.gittoolbox.branch.OutdatedBranch
-import zielu.gittoolbox.branch.OutdatedReason
 import zielu.gittoolbox.config.DateType
 import zielu.gittoolbox.ui.DatePresenter
 import zielu.gittoolbox.util.GtUtil
@@ -135,7 +134,7 @@ private data class BranchNode(
   override fun getSubText(): String {
     val text = StringBand()
     branch.latestCommitTimestamp?.apply { text.append(" ${formatDate(this)}") }
-    branch.getRemoteBranchName()?.apply { text.append(" (${this})") }
+    branch.getRemoteBranchName()?.apply { text.append(" ($this)") }
     return text.toString()
   }
 
