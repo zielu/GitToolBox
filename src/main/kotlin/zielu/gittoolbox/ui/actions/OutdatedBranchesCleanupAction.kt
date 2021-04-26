@@ -12,6 +12,7 @@ import zielu.gittoolbox.branch.OutdatedBranch
 import zielu.gittoolbox.branch.OutdatedBranchesCollector
 import zielu.gittoolbox.concurrent.executeAsync
 import zielu.gittoolbox.notification.GtNotifier
+import zielu.gittoolbox.ui.branch.OutdatedBranchesDialog
 import zielu.gittoolbox.ui.util.AppUiUtil
 import java.util.concurrent.CompletableFuture
 
