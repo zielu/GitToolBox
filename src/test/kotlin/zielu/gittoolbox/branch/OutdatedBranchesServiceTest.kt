@@ -42,6 +42,8 @@ internal class OutdatedBranchesServiceTest {
     every { repoMock.currentBranch } returns current
     every { branchesCollectionMock.localBranches } returns listOf(local, localNotMergedMock, localMergedMock)
     every { facadeMock.findNotMergedBranches(repoMock) } returns setOf("local-not-merged")
+    every { facadeMock.findMergedBranches(repoMock) } returns setOf("local-merged")
+    every { facadeMock.getLatestCommitTimestamp(repoMock, any()) } returns null
     every { local.findTrackedBranch(repoMock) } returns null
     every { localNotMergedMock.findTrackedBranch(repoMock) } returns remoteNotMergedMock
     every { localMergedMock.findTrackedBranch(repoMock) } returns remoteMergedMock

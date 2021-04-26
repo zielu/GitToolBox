@@ -15,6 +15,7 @@ import zielu.gittoolbox.fetch.AutoFetchComponent
 import zielu.gittoolbox.fetch.AutoFetchState
 import zielu.gittoolbox.metrics.AppMetrics
 import zielu.gittoolbox.metrics.ProjectMetrics
+import zielu.gittoolbox.revision.RevisionIndexService
 import zielu.gittoolbox.revision.RevisionService
 import zielu.gittoolbox.store.WorkspaceStore
 import zielu.gittoolbox.ui.DatePresenter
@@ -69,6 +70,12 @@ internal class SmokeIntegrationTest {
   fun `should return RevisionService`(project: Project) {
     assertThat(RevisionService.getInstance(project)).isNotNull
   }
+
+  @Test
+  fun `should return RevisionIndexService`(project: Project) {
+    assertThat(RevisionIndexService.getInstance(project)).isNotNull
+  }
+
 
   @Test
   fun `should return AutoFetchState`(project: Project) {

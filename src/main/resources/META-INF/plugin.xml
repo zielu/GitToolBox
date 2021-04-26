@@ -107,6 +107,7 @@
 
     <projectService serviceImplementation="zielu.gittoolbox.revision.RevisionInfoFactory" />
     <projectService serviceImplementation="zielu.gittoolbox.revision.RevisionService" />
+    <projectService serviceImplementation="zielu.gittoolbox.revision.RevisionIndexService" />
 
     <projectService serviceImplementation="zielu.gittoolbox.blame.DebugInlineBlameAllowed" />
     <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"

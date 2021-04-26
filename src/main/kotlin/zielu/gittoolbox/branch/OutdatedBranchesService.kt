@@ -8,7 +8,6 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.util.AppUtil
 
 internal class OutdatedBranchesService
-
 @NonInjectable
 constructor(private val facade: OutdatedBranchesFacade) {
 
@@ -19,6 +18,7 @@ constructor(private val facade: OutdatedBranchesFacade) {
       Branch(it, it.findTrackedBranch(repo))
     }
     val notMerged = facade.findNotMergedBranches(repo)
+    val merged = facade.findMergedBranches(repo)
 
     val currentBranch = repo.currentBranch
 
@@ -31,9 +31,14 @@ constructor(private val facade: OutdatedBranchesFacade) {
           false
         }
       }
-      .map {
-        OutdatedBranch(it.local, it.remote)
-      }
+      .map { createOutdated(repo, it, merged) }
+    // TODO: add filtering of commits older than X days
+  }
+
+  private fun createOutdated(repo: GitRepository, branch: Branch, merged: Set<String>): OutdatedBranch {
+    val lastCommitTimestamp = facade.getLatestCommitTimestamp(repo, branch.local)
+    val reason = if (branch.local.name in merged) OutdatedReason.MERGED else OutdatedReason.OLD_COMMIT
+    return OutdatedBranch(branch.local, reason, lastCommitTimestamp, branch.remote)
   }
 
   companion object {

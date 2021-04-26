@@ -8,9 +8,14 @@ import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.TreeExpandCollapse
 import com.intellij.ui.components.JBScrollPane
 import git4idea.repo.GitRepository
+import jodd.util.StringBand
 import zielu.gittoolbox.branch.OutdatedBranch
+import zielu.gittoolbox.branch.OutdatedReason
+import zielu.gittoolbox.config.DateType
+import zielu.gittoolbox.ui.DatePresenter
 import zielu.gittoolbox.util.GtUtil
 import java.awt.BorderLayout
+import java.time.ZonedDateTime
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JTree
@@ -34,6 +39,7 @@ internal class OutdatedBranchesDialog(
   }
 
   override fun createCenterPanel(): JComponent {
+    // TODO: CheckboxTreeTable
     tree = CheckboxTree(createRenderer(), CheckedTreeNode(RootNode()))
     tree.isRootVisible = false
     val panel = JPanel(BorderLayout())
@@ -57,7 +63,7 @@ internal class OutdatedBranchesDialog(
           val text = textRenderer
           text.append(node.getText())
           node.getSubText()?.apply {
-            text.append("  ($this)", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+            text.append(" $this", SimpleTextAttributes.GRAYED_ATTRIBUTES)
           }
         }
       }
@@ -126,5 +132,14 @@ private data class BranchNode(
 ) : MyNode {
   override fun getText(): String = branch.getName()
 
-  override fun getSubText(): String? = branch.getRemoteBranchName()
+  override fun getSubText(): String {
+    val text = StringBand()
+    branch.latestCommitTimestamp?.apply { text.append(" ${formatDate(this)}") }
+    branch.getRemoteBranchName()?.apply { text.append(" (${this})") }
+    return text.toString()
+  }
+
+  private fun formatDate(dateTime: ZonedDateTime): String {
+    return DatePresenter.getInstance().format(DateType.RELATIVE, dateTime)
+  }
 }

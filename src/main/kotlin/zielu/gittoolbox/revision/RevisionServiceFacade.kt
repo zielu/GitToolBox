@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.history.VcsRevisionNumber
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.vcs.log.impl.HashImpl
-import com.intellij.vcs.log.impl.VcsProjectLog
 import zielu.gittoolbox.cache.VirtualFileRepoCache
 import zielu.gittoolbox.util.PrjBaseFacade
 
@@ -29,18 +28,8 @@ internal class RevisionServiceFacade(private val project: Project) : PrjBaseFaca
   }
 
   private fun loadCommitMessageFromIndex(revisionNumber: VcsRevisionNumber, root: VirtualFile): String? {
-    val logManager = VcsProjectLog.getInstance(project).logManager
-    if (logManager != null) {
-      val dataManager = logManager.dataManager
-      val getter = dataManager.index.dataGetter
-      if (getter != null) {
-        val commitIndex = dataManager.getCommitIndex(HashImpl.build(revisionNumber.asString()), root)
-        if (commitIndex > -1) {
-          return getter.getFullMessage(commitIndex)
-        }
-      }
-    }
-    return null
+    return RevisionIndexService.getInstance(project)
+      .getAccessor(HashImpl.build(revisionNumber.asString()), root)?.getFullMessage()
   }
 
   fun exposeCommitMessageCacheMetrics(cache: Cache<*, *>) {

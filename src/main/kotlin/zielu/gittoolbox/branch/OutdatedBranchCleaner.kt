@@ -45,14 +45,17 @@ internal class BranchCleaner(
   }
 
   override fun onSuccess() {
+    val multipleRepos = toClean.keys.size > 1
     val message = StringBand()
     message.append("Deleted ${resultList.size} outdated branches:")
     resultList.forEach {
-      message
-        .append(Html.BRX)
-        .append(it.repoName)
-        .append(": ")
-        .append(it.branch.getName())
+      message.append(Html.BRX)
+      if (multipleRepos) {
+        message
+          .append(it.repoName)
+          .append(": ")
+      }
+      message.append(it.branch.getName())
     }
 
     GtNotifier.getInstance(project).branchCleanupSuccess(

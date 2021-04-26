@@ -12,12 +12,25 @@ internal class MergedBranchesCalculator(
   private val facade = MergedBranchesCalculatorFacade()
 
   fun findNotMergedBranches(repo: GitRepository): Set<String> {
-    val lineHandler = GitLineHandler(project, repo.root, GitCommand.BRANCH)
-    lineHandler.addParameters("--no-merged")
-    val result = facade.runCommand(lineHandler)
-    val notMerged = result.output.map { it.trim() }.toSet()
+    val notMerged = runBranch(repo, "--no-merged")
     log.debug("Not merged branches: $notMerged")
     return notMerged
+  }
+
+  private fun runBranch(repo: GitRepository, parameter: String): Set<String> {
+    val lineHandler = GitLineHandler(project, repo.root, GitCommand.BRANCH)
+    lineHandler.addParameters(parameter)
+    val result = facade.runCommand(lineHandler)
+    return result.output
+      .map { it.trim() }
+      .filterNot { it.startsWith("*") } // discard current branch
+      .toSet()
+  }
+
+  fun findMergedBranches(repo: GitRepository): Set<String> {
+    val merged = runBranch(repo, "--merged")
+    log.debug("Merged branches: $merged")
+    return merged
   }
 
   private companion object {

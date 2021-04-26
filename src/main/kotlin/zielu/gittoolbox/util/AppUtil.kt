@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import zielu.gittoolbox.config.AppConfig
 import zielu.gittoolbox.config.GitToolBoxConfig2
+import java.lang.IllegalStateException
 import java.util.Optional
 
 internal object AppUtil {
@@ -24,6 +25,7 @@ internal object AppUtil {
   @JvmStatic
   fun <T> getServiceInstance(project: Project, serviceType: Class<T>): T {
     return project.getService(serviceType)
+      ?: throw IllegalStateException("Service ${serviceType.name} not found")
   }
 
   @JvmStatic
@@ -38,6 +40,7 @@ internal object AppUtil {
   @JvmStatic
   fun <T> getServiceInstance(serviceType: Class<T>): T {
     return ApplicationManager.getApplication().getService(serviceType)
+      ?: throw IllegalStateException("Service ${serviceType.name} not found")
   }
 
   @JvmStatic
