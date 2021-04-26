@@ -109,6 +109,14 @@ patchPluginXml {
             .replace("RELEASE_TYPE", buildType(branchName, ci))
 }
 
+runIde {
+    jbrVersion jbrVersion
+}
+
+buildSearchableOptions {
+    jbrVersion jbrVersion
+}
+
 if (publish) {
     println('Publish')
 
