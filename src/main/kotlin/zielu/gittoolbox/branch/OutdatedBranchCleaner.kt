@@ -8,6 +8,7 @@ import git4idea.commands.GitCommandResult
 import git4idea.repo.GitRepository
 import git4idea.util.GitUIUtil
 import jodd.util.StringBand
+import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.notification.GtNotifier
 import zielu.gittoolbox.util.GtUtil
 import zielu.gittoolbox.util.Html
@@ -17,7 +18,7 @@ internal class BranchCleaner(
   private val toClean: Map<GitRepository, List<OutdatedBranch>>
 ) : Task.Backgroundable(
   myProject,
-  "Deleting outdated branches"
+  ResBundle.message("branch.cleanup.cleaner.title")
 ) {
   private val resultList = mutableListOf<DeleteResult>()
 
@@ -33,7 +34,7 @@ internal class BranchCleaner(
     toClean.forEach { entry ->
       val repoName = GtUtil.name(entry.key)
       entry.value.forEach { branch ->
-        indicator.text = "Delete branch $repoName: ${branch.getName()}"
+        indicator.text = ResBundle.message("branch.cleanup.cleaner.progress", repoName, branch.getName())
         val gitResult = git.branchDelete(entry.key, branch.getName(), false)
         resultList.add(DeleteResult(repoName, branch, gitResult))
         index++
@@ -47,7 +48,9 @@ internal class BranchCleaner(
   override fun onSuccess() {
     val multipleRepos = toClean.keys.size > 1
     val message = StringBand()
-    message.append("Deleted ${resultList.size} outdated branches:")
+    message
+      .append(ResBundle.message("branch.cleanup.cleaner.success.title", resultList.size))
+      .append(":")
     resultList.forEach {
       message.append(Html.BRX)
       if (multipleRepos) {
@@ -59,7 +62,7 @@ internal class BranchCleaner(
     }
 
     GtNotifier.getInstance(project).branchCleanupSuccess(
-      GitUIUtil.bold("Branch cleanup done"),
+      GitUIUtil.bold(ResBundle.message("branch.cleanup.cleaner.success.message")),
       message.toString()
     )
   }

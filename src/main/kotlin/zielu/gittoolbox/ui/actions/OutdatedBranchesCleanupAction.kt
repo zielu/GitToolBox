@@ -7,6 +7,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import git4idea.repo.GitRepository
 import git4idea.util.GitUIUtil
+import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.branch.BranchCleaner
 import zielu.gittoolbox.branch.OutdatedBranch
 import zielu.gittoolbox.branch.OutdatedBranchesCollector
@@ -16,7 +17,7 @@ import zielu.gittoolbox.ui.branch.OutdatedBranchesDialog
 import zielu.gittoolbox.ui.util.AppUiUtil
 import java.util.concurrent.CompletableFuture
 
-internal class OutdatedBranchesCleanupAction : AnAction("Git Branches Cleanup") {
+internal class OutdatedBranchesCleanupAction : AnAction(ResBundle.message("branch.cleanup.action.name")) {
   override fun actionPerformed(e: AnActionEvent) {
     val project = e.getRequiredData(CommonDataKeys.PROJECT)
 
@@ -42,8 +43,8 @@ internal class OutdatedBranchesCleanupAction : AnAction("Git Branches Cleanup") 
       }
     } else {
       GtNotifier.getInstance(project).branchCleanupSuccess(
-        GitUIUtil.bold("Git Branch Cleanup"),
-        "No outdated branches found"
+        GitUIUtil.bold(ResBundle.message("branch.cleanup.notification.success.title")),
+        ResBundle.message("branch.cleanup.notification.nothing.found")
       )
     }
   }

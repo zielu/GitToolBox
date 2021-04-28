@@ -10,6 +10,7 @@ import com.intellij.ui.components.JBScrollPane
 import git4idea.repo.GitRepository
 import jodd.util.StringBand
 import zielu.gittoolbox.GtIcons
+import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.branch.OutdatedBranch
 import zielu.gittoolbox.branch.OutdatedReason
 import zielu.gittoolbox.config.DateType
@@ -35,7 +36,7 @@ internal class OutdatedBranchesDialog(
   private var selected: Map<GitRepository, List<OutdatedBranch>> = mapOf()
 
   init {
-    title = "Git Branches Cleanup"
+    title = ResBundle.message("branch.cleanup.dialog.title")
     init()
     setSize(400, 300)
   }
