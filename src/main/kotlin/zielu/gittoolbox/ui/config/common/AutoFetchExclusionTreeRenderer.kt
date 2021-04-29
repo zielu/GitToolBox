@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.ui.ColoredTreeCellRenderer
 import com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES
+import com.intellij.ui.SimpleTextAttributes.EXCLUDED_ATTRIBUTES
 import com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES
 import git4idea.repo.GitRepository
 import zielu.gittoolbox.ResBundle
@@ -53,12 +54,13 @@ internal class AutoFetchExclusionTreeRenderer(private val project: Project) : Co
 
   private fun render(repository: GitRepository, remoteExclusions: Boolean) {
     append(GtUtil.name(repository))
-    append(" (${repository.root.presentableUrl})", GRAYED_ATTRIBUTES)
-    toolTipText = if (remoteExclusions) {
-      null
-    } else {
-      ResBundle.message("configurable.prj.autoFetch.exclusions.all.remotes.tooltip")
+    if (!remoteExclusions) {
+      append(
+        " ${ResBundle.message("configurable.prj.autoFetch.exclusions.all.remotes")}",
+        EXCLUDED_ATTRIBUTES
+      )
     }
+    append(" (${repository.root.presentableUrl})", GRAYED_ATTRIBUTES)
   }
 
   private fun render(remote: RemoteConfig, repository: Optional<GitRepository>) {
