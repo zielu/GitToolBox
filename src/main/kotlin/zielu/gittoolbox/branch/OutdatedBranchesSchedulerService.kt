@@ -19,6 +19,7 @@ import zielu.gittoolbox.util.AppUtil
 import zielu.gittoolbox.util.Html
 import zielu.intellij.concurrent.ZDisposableRunnableWrapper
 import zielu.intellij.util.ZDisposeGuard
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 internal class OutdatedBranchesSchedulerService(
@@ -43,13 +44,18 @@ internal class OutdatedBranchesSchedulerService(
   }
 
   private fun schedule(firstTime: Boolean) {
+    // TODO: reschedule or cancel on config change
+
     val config = ProjectConfig.getMerged(project)
     if (config.outdatedBranchesAutoCleanupEnabled()) {
       GitToolBoxApp.getInstance().ifPresent { app ->
-        val delay = if (firstTime) 1 else config.outdatedBranchesAutoCleanupIntervalHours()
+        val delay = if (firstTime)
+          Duration.ofMinutes(30)
+        else
+          Duration.ofHours(config.outdatedBranchesAutoCleanupIntervalHours().toLong())
         val task = ZDisposableRunnableWrapper(Task(project, { handle(it) }, { schedule(false) }))
         Disposer.register(disposeGuard, task)
-        app.schedule(task, delay.toLong(), TimeUnit.HOURS)
+        app.schedule(task, delay.toMinutes(), TimeUnit.MINUTES)
       }
     }
   }

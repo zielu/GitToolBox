@@ -21,6 +21,7 @@ constructor(private val facade: OutdatedBranchesFacade) {
     val merged = facade.findMergedBranches(repo)
 
     val currentBranch = repo.currentBranch
+    val exclusions = facade.getExclusions()
 
     return branches
       .filterNot { it.local == currentBranch }
@@ -31,6 +32,7 @@ constructor(private val facade: OutdatedBranchesFacade) {
           false
         }
       }
+      .filterNot { exclusions.isExcluded(it.local.name) }
       .map { createOutdated(repo, it, merged) }
     // TODO: add filtering of commits older than X days
   }
