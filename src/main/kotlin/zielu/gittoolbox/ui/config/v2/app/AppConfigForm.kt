@@ -5,6 +5,7 @@ import com.intellij.ui.components.JBTabbedPane
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.config.MutableConfig
 import zielu.gittoolbox.ui.config.v2.shared.AutoFetchPage
+import zielu.gittoolbox.ui.config.v2.shared.BranchPage
 import zielu.gittoolbox.ui.config.v2.shared.CommitPage
 import zielu.gittoolbox.ui.config.v2.shared.StatusPage
 import zielu.intellij.ui.CompositeGtFormUiEx
@@ -34,12 +35,14 @@ internal class AppConfigForm : GtFormUiEx<MutableConfig> {
     val autoFetchPage = AutoFetchPage()
     val statusPage = StatusPage()
     val commitPage = CommitPage()
+    val branchPage = BranchPage()
     pages.add(generalPage)
     pages.add(projectViewPage)
     pages.add(autoFetchPage)
     pages.add(statusPage)
     pages.add(blamePage)
     pages.add(commitPage)
+    pages.add(branchPage)
     pages.init()
     tabs.addTab(ResBundle.message("configurable.app.general.tab.title"), generalPage.content)
     tabs.addTab(ResBundle.message("configurable.app.projectView.tab.title"), projectViewPage.content)
@@ -47,6 +50,7 @@ internal class AppConfigForm : GtFormUiEx<MutableConfig> {
     tabs.addTab(ResBundle.message("configurable.shared.autoFetch.tab.title"), autoFetchPage.content)
     tabs.addTab(ResBundle.message("configurable.shared.status.tab.title"), statusPage.content)
     tabs.addTab(ResBundle.message("configurable.shared.commit.tab.title"), commitPage.content)
+    tabs.add(ResBundle.message("configurable.shared.branch.tab.title"), branchPage.content)
   }
 
   override fun fillFromState(state: MutableConfig) {

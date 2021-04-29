@@ -167,6 +167,7 @@
     <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
 
     <projectService serviceImplementation="zielu.gittoolbox.branch.OutdatedBranchesService" />
+    <projectService serviceImplementation="zielu.gittoolbox.branch.OutdatedBranchesSchedulerService" />
 
     <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
     <registryKey defaultValue="15" description="Blame calculator cache size" key="zielu.gittoolbox.blame.calculator.cache.size" />
