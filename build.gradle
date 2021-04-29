@@ -292,6 +292,7 @@ dependencies {
     implementation("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
+    implementation("com.hrakaroo:glob:${globVersion}")
 
     testImplementation("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
 

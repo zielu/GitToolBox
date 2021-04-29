@@ -146,4 +146,16 @@ internal class MergedProjectConfig(
   fun isReferencePointForStatusChanged(previous: MergedProjectConfig): Boolean {
     return previous.referencePointForStatus() != referencePointForStatus()
   }
+
+  fun outdatedBranchesAutoCleanupEnabled(): Boolean {
+    return appConfig.outdatedBranchesCleanup.autoCheckEnabled
+  }
+
+  fun outdatedBranchesAutoCleanupIntervalHours(): Int {
+    return appConfig.outdatedBranchesCleanup.autoCheckIntervalHours
+  }
+
+  fun outdatedBranchesCleanupExclusionGlobs(): List<String> {
+    return appConfig.outdatedBranchesCleanup.exclusionGlobs
+  }
 }

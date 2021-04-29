@@ -16,6 +16,12 @@ internal class ZDisposeGuard : Disposable {
 
   private fun checkInterrupted(): Boolean = Thread.currentThread().isInterrupted
 
+  fun ifActive(action: () -> Unit) {
+    if (isActive()) {
+      action.invoke()
+    }
+  }
+
   override fun dispose() {
     disposed.compareAndSet(false, true)
   }

@@ -38,7 +38,9 @@ internal data class GitToolBoxConfig2(
   var completionConfigs: List<CommitCompletionConfig> = arrayListOf(CommitCompletionConfig()),
   var referencePointForStatus: ReferencePointForStatusConfig = ReferencePointForStatusConfig(),
   var commitMessageValidationEnabled: Boolean = false,
-  var commitMessageValidationRegex: String = "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+"
+  var commitMessageValidationRegex: String =
+    "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+",
+  var outdatedBranchesCleanup: OutdatedBranchesCleanupConfig = OutdatedBranchesCleanupConfig()
 ) {
 
   @Transient
@@ -73,7 +75,8 @@ internal data class GitToolBoxConfig2(
       completionConfigs.map { it.copy() },
       referencePointForStatus,
       commitMessageValidationEnabled,
-      commitMessageValidationRegex
+      commitMessageValidationRegex,
+      outdatedBranchesCleanup.copy()
     )
   }
 

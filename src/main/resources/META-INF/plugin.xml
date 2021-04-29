@@ -221,6 +221,9 @@
     <listener class="zielu.gittoolbox.branch.BranchSubscriberInfoCacheListener"
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
 
+    <listener class="zielu.gittoolbox.branch.OutdatedBranchesListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+
     <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberGitRepositoryListener"
               topic="git4idea.repo.GitRepositoryChangeListener" />
     <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberMappingListener"

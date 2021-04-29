@@ -32,7 +32,9 @@ internal data class GitToolBoxConfigPrj(
   var completionConfigsOverride: CommitCompletionConfigListOverride = CommitCompletionConfigListOverride(),
   var referencePointForStatusOverride: ReferencePointForStatusOverride = ReferencePointForStatusOverride(),
   var commitMessageValidationOverride: BoolValueOverride = BoolValueOverride(),
-  var commitMessageValidationRegexOverride: StringValueOverride = StringValueOverride()
+  var commitMessageValidationRegexOverride: StringValueOverride = StringValueOverride(
+    value = "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+"
+  )
 ) {
 
   @Transient

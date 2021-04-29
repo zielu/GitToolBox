@@ -75,8 +75,9 @@ class GtNotifierImpl implements GtNotifier {
   }
 
   @Override
-  public Notification branchCleanupSuccess(@NotNull String title, @NotNull String message) {
-    return notify(cleanupGroup, title, message, NotificationType.INFORMATION, null);
+  public Notification branchCleanupSuccess(@NotNull String title, @NotNull String message,
+                                           @Nullable NotificationListener listener) {
+    return notify(cleanupGroup, title, message, NotificationType.INFORMATION, listener);
   }
 
   @NotNull

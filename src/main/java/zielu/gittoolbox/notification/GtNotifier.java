@@ -32,5 +32,10 @@ public interface GtNotifier {
   @NotNull
   Notification autoFetchInfo(@NotNull String title, @NotNull String message);
 
-  Notification branchCleanupSuccess(@NotNull String title, @NotNull String message);
+  default Notification branchCleanupSuccess(@NotNull String title, @NotNull String message) {
+    return branchCleanupSuccess(title, message, null);
+  }
+
+  Notification branchCleanupSuccess(@NotNull String title, @NotNull String message,
+                                    @Nullable NotificationListener listener);
 }
