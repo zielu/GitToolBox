@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import git4idea.repo.GitRepository
 import git4idea.util.GitUIUtil
-import jodd.util.StringBand
 import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.concurrent.executeAsync
@@ -16,10 +15,10 @@ import zielu.gittoolbox.notification.GtNotifier
 import zielu.gittoolbox.ui.branch.OutdatedBranchesDialog
 import zielu.gittoolbox.ui.util.AppUiUtil
 import zielu.gittoolbox.util.AppUtil
-import zielu.gittoolbox.util.Html
 import zielu.intellij.concurrent.ZDisposableRunnableWrapper
 import zielu.intellij.util.ZDisposeGuard
 import java.time.Duration
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
 internal class OutdatedBranchesSchedulerService(
@@ -29,6 +28,7 @@ internal class OutdatedBranchesSchedulerService(
 
   private var notScheduled = true
   private var previousNotification: Notification? = null
+  private var scheduledTask: ScheduledFuture<*>? = null
 
   init {
     Disposer.register(this, disposeGuard)
@@ -55,7 +55,7 @@ internal class OutdatedBranchesSchedulerService(
           Duration.ofHours(config.outdatedBranchesAutoCleanupIntervalHours().toLong())
         val task = ZDisposableRunnableWrapper(Task(project, { handle(it) }, { schedule(false) }))
         Disposer.register(disposeGuard, task)
-        app.schedule(task, delay.toMinutes(), TimeUnit.MINUTES)
+        scheduledTask = app.schedule(task, delay.toMinutes(), TimeUnit.MINUTES)
       }
     }
   }
@@ -66,13 +66,10 @@ internal class OutdatedBranchesSchedulerService(
 
     if (outdatedBranches.isNotEmpty()) {
       val count = outdatedBranches.values.sumOf { it.size }
-      val message = StringBand("Found ")
-        .append(count).append(" outdated branches")
-        .append(Html.BRX)
-        .append(Html.link("details", "details..."))
+      val message = ResBundle.message("branch.cleanup.cleaner.schedule.message", count)
       previousNotification = GtNotifier.getInstance(project).branchCleanupSuccess(
         GitUIUtil.bold(ResBundle.message("branch.cleanup.notification.success.title")),
-        message.toString()
+        message
       ) { _, _ ->
         cleanupBranches(outdatedBranches)
       }
@@ -96,7 +93,7 @@ internal class OutdatedBranchesSchedulerService(
   }
 
   override fun dispose() {
-    // do nothing
+    scheduledTask?.apply { cancel(true) }
   }
 
   companion object {
