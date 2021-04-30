@@ -11,14 +11,14 @@ internal class MergedProjectConfig(
 ) {
 
   fun autoFetchEnabled(): Boolean {
-    return getBool(
+    return getBoolWithLegacy(
       projectConfig::autoFetch,
       appConfig::autoFetchEnabled,
       projectConfig.autoFetchEnabledOverride
     )
   }
 
-  private fun getBool(legacy: KProperty0<Boolean>, app: KProperty0<Boolean>, override: BoolValueOverride): Boolean {
+  private fun getBoolWithLegacy(legacy: KProperty0<Boolean>, app: KProperty0<Boolean>, override: BoolValueOverride): Boolean {
     return when {
       useLegacy -> {
         legacy.get()
@@ -47,7 +47,7 @@ internal class MergedProjectConfig(
   }
 
   fun autoFetchOnBranchSwitch(): Boolean {
-    return getBool(
+    return getBoolWithLegacy(
       projectConfig::autoFetchOnBranchSwitch,
       appConfig::autoFetchOnBranchSwitch,
       projectConfig.autoFetchOnBranchSwitchOverride
@@ -55,7 +55,7 @@ internal class MergedProjectConfig(
   }
 
   fun commitDialogBranchCompletion(): Boolean {
-    return getBool(
+    return getBoolWithLegacy(
       projectConfig::commitDialogCompletion,
       appConfig::commitDialogCompletion,
       projectConfig.commitDialogBranchCompletionOverride
@@ -63,7 +63,7 @@ internal class MergedProjectConfig(
   }
 
   fun commitDialogGitmojiCompletion(): Boolean {
-    return getBool(
+    return getBoolWithLegacy(
       appConfig::commitDialogGitmojiCompletion,
       appConfig::commitDialogGitmojiCompletion,
       projectConfig.commitDialogGitmojiCompletionOverride
@@ -71,7 +71,7 @@ internal class MergedProjectConfig(
   }
 
   fun commitDialogGitmojiUnicodeCompletion(): Boolean {
-    return getBool(
+    return getBoolWithLegacy(
       appConfig::commitDialogGitmojiCompletionUnicode,
       appConfig::commitDialogGitmojiCompletionUnicode,
       projectConfig.commitDialogGitmojiUnicodeCompletionOverride
@@ -107,7 +107,7 @@ internal class MergedProjectConfig(
   }
 
   fun commitMessageValidation(): Boolean {
-    return getBool(
+    return getBoolWithLegacy(
       projectConfig::commitMessageValidation,
       appConfig::commitMessageValidationEnabled,
       projectConfig.commitMessageValidationOverride
@@ -148,14 +148,35 @@ internal class MergedProjectConfig(
   }
 
   fun outdatedBranchesAutoCleanupEnabled(): Boolean {
-    return appConfig.outdatedBranchesCleanup.autoCheckEnabled
+    return when {
+      projectConfig.outdatedBranchesCleanupOverride.enabled -> {
+        projectConfig.outdatedBranchesCleanupOverride.value.autoCheckEnabled
+      }
+      else -> {
+        appConfig.outdatedBranchesCleanup.autoCheckEnabled
+      }
+    }
   }
 
   fun outdatedBranchesAutoCleanupIntervalHours(): Int {
-    return appConfig.outdatedBranchesCleanup.autoCheckIntervalHours
+    return when {
+      projectConfig.outdatedBranchesCleanupOverride.enabled -> {
+        projectConfig.outdatedBranchesCleanupOverride.value.autoCheckIntervalHours
+      }
+      else -> {
+        appConfig.outdatedBranchesCleanup.autoCheckIntervalHours
+      }
+    }
   }
 
   fun outdatedBranchesCleanupExclusionGlobs(): List<String> {
-    return appConfig.outdatedBranchesCleanup.exclusionGlobs
+    return when {
+      projectConfig.outdatedBranchesCleanupOverride.enabled -> {
+        projectConfig.outdatedBranchesCleanupOverride.value.exclusionGlobs
+      }
+      else -> {
+        appConfig.outdatedBranchesCleanup.exclusionGlobs
+      }
+    }
   }
 }

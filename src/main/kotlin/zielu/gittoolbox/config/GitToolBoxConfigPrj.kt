@@ -4,6 +4,7 @@ import com.intellij.util.xmlb.annotations.Transient
 import zielu.gittoolbox.config.override.BoolValueOverride
 import zielu.gittoolbox.config.override.CommitCompletionConfigListOverride
 import zielu.gittoolbox.config.override.IntValueOverride
+import zielu.gittoolbox.config.override.OutdatedBranchesCleanupOverride
 import zielu.gittoolbox.config.override.ReferencePointForStatusOverride
 import zielu.gittoolbox.config.override.StringValueOverride
 import zielu.gittoolbox.fetch.AutoFetchParams
@@ -34,7 +35,8 @@ internal data class GitToolBoxConfigPrj(
   var commitMessageValidationOverride: BoolValueOverride = BoolValueOverride(),
   var commitMessageValidationRegexOverride: StringValueOverride = StringValueOverride(
     value = "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+"
-  )
+  ),
+  var outdatedBranchesCleanupOverride: OutdatedBranchesCleanupOverride = OutdatedBranchesCleanupOverride()
 ) {
 
   @Transient
@@ -59,7 +61,8 @@ internal data class GitToolBoxConfigPrj(
       completionConfigsOverride.copy(),
       referencePointForStatusOverride.copy(),
       commitMessageValidationOverride.copy(),
-      commitMessageValidationRegexOverride.copy()
+      commitMessageValidationRegexOverride.copy(),
+      outdatedBranchesCleanupOverride.copy()
     )
   }
 }
