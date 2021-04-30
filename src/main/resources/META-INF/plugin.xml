@@ -168,6 +168,7 @@
 
     <projectService serviceImplementation="zielu.gittoolbox.branch.OutdatedBranchesService" />
     <projectService serviceImplementation="zielu.gittoolbox.branch.OutdatedBranchesSchedulerService" />
+    <projectService serviceImplementation="zielu.gittoolbox.branch.OutdatedBranchesSubscriber" />
 
     <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
     <registryKey defaultValue="15" description="Blame calculator cache size" key="zielu.gittoolbox.blame.calculator.cache.size" />
@@ -222,8 +223,12 @@
     <listener class="zielu.gittoolbox.branch.BranchSubscriberInfoCacheListener"
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
 
-    <listener class="zielu.gittoolbox.branch.OutdatedBranchesListener"
+    <listener class="zielu.gittoolbox.branch.OutdatedBranchesReposListener"
               topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+    <listener class="zielu.gittoolbox.branch.OutdatedBranchesPrjConfigListener"
+              topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
+    <listener class="zielu.gittoolbox.branch.OutdatedBranchesAppConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
 
     <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberGitRepositoryListener"
               topic="git4idea.repo.GitRepositoryChangeListener" />

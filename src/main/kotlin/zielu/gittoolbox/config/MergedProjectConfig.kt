@@ -18,7 +18,11 @@ internal class MergedProjectConfig(
     )
   }
 
-  private fun getBoolWithLegacy(legacy: KProperty0<Boolean>, app: KProperty0<Boolean>, override: BoolValueOverride): Boolean {
+  private fun getBoolWithLegacy(
+    legacy: KProperty0<Boolean>,
+    app: KProperty0<Boolean>,
+    override: BoolValueOverride
+  ): Boolean {
     return when {
       useLegacy -> {
         legacy.get()

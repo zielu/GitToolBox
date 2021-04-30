@@ -10,6 +10,7 @@ import git4idea.util.GitUIUtil
 import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.concurrent.executeAsync
+import zielu.gittoolbox.config.MergedProjectConfig
 import zielu.gittoolbox.config.ProjectConfig
 import zielu.gittoolbox.notification.GtNotifier
 import zielu.gittoolbox.ui.branch.OutdatedBranchesDialog
@@ -20,13 +21,14 @@ import zielu.intellij.util.ZDisposeGuard
 import java.time.Duration
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 internal class OutdatedBranchesSchedulerService(
   private val project: Project
 ) : Disposable {
   private val disposeGuard = ZDisposeGuard()
 
-  private var notScheduled = true
+  private var notScheduled = AtomicBoolean(true)
   private var previousNotification: Notification? = null
   private var scheduledTask: ScheduledFuture<*>? = null
 
@@ -36,27 +38,70 @@ internal class OutdatedBranchesSchedulerService(
 
   fun setupSchedule() {
     disposeGuard.ifActive {
-      if (notScheduled) {
-        schedule(true)
-        notScheduled = false
+      schedule()
+    }
+  }
+
+  private fun schedule() {
+    if (notScheduled.compareAndSet(true, false)) {
+      schedule(true)
+    }
+  }
+
+  @Synchronized
+  fun onConfigChanged(previous: MergedProjectConfig, current: MergedProjectConfig) {
+    val currentEnabled = current.outdatedBranchesAutoCleanupEnabled()
+    if (previous.outdatedBranchesAutoCleanupEnabled() != current.outdatedBranchesAutoCleanupEnabled()) {
+      // start or stop schedule
+      if (currentEnabled) {
+        schedule()
+      } else {
+        cancelCurrentTask()
+        notScheduled.compareAndSet(false, true)
+      }
+    } else {
+      if (currentEnabled) {
+        rescheduleCurrentTask(current.outdatedBranchesAutoCleanupIntervalHours())
       }
     }
   }
 
-  private fun schedule(firstTime: Boolean) {
-    // TODO: reschedule or cancel on config change
+  @Synchronized
+  private fun cancelCurrentTask() {
+    scheduledTask?.apply { cancel(true) }
+  }
 
+  @Synchronized
+  private fun rescheduleCurrentTask(currentIntervalHours: Int) {
+    val intervalMinutes = Duration.ofHours(currentIntervalHours.toLong()).toMinutes()
+    val remainingDelay = scheduledTask?.getDelay(TimeUnit.MINUTES)
+    if (remainingDelay != null) {
+      if (remainingDelay > intervalMinutes) {
+        cancelCurrentTask()
+        scheduleTask(Duration.ofMinutes(intervalMinutes))
+      }
+    } else {
+      log.error("Should reschedule absent branch cleanup task")
+    }
+  }
+
+  private fun schedule(firstTime: Boolean) {
     val config = ProjectConfig.getMerged(project)
     if (config.outdatedBranchesAutoCleanupEnabled()) {
-      GitToolBoxApp.getInstance().ifPresent { app ->
-        val delay = if (firstTime)
-          Duration.ofMinutes(30)
-        else
-          Duration.ofHours(config.outdatedBranchesAutoCleanupIntervalHours().toLong())
-        val task = ZDisposableRunnableWrapper(Task(project, { handle(it) }, { schedule(false) }))
-        Disposer.register(disposeGuard, task)
-        scheduledTask = app.schedule(task, delay.toMinutes(), TimeUnit.MINUTES)
-      }
+      val delay = if (firstTime)
+        Duration.ofMinutes(30)
+      else
+        Duration.ofHours(config.outdatedBranchesAutoCleanupIntervalHours().toLong())
+      scheduleTask(delay)
+    }
+  }
+
+  @Synchronized
+  private fun scheduleTask(delay: Duration) {
+    GitToolBoxApp.getInstance().ifPresent { app ->
+      val task = ZDisposableRunnableWrapper(Task(project, { handle(it) }, { schedule(false) }))
+      Disposer.register(disposeGuard, task)
+      scheduledTask = app.schedule(task, delay.toMinutes(), TimeUnit.MINUTES)
     }
   }
 
@@ -93,7 +138,7 @@ internal class OutdatedBranchesSchedulerService(
   }
 
   override fun dispose() {
-    scheduledTask?.apply { cancel(true) }
+    cancelCurrentTask()
   }
 
   companion object {
