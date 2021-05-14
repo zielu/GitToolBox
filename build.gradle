@@ -108,6 +108,15 @@ patchPluginXml {
             .replace("RELEASE_TYPE", buildType(branchName, ci))
 }
 
+processResources {
+    from ('.') {
+        include 'LICENSE'
+        include 'README.md'
+
+        into 'META-INF'
+    }
+}
+
 runIde {
     jbrVersion jbrVersion
 }
