@@ -117,13 +117,17 @@ processResources {
     }
 }
 
+/*
 runIde {
     jbrVersion jbrVersion
 }
+*/
 
+/*
 buildSearchableOptions {
     jbrVersion jbrVersion
 }
+*/
 
 if (publish) {
     println('Publish')
