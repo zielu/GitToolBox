@@ -86,8 +86,9 @@ internal class BranchCleaner(
 
   override fun onFinished() {
     if (deleted.isNotEmpty()) {
-      val historyEntry = BranchCleanupEntry(Instant.now().toEpochMilli(), deleted.map { it.copy() }.toMutableList())
-      WorkspaceStore.get(project).branchesCleanupHistory.history.add(historyEntry)
+      val historyEntry = BranchCleanupEntry(Instant.now())
+      historyEntry.deletions = deleted.map { it.copy() }.toMutableList()
+      WorkspaceStore.get(project).branchesCleanupHistory.append(historyEntry)
     }
   }
 }
