@@ -1,14 +1,15 @@
 package zielu.gittoolbox.branch
 
 import com.intellij.notification.Notification
+import com.intellij.notification.NotificationListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import git4idea.repo.GitRepository
 import git4idea.util.GitUIUtil
-import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.ResBundle
+import zielu.gittoolbox.concurrent.ReschedulingExecutor
 import zielu.gittoolbox.concurrent.executeAsync
 import zielu.gittoolbox.config.MergedProjectConfig
 import zielu.gittoolbox.config.ProjectConfig
@@ -16,17 +17,18 @@ import zielu.gittoolbox.notification.GtNotifier
 import zielu.gittoolbox.ui.branch.OutdatedBranchesDialog
 import zielu.gittoolbox.ui.util.AppUiUtil
 import zielu.gittoolbox.util.AppUtil
-import zielu.intellij.concurrent.ZDisposableRunnableWrapper
 import zielu.intellij.util.ZDisposeGuard
 import java.time.Duration
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.swing.event.HyperlinkEvent
 
 internal class OutdatedBranchesSchedulerService(
   private val project: Project
 ) : Disposable {
   private val disposeGuard = ZDisposeGuard()
+  private val executor = ReschedulingExecutor()
 
   private var notScheduled = AtomicBoolean(true)
   private var previousNotification: Notification? = null
@@ -34,6 +36,7 @@ internal class OutdatedBranchesSchedulerService(
 
   init {
     Disposer.register(this, disposeGuard)
+    Disposer.register(disposeGuard, executor)
   }
 
   fun setupSchedule() {
@@ -61,7 +64,9 @@ internal class OutdatedBranchesSchedulerService(
       }
     } else {
       if (currentEnabled) {
-        rescheduleCurrentTask(current.outdatedBranchesAutoCleanupIntervalHours())
+        if (previous.outdatedBranchesAutoCleanupIntervalHours() != current.outdatedBranchesAutoCleanupIntervalHours()) {
+          rescheduleCurrentTask(current.outdatedBranchesAutoCleanupIntervalHours())
+        }
       }
     }
   }
@@ -73,16 +78,7 @@ internal class OutdatedBranchesSchedulerService(
 
   @Synchronized
   private fun rescheduleCurrentTask(currentIntervalHours: Int) {
-    val intervalMinutes = Duration.ofHours(currentIntervalHours.toLong()).toMinutes()
-    val remainingDelay = scheduledTask?.getDelay(TimeUnit.MINUTES)
-    if (remainingDelay != null) {
-      if (remainingDelay > intervalMinutes) {
-        cancelCurrentTask()
-        scheduleTask(Duration.ofMinutes(intervalMinutes))
-      }
-    } else {
-      log.error("Should reschedule absent branch cleanup task")
-    }
+    scheduleTask(Duration.ofHours(currentIntervalHours.toLong()))
   }
 
   private fun schedule(firstTime: Boolean) {
@@ -98,11 +94,8 @@ internal class OutdatedBranchesSchedulerService(
 
   @Synchronized
   private fun scheduleTask(delay: Duration) {
-    GitToolBoxApp.getInstance().ifPresent { app ->
-      val task = ZDisposableRunnableWrapper(Task(project, { handle(it) }, { schedule(false) }))
-      Disposer.register(disposeGuard, task)
-      scheduledTask = app.schedule(task, delay.toMinutes(), TimeUnit.MINUTES)
-    }
+    val task = Task(project, { handle(it) }, { schedule(false) })
+    executor.scheduleOnce("outdated-branches", task, delay.toMinutes(), TimeUnit.MINUTES)
   }
 
   private fun handle(outdatedBranches: Map<GitRepository, List<OutdatedBranch>>) {
@@ -114,10 +107,13 @@ internal class OutdatedBranchesSchedulerService(
       val message = ResBundle.message("branch.cleanup.cleaner.schedule.message", count)
       previousNotification = GtNotifier.getInstance(project).branchCleanupSuccess(
         GitUIUtil.bold(ResBundle.message("branch.cleanup.notification.success.title")),
-        message
-      ) { _, _ ->
-        cleanupBranches(outdatedBranches)
-      }
+        message,
+        object : NotificationListener.Adapter() {
+          override fun hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
+            cleanupBranches(outdatedBranches, notification)
+          }
+        }
+      )
     } else {
       GtNotifier.getInstance(project).branchCleanupSuccess(
         GitUIUtil.bold(ResBundle.message("branch.cleanup.notification.success.title")),
@@ -126,13 +122,17 @@ internal class OutdatedBranchesSchedulerService(
     }
   }
 
-  private fun cleanupBranches(outdatedBranches: Map<GitRepository, List<OutdatedBranch>>) {
+  private fun cleanupBranches(
+    outdatedBranches: Map<GitRepository, List<OutdatedBranch>>,
+    notification: Notification
+  ) {
     AppUiUtil.invokeLaterIfNeeded {
       val dialog = OutdatedBranchesDialog(project)
       dialog.setData(outdatedBranches)
       val performCleanup = dialog.showAndGet()
       if (performCleanup) {
         BranchCleaner(project, dialog.getData()).queue()
+        notification.expire()
       }
     }
   }

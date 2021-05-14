@@ -8,12 +8,14 @@ import com.intellij.util.messages.MessageBus
 import zielu.gittoolbox.metrics.AppMetrics
 import zielu.gittoolbox.util.AppUtil
 import zielu.gittoolbox.util.ConcurrentUtil
+import zielu.gittoolbox.util.ReschedulingExecutor
 import zielu.intellij.concurrent.ZThreadFactory
 import java.util.Collections
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
@@ -25,7 +27,7 @@ internal class GitToolBoxApp : Disposable {
   private val taskThreadFactory = ZThreadFactory("GitToolBox-task-group")
   private val taskExecutor = ThreadPoolExecutor(
     1,
-    Int.MAX_VALUE,
+    1024,
     60L,
     TimeUnit.SECONDS,
     SynchronousQueue(),
@@ -118,6 +120,21 @@ internal class GitToolBoxApp : Disposable {
     @JvmStatic
     fun getInstance(): Optional<GitToolBoxApp> {
       return AppUtil.getServiceInstanceSafe(GitToolBoxApp::class.java)
+    }
+
+    @JvmStatic
+    fun createReschedulingExecutor(): ReschedulingExecutor {
+      return ReschedulingExecutor(
+        { task, duration ->
+          getInstance().flatMap {
+            val result: Optional<Future<*>> = Optional.ofNullable(
+              it.schedule(task, duration.toMillis(), TimeUnit.MILLISECONDS)
+            )
+            result
+          }
+        },
+        true
+      )
     }
   }
 }

@@ -8,29 +8,17 @@ import git4idea.repo.GitRepository
 import zielu.gittoolbox.GitToolBoxApp
 import zielu.gittoolbox.cache.RepoInfo
 import zielu.gittoolbox.util.AppUtil
-import zielu.intellij.concurrent.DisposeSafeRunnable
 import zielu.gittoolbox.util.GtUtil
 import zielu.gittoolbox.util.ReschedulingExecutor
+import zielu.intellij.concurrent.DisposeSafeRunnable
 import zielu.intellij.util.ZDisposeGuard
-import java.util.Optional
-import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
 internal class BehindTrackerSubscriber(
   private val project: Project
 ) : Disposable {
   private val disposeGuard = ZDisposeGuard()
-  private val executor: ReschedulingExecutor = ReschedulingExecutor(
-    { task, duration ->
-      GitToolBoxApp.getInstance().flatMap {
-        val result: Optional<Future<*>> = Optional.ofNullable(
-          it.schedule(task, duration.toMillis(), TimeUnit.MILLISECONDS)
-        )
-        result
-      }
-    },
-    true
-  )
+  private val executor: ReschedulingExecutor = GitToolBoxApp.createReschedulingExecutor()
   init {
     Disposer.register(this, executor)
     Disposer.register(this, disposeGuard)

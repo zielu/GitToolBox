@@ -9,8 +9,8 @@ import com.intellij.ui.TreeExpandCollapse
 import com.intellij.ui.components.JBScrollPane
 import git4idea.repo.GitRepository
 import jodd.util.StringBand
-import zielu.gittoolbox.GtIcons
 import zielu.gittoolbox.ResBundle
+import zielu.gittoolbox.ResIcons
 import zielu.gittoolbox.branch.OutdatedBranch
 import zielu.gittoolbox.branch.OutdatedReason
 import zielu.gittoolbox.config.DateType
@@ -38,7 +38,7 @@ internal class OutdatedBranchesDialog(
   init {
     title = ResBundle.message("branch.cleanup.dialog.title")
     init()
-    setSize(400, 300)
+    setSize(600, 400)
   }
 
   override fun createCenterPanel(): JComponent {
@@ -148,11 +148,14 @@ private data class BranchNode(
     return text.toString()
   }
 
-  override fun getIcon(): Icon? {
-    return if (branch.reason == OutdatedReason.MERGED) {
-      return GtIcons.Merge
-    } else {
-      null
+  override fun getIcon(): Icon {
+    return when (branch.reason) {
+      OutdatedReason.MERGED -> {
+        ResIcons.ArrowMerge
+      }
+      OutdatedReason.OLD_COMMIT -> {
+        ResIcons.ArrowSplit
+      }
     }
   }
 

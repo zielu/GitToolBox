@@ -46,6 +46,10 @@ internal object ResIcons {
   @JvmStatic
   val Minus: Icon
     get() = getIcon("/zielu/gittoolbox/minus-button.png")
+  val ArrowMerge: Icon
+    get() = getIcon("/zielu/gittoolbox/arrow-merge-090.png")
+  val ArrowSplit: Icon
+    get() = getIcon("/zielu/gittoolbox/arrow-split-090.png")
 
   private fun getIcon(path: String) = IconLoader.getIcon(path, javaClass)
 }
