@@ -1,5 +1,6 @@
 package zielu.gittoolbox.branch
 
+import com.intellij.vcs.log.Hash
 import git4idea.GitLocalBranch
 import git4idea.GitRemoteBranch
 import git4idea.branch.GitBranchesCollection
@@ -30,7 +31,8 @@ internal class OutdatedBranchesServiceTest {
     @MockK localNotMergedMock: GitLocalBranch,
     @MockK localMergedMock: GitLocalBranch,
     @MockK remoteNotMergedMock: GitRemoteBranch,
-    @MockK remoteMergedMock: GitRemoteBranch
+    @MockK remoteMergedMock: GitRemoteBranch,
+    @MockK hashMock: Hash
   ) {
     // given
     val current = GitLocalBranch("master")
@@ -45,9 +47,11 @@ internal class OutdatedBranchesServiceTest {
     every { facadeMock.findMergedBranches(repoMock) } returns setOf("local-merged")
     every { facadeMock.getLatestCommitTimestamp(repoMock, any()) } returns null
     every { facadeMock.getExclusions() } returns OutdatedBranchesExclusions(listOf())
+    every { facadeMock.getBranchHash(any(), any()) } returns hashMock
     every { local.findTrackedBranch(repoMock) } returns null
     every { localNotMergedMock.findTrackedBranch(repoMock) } returns remoteNotMergedMock
     every { localMergedMock.findTrackedBranch(repoMock) } returns remoteMergedMock
+    every { hashMock.asString() } returns "hash"
 
     // when
     val outdatedBranches = service.outdatedBranches(repoMock)

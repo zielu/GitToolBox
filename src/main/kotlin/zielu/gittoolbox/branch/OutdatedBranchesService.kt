@@ -38,9 +38,16 @@ constructor(private val facade: OutdatedBranchesFacade) {
   }
 
   private fun createOutdated(repo: GitRepository, branch: Branch, merged: Set<String>): OutdatedBranch {
+    val hash = facade.getBranchHash(repo, branch.local)
     val lastCommitTimestamp = facade.getLatestCommitTimestamp(repo, branch.local)
     val reason = if (branch.local.name in merged) OutdatedReason.MERGED else OutdatedReason.OLD_COMMIT
-    return OutdatedBranch(branch.local, reason, lastCommitTimestamp, branch.remote)
+    return OutdatedBranch(
+      branch.local,
+      hash.asString(),
+      reason,
+      lastCommitTimestamp,
+      branch.remote
+    )
   }
 
   companion object {

@@ -6,6 +6,7 @@ import java.time.ZonedDateTime
 
 internal data class OutdatedBranch(
   val localBranch: GitLocalBranch,
+  val localHash: String,
   val reason: OutdatedReason,
   val latestCommitTimestamp: ZonedDateTime?,
   val remoteBranch: GitRemoteBranch? = null

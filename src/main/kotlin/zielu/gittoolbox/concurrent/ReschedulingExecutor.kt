@@ -59,7 +59,6 @@ internal class ReschedulingExecutor : Disposable {
     return task.isDone || task.isCancelled
   }
 
-
   override fun dispose() {
     if (active.compareAndSet(true, false)) {
       lock.withLock {
