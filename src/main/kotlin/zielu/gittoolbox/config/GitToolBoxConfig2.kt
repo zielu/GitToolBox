@@ -1,6 +1,7 @@
 package zielu.gittoolbox.config
 
 import com.intellij.util.xmlb.annotations.Transient
+import zielu.gittoolbox.branch.OutdatedBranchCleanupParams
 import zielu.gittoolbox.extension.update.UpdateProjectAction
 import zielu.gittoolbox.fetch.AutoFetchParams
 import zielu.gittoolbox.ui.StatusPresenter
@@ -40,7 +41,8 @@ internal data class GitToolBoxConfig2(
   var commitMessageValidationEnabled: Boolean = false,
   var commitMessageValidationRegex: String =
     "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+",
-  var outdatedBranchesCleanup: OutdatedBranchesCleanupConfig = OutdatedBranchesCleanupConfig()
+  var outdatedBranchesAutoCleanup: OutdatedBranchesAutoCleanupConfig = OutdatedBranchesAutoCleanupConfig(),
+  var outdatedBranchesExclusionGlobs: List<String> = ArrayList(OutdatedBranchCleanupParams.EXCLUSIONS)
 ) {
 
   @Transient
@@ -76,7 +78,8 @@ internal data class GitToolBoxConfig2(
       referencePointForStatus,
       commitMessageValidationEnabled,
       commitMessageValidationRegex,
-      outdatedBranchesCleanup.copy()
+      outdatedBranchesAutoCleanup.copy(),
+      ArrayList(outdatedBranchesExclusionGlobs)
     )
   }
 

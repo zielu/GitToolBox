@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.CheckboxTree
 import com.intellij.ui.CheckedTreeNode
+import com.intellij.ui.IconManager
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.TreeExpandCollapse
 import com.intellij.ui.components.JBScrollPane
@@ -69,6 +70,7 @@ internal class OutdatedBranchesDialog(
             renderer.append(" $this", SimpleTextAttributes.GRAYED_ATTRIBUTES)
           }
           node.getIcon()?.apply { renderer.icon = this }
+          toolTipText = node.getTooltip()
         }
       }
     }
@@ -123,6 +125,7 @@ private interface MyNode {
   fun getText(): String
   fun getSubText(): String? = null
   fun getIcon(): Icon? = null
+  fun getTooltip(): String? = null
 }
 
 private class RootNode : MyNode {
@@ -154,7 +157,18 @@ private data class BranchNode(
         ResIcons.ArrowMerge
       }
       OutdatedReason.OLD_COMMIT -> {
-        ResIcons.ArrowSplit
+        IconManager.getInstance().createRowIcon(ResIcons.ArrowSplit, ResIcons.Warning)
+      }
+    }
+  }
+
+  override fun getTooltip(): String {
+    return when (branch.reason) {
+      OutdatedReason.MERGED -> {
+        ResBundle.message("branch.cleanup.state.merged.tooltip")
+      }
+      OutdatedReason.OLD_COMMIT -> {
+        ResBundle.message("branch.cleanup.state.outdated.tooltip")
       }
     }
   }

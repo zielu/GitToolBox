@@ -5,7 +5,7 @@ import java.time.Instant
 
 internal class BranchCleanupEntry(
   var timestamp: Long = 0,
-  var deletions: MutableList<BranchDeletion> = mutableListOf()
+  var deletions: List<BranchDeletion> = arrayListOf()
 ) {
 
   constructor(timestamp: Instant) : this(timestamp.toEpochMilli())
@@ -19,7 +19,7 @@ internal class BranchCleanupEntry(
   fun copy(): BranchCleanupEntry {
     return BranchCleanupEntry(
       timestamp,
-      deletions.map { it.copy() }.toMutableList()
+      deletions.map { it.copy() }
     )
   }
 }

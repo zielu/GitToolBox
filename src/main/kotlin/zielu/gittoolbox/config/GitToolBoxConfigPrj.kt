@@ -1,10 +1,12 @@
 package zielu.gittoolbox.config
 
 import com.intellij.util.xmlb.annotations.Transient
+import zielu.gittoolbox.branch.OutdatedBranchCleanupParams
 import zielu.gittoolbox.config.override.BoolValueOverride
 import zielu.gittoolbox.config.override.CommitCompletionConfigListOverride
 import zielu.gittoolbox.config.override.IntValueOverride
-import zielu.gittoolbox.config.override.OutdatedBranchesCleanupOverride
+import zielu.gittoolbox.config.override.ListValueOverride
+import zielu.gittoolbox.config.override.OutdatedBranchesAutoCleanupOverride
 import zielu.gittoolbox.config.override.ReferencePointForStatusOverride
 import zielu.gittoolbox.config.override.StringValueOverride
 import zielu.gittoolbox.fetch.AutoFetchParams
@@ -36,7 +38,10 @@ internal data class GitToolBoxConfigPrj(
   var commitMessageValidationRegexOverride: StringValueOverride = StringValueOverride(
     value = "(?:fix|chore|docs|feat|refactor|style|test)(?:\\(.*\\))?: [A-Z].*\\s#\\d+"
   ),
-  var outdatedBranchesCleanupOverride: OutdatedBranchesCleanupOverride = OutdatedBranchesCleanupOverride()
+  var outdatedBranchesCleanupOverride: OutdatedBranchesAutoCleanupOverride = OutdatedBranchesAutoCleanupOverride(),
+  var outdatedBranchesExclusionGlobsOverride: ListValueOverride<String> = ListValueOverride(
+    values = ArrayList(OutdatedBranchCleanupParams.EXCLUSIONS)
+  )
 ) {
 
   @Transient
@@ -44,7 +49,7 @@ internal data class GitToolBoxConfigPrj(
     return GitToolBoxConfigPrj(
       autoFetch,
       autoFetchIntervalMinutes,
-      autoFetchExclusions,
+      ArrayList(autoFetchExclusions),
       autoFetchOnBranchSwitch,
       commitDialogCompletion,
       completionConfigs.map { it.copy() },
@@ -62,7 +67,8 @@ internal data class GitToolBoxConfigPrj(
       referencePointForStatusOverride.copy(),
       commitMessageValidationOverride.copy(),
       commitMessageValidationRegexOverride.copy(),
-      outdatedBranchesCleanupOverride.copy()
+      outdatedBranchesCleanupOverride.copy(),
+      outdatedBranchesExclusionGlobsOverride.copy()
     )
   }
 }

@@ -157,7 +157,7 @@ internal class MergedProjectConfig(
         projectConfig.outdatedBranchesCleanupOverride.value.autoCheckEnabled
       }
       else -> {
-        appConfig.outdatedBranchesCleanup.autoCheckEnabled
+        appConfig.outdatedBranchesAutoCleanup.autoCheckEnabled
       }
     }
   }
@@ -168,18 +168,18 @@ internal class MergedProjectConfig(
         projectConfig.outdatedBranchesCleanupOverride.value.autoCheckIntervalHours
       }
       else -> {
-        appConfig.outdatedBranchesCleanup.autoCheckIntervalHours
+        appConfig.outdatedBranchesAutoCleanup.autoCheckIntervalHours
       }
     }
   }
 
   fun outdatedBranchesCleanupExclusionGlobs(): List<String> {
     return when {
-      projectConfig.outdatedBranchesCleanupOverride.enabled -> {
-        projectConfig.outdatedBranchesCleanupOverride.value.exclusionGlobs
+      projectConfig.outdatedBranchesExclusionGlobsOverride.enabled -> {
+        projectConfig.outdatedBranchesExclusionGlobsOverride.values
       }
       else -> {
-        appConfig.outdatedBranchesCleanup.exclusionGlobs
+        appConfig.outdatedBranchesExclusionGlobs
       }
     }
   }

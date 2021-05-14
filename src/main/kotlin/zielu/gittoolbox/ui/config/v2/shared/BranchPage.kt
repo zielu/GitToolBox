@@ -76,16 +76,16 @@ internal class BranchPage : GtFormUiEx<MutableConfig> {
     uiItems.register(
       BoolProp(
         outdatedAutoCleanupEnabled,
-        state.app.outdatedBranchesCleanup::autoCheckEnabled
+        state.app.outdatedBranchesAutoCleanup::autoCheckEnabled
       ),
       ValueProp(
         outdatedAutoCleanupInterval,
-        state.app.outdatedBranchesCleanup::autoCheckIntervalHours
+        state.app.outdatedBranchesAutoCleanup::autoCheckIntervalHours
       ),
       ValueProp(
         outdatedCleanupExcludedBranches,
-        { state.app.outdatedBranchesCleanup.exclusionGlobs.joinToString(separator = ";") },
-        { state.app.outdatedBranchesCleanup.exclusionGlobs = it.split(';') }
+        { state.app.outdatedBranchesExclusionGlobs.joinToString(separator = ";") },
+        { state.app.outdatedBranchesExclusionGlobs = it.split(';') }
       )
     )
   }
