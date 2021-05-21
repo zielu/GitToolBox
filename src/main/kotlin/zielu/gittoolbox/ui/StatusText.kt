@@ -3,6 +3,7 @@ package zielu.gittoolbox.ui
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.status.GitAheadBehindCount
 import zielu.gittoolbox.status.Status
+import zielu.intellij.util.ZResBundle
 
 internal object StatusText {
   @JvmStatic
@@ -15,7 +16,7 @@ internal object StatusText {
         StatusMessagesService.getInstance().aheadBehindStatus(aheadBehind)
       }
     } else {
-      ResBundle.na()
+      ZResBundle.na()
     }
   }
 

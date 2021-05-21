@@ -1,18 +1,13 @@
 package zielu.gittoolbox
 
-import com.intellij.DynamicBundle
+import com.intellij.AbstractBundle
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
 
-internal object ResBundle : DynamicBundle(BUNDLE_NAME) {
+internal object ResBundle : AbstractBundle(BUNDLE_NAME) {
   @JvmStatic
   fun message(@PropertyKey(resourceBundle = BUNDLE_NAME) key: String, vararg params: Any?): String {
     return getMessage(key, *params)
-  }
-
-  @JvmStatic
-  fun na(): String {
-    return message("common.na")
   }
 
   @JvmStatic

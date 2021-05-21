@@ -5,7 +5,6 @@ import git4idea.repo.GitRepository
 import org.apache.commons.lang3.StringUtils
 import zielu.gittoolbox.ResBundle
 import zielu.gittoolbox.ResBundle.message
-import zielu.gittoolbox.ResBundle.na
 import zielu.gittoolbox.ResIcons.ChangesPresent
 import zielu.gittoolbox.ResIcons.NoChanges
 import zielu.gittoolbox.cache.RepoInfo
@@ -16,7 +15,7 @@ import zielu.gittoolbox.status.GitAheadBehindCount
 import zielu.gittoolbox.status.Status
 import zielu.gittoolbox.ui.ExtendedRepoInfo
 import zielu.gittoolbox.ui.StatusText.format
-import java.util.ArrayList
+import zielu.intellij.util.ZResBundle
 import javax.swing.Icon
 
 internal class GitStatusPresenter(project: Project) {
@@ -86,7 +85,7 @@ internal class GitStatusPresenter(project: Project) {
     if (config.showStatusWidget) {
       val count = repoInfo.count
       if (count == null) {
-        parts.add(na())
+        parts.add(ZResBundle.na())
       } else {
         parts.add(format(count))
       }
