@@ -13,6 +13,7 @@ import zielu.gittoolbox.status.GitAheadBehindCount;
 import zielu.gittoolbox.status.Status;
 import zielu.gittoolbox.ui.ExtendedRepoInfo;
 import zielu.gittoolbox.ui.StatusPresenter;
+import zielu.intellij.util.ZResBundle;
 
 public abstract class NodeDecorationBase implements NodeDecoration {
   private static final EnumSet<State> TAGS_VISIBLE_STATES = EnumSet.of(State.NORMAL, State.DETACHED);
@@ -84,7 +85,15 @@ public abstract class NodeDecorationBase implements NodeDecoration {
   @NotNull
   private String getDetachedStateBranchText() {
     RepoStatus status = repoInfo.getStatus();
-    return status.localShortHash() == null ? GitBranchUtil.getDisplayableBranchText(repo) : status.localShortHash();
+    if (status.localShortHash() == null) {
+      if (repo.getCurrentRevision() != null) {
+        return GitBranchUtil.getDisplayableBranchText(repo);
+      } else {
+        return ZResBundle.INSTANCE.na();
+      }
+    } else {
+      return status.localShortHash();
+    }
   }
 
   @Nullable
