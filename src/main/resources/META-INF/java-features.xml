@@ -1,0 +1,16 @@
+<idea-plugin url="https://github.com/zielu/GitToolBox">
+    <extensions defaultExtensionNs="zielu.gittoolbox">
+      <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedBuildExt"/>
+      <viewModuleNodeChild nodeClass="com.intellij.ide.projectView.impl.nodes.PackageElementNode"/>
+      <viewModuleNodeParent moduleNodeClass="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+    </extensions>
+
+    <applicationListeners>
+      <listener class="zielu.gittoolbox.fetch.AutoFetchAllowedBuildListener"
+                topic="com.intellij.compiler.server.BuildManagerListener" />
+    </applicationListeners>
+
+    <extensions defaultExtensionNs="com.intellij">
+      <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchAllowedBuild" />
+    </extensions>
+</idea-plugin>

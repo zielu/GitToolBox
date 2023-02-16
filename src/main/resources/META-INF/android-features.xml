@@ -1,0 +1,6 @@
+<idea-plugin url="https://github.com/zielu/GitToolBox">
+    <extensions defaultExtensionNs="zielu.gittoolbox">
+      <viewModuleNodeParent moduleNodeClass="com.android.tools.idea.navigator.nodes.AndroidViewModuleNode" />
+      <viewPsiDirectoryNode finder="zielu.gittoolbox.ui.projectview.android.AndroidViewPsiDirectoryNodeRepoFinder" />
+    </extensions>
+</idea-plugin>

@@ -1,0 +1,5 @@
+<idea-plugin url="https://github.com/zielu/GitToolBox">
+    <extensions defaultExtensionNs="zielu.gittoolbox">
+        <updateProjectAction provider="zielu.gittoolbox.ui.update.GitExtenderUpdateProjectAction"/>
+    </extensions>
+</idea-plugin>

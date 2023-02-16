@@ -1,0 +1,51 @@
+<?xml version='1.0'?>
+<list>
+    <option name="GIT_TOOLBOX.REMOTE_BRANCH_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="619929" />
+            <option name="FONT_TYPE" value="1" />
+        </value>
+    </option>
+    <option name="GIT_TOOLBOX.MASTER_WITH_REMOTE_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="619929" />
+            <option name="FONT_TYPE" value="1" />
+        </value>
+    </option>
+    <option name="GIT_TOOLBOX.STATUS_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="619929" />
+            <option name="FONT_TYPE" value="1" />
+        </value>
+    </option>
+    <option name="GIT_TOOLBOX.HEAD_TAGS_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="57A9D7" />
+            <option name="FONT_TYPE" value="1" />
+        </value>
+    </option>
+    <option name="GIT_TOOLBOX.CHANGED_COUNT_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="619929" />
+            <option name="FONT_TYPE" value="1" />
+        </value>
+    </option>
+    <option name="GIT_TOOLBOX.LOCAL_BRANCH_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="616099" />
+            <option name="FONT_TYPE" value="1" />
+        </value>
+    </option>
+    <option name="GIT_TOOLBOX.MASTER_LOCAL_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="616099" />
+            <option name="FONT_TYPE" value="1" />
+        </value>
+    </option>
+    <option name="GIT_TOOLBOX.EDITOR_INLINE_BLAME_ATTRIBUTES">
+        <value>
+            <option name="FOREGROUND" value="B7B7B7" />
+            <option name="FONT_TYPE" value="2" />
+        </value>
+    </option>
+</list>

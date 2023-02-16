@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<!--
+  Information about Suppression Filters:
+    http://checkstyle.sourceforge.net/config.html#SuppressionFilter
+  Information about the XML:
+    http://checkstyle.sourceforge.net/config.html#XML_Details
+-->
+
+<suppressions>
+  <suppress files=".*UtfSeq\.java$" checks="AvoidEscapedUnicodeCharacters"/>
+
+  <!-- JUnit Rules require the rules field to have public visibility. -->
+  <!-- See http://checkstyle.sourceforge.net/config_design.html#VisibilityModifier -->
+  <suppress files=".*(?:Test|TestBase|Tutorial)\.java$"
+            checks="VisibilityModifier"/>
+
+  <!-- For our tests we do not demand API documentation. -->
+  <!-- See http://checkstyle.sf.net/config_javadoc.html -->
+  <suppress files=".*(?:Test|TestBase|Tutorial)\.java$"
+            checks="Javadoc.*"/>
+  <suppress files="[/\\]src[/\\]test[/\\]java[/\\].*\.java"
+            checks="Javadoc.*"/>
+
+  <!-- For our tests we do not limit the length of lines since names of test methods may
+       get quite long. -->
+  <!-- See http://checkstyle.sourceforge.net/config_sizes.html#LineLength -->
+  <suppress files=".*(?:Test|TestBase|Tutorial)\.java$"
+            checks="ExecutableStatementCount.LineLength"/>
+
+  <!-- For our tests naming has no constraints. -->
+  <!-- See http://checkstyle.sf.net/config_naming.html -->
+  <suppress files=".*(?:Test|TestBase|Tutorial)\.java$"
+            checks="MethodName"/>
+
+  <!-- For our tests no design for extension. -->
+  <!-- See http://checkstyle.sf.net/config_design.html#DesignForExtension -->
+  <suppress files=".*(?:Test|TestBase|Tutorial)\.java$"
+            checks="DesignForExtension"/>
+
+  <!-- Suppress checks for generated code. -->
+  <suppress files="[/\\]target[/\\]"
+            checks=".+"/>
+
+  <!-- Suppress checks for hidden files and folders. -->
+  <suppress files="[/\\]\..+"
+            checks=".+"/>
+
+  <!-- Suppress checks for archive and class files. -->
+  <suppress files=".+\.(?:jar|zip|war|ear|sar|par|class|ser)$"
+            checks=".+"/>
+  
+  <suppress files=".+\.xml$"
+            checks=".+"/>
+			
+  <suppress files=".+\.properties$"
+            checks=".+"/>
+			
+  <suppress files=".+\.sql$"
+            checks=".+"/>
+	
+  <suppress files=".+\.json$"
+            checks=".+"/>
+  
+  <suppress files=".+\txt$"
+            checks=".+"/>
+</suppressions>

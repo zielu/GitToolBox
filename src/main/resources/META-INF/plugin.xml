@@ -1,0 +1,368 @@
+<idea-plugin url="https://github.com/zielu/GitToolBox">
+  <id>zielu.gittoolbox</id>
+  <name>GitToolBox</name>
+  <version>203.0.0-dev</version>
+  <vendor url="https://github.com/zielu">Lukasz Zielinski</vendor>
+
+  <description><![CDATA[
+      inlined during build from description.html
+      ]]>
+  </description>
+
+  <change-notes><![CDATA[
+      inlined during build from change-notes.html
+      ]]>
+  </change-notes>
+
+
+  <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!-- enable plugins in all products -->
+  <depends>com.intellij.modules.platform</depends>
+  <depends>Git4Idea</depends>
+  <depends optional="true" config-file="java-features.xml">com.intellij.modules.java</depends>
+  <depends optional="true" config-file="gitextender-features.xml">gr.jchrist.gitextender</depends>
+  <depends optional="true" config-file="android-features.xml">org.jetbrains.android</depends>
+  <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="203.5981" until-build="211.*" />
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+    <applicationService serviceImplementation="zielu.gittoolbox.config.GitToolBoxConfig" />
+    <applicationService serviceImplementation="zielu.gittoolbox.config.AppConfig" />
+    <projectService serviceImplementation="zielu.gittoolbox.store.WorkspaceStore" />
+    <projectService serviceImplementation="zielu.gittoolbox.config.ProjectConfig" />
+
+    <applicationService serviceInterface="zielu.gittoolbox.metrics.AppMetrics"
+                        serviceImplementation="zielu.gittoolbox.metrics.AppMetricsImpl" />
+    <projectService serviceInterface="zielu.gittoolbox.metrics.ProjectMetrics"
+                    serviceImplementation="zielu.gittoolbox.metrics.ProjectMetricsImpl" />
+
+    <applicationService serviceImplementation="zielu.gittoolbox.GitToolBoxApp" />
+    <projectService serviceImplementation="zielu.gittoolbox.GitToolBoxPrj" />
+
+    <applicationService serviceImplementation="zielu.gittoolbox.ui.ExtendedRepoInfoService" />
+
+    <applicationService serviceImplementation="zielu.gittoolbox.ui.update.UpdateProjectActionService" />
+
+    <applicationService serviceInterface="zielu.gittoolbox.ui.DatePresenter"
+                        serviceImplementation="zielu.gittoolbox.ui.DatePresenterImpl" />
+
+    <applicationService serviceImplementation="zielu.gittoolbox.ui.StatusMessagesService" />
+    <applicationService serviceInterface="zielu.gittoolbox.ui.StatusMessagesUi"
+                        serviceImplementation="zielu.gittoolbox.ui.StatusMessagesUiService" />
+
+    <!-- legacy config pages -->
+    <applicationConfigurable provider="zielu.gittoolbox.ui.config.v1.AppV1ConfigurableProvider"
+                             id="zielu.gittoolbox.app.config"
+                             bundle="zielu.gittoolbox.ResourceBundle"
+                             key="configurable.app.displayName"
+    />
+    <projectConfigurable provider="zielu.gittoolbox.ui.config.v1.PrjV1ConfigurableProvider"
+                          id="zielu.gittoolbox.prj.config"
+                          bundle="zielu.gittoolbox.ResourceBundle"
+                          key="configurable.prj.displayName"
+    />
+
+    <!-- new config pages -->
+    <applicationConfigurable provider="zielu.gittoolbox.ui.config.v2.app.AppConfigurableProvider"
+                             id="zielu.gittoolbox.app.config.v2"
+                             parentId="project.propVCSSupport.Mappings"
+                             bundle="zielu.gittoolbox.ResourceBundle"
+                             key="configurable.app.v2.displayName"
+    />
+    <projectConfigurable provider="zielu.gittoolbox.ui.config.v2.prj.PrjConfigurableProvider"
+                         id="zielu.gittoolbox.prj.config.v2"
+                         parentId="zielu.gittoolbox.app.config.v2"
+                         bundle="zielu.gittoolbox.ResourceBundle"
+                         key="configurable.prj.displayName"
+    />
+
+    <projectViewNodeDecorator implementation="zielu.gittoolbox.ui.projectview.ProjectViewDecorator" />
+
+    <projectService serviceInterface="zielu.gittoolbox.notification.GtNotifier"
+                    serviceImplementation="zielu.gittoolbox.notification.GtNotifierImpl" />
+
+    <projectService serviceInterface="zielu.gittoolbox.completion.CompletionService"
+                    serviceImplementation="zielu.gittoolbox.completion.CompletionServiceImpl" />
+    <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.completion.CompletionCheckinHandlerFactory" />
+
+    <completion.contributor language="TEXT"
+                            order="first, before commitCompletion"
+                            implementationClass="zielu.gittoolbox.completion.CurrentBranchCompletionContributor" />
+    <completion.contributor language="TEXT"
+                            order="first, before commitCompletion"
+                            implementationClass="zielu.gittoolbox.completion.gitmoji.GitmojiCompletionContributor" />
+
+    <vcsCheckinHandlerFactory implementation="zielu.gittoolbox.commit.CommitMessageValidationCheckinHandlerFactory" />
+
+    <projectService serviceInterface="zielu.gittoolbox.ui.behindtracker.BehindTrackerUi"
+                    serviceImplementation="zielu.gittoolbox.ui.behindtracker.BehindTrackerUiService" />
+
+    <colorSettingsPage implementation="zielu.gittoolbox.ui.config.DecorationColorsPage" />
+    <additionalTextAttributes scheme="Default" file="zielu/gittoolbox/colorschemes/GitToolBoxDefault.xml" />
+    <additionalTextAttributes scheme="Darcula" file="zielu/gittoolbox/colorschemes/GitToolBoxDarcula.xml" />
+
+    <postStartupActivity implementation="zielu.gittoolbox.startup.GitToolBoxStartup" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.revision.RevisionInfoFactory" />
+    <projectService serviceImplementation="zielu.gittoolbox.revision.RevisionService" />
+    <projectService serviceImplementation="zielu.gittoolbox.revision.RevisionIndexService" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.blame.DebugInlineBlameAllowed" />
+    <projectService serviceInterface="zielu.gittoolbox.blame.BlameLoader"
+                    serviceImplementation="zielu.gittoolbox.blame.BlameLoaderImpl" />
+    <projectService serviceImplementation="zielu.gittoolbox.blame.BlameCacheExecutor" />
+    <projectService serviceInterface="zielu.gittoolbox.blame.BlameCache"
+                    serviceImplementation="zielu.gittoolbox.blame.BlameCacheImpl" />
+    <projectService serviceInterface="zielu.gittoolbox.blame.BlameService"
+                    serviceImplementation="zielu.gittoolbox.blame.BlameServiceImpl" />
+    <projectService serviceImplementation="zielu.gittoolbox.blame.BlameSubscriber" />
+    <projectService serviceImplementation="zielu.gittoolbox.blame.calculator.persistence.BlameCalculationPersistence" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.extension.blame.InlineBlameAllowedExtension" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.branch.BranchSubscriber" />
+    <projectService serviceImplementation="zielu.gittoolbox.branch.RecentBranchesService" />
+    <projectService serviceImplementation="zielu.gittoolbox.ui.branch.BranchUiService" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.cache.CacheSourcesSubscriber" />
+    <projectService serviceInterface="zielu.gittoolbox.cache.VirtualFileRepoCache"
+                    serviceImplementation="zielu.gittoolbox.cache.VirtualFileRepoCacheImpl" />
+    <projectService serviceImplementation="zielu.gittoolbox.cache.CacheTaskScheduler" />
+    <projectService serviceImplementation="zielu.gittoolbox.cache.InfoCacheFacade" />
+    <projectService serviceInterface="zielu.gittoolbox.cache.PerRepoInfoCache"
+                    serviceImplementation="zielu.gittoolbox.cache.PerRepoInfoCacheImpl" />
+
+    <applicationService serviceInterface="zielu.gittoolbox.ui.blame.BlamePresenter"
+                        serviceImplementation="zielu.gittoolbox.ui.blame.BlamePresenterImpl" />
+    <projectService serviceInterface="zielu.gittoolbox.ui.blame.BlameUiService"
+                    serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiServiceImpl" />
+    <projectService serviceImplementation="zielu.gittoolbox.ui.blame.BlameUiSubscriber" />
+    <editor.linePainter implementation="zielu.gittoolbox.ui.blame.BlameEditorLinePainter" />
+
+    <projectService serviceInterface="zielu.gittoolbox.fetch.AutoFetchComponent"
+                    serviceImplementation="zielu.gittoolbox.fetch.AutoFetch" />
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchState" />
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSubscriber" />
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchFacade" />
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchSchedule" />
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchOnBranchSwitch" />
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchExecutor" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.fetch.AutoFetchAllowedDumbMode" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.changes.ChangeListSubscriber" />
+    <projectService serviceInterface="zielu.gittoolbox.changes.ChangesTrackerService"
+                    serviceImplementation="zielu.gittoolbox.changes.ChangesTrackerServiceImpl" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.ui.projectview.ProjectViewSubscriber" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.status.behindtracker.BehindTrackerSubscriber" />
+    <projectService serviceImplementation="zielu.gittoolbox.status.behindtracker.BehindTracker" />
+
+    <webHelpProvider implementation="zielu.gittoolbox.help.GithubWikiHelpProvider" />
+
+    <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.GitStatStatusBarWidgetFactory" />
+    <statusBarWidgetFactory implementation="zielu.gittoolbox.ui.statusbar.BlameStatusBarWidgetFactory" />
+
+    <projectService serviceImplementation="zielu.gittoolbox.branch.OutdatedBranchesService" />
+    <projectService serviceImplementation="zielu.gittoolbox.branch.OutdatedBranchesSchedulerService" />
+    <projectService serviceImplementation="zielu.gittoolbox.branch.OutdatedBranchesSubscriber" />
+
+    <registryKey defaultValue="true" description="Persistent file blame cache" key="zielu.gittoolbox.blame.cache.persistent" />
+    <registryKey defaultValue="15" description="Blame calculator cache size" key="zielu.gittoolbox.blame.calculator.cache.size" />
+    <registryKey defaultValue="30" description="Blame cache size" key="zielu.gittoolbox.blame.cache.size" />
+
+    <registryKey defaultValue="false" description="Auto-fetch in background" key="zielu.gittoolbox.fetch.auto.in.background" />
+    <registryKey defaultValue="false" description="Diagnostic mode" key="zielu.gittoolbox.diagnostic.mode" />
+    <registryKey defaultValue="false" description="Legacy configuration" key="zielu.gittoolbox.config.legacy" />
+
+    <notificationGroup
+        id="gittoolbox.behind.tracker"
+        displayType="TOOL_WINDOW"
+        toolWindowId="Version Control"
+        bundle="zielu.gittoolbox.ResourceBundle"
+        key="notification.group.behind.tracker"
+    />
+    <notificationGroup
+        id="gittoolbox.fetch"
+        displayType="TOOL_WINDOW"
+        toolWindowId="Version Control"
+        bundle="zielu.gittoolbox.ResourceBundle"
+        key="notification.group.fetch"
+    />
+    <notificationGroup
+        id="gittoolbox.branch.cleanup"
+        displayType="TOOL_WINDOW"
+        toolWindowId="Version Control"
+        bundle="zielu.gittoolbox.ResourceBundle"
+        key="notification.group.branch.cleanup"
+    />
+  </extensions>
+
+  <application-components>
+    <component>
+      <implementation-class>zielu.gittoolbox.ForceReloadComponent</implementation-class>
+    </component>
+  </application-components>
+
+  <applicationListeners>
+    <listener class="zielu.gittoolbox.lifecycle.PluginLifecycleListener"
+              topic="com.intellij.ide.plugins.DynamicPluginListener" />
+  </applicationListeners>
+
+  <projectListeners>
+    <listener class="zielu.gittoolbox.blame.BlameSubscriberInfoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+    <listener class="zielu.gittoolbox.blame.BlameSubscriberCacheListener"
+              topic="zielu.gittoolbox.blame.BlameCacheListener" />
+    <listener class="zielu.gittoolbox.blame.DebugInlineBlameAllowedListener"
+              topic="com.intellij.xdebugger.XDebuggerManagerListener" />
+
+    <listener class="zielu.gittoolbox.branch.BranchSubscriberInfoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+
+    <listener class="zielu.gittoolbox.branch.OutdatedBranchesReposListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+    <listener class="zielu.gittoolbox.branch.OutdatedBranchesPrjConfigListener"
+              topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
+    <listener class="zielu.gittoolbox.branch.OutdatedBranchesAppConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
+
+    <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberGitRepositoryListener"
+              topic="git4idea.repo.GitRepositoryChangeListener" />
+    <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberMappingListener"
+              topic="com.intellij.dvcs.repo.VcsRepositoryMappingListener" />
+
+    <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberAppConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
+    <listener class="zielu.gittoolbox.cache.CacheSourcesSubscriberPrjConfigListener"
+              topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
+
+    <listener class="zielu.gittoolbox.changes.ChangeListSubscriberChangeListListener"
+              topic="com.intellij.openapi.vcs.changes.ChangeListListener" />
+    <listener class="zielu.gittoolbox.changes.ChangeListSubscriberConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
+
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberPrjConfigListener"
+              topic="zielu.gittoolbox.config.ProjectConfigNotifier" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberAppConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
+
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberFetchStateListener"
+              topic="zielu.gittoolbox.fetch.AutoFetchNotifier" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchSubscriberInfoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchStateAllowedListener"
+              topic="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedNotifier" />
+    <listener class="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeListener"
+              topic="com.intellij.openapi.project.DumbService$DumbModeListener" />
+
+    <listener class="zielu.gittoolbox.metrics.MetricsProjectListener"
+              topic="zielu.gittoolbox.lifecycle.ProjectLifecycleNotifier" />
+
+    <listener class="zielu.gittoolbox.status.behindtracker.BehindTrackerSubscriberRepoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+
+    <listener class="zielu.gittoolbox.ui.blame.BlameUiSubscriberConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
+    <listener class="zielu.gittoolbox.ui.blame.BlameUiSubscriberBlameListener"
+              topic="zielu.gittoolbox.blame.BlameListener" />
+    <listener class="zielu.gittoolbox.ui.blame.BlameUiSubscriberColorSchemeListener"
+              topic="com.intellij.openapi.editor.colors.EditorColorsListener" />
+    <listener class="zielu.gittoolbox.ui.blame.BlameUiSubscriberEditorListener"
+              topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" />
+
+    <listener class="zielu.gittoolbox.ui.statusbar.StatusBarConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
+
+    <listener class="zielu.gittoolbox.ui.projectview.ProjectViewSubscriberChangesTrackerListener"
+              topic="zielu.gittoolbox.changes.ChangesTrackerListener" />
+    <listener class="zielu.gittoolbox.ui.projectview.ProjectViewSubscriberConfigListener"
+              topic="zielu.gittoolbox.config.AppConfigNotifier" />
+    <listener class="zielu.gittoolbox.ui.projectview.ProjectViewSubscriberInfoCacheListener"
+              topic="zielu.gittoolbox.cache.PerRepoStatusCacheListener" />
+    <listener class="zielu.gittoolbox.ui.projectview.ProjectViewSubscriberVfCacheListener"
+              topic="zielu.gittoolbox.cache.VirtualFileRepoCacheListener" />
+  </projectListeners>
+
+  <actions>
+    <action class="zielu.gittoolbox.ui.actions.BlameDetailsAction" id="GitToolBox.BlameDetails"
+            text="Show Blame Details" description="Show blame details for line at caret in active editor">
+      <add-to-group group-id="Git.FileActions" anchor="after" relative-to-action="Annotate" />
+      <keyboard-shortcut first-keystroke="alt shift B" keymap="$default" />
+    </action>
+    <action class="zielu.gittoolbox.ui.actions.InlineBlameToggleAction" id="GitToolBox.ShowInlineBlame"
+            text="Show Inline Blame" description="Show inline blame in editor">
+      <add-to-group group-id="Git.FileActions" anchor="after" relative-to-action="GitToolBox.BlameDetails" />
+    </action>
+
+    <action class="zielu.gittoolbox.ui.actions.GitPushTagsAction" id="GitToolBox.PushTags"
+            text="Push Tags on Branch...">
+    </action>
+    <action class="zielu.gittoolbox.ui.actions.RefreshBlameAction" id="GitToolBox.RefreshBlame"
+            text="Refresh Blame">
+    </action>
+    <action class="zielu.gittoolbox.ui.actions.SwitchRecentBranchesPopupAction" id="GitToolBox.SwitchRecentBranches"
+            text="Switch Recent Git Branches"
+            popup="true">
+    </action>
+    <action class="zielu.gittoolbox.ui.actions.OpenBranchIssueActionGroup" id="GitToolBox.OpenBranchIssue"
+            text="Open Branch Issue"
+            popup="true"
+    />
+    <action class="zielu.gittoolbox.ui.actions.OutdatedBranchesCleanupAction" id="GitToolBox.CleanBranches"
+            text="Branches Cleanup">
+    </action>
+
+    <group id="GitToolBox.Menu" text="GitToolBox" popup="true">
+      <reference id="GitToolBox.PushTags" />
+      <reference id="GitToolBox.RefreshBlame" />
+      <reference id="GitToolBox.CleanBranches" />
+      <add-to-group group-id="Git.MainMenu" anchor="last"/>
+      <group class="zielu.gittoolbox.ui.actions.diagnostic.DiagnosticGroup" id="GitToolBox.DiagnosticGroup"
+             text="GitToolBox Diagnostic"
+             popup="true"
+      />
+    </group>
+
+    <group id="GitToolBox.BranchIssues" text="Branch Issues"
+           class="zielu.gittoolbox.ui.actions.OpenBranchIssueActionGroup">
+      <add-to-group group-id="Git.ContextMenu" anchor="last" />
+    </group>
+  </actions>
+
+  <extensionPoints>
+    <extensionPoint name="autoFetchAllowed" beanClass="zielu.gittoolbox.extension.autofetch.AutoFetchAllowedEP"
+                    dynamic="false">
+      <with attribute="provider" implements="zielu.gittoolbox.extension.autofetch.AutoFetchAllowed" />
+    </extensionPoint>
+    <extensionPoint name="updateProjectAction" beanClass="zielu.gittoolbox.extension.update.UpdateProjectActionEP"
+                    dynamic="false">
+      <with attribute="provider" implements="zielu.gittoolbox.extension.update.UpdateProjectAction" />
+    </extensionPoint>
+    <extensionPoint name="inlineBlameAllowed" beanClass="zielu.gittoolbox.extension.blame.InlineBlameAllowedEP"
+                    dynamic="false">
+      <with attribute="provider" implements="zielu.gittoolbox.extension.blame.InlineBlameAllowed" />
+    </extensionPoint>
+    <extensionPoint name="viewModuleNodeParent" beanClass="zielu.gittoolbox.extension.projectview.ViewModuleNodeParentEP"
+                    dynamic="false">
+      <with attribute="moduleNodeClass" implements="com.intellij.ide.projectView.impl.nodes.AbstractModuleNode" />
+    </extensionPoint>
+    <extensionPoint name="viewModuleNodeChild" beanClass="zielu.gittoolbox.extension.projectview.ViewModuleNodeChildEP"
+                    dynamic="false">
+      <with attribute="nodeClass" implements="com.intellij.ide.projectView.ProjectViewNode" />
+    </extensionPoint>
+    <extensionPoint name="viewPsiDirectoryNode" beanClass="zielu.gittoolbox.extension.projectview.ViewPsiDirectoryNodeEP"
+                    dynamic="false">
+      <with attribute="finder" implements="zielu.gittoolbox.extension.projectview.PsiDirectoryNodeRepoFinder" />
+    </extensionPoint>
+  </extensionPoints>
+
+  <extensions defaultExtensionNs="zielu.gittoolbox">
+    <autoFetchAllowed provider="zielu.gittoolbox.fetch.AutoFetchAllowedDumbModeExt" />
+    <updateProjectAction provider="zielu.gittoolbox.ui.update.DefaultUpdateProjectAction" />
+    <inlineBlameAllowed provider="zielu.gittoolbox.blame.DebugInlineBlameAllowedExt" />
+  </extensions>
+</idea-plugin>

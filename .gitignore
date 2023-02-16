@@ -1,0 +1,14 @@
+*.iml
+.DS_Store
+
+.idea/
+GitToolBox.jar
+testRun/
+ignore-revs.txt
+
+.gradle/
+build/
+testDataDynamic/
+out/
+publish.gradle
+pluginVerifierBin/

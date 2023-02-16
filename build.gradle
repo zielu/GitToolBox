@@ -1,0 +1,385 @@
+import java.nio.file.Paths
+import java.text.SimpleDateFormat
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.4.32'
+    id 'org.jetbrains.intellij' version '0.7.3'
+    id 'com.palantir.git-version' version '0.12.3'
+    id 'ch.netzwerg.release' version '1.2.5'
+    id 'org.jlleitschuh.gradle.ktlint' version '10.0.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'idea'
+apply plugin: "java"
+apply plugin: "kotlin"
+
+project.ext {
+    branchNameProperty = 'branch.name'
+    versionPropertiesFilePath = 'version.properties'
+}
+
+def javaVersion = JavaVersion.VERSION_11
+def kotlinJvmTarget = '11'
+def encoding = 'UTF-8'
+def vendor = 'Lukasz Zielinski'
+
+java {
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+}
+
+boolean ci = Boolean.valueOf(System.getenv('CI'))
+boolean publish = Boolean.valueOf(String.valueOf(findProperty('publish')))
+
+configurations {
+    testAgent {
+        transitive = false
+    }
+}
+
+def ideaCacheDir = Paths.get(System.getProperty('user.home')).resolve('intellij-gradle-cache').toAbsolutePath().toString()
+println("Idea cache dir: $ideaCacheDir")
+
+def details = versionDetails()
+def branchName = details.branchName
+def gitHash = details.gitHash
+
+println("Build type: " + buildType(branchName, ci))
+println("CI build: $ci")
+
+intellij {
+    version = ideaVersion
+    type = ideaType
+    updateSinceUntilBuild = false
+    downloadSources = !ci
+    plugins = [
+            'java',
+            'android',
+            'gradle',
+            'git4idea',
+            'gr.jchrist.gitextender:0.6.0',
+            'org.jetbrains.plugins.github'
+    ]
+    ideaDependencyCachePath = ideaCacheDir
+    instrumentCode = true
+}
+
+runPluginVerifier {
+    ideVersions = [
+        ideaVerifier_2020_2_4, //is not compatible ATM with 203 plugin line
+        ideaVerifier_2020_3_2,
+        ideaVerifier_2021_1
+    ]
+    verifierPath = "pluginVerifierBin/verifier-all.jar" //download from https://github.com/JetBrains/intellij-plugin-verifier
+}
+
+compileJava.options.encoding = encoding
+compileTestJava.options.encoding = encoding
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = kotlinJvmTarget
+        freeCompilerArgs = [
+            "-Xjvm-default=enable"
+        ]
+        useIR = true
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = kotlinJvmTarget
+        freeCompilerArgs = [
+            "-Xjvm-default=enable"
+        ]
+        useIR = true
+    }
+}
+
+patchPluginXml {
+    changeNotes "${file('change-notes.html').getText(encoding)}"
+    pluginDescription "${file('description.html').getText(encoding)}"
+            .replace("RELEASE_DATETIME", buildTime())
+            .replace("RELEASE_TYPE", buildType(branchName, ci))
+}
+
+processResources {
+    from ('.') {
+        include 'LICENSE'
+        include 'README.md'
+
+        into 'META-INF'
+    }
+}
+
+/*
+runIde {
+    jbrVersion jbrVersion
+}
+*/
+
+/*
+buildSearchableOptions {
+    jbrVersion jbrVersion
+}
+*/
+
+if (publish) {
+    println('Publish')
+
+    if (!ci) {
+        apply from: 'publish.gradle'
+    }
+
+    publishPlugin {
+        token = getPublishToken(ci, project)
+        channels = publishChannels(branchName, ci)
+    }
+}
+
+def static getPublishToken(ci, project) {
+    if (ci) {
+        return publishTokenFromEnv()
+    } else {
+        return publishTokenFromProject(project)
+    }
+}
+
+def static publishTokenFromEnv() {
+    def systemProperty = 'PUBLISH_TOKEN'
+    def token = System.getenv(systemProperty)
+    if (token == null) {
+        def propertyPresent = System.getenv().containsKey(systemProperty)
+        println("Null token from env. Property was present: $propertyPresent")
+        throw new GradleException("Publish token not found in $systemProperty")
+    }
+    return token
+}
+
+def static publishTokenFromProject(project) {
+    def token = project.publishToken
+    if (token == null) {
+        throw new GradleException("Publish token not found in project.publishToken")
+    }
+    return token
+}
+
+jar {
+    manifest {
+        attributes(
+                'Name': project.name,
+                'Specification-Title': project.name,
+                'Specification-Vendor': vendor,
+                'Specification-Version': project.version,
+                'Implementation-Title': project.name,
+                'Implementation-Vendor': vendor,
+                'Implementation-Version': gitHash,
+                'Build-Date': buildTime()
+        )
+    }
+}
+
+apply plugin: 'jacoco'
+jacoco {
+    toolVersion = "${jacocoVersion}"
+}
+
+// workaround for missing coverage report with JUnit 5 (https://stackoverflow.com/a/44907857)
+// as 'test' task cleans generated report
+jacocoTestReport {
+    executionData.setFrom(fileTree(dir: "${project.buildDir.name}/jacoco-junit5", include: ['*.exec']))
+}
+
+test {
+    jacoco {
+        destinationFile = file("${project.buildDir.name}/jacoco-junit5/test.exec")
+    }
+
+    useJUnitPlatform {
+        //prevent running extensions as Junit 3 tests because of naming convention with TestCase
+        exclude('zielu/junit5/**')
+        excludeTags = ['integration']
+        reports {
+            html.enabled = false
+        }
+    }
+}
+
+task integrationTest(type: Test) {
+    jacoco {
+        destinationFile = file("${project.buildDir.name}/jacoco-junit5/test-integration.exec")
+    }
+
+    useJUnitPlatform {
+        //prevent running extensions as Junit 3 tests because of naming convention with TestCase
+        exclude('zielu/junit5/**')
+        includeTags = ['integration']
+        reports {
+            html.enabled = false
+        }
+    }
+}
+
+apply plugin: 'checkstyle'
+checkstyle {
+    toolVersion = "${checkstyleVersion}"
+    maxErrors = 0
+    maxWarnings = 0
+    configFile = project(':').file('config/checkstyle/checkstyle.xml')
+    configProperties = ["suppressionFile": project(':').file('config/checkstyle/suppressions.xml')]
+}
+
+ktlint {
+    version = "${ktlintVersion}"
+    additionalEditorconfigFile = project(':').file('config/ktlint/.editorconfig')
+    coloredOutput = false
+    reporters {
+        reporter "checkstyle"
+    }
+}
+
+task buildAll {
+    dependsOn check, integrationTest, buildPlugin
+    tasks.findByName('integrationTest').mustRunAfter 'check'
+}
+
+task buildFast {
+    dependsOn check, buildPlugin
+}
+
+task codeCoverage {
+    dependsOn check, integrationTest, jacocoTestReport
+    tasks.findByName('integrationTest').mustRunAfter 'check'
+}
+
+task captureReleaseBranch {
+    doLast {
+        def props = loadVersionProps()
+        def oldBranchName = props[project.branchNameProperty]
+        if (branchName != oldBranchName) {
+            if (branchName != null) {
+                props[project.branchNameProperty] = branchName
+            } else {
+                props.remove(project.branchNameProperty)
+            }
+            storeVersionProps(props)
+            exec {
+                executable 'git'
+                args 'add', project.versionPropertiesFilePath
+            }
+            exec {
+                executable 'git'
+                args 'commit', project.versionPropertiesFilePath, '-m', 'Update version info'
+            }
+        }
+    }
+}
+
+task prepareRelease {
+    dependsOn clean, buildAll, captureReleaseBranch
+}
+
+release {
+    tagPrefix = ''
+    dependsOn prepareRelease
+}
+
+dependencies {
+    checkstyle("com.puppycrawl.tools:checkstyle:${checkstyleVersion}")
+    testAgent("org.jacoco:org.jacoco.agent:${jacocoVersion}:runtime")
+
+    implementation("org.jodd:jodd-core:${joddVersion}")
+    implementation("com.google.guava:guava:${guavaVersion}")
+    implementation("org.apache.commons:commons-lang3:${commonsLang3Version}")
+    implementation("org.yaml:snakeyaml:${snakeYamlVersion}")
+
+    implementation("io.dropwizard.metrics:metrics-core:${metricsVersion}") {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+    implementation("io.dropwizard.metrics:metrics-jmx:${metricsVersion}") {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+    implementation("com.hrakaroo:glob:${globVersion}")
+
+    testImplementation("org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}")
+
+    testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+    testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+
+    testImplementation("io.mockk:mockk:${mockkVersion}")
+    testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit5"
+
+    testImplementation("org.assertj:assertj-core:${assertjCoreVersion}")
+    testImplementation("org.slf4j:slf4j-api:${slf4jVersion}")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
+
+    //testImplementation ("com.tngtech.archunit:archunit-junit5-api:${archUnitVersion}")
+
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    //testRuntimeOnly ("com.tngtech.archunit:archunit-junit5-engine:${archUnitVersion}")
+
+    //testRuntimeOnly ("org.slf4j:slf4j-simple:${slf4jVersion}")
+}
+
+
+def static buildTime() {
+    def df = new SimpleDateFormat('yyyyMMdd.HHmmss')
+    df.setTimeZone(TimeZone.getTimeZone('UTC'))
+    return df.format(new Date())
+}
+
+def static isStableBranch(branchName) {
+    return branchName ==~ /(master|\d+-release)/
+}
+
+def isStableBuild(branchName, ci) {
+    def envProp = System.getenv("stable")
+    if (envProp != null) {
+        return Boolean.valueOf(envProp)
+    }
+    if (ci) {
+        if (branchName != null) {
+            return isStableBranch(branchName)
+        } else {
+            def props = loadVersionProps()
+            branchName = props[project.branchNameProperty]
+            println("Branch name loaded from props $branchName")
+            if (branchName != null) {
+                return isStableBranch(branchName)
+            }
+            return false
+        }
+    } else {
+        return isStableBranch(branchName)
+    }
+}
+
+def buildType(branchName, ci) {
+    return isStableBuild(branchName, ci) ? 'Stable' : 'EAP'
+}
+
+def publishChannels(branchName, ci) {
+    return isStableBuild(branchName, ci) ? ['default', 'eap'] : ['eap']
+}
+
+def loadVersionProps() {
+    def props = new Properties()
+    def propsFile = file project.versionPropertiesFilePath
+    if (propsFile.exists()) {
+        props.load(propsFile.newReader('UTF-8'))
+    }
+    return props
+}
+
+def storeVersionProps(Properties props) {
+    def propsFile = file project.versionPropertiesFilePath
+    props.store(propsFile.newWriter('UTF-8'), null)
+}

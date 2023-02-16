@@ -1,0 +1,201 @@
+446d9e1cb82776c773b903c76a61bab16c6c5884 1 1 4
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1553809409
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1553809579
+committer-tz +0100
+summary Move blame annotation back into background thread
+previous 5cf5bd5df65c4267e107f2740aa2b60712ddcdd9 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+8fe24a686949e63f6cd484ca87b335fdd159181c 1 5 1
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1553712231
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1553712231
+committer-tz +0100
+summary Updated change notes
+previous 72f249d70c058cddb845d99f4a4bae77c33d373b GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+a6c6a18bdac65894d9952a2d4c4a48b79a6168cb 6 10 1
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1553582547
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1553582547
+committer-tz +0100
+summary Fixed ArrayIndexOutOfBounds in blame annotation (#135)
+previous 41ce8e68dd083713706d03cefb0708314cf31ae6 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+dc87c3506bfd98191df346c4ef9aa5b8d7aa1fdf 11 16 4
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1553459748
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1553459809
+committer-tz +0100
+summary Truncated change notes
+previous 9f7883c352df53041d60c1c72a6e27ecf10e2420 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+38397c5d191afef3b15cb7d15567ec72a11ca779 5 9 1
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1553459299
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1553459299
+committer-tz +0100
+summary Updated change notes
+previous 76e4f11f48c57f28b3ef0c645283c0e7e08fce37 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+38397c5d191afef3b15cb7d15567ec72a11ca779 6 11 2
+previous 76e4f11f48c57f28b3ef0c645283c0e7e08fce37 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+709051f6338f76f3283b466ead704b06583f9410 4 8 1
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1551138895
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1551138895
+committer-tz +0100
+summary Fixed blame refresh on author format change (#126)
+previous a72c6dc9baa01de2b01176218df054d294b73a92 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+a2c30dda453c2d2b4982d5c33eb5b349a170f888 3 7 1
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1551124236
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1551124236
+committer-tz +0100
+summary Update change notes
+previous 0852a06e538c365815fe7a81fe23e04e2a3fbaa7 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+c8f5c2e2086793a6266f3cb7b77087e9af149cd2 4 13 2
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1550785705
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1550785705
+committer-tz +0100
+summary Updated change notes
+previous 40cad09d685c23bf2aadfea4abc13edd6f8556ed GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+5fc37ab9100c15622916abd44c068b29ffe410af 1 20 1
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1550689204
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1550689204
+committer-tz +0100
+summary Updated change notes
+previous a1338da18250d7e52a3484c306f4dc47269b3fe2 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+d0970ff02207bcb14f6b4cb25cc8eca4d30de782 2 21 4
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1550523824
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1550523824
+committer-tz +0100
+summary Activate commit dialog completion on demand (#130)
+previous a9ab1f2cca03959fefccf49d4650231a42a8dfea GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+e6e1acde937eca1447fde47d33a9962418fa94a5 1 25 1
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1549911323
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1549911323
+committer-tz +0100
+summary Updated release notes
+previous f84dac7b40d03d0002101b3556beae5fc9e506e9 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+9fc3c9bef4ca71148cfd2f3ce7e61dd957e2b289 5 15 1
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1549523500
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1549523500
+committer-tz +0100
+summary Merge branch 'develop' into 191-develop
+previous 6023658a061994041b5d5160fad4b40605fca1e9 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+5e940cb7d1cc6a8e7e43aed0f1d01dcb86e1f447 3 27 3
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1549482783
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1549482838
+committer-tz +0100
+summary Updated change notes
+previous c6f09f7963ddd407c66bf0bb71db9a005028b641 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+248d62b193320f806b9db62dabcadebd8f4662fb 3 30 2
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1549404010
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1549404312
+committer-tz +0100
+summary Fixed blame shows N/A for newly committed hunks (#123)
+previous f24d55cd80c88de2c28649b6f3e3c52eb304c08b GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+3b63bb1a368455cd0bfba489719ceaf5c3409038 4 32 1
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1548279885
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1548279885
+committer-tz +0100
+summary Updated change notes
+previous f0673181af82880cb38368890faa54144322dff1 GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+f0673181af82880cb38368890faa54144322dff1 2 26 1
+author Lukasz Zielinski
+author-mail <zieluuuu@gmail.com>
+author-time 1548279639
+author-tz +0100
+committer Lukasz Zielinski
+committer-mail <zieluuuu@gmail.com>
+committer-time 1548279639
+committer-tz +0100
+summary Fixed Commit dialog completion (#121)
+previous 2767bed3f1a82c025c1226221724afa6bf53a2eb GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+f0673181af82880cb38368890faa54144322dff1 2 6 1
+previous 2767bed3f1a82c025c1226221724afa6bf53a2eb GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
+f0673181af82880cb38368890faa54144322dff1 4 33 1
+previous 2767bed3f1a82c025c1226221724afa6bf53a2eb GitToolBox/change-notes.html
+filename GitToolBox/change-notes.html
